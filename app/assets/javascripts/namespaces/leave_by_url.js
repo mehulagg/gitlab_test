@@ -1,4 +1,4 @@
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __, sprintf } from '~/locale';
 import { getParameterByName } from '~/lib/utils/common_utils';
 
@@ -15,7 +15,7 @@ export default function leaveByUrl(namespaceType) {
   if (leaveLink) {
     leaveLink.click();
   } else {
-    Flash(
+    deprecatedCreateFlash(
       sprintf(__('You do not have permission to leave this %{namespaceType}.'), { namespaceType }),
     );
   }

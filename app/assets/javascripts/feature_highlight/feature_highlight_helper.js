@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import axios from '../lib/utils/axios_utils';
 import { __ } from '../locale';
-import { deprecatedCreateFlash as Flash } from '../flash';
+import { deprecatedCreateFlash } from '../flash';
 import LazyLoader from '../lazy_loader';
 import { togglePopover } from '../shared/popover';
 
@@ -13,7 +13,7 @@ export function dismiss(highlightId) {
       feature_name: highlightId,
     })
     .catch(() =>
-      Flash(
+      deprecatedCreateFlash(
         __(
           'An error occurred while dismissing the feature highlight. Refresh the page and try dismissing again.',
         ),

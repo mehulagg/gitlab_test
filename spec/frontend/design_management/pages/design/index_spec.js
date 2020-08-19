@@ -2,7 +2,7 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import { GlAlert } from '@gitlab/ui';
 import { ApolloMutation } from 'vue-apollo';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import DesignIndex from '~/design_management/pages/design/index.vue';
 import DesignSidebar from '~/design_management/components/design_sidebar.vue';
 import DesignPresentation from '~/design_management/components/design_presentation.vue';
@@ -270,8 +270,8 @@ describe('Design management design index page', () => {
 
         wrapper.vm.onDesignQueryResult({ data: mockResponseNoDesigns, loading: false });
         return wrapper.vm.$nextTick().then(() => {
-          expect(createFlash).toHaveBeenCalledTimes(1);
-          expect(createFlash).toHaveBeenCalledWith(DESIGN_NOT_FOUND_ERROR);
+          expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(DESIGN_NOT_FOUND_ERROR);
           expect(router.push).toHaveBeenCalledTimes(1);
           expect(router.push).toHaveBeenCalledWith({ name: DESIGNS_ROUTE_NAME });
         });
@@ -291,8 +291,8 @@ describe('Design management design index page', () => {
 
         wrapper.vm.onDesignQueryResult({ data: mockResponseWithDesigns, loading: false });
         return wrapper.vm.$nextTick().then(() => {
-          expect(createFlash).toHaveBeenCalledTimes(1);
-          expect(createFlash).toHaveBeenCalledWith(DESIGN_VERSION_NOT_EXIST_ERROR);
+          expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(DESIGN_VERSION_NOT_EXIST_ERROR);
           expect(router.push).toHaveBeenCalledTimes(1);
           expect(router.push).toHaveBeenCalledWith({ name: DESIGNS_ROUTE_NAME });
         });

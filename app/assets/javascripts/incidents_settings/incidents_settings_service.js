@@ -1,6 +1,6 @@
 import axios from '~/lib/utils/axios_utils';
 import { refreshCurrentPage } from '~/lib/utils/url_utility';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { ERROR_MSG } from './constants';
 
 export default class IncidentsSettingsService {
@@ -22,7 +22,7 @@ export default class IncidentsSettingsService {
       .catch(({ response }) => {
         const message = response?.data?.message || '';
 
-        createFlash(`${ERROR_MSG} ${message}`, 'alert');
+        deprecatedCreateFlash(`${ERROR_MSG} ${message}`, 'alert');
       });
   }
 

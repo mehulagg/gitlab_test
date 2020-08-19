@@ -1,7 +1,7 @@
 <script>
 import { mapState, mapActions } from 'vuex';
 import { GlSprintf } from '@gitlab/ui';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { s__ } from '~/locale';
 import DeprecatedModal2 from '~/vue_shared/components/deprecated_modal_2.vue';
 import Badge from './badge.vue';
@@ -30,10 +30,10 @@ export default {
     onSubmitModal() {
       this.deleteBadge(this.badgeInModal)
         .then(() => {
-          createFlash(s__('Badges|The badge was deleted.'), 'notice');
+          deprecatedCreateFlash(s__('Badges|The badge was deleted.'), 'notice');
         })
         .catch(error => {
-          createFlash(s__('Badges|Deleting the badge failed, please try again.'));
+          deprecatedCreateFlash(s__('Badges|Deleting the badge failed, please try again.'));
           throw error;
         });
     },

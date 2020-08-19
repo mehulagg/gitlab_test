@@ -10,7 +10,7 @@ import IssueNote from 'ee/vue_shared/security_reports/components/issue_note.vue'
 import MergeRequestNote from 'ee/vue_shared/security_reports/components/merge_request_note.vue';
 import MockAdapter from 'axios-mock-adapter';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import initUserPopovers from '~/user_popovers';
 
 const mockAxios = new MockAdapter(axios);
@@ -147,7 +147,7 @@ describe('Vulnerability Footer', () => {
       createWrapper();
 
       return axios.waitForAll().then(() => {
-        expect(createFlash).toHaveBeenCalledTimes(1);
+        expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -241,7 +241,7 @@ describe('Vulnerability Footer', () => {
 
           expect(historyEntries()).toHaveLength(2);
           expect(mockAxios.history.get).toHaveLength(2);
-          expect(createFlash).toHaveBeenCalled();
+          expect(deprecatedCreateFlash).toHaveBeenCalled();
         });
       });
 

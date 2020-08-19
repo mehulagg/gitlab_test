@@ -1,6 +1,6 @@
 import Service from '../../services';
 import * as types from './mutation_types';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import Poll from '~/lib/utils/poll';
 import { __ } from '~/locale';
 
@@ -33,7 +33,7 @@ export function startPolling({ state, commit, dispatch }) {
     },
     errorCallback: () => {
       commit(types.SET_LOADING, false);
-      createFlash(__('Failed to load errors from Sentry.'));
+      deprecatedCreateFlash(__('Failed to load errors from Sentry.'));
     },
   });
 

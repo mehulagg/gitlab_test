@@ -2,7 +2,7 @@
 import { isEqual } from 'lodash';
 import { GlIcon } from '@gitlab/ui';
 import { __, s__ } from '~/locale';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import PipelinesService from '../../services/pipelines_service';
 import pipelinesMixin from '../../mixins/pipelines';
 import TablePagination from '~/vue_shared/components/pagination/table_pagination.vue';
@@ -237,11 +237,13 @@ export default {
         .postAction(endpoint)
         .then(() => {
           this.isResetCacheButtonLoading = false;
-          createFlash(s__('Pipelines|Project cache successfully reset.'), 'notice');
+          deprecatedCreateFlash(s__('Pipelines|Project cache successfully reset.'), 'notice');
         })
         .catch(() => {
           this.isResetCacheButtonLoading = false;
-          createFlash(s__('Pipelines|Something went wrong while cleaning runners cache.'));
+          deprecatedCreateFlash(
+            s__('Pipelines|Something went wrong while cleaning runners cache.'),
+          );
         });
     },
     resetRequestData() {
@@ -266,7 +268,7 @@ export default {
         }
 
         if (!filter.type) {
-          createFlash(RAW_TEXT_WARNING, 'warning');
+          deprecatedCreateFlash(RAW_TEXT_WARNING, 'warning');
         }
       });
 

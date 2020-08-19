@@ -2,7 +2,7 @@
 import { GlTabs, GlTab, GlLoadingIcon, GlSearchBoxByType } from '@gitlab/ui';
 import axios from '~/lib/utils/axios_utils';
 import { __ } from '~/locale';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import ForkGroupsListItem from './fork_groups_list_item.vue';
 
 export default {
@@ -46,7 +46,7 @@ export default {
         .then(response => {
           this.namespaces = response.data.namespaces;
         })
-        .catch(() => createFlash(__('There was a problem fetching groups.')));
+        .catch(() => deprecatedCreateFlash(__('There was a problem fetching groups.')));
     },
   },
 

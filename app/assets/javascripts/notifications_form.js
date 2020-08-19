@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import { __ } from './locale';
 import axios from './lib/utils/axios_utils';
-import { deprecatedCreateFlash as flash } from './flash';
+import { deprecatedCreateFlash } from './flash';
 
 export default class NotificationsForm {
   constructor() {
@@ -50,6 +50,8 @@ export default class NotificationsForm {
           }, 2000);
         }
       })
-      .catch(() => flash(__('There was an error saving your notification settings.')));
+      .catch(() =>
+        deprecatedCreateFlash(__('There was an error saving your notification settings.')),
+      );
   }
 }

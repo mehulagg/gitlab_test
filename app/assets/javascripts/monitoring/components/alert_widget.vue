@@ -2,7 +2,7 @@
 import { GlBadge, GlLoadingIcon, GlModalDirective, GlIcon, GlTooltip, GlSprintf } from '@gitlab/ui';
 import { values, get } from 'lodash';
 import { s__ } from '~/locale';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import AlertWidgetForm from './alert_widget_form.vue';
 import AlertsService from '../services/alerts_service';
 import { alertsValidator, queriesValidator } from '../validators';
@@ -129,7 +129,7 @@ export default {
           this.isLoading = false;
         })
         .catch(() => {
-          createFlash(s__('PrometheusAlerts|Error fetching alert'));
+          deprecatedCreateFlash(s__('PrometheusAlerts|Error fetching alert'));
           this.isLoading = false;
         });
     },

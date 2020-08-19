@@ -1,7 +1,7 @@
 <script>
 /* eslint-disable @gitlab/vue-require-i18n-strings */
 import { GlLoadingIcon, GlButton } from '@gitlab/ui';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import tooltip from '~/vue_shared/directives/tooltip';
 import { s__, __ } from '~/locale';
 import ClipboardButton from '~/vue_shared/components/clipboard_button.vue';
@@ -96,7 +96,7 @@ export default {
         })
         .catch(() => {
           this.isMakingRequest = false;
-          Flash(__('Something went wrong. Please try again.'));
+          deprecatedCreateFlash(__('Something went wrong. Please try again.'));
         });
     },
   },

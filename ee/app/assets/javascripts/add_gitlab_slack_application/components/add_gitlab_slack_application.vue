@@ -1,7 +1,7 @@
 <script>
 /* eslint-disable @gitlab/vue-require-i18n-strings, vue/no-v-html */
 import { __ } from '~/locale';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { redirectTo } from '~/lib/utils/url_utility';
 import { spriteIcon } from '~/lib/utils/common_utils';
 
@@ -80,7 +80,7 @@ export default {
     addToSlack() {
       GitlabSlackService.addToSlack(this.slackLinkPath, this.selectedProjectId)
         .then(response => redirectTo(response.data.add_to_slack_link))
-        .catch(() => Flash(__('Unable to build Slack link.')));
+        .catch(() => deprecatedCreateFlash(__('Unable to build Slack link.')));
     },
   },
 };

@@ -2,7 +2,7 @@ import $ from 'jquery';
 import { find } from 'lodash';
 import AccessDropdown from '~/projects/settings/access_dropdown';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { ACCESS_LEVELS, LEVEL_TYPES } from './constants';
 import { __ } from '~/locale';
 
@@ -70,7 +70,11 @@ export default class ProtectedEnvironmentEdit {
       })
       .catch(() => {
         this.$allowedToDeployDropdown.enable();
-        Flash(__('Failed to update environment!'), null, $('.js-protected-environments-list'));
+        deprecatedCreateFlash(
+          __('Failed to update environment!'),
+          null,
+          $('.js-protected-environments-list'),
+        );
       });
   }
 

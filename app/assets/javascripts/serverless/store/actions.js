@@ -2,7 +2,7 @@ import * as types from './mutation_types';
 import axios from '~/lib/utils/axios_utils';
 import statusCodes from '~/lib/utils/http_status';
 import { backOff } from '~/lib/utils/common_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 import { MAX_REQUESTS, CHECKING_INSTALLED, TIMEOUT } from '../constants';
 
@@ -59,7 +59,9 @@ export const fetchFunctions = ({ dispatch }, { functionsPath }) => {
     .then(data => {
       if (data === TIMEOUT) {
         dispatch('receiveFunctionsTimeout');
-        createFlash(__('Loading functions timed out. Please reload the page to try again.'));
+        deprecatedCreateFlash(
+          __('Loading functions timed out. Please reload the page to try again.'),
+        );
       } else if (data.functions !== null && data.functions.length) {
         dispatch('receiveFunctionsSuccess', data);
       } else {
@@ -68,7 +70,7 @@ export const fetchFunctions = ({ dispatch }, { functionsPath }) => {
     })
     .catch(error => {
       dispatch('receiveFunctionsError', error);
-      createFlash(error);
+      deprecatedCreateFlash(error);
     });
 };
 
@@ -120,6 +122,6 @@ export const fetchMetrics = ({ dispatch }, { metricsPath, hasPrometheus }) => {
     })
     .catch(error => {
       dispatch('receiveMetricsError', error);
-      createFlash(error);
+      deprecatedCreateFlash(error);
     });
 };

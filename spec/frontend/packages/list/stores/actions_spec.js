@@ -2,7 +2,7 @@ import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import testAction from 'helpers/vuex_action_helper';
 import Api from '~/api';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import * as actions from '~/packages/list/stores/actions';
 import * as types from '~/packages/list/stores/mutation_types';
 import { MISSING_DELETE_PATH_ERROR } from '~/packages/list/constants';
@@ -111,7 +111,7 @@ describe('Actions Package list store', () => {
         [],
         [{ type: 'setLoading', payload: true }, { type: 'setLoading', payload: false }],
         () => {
-          expect(createFlash).toHaveBeenCalled();
+          expect(deprecatedCreateFlash).toHaveBeenCalled();
           done();
         },
       );
@@ -194,7 +194,7 @@ describe('Actions Package list store', () => {
         [],
         [{ type: 'setLoading', payload: true }, { type: 'setLoading', payload: false }],
         () => {
-          expect(createFlash).toHaveBeenCalled();
+          expect(deprecatedCreateFlash).toHaveBeenCalled();
           done();
         },
       );
@@ -204,13 +204,16 @@ describe('Actions Package list store', () => {
       property             | actionPayload
       ${'_links'}          | ${{}}
       ${'delete_api_path'} | ${{ _links: {} }}
-    `('should reject and createFlash when $property is missing', ({ actionPayload }, done) => {
-      testAction(actions.requestDeletePackage, actionPayload, null, [], []).catch(e => {
-        expect(e).toEqual(new Error(MISSING_DELETE_PATH_ERROR));
-        expect(createFlash).toHaveBeenCalledWith(DELETE_PACKAGE_ERROR_MESSAGE);
-        done();
-      });
-    });
+    `(
+      'should reject and deprecatedCreateFlash when $property is missing',
+      ({ actionPayload }, done) => {
+        testAction(actions.requestDeletePackage, actionPayload, null, [], []).catch(e => {
+          expect(e).toEqual(new Error(MISSING_DELETE_PATH_ERROR));
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(DELETE_PACKAGE_ERROR_MESSAGE);
+          done();
+        });
+      },
+    );
   });
 
   describe('setSorting', () => {

@@ -4,7 +4,7 @@ import { GlButton } from '@gitlab/ui';
 import axios from '~/lib/utils/axios_utils';
 import { s__ } from '~/locale';
 import { redirectTo } from '~/lib/utils/url_utility';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 export default {
   components: {
@@ -57,7 +57,7 @@ export default {
         })
         .catch(error => {
           this.isCreatingMergeRequest = false;
-          createFlash(
+          deprecatedCreateFlash(
             s__('SecurityConfiguration|An error occurred while creating the merge request.'),
           );
           Sentry.captureException(error);

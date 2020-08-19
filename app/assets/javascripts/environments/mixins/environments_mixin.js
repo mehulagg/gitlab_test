@@ -7,7 +7,7 @@ import EnvironmentsStore from 'ee_else_ce/environments/stores/environments_store
 import Poll from '../../lib/utils/poll';
 import { getParameterByName } from '../../lib/utils/common_utils';
 import { s__ } from '../../locale';
-import { deprecatedCreateFlash as Flash } from '../../flash';
+import { deprecatedCreateFlash } from '../../flash';
 import eventHub from '../event_hub';
 
 import EnvironmentsService from '../services/environments_service';
@@ -94,7 +94,7 @@ export default {
 
     errorCallback() {
       this.isLoading = false;
-      Flash(s__('Environments|An error occurred while fetching the environments.'));
+      deprecatedCreateFlash(s__('Environments|An error occurred while fetching the environments.'));
     },
 
     postAction({
@@ -109,7 +109,9 @@ export default {
           .then(() => this.fetchEnvironments())
           .catch(err => {
             this.isLoading = false;
-            Flash(isFunction(errorMessage) ? errorMessage(err.response.data) : errorMessage);
+            deprecatedCreateFlash(
+              isFunction(errorMessage) ? errorMessage(err.response.data) : errorMessage,
+            );
           });
       }
     },
@@ -163,7 +165,7 @@ export default {
           window.location.href = url.join('/');
         })
         .catch(() => {
-          Flash(errorMessage);
+          deprecatedCreateFlash(errorMessage);
         });
     },
 

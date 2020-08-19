@@ -1,6 +1,6 @@
 import service from '../../services';
 import * as types from './mutation_types';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import Poll from '~/lib/utils/poll';
 import { __ } from '~/locale';
 
@@ -26,7 +26,7 @@ export function startPollingStacktrace({ commit }, endpoint) {
     },
     errorCallback: () => {
       commit(types.SET_LOADING_STACKTRACE, false);
-      createFlash(__('Failed to load stacktrace.'));
+      deprecatedCreateFlash(__('Failed to load stacktrace.'));
     },
   });
 

@@ -8,7 +8,7 @@ import { sprintf, s__, __ } from './locale';
 import axios from './lib/utils/axios_utils';
 import IssuableBulkUpdateActions from './issuable_bulk_update_actions';
 import CreateLabelDropdown from './create_label';
-import { deprecatedCreateFlash as flash } from './flash';
+import { deprecatedCreateFlash } from './flash';
 import ModalStore from './boards/stores/modal_store';
 import boardsStore from './boards/stores/boards_store';
 import { isScopedLabel } from '~/lib/utils/common_utils';
@@ -172,7 +172,7 @@ export default class LabelsSelect {
               container: 'body',
             });
           })
-          .catch(() => flash(__('Error saving label update.')));
+          .catch(() => deprecatedCreateFlash(__('Error saving label update.')));
       };
       initDeprecatedJQueryDropdown($dropdown, {
         showMenuAbove,
@@ -207,7 +207,7 @@ export default class LabelsSelect {
                 $dropdown.data('deprecatedJQueryDropdown').positionMenuAbove();
               }
             })
-            .catch(() => flash(__('Error fetching labels.')));
+            .catch(() => deprecatedCreateFlash(__('Error fetching labels.')));
         },
         renderRow(label) {
           let colorEl;

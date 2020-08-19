@@ -3,7 +3,7 @@
 import $ from 'jquery';
 import GfmAutoComplete from 'ee_else_ce/gfm_auto_complete';
 import { GlModal, GlTooltipDirective, GlIcon } from '@gitlab/ui';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __, s__ } from '~/locale';
 import Api from '~/api';
 import EmojiMenuInModal from './emoji_menu_in_modal';
@@ -77,7 +77,7 @@ export default {
             this.$refs.userStatusForm,
           );
         })
-        .catch(() => createFlash(__('Failed to load emoji list.')));
+        .catch(() => deprecatedCreateFlash(__('Failed to load emoji list.')));
     },
     showEmojiMenu(e) {
       e.stopPropagation();
@@ -144,7 +144,7 @@ export default {
       window.location.reload();
     },
     onUpdateFail() {
-      createFlash(
+      deprecatedCreateFlash(
         s__("SetStatusModal|Sorry, we weren't able to set your status. Please try again later."),
       );
 

@@ -4,7 +4,7 @@ import { TEST_HOST } from 'helpers/test_constants';
 import axios from '~/lib/utils/axios_utils';
 import * as actions from '~/registry/explorer/stores/actions';
 import * as types from '~/registry/explorer/stores/mutation_types';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { reposServerResponse, registryServerResponse } from '../mock_data';
 
 jest.mock('~/flash.js');
@@ -123,7 +123,7 @@ describe('Actions RegistryExplorer Store', () => {
         ],
         [],
         () => {
-          expect(createFlash).toHaveBeenCalled();
+          expect(deprecatedCreateFlash).toHaveBeenCalled();
           done();
         },
       );
@@ -166,7 +166,7 @@ describe('Actions RegistryExplorer Store', () => {
         ],
         [],
         () => {
-          expect(createFlash).toHaveBeenCalled();
+          expect(deprecatedCreateFlash).toHaveBeenCalled();
           done();
         },
       );

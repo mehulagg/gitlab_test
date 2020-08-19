@@ -2,7 +2,7 @@ import $ from 'jquery';
 import { find } from 'lodash';
 import AccessDropdown from '~/projects/settings/access_dropdown';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { s__ } from '~/locale';
 import { ACCESS_LEVELS, LEVEL_TYPES } from './constants';
 
@@ -68,7 +68,7 @@ export default class ProtectedTagEdit {
       })
       .catch(() => {
         $.scrollTo(0);
-        createFlash(s__('ProjectSettings|Failed to update tag!'));
+        deprecatedCreateFlash(s__('ProjectSettings|Failed to update tag!'));
       });
   }
 

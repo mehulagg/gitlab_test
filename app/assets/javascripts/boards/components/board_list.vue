@@ -6,7 +6,7 @@ import boardCard from './board_card.vue';
 import eventHub from '../eventhub';
 import boardsStore from '../stores/boards_store';
 import { sprintf, __ } from '~/locale';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import {
   getBoardSortableDefaultOptions,
   sortableStart,
@@ -305,7 +305,7 @@ export default {
         }
 
         if (!toList) {
-          createFlash(__('Something went wrong while performing the action.'));
+          deprecatedCreateFlash(__('Something went wrong while performing the action.'));
         }
 
         if (!isSameList) {

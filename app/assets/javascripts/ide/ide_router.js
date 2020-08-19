@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import IdeRouter from '~/ide/ide_router_extension';
 import { joinPaths } from '~/lib/utils/url_utility';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 import { syncRouterAndStore } from './sync_router_and_store';
 
@@ -95,7 +95,7 @@ export const createRouter = store => {
           }
         })
         .catch(e => {
-          flash(
+          deprecatedCreateFlash(
             __('Error while loading the project data. Please try again.'),
             'alert',
             document,

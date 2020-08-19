@@ -1,7 +1,7 @@
 import axios from '~/lib/utils/axios_utils';
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 import { __ } from '~/locale';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import COLUMNS from '../constants';
 
 export default class GroupMemberStore {
@@ -75,7 +75,7 @@ export default class GroupMemberStore {
       })
       .catch(e => {
         this.state.isLoading = false;
-        Flash(__('Something went wrong while fetching group member contributions'));
+        deprecatedCreateFlash(__('Something went wrong while fetching group member contributions'));
         throw e;
       });
   }

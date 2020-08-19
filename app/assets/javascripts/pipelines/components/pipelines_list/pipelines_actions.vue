@@ -1,7 +1,7 @@
 <script>
 import { GlTooltipDirective, GlButton, GlLoadingIcon, GlIcon } from '@gitlab/ui';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { s__, __, sprintf } from '~/locale';
 import GlCountdown from '~/vue_shared/components/gl_countdown.vue';
 import eventHub from '../../event_hub';
@@ -61,7 +61,7 @@ export default {
         })
         .catch(() => {
           this.isLoading = false;
-          flash(__('An error occurred while making the request.'));
+          deprecatedCreateFlash(__('An error occurred while making the request.'));
         });
     },
 

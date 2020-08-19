@@ -1,7 +1,7 @@
 import * as types from './mutation_types';
 import { setAWSConfig } from '../services/aws_services_facade';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 
 const getErrorMessage = data => {
@@ -83,7 +83,7 @@ export const createClusterSuccess = (_, location) => {
 
 export const createClusterError = ({ commit }, error) => {
   commit(types.CREATE_CLUSTER_ERROR, error);
-  createFlash(getErrorMessage(error));
+  deprecatedCreateFlash(getErrorMessage(error));
 };
 
 export const setRegion = ({ commit }, payload) => {

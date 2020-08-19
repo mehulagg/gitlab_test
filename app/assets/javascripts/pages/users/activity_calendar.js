@@ -5,7 +5,7 @@ import { select } from 'd3-selection';
 import dateFormat from 'dateformat';
 import { getDayName, getDayDifference } from '~/lib/utils/datetime_utility';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { n__, s__, __ } from '~/locale';
 
 const d3 = { select, scaleLinear, scaleThreshold };
@@ -318,7 +318,9 @@ export default class ActivityCalendar {
           responseType: 'text',
         })
         .then(({ data }) => $(this.activitiesContainer).html(data))
-        .catch(() => flash(__('An error occurred while retrieving calendar activity')));
+        .catch(() =>
+          deprecatedCreateFlash(__('An error occurred while retrieving calendar activity')),
+        );
     } else {
       this.currentSelectedDate = '';
       $(this.activitiesContainer).html('');

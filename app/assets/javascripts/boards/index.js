@@ -20,7 +20,7 @@ import {
 import VueApollo from 'vue-apollo';
 import BoardContent from '~/boards/components/board_content.vue';
 import createDefaultClient from '~/lib/graphql';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 import './models/label';
 import './models/assignee';
@@ -156,7 +156,9 @@ export default () => {
             this.loading = false;
           })
           .catch(() => {
-            Flash(__('An error occurred while fetching the board lists. Please try again.'));
+            deprecatedCreateFlash(
+              __('An error occurred while fetching the board lists. Please try again.'),
+            );
           });
       }
     },
@@ -215,7 +217,7 @@ export default () => {
             .catch(() => {
               newIssue.setFetchingState('subscriptions', false);
               setWeigthFetchingState(newIssue, false);
-              Flash(__('An error occurred while fetching sidebar data'));
+              deprecatedCreateFlash(__('An error occurred while fetching sidebar data'));
             });
         }
 
@@ -252,7 +254,9 @@ export default () => {
             })
             .catch(() => {
               issue.setFetchingState('subscriptions', false);
-              Flash(__('An error occurred when toggling the notification subscription'));
+              deprecatedCreateFlash(
+                __('An error occurred when toggling the notification subscription'),
+              );
             });
         }
       },

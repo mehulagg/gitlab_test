@@ -2,7 +2,7 @@ import { GlLoadingIcon } from '@gitlab/ui';
 import { shallowMount } from '@vue/test-utils';
 import AuditFilterToken from 'ee/audit_events/components/tokens/shared/audit_filter_token.vue';
 import httpStatusCodes from '~/lib/utils/http_status';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 jest.mock('~/flash');
 
@@ -139,7 +139,7 @@ describe('AuditFilterToken', () => {
       });
 
       it('shows a flash error message', () => {
-        expect(createFlash).toHaveBeenCalledWith(
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(
           'Failed to find foo. Please search for another foo.',
         );
       });
@@ -152,7 +152,7 @@ describe('AuditFilterToken', () => {
       });
 
       it('shows a flash error message', () => {
-        expect(createFlash).toHaveBeenCalledWith(
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(
           'Failed to find foo bar. Please search for another foo bar.',
         );
       });
@@ -193,7 +193,7 @@ describe('AuditFilterToken', () => {
       });
 
       it('shows a flash error message', () => {
-        expect(createFlash).toHaveBeenCalledWith(
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(
           'Failed to find foo. Please search for another foo.',
         );
       });

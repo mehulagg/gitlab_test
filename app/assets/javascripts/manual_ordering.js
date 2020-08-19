@@ -1,6 +1,6 @@
 import Sortable from 'sortablejs';
 import { s__ } from '~/locale';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import {
   getBoardSortableDefaultOptions,
   sortableStart,
@@ -15,7 +15,7 @@ const updateIssue = (url, issueList, { move_before_id, move_after_id }) =>
       group_full_path: issueList.dataset.groupFullPath,
     })
     .catch(() => {
-      createFlash(s__("ManualOrdering|Couldn't save the order of the issues"));
+      deprecatedCreateFlash(s__("ManualOrdering|Couldn't save the order of the issues"));
     });
 
 const initManualOrdering = (draggableSelector = 'li.issue') => {

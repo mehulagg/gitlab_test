@@ -1,6 +1,6 @@
 import axios from '~/lib/utils/axios_utils';
 import * as types from './mutation_types';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { s__ } from '~/locale';
 
 export const fetchSummary = ({ state, commit, dispatch }) => {
@@ -12,7 +12,7 @@ export const fetchSummary = ({ state, commit, dispatch }) => {
       commit(types.SET_SUMMARY, data);
     })
     .catch(() => {
-      createFlash(s__('TestReports|There was an error fetching the summary.'));
+      deprecatedCreateFlash(s__('TestReports|There was an error fetching the summary.'));
     })
     .finally(() => {
       dispatch('toggleLoading');
@@ -40,7 +40,7 @@ export const fetchTestSuite = ({ state, commit, dispatch }, index) => {
     .get(endpoint, { params: { build_ids } })
     .then(({ data }) => commit(types.SET_SUITE, { suite: data, index }))
     .catch(() => {
-      createFlash(s__('TestReports|There was an error fetching the test suite.'));
+      deprecatedCreateFlash(s__('TestReports|There was an error fetching the test suite.'));
     })
     .finally(() => {
       dispatch('toggleLoading');

@@ -2,7 +2,7 @@
 
 import $ from 'jquery';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 
 // MarkdownPreview
@@ -79,7 +79,7 @@ MarkdownPreview.prototype.fetchMarkdownPreview = function(text, url, success) {
       };
       success(data);
     })
-    .catch(() => flash(__('An error occurred while fetching markdown preview')));
+    .catch(() => deprecatedCreateFlash(__('An error occurred while fetching markdown preview')));
 };
 
 MarkdownPreview.prototype.hideReferencedUsers = function($form) {

@@ -22,7 +22,7 @@ import AjaxCache from '~/lib/utils/ajax_cache';
 import syntaxHighlight from '~/syntax_highlight';
 import axios from './lib/utils/axios_utils';
 import { getLocationHash } from './lib/utils/url_utility';
-import { deprecatedCreateFlash as Flash } from './flash';
+import { deprecatedCreateFlash } from './flash';
 import { defaultAutocompleteConfig } from './gfm_auto_complete';
 import CommentTypeToggle from './comment_type_toggle';
 import GLForm from './gl_form';
@@ -672,8 +672,7 @@ export default class Notes {
   }
 
   updateNoteError() {
-    // eslint-disable-next-line no-new
-    new Flash(
+    deprecatedCreateFlash(
       __('Your comment could not be updated! Please check your network connection and try again.'),
     );
   }
@@ -1376,7 +1375,7 @@ export default class Notes {
   }
 
   addFlash(...flashParams) {
-    this.flashContainer = new Flash(...flashParams);
+    this.flashContainer = deprecatedCreateFlash(...flashParams);
   }
 
   clearFlash() {

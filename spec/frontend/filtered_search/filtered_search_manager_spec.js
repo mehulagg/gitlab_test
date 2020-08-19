@@ -10,6 +10,9 @@ import FilteredSearchSpecHelper from '../helpers/filtered_search_spec_helper';
 import { BACKSPACE_KEY_CODE, DELETE_KEY_CODE } from '~/lib/utils/keycodes';
 import { visitUrl } from '~/lib/utils/url_utility';
 import * as commonUtils from '~/lib/utils/common_utils';
+import { deprecatedCreateFlash } from '~/flash';
+
+jest.mock('~/flash');
 
 jest.mock('~/lib/utils/url_utility', () => ({
   ...jest.requireActual('~/lib/utils/url_utility'),
@@ -126,11 +129,10 @@ describe('Filtered Search Manager', () => {
       jest
         .spyOn(RecentSearchesService.prototype, 'fetch')
         .mockImplementation(() => Promise.reject(new RecentSearchesServiceError()));
-      jest.spyOn(window, 'Flash').mockImplementation();
 
       manager.setup();
 
-      expect(window.Flash).not.toHaveBeenCalled();
+      expect(deprecatedCreateFlash).not.toHaveBeenCalled();
     });
   });
 

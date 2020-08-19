@@ -3,7 +3,7 @@
 import $ from 'jquery';
 import Vue from 'vue';
 import { GlLabel } from '@gitlab/ui';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { sprintf, __ } from '~/locale';
 import Sidebar from '~/right_sidebar';
 import eventHub from '~/sidebar/event_hub';
@@ -146,7 +146,7 @@ export default Vue.extend({
         })
         .catch(() => {
           this.loadingAssignees = false;
-          Flash(__('An error occurred while saving assignees'));
+          deprecatedCreateFlash(__('An error occurred while saving assignees'));
         });
     },
     showScopedLabels(label) {

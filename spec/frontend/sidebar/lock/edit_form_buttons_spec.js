@@ -2,7 +2,7 @@ import { shallowMount } from '@vue/test-utils';
 import { GlLoadingIcon } from '@gitlab/ui';
 import EditFormButtons from '~/sidebar/components/lock/edit_form_buttons.vue';
 import eventHub from '~/sidebar/event_hub';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import createStore from '~/notes/stores';
 import { createStore as createMrStore } from '~/mr_notes/stores';
 import { ISSUABLE_TYPE_ISSUE, ISSUABLE_TYPE_MR } from './constants';
@@ -132,7 +132,7 @@ describe('EditFormButtons', () => {
           });
 
           it('does not flash an error message', () => {
-            expect(flash).not.toHaveBeenCalled();
+            expect(deprecatedCreateFlash).not.toHaveBeenCalled();
           });
         });
 
@@ -167,7 +167,7 @@ describe('EditFormButtons', () => {
           });
 
           it('calls flash with the correct message', () => {
-            expect(flash).toHaveBeenCalledWith(
+            expect(deprecatedCreateFlash).toHaveBeenCalledWith(
               `Something went wrong trying to change the locked state of this ${issuableDisplayName}`,
             );
           });

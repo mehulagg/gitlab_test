@@ -2,7 +2,7 @@
 
 import $ from 'jquery';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { BLOB_EDITOR_ERROR, BLOB_PREVIEW_ERROR } from './constants';
 import TemplateSelectorMediator from '../blob/file_template_mediator';
 import getModeByFileExtension from '~/lib/utils/ace_utils';
@@ -30,7 +30,7 @@ export default class EditBlob {
         }
         this.editor.focus();
       })
-      .catch(() => createFlash(BLOB_EDITOR_ERROR));
+      .catch(() => deprecatedCreateFlash(BLOB_EDITOR_ERROR));
   }
 
   configureMonacoEditor() {
@@ -69,7 +69,7 @@ export default class EditBlob {
           fileContentEl.value = this.editor.getValue();
         });
       })
-      .catch(() => createFlash(BLOB_EDITOR_ERROR));
+      .catch(() => deprecatedCreateFlash(BLOB_EDITOR_ERROR));
   }
 
   configureAceEditor() {
@@ -128,7 +128,7 @@ export default class EditBlob {
           currentPane.empty().append(data);
           currentPane.renderGFM();
         })
-        .catch(() => createFlash(BLOB_PREVIEW_ERROR));
+        .catch(() => deprecatedCreateFlash(BLOB_PREVIEW_ERROR));
     }
 
     this.$toggleButton.show();

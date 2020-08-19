@@ -1,7 +1,7 @@
 /* global CommentsStore */
 
 import Vue from 'vue';
-import { deprecatedCreateFlash as Flash } from '../../flash';
+import { deprecatedCreateFlash } from '../../flash';
 import { __ } from '~/locale';
 
 window.gl = window.gl || {};
@@ -48,9 +48,10 @@ class ResolveServiceClass {
         if (gl.mrWidget) gl.mrWidget.checkStatus();
         discussion.updateHeadline(data);
       })
-      .catch(
-        () =>
-          new Flash(__('An error occurred when trying to resolve a discussion. Please try again.')),
+      .catch(() =>
+        deprecatedCreateFlash(
+          __('An error occurred when trying to resolve a discussion. Please try again.'),
+        ),
       );
   }
 

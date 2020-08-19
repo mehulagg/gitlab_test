@@ -13,7 +13,7 @@ import {
   GlDeprecatedDropdownDivider,
   GlIcon,
 } from '@gitlab/ui';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __, sprintf, n__ } from '~/locale';
 import TooltipOnTruncate from '~/vue_shared/components/tooltip_on_truncate.vue';
 import Stacktrace from './stacktrace.vue';
@@ -88,7 +88,7 @@ export default {
       },
       pollInterval: 2000,
       update: data => data.project.sentryErrors.detailedError,
-      error: () => createFlash(__('Failed to load error details from Sentry.')),
+      error: () => deprecatedCreateFlash(__('Failed to load error details from Sentry.')),
       result(res) {
         if (res.data.project?.sentryErrors?.detailedError) {
           this.$apollo.queries.error.stopPolling();
@@ -225,7 +225,10 @@ export default {
       if (Date.now() > this.errorPollTimeout) {
         this.$apollo.queries.error.stopPolling();
         this.errorLoading = false;
-        createFlash(__('Could not connect to Sentry. Refresh the page to try again.'), 'warning');
+        deprecatedCreateFlash(
+          __('Could not connect to Sentry. Refresh the page to try again.'),
+          'warning',
+        );
       }
     },
     trackPageViews() {

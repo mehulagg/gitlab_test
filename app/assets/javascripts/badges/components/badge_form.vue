@@ -3,7 +3,7 @@
 import { escape, debounce } from 'lodash';
 import { mapActions, mapState } from 'vuex';
 import { GlLoadingIcon, GlFormInput, GlFormGroup, GlButton } from '@gitlab/ui';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { s__, sprintf } from '~/locale';
 import createEmptyBadge from '../empty_badge';
 import Badge from './badge.vue';
@@ -134,11 +134,11 @@ export default {
       if (this.isEditing) {
         return this.saveBadge()
           .then(() => {
-            createFlash(s__('Badges|The badge was saved.'), 'notice');
+            deprecatedCreateFlash(s__('Badges|The badge was saved.'), 'notice');
             this.wasValidated = false;
           })
           .catch(error => {
-            createFlash(
+            deprecatedCreateFlash(
               s__('Badges|Saving the badge failed, please check the entered URLs and try again.'),
             );
             throw error;
@@ -147,11 +147,11 @@ export default {
 
       return this.addBadge()
         .then(() => {
-          createFlash(s__('Badges|A new badge was added.'), 'notice');
+          deprecatedCreateFlash(s__('Badges|A new badge was added.'), 'notice');
           this.wasValidated = false;
         })
         .catch(error => {
-          createFlash(
+          deprecatedCreateFlash(
             s__('Badges|Adding the badge failed, please check the entered URLs and try again.'),
           );
           throw error;

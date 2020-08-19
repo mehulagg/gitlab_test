@@ -4,7 +4,7 @@ import download from '~/lib/utils/downloader';
 import axios from '~/lib/utils/axios_utils';
 import { parseIntPagination, normalizeHeaders } from '~/lib/utils/common_utils';
 import { s__, n__, sprintf } from '~/locale';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import toast from '~/vue_shared/plugins/global_toast';
 import * as types from './mutation_types';
 
@@ -148,7 +148,7 @@ export const receiveCreateIssueError = ({ commit }, { flashError }) => {
   commit(types.RECEIVE_CREATE_ISSUE_ERROR);
 
   if (flashError) {
-    createFlash(
+    deprecatedCreateFlash(
       s__('SecurityReports|There was an error creating the issue.'),
       'alert',
       document.querySelector('.ci-table'),
@@ -219,7 +219,7 @@ export const receiveDismissSelectedVulnerabilitiesSuccess = ({ commit, getters }
 export const receiveDismissSelectedVulnerabilitiesError = ({ commit }, { flashError }) => {
   commit(types.RECEIVE_DISMISS_SELECTED_VULNERABILITIES_ERROR);
   if (flashError) {
-    createFlash(
+    deprecatedCreateFlash(
       s__('SecurityReports|There was an error dismissing the vulnerabilities.'),
       'alert',
       document.querySelector('.ci-table'),
@@ -306,7 +306,7 @@ export const receiveDismissVulnerabilitySuccess = ({ commit }, payload) => {
 export const receiveDismissVulnerabilityError = ({ commit }, { flashError }) => {
   commit(types.RECEIVE_DISMISS_VULNERABILITY_ERROR);
   if (flashError) {
-    createFlash(
+    deprecatedCreateFlash(
       s__('SecurityReports|There was an error dismissing the vulnerability.'),
       'alert',
       document.querySelector('.ci-table'),
@@ -432,7 +432,7 @@ export const receiveUndoDismissSuccess = ({ commit }, payload) => {
 export const receiveUndoDismissError = ({ commit }, { flashError }) => {
   commit(types.RECEIVE_REVERT_DISMISSAL_ERROR);
   if (flashError) {
-    createFlash(
+    deprecatedCreateFlash(
       s__('SecurityReports|There was an error reverting this dismissal.'),
       'alert',
       document.querySelector('.ci-table'),
@@ -500,7 +500,7 @@ export const receiveCreateMergeRequestError = ({ commit }, { flashError }) => {
   commit(types.RECEIVE_CREATE_MERGE_REQUEST_ERROR);
 
   if (flashError) {
-    createFlash(
+    deprecatedCreateFlash(
       s__('SecurityReports|There was an error creating the merge request.'),
       'alert',
       document.querySelector('.ci-table'),

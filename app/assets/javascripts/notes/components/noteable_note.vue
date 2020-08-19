@@ -7,7 +7,7 @@ import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { truncateSha } from '~/lib/utils/text_utility';
 import TimelineEntryItem from '~/vue_shared/components/notes/timeline_entry_item.vue';
 import { __, s__, sprintf } from '../../locale';
-import { deprecatedCreateFlash as Flash } from '../../flash';
+import { deprecatedCreateFlash } from '../../flash';
 import userAvatarLink from '../../vue_shared/components/user_avatar/user_avatar_link.vue';
 import noteHeader from './note_header.vue';
 import noteActions from './note_actions.vue';
@@ -236,7 +236,9 @@ export default {
             this.isDeleting = false;
           })
           .catch(() => {
-            Flash(__('Something went wrong while deleting your note. Please try again.'));
+            deprecatedCreateFlash(
+              __('Something went wrong while deleting your note. Please try again.'),
+            );
             this.isDeleting = false;
           });
       }
@@ -300,7 +302,7 @@ export default {
             this.setSelectedCommentPositionHover();
             this.$nextTick(() => {
               const msg = __('Something went wrong while editing your comment. Please try again.');
-              Flash(msg, 'alert', this.$el);
+              deprecatedCreateFlash(msg, 'alert', this.$el);
               this.recoverNoteContent(noteText);
               callback();
             });

@@ -1,5 +1,5 @@
 import { normalizeHeaders, parseIntPagination } from '~/lib/utils/common_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { FETCH_ERROR_MESSAGE } from './constants';
 import { isValidResponse } from './utils';
 import * as types from './mutation_types';
@@ -50,7 +50,7 @@ export const fetchDependencies = ({ state, dispatch }, params = {}) => {
     })
     .catch(error => {
       dispatch('receiveDependenciesError', error);
-      createFlash(FETCH_ERROR_MESSAGE);
+      deprecatedCreateFlash(FETCH_ERROR_MESSAGE);
     });
 };
 

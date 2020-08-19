@@ -3,7 +3,7 @@ import $ from 'jquery';
 import { GlLoadingIcon } from '@gitlab/ui';
 import { mapActions } from 'vuex';
 import { __ } from '~/locale';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import eventHub from '../../event_hub';
 
 export default {
@@ -49,7 +49,7 @@ export default {
           eventHub.$emit('updateIssuableConfidentiality', confidential);
         })
         .catch(err => {
-          Flash(
+          deprecatedCreateFlash(
             err || __('Something went wrong trying to change the confidentiality of this issue'),
           );
         })

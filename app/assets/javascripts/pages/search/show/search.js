@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import initDeprecatedJQueryDropdown from '~/deprecated_jquery_dropdown';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import Api from '~/api';
 import { __ } from '~/locale';
 import Project from '~/pages/projects/project';
@@ -65,7 +65,7 @@ export default class Search {
             return data;
           })
           .then(data => callback(data))
-          .catch(() => new Flash(__('Error fetching projects')));
+          .catch(() => deprecatedCreateFlash(__('Error fetching projects')));
       },
       id(obj) {
         return obj.id;

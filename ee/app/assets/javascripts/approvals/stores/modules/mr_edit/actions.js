@@ -1,5 +1,5 @@
 import { memoize, uniqBy, uniqueId, flatten } from 'lodash';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 import Api from '~/api';
 import axios from '~/lib/utils/axios_utils';
@@ -59,7 +59,7 @@ export const receiveRulesSuccess = ({ commit }, { resetToDefault, settings }) =>
 };
 
 export const receiveRulesError = () => {
-  createFlash(__('An error occurred fetching the approval rules.'));
+  deprecatedCreateFlash(__('An error occurred fetching the approval rules.'));
 };
 
 export const fetchRules = (
@@ -98,7 +98,7 @@ export const postRule = ({ commit, dispatch }, rule) =>
       dispatch('createModal/close');
     })
     .catch(e => {
-      createFlash(__('An error occurred fetching the approvers for the new rule.'));
+      deprecatedCreateFlash(__('An error occurred fetching the approvers for the new rule.'));
       throw e;
     });
 
@@ -109,7 +109,7 @@ export const putRule = ({ commit, dispatch }, rule) =>
       dispatch('createModal/close');
     })
     .catch(e => {
-      createFlash(__('An error occurred fetching the approvers for the new rule.'));
+      deprecatedCreateFlash(__('An error occurred fetching the approvers for the new rule.'));
       throw e;
     });
 
@@ -140,7 +140,7 @@ export const postRegularRule = ({ commit, dispatch }, rule) =>
       dispatch('createModal/close');
     })
     .catch(e => {
-      createFlash(__('An error occurred fetching the approvers for the new rule.'));
+      deprecatedCreateFlash(__('An error occurred fetching the approvers for the new rule.'));
       throw e;
     });
 

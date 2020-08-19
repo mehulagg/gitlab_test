@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/browser';
 import * as types from './mutation_types';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 import { joinPaths } from '~/lib/utils/url_utility';
 
@@ -13,7 +13,7 @@ export default {
     commit(types.COMMITS_AUTHORS, authors);
   },
   receiveAuthorsError() {
-    createFlash(__('An error occurred fetching the project authors.'));
+    deprecatedCreateFlash(__('An error occurred fetching the project authors.'));
   },
   fetchAuthors({ dispatch, state }, author = null) {
     const { projectId } = state;

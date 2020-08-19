@@ -2,7 +2,7 @@ import { debounce } from 'lodash';
 import InputValidator from '~/validators/input_validator';
 
 import fetchGroupPathAvailability from './fetch_group_path_availability';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 
 const debounceTimeoutDuration = 1000;
@@ -57,7 +57,7 @@ export default class GroupPathValidator extends InputValidator {
             GroupPathValidator.showSuggestions(inputDomElement, data.suggests);
           }
         })
-        .catch(() => flash(__('An error occurred while validating group path')));
+        .catch(() => deprecatedCreateFlash(__('An error occurred while validating group path')));
     }
   }
 

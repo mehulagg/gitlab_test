@@ -3,7 +3,7 @@ import recentSearchesStorageKeys from 'ee_else_ce/filtered_search/recent_searche
 import { getParameterByName, getUrlParamsArray } from '~/lib/utils/common_utils';
 import IssuableFilteredSearchTokenKeys from '~/filtered_search/issuable_filtered_search_token_keys';
 import { visitUrl } from '../lib/utils/url_utility';
-import { deprecatedCreateFlash as Flash } from '../flash';
+import { deprecatedCreateFlash } from '../flash';
 import FilteredSearchContainer from './container';
 import RecentSearchesRoot from './recent_searches_root';
 import RecentSearchesStore from './stores/recent_searches_store';
@@ -84,8 +84,7 @@ export default class FilteredSearchManager {
       .fetch()
       .catch(error => {
         if (error.name === 'RecentSearchesServiceError') return undefined;
-        // eslint-disable-next-line no-new
-        new Flash(__('An error occurred while parsing recent searches'));
+        deprecatedCreateFlash(__('An error occurred while parsing recent searches'));
         // Gracefully fail to empty array
         return [];
       })

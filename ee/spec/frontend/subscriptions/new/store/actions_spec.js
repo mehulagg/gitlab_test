@@ -4,7 +4,7 @@ import MockAdapter from 'axios-mock-adapter';
 import * as actions from 'ee/subscriptions/new/store/actions';
 import * as constants from 'ee/subscriptions/new/constants';
 import Api from 'ee/api';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import axios from '~/lib/utils/axios_utils';
 
 const {
@@ -193,7 +193,9 @@ describe('Subscriptions Actions', () => {
   describe('fetchCountriesError', () => {
     it('creates a flash', done => {
       testAction(actions.fetchCountriesError, null, {}, [], [], () => {
-        expect(createFlash).toHaveBeenCalledWith('Failed to load countries. Please try again.');
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(
+          'Failed to load countries. Please try again.',
+        );
         done();
       });
     });
@@ -262,7 +264,9 @@ describe('Subscriptions Actions', () => {
   describe('fetchStatesError', () => {
     it('creates a flash', done => {
       testAction(actions.fetchStatesError, null, {}, [], [], () => {
-        expect(createFlash).toHaveBeenCalledWith('Failed to load states. Please try again.');
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(
+          'Failed to load states. Please try again.',
+        );
         done();
       });
     });
@@ -425,7 +429,7 @@ describe('Subscriptions Actions', () => {
         [],
         [],
         () => {
-          expect(createFlash).toHaveBeenCalledWith(
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(
             'Credit card form failed to load: error message',
           );
           done();
@@ -437,7 +441,7 @@ describe('Subscriptions Actions', () => {
   describe('fetchPaymentFormParamsError', () => {
     it('creates a flash', done => {
       testAction(actions.fetchPaymentFormParamsError, null, {}, [], [], () => {
-        expect(createFlash).toHaveBeenCalledWith(
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(
           'Credit card form failed to load. Please try again.',
         );
         done();
@@ -508,7 +512,7 @@ describe('Subscriptions Actions', () => {
         [],
         [],
         () => {
-          expect(createFlash).toHaveBeenCalledWith(
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(
             'Submitting the credit card form failed with code codeFromResponse: messageFromResponse',
           );
           done();
@@ -578,7 +582,7 @@ describe('Subscriptions Actions', () => {
   describe('fetchPaymentMethodDetailsError', () => {
     it('creates a flash', done => {
       testAction(actions.fetchPaymentMethodDetailsError, null, {}, [], [], () => {
-        expect(createFlash).toHaveBeenCalledWith(
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(
           'Failed to register credit card. Please try again.',
         );
         done();
@@ -650,7 +654,7 @@ describe('Subscriptions Actions', () => {
         [{ type: 'UPDATE_IS_CONFIRMING_ORDER', payload: false }],
         [],
         () => {
-          expect(createFlash).toHaveBeenCalledWith(
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(
             'Failed to confirm your order! Please try again.',
           );
           done();
@@ -666,7 +670,7 @@ describe('Subscriptions Actions', () => {
         [{ type: 'UPDATE_IS_CONFIRMING_ORDER', payload: false }],
         [],
         () => {
-          expect(createFlash).toHaveBeenCalledWith(
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(
             'Failed to confirm your order: "Error". Please try again.',
           );
           done();

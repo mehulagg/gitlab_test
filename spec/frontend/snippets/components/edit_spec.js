@@ -2,7 +2,7 @@ import { ApolloMutation } from 'vue-apollo';
 import { GlLoadingIcon } from '@gitlab/ui';
 import { shallowMount } from '@vue/test-utils';
 import waitForPromises from 'helpers/wait_for_promises';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import * as urlUtils from '~/lib/utils/url_utility';
 import SnippetEditApp from '~/snippets/components/edit.vue';
 import SnippetDescriptionEdit from '~/snippets/components/snippet_description_edit.vue';
@@ -294,7 +294,7 @@ describe('Snippet Edit app', () => {
           await waitForPromises();
 
           expect(urlUtils.redirectTo).not.toHaveBeenCalled();
-          expect(Flash).toHaveBeenCalledWith(expectMessage);
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(expectMessage);
         },
       );
     });

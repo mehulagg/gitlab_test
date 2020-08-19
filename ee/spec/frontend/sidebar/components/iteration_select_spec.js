@@ -3,7 +3,7 @@ import { GlNewDropdown, GlNewDropdownItem, GlButton, GlLink, GlSearchBoxByType }
 import IterationSelect from 'ee/sidebar/components/iteration_select.vue';
 import { iterationSelectTextMap } from 'ee/sidebar/constants';
 import setIterationOnIssue from 'ee/sidebar/queries/set_iteration_on_issue.mutation.graphql';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 jest.mock('~/flash');
 
@@ -247,9 +247,9 @@ describe('IterationSelect', () => {
                     .vm.$emit('click');
                 });
 
-                it('calls createFlash with $expectedMsg', () => {
+                it('calls deprecatedCreateFlash with $expectedMsg', () => {
                   return wrapper.vm.$nextTick().then(() => {
-                    expect(createFlash).toHaveBeenCalledWith(expectedMsg);
+                    expect(deprecatedCreateFlash).toHaveBeenCalledWith(expectedMsg);
                   });
                 });
               });

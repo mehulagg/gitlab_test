@@ -15,7 +15,7 @@
 import $ from 'jquery';
 import { GlLoadingIcon, GlTooltipDirective, GlIcon } from '@gitlab/ui';
 import { __ } from '~/locale';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import axios from '~/lib/utils/axios_utils';
 import eventHub from '../../event_hub';
 import JobItem from '../graph/job_item.vue';
@@ -108,7 +108,7 @@ export default {
           this.closeDropdown();
           this.isLoading = false;
 
-          Flash(__('Something went wrong on our end.'));
+          deprecatedCreateFlash(__('Something went wrong on our end.'));
         });
     },
 

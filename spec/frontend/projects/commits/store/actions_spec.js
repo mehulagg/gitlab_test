@@ -4,7 +4,7 @@ import testAction from 'helpers/vuex_action_helper';
 import * as types from '~/projects/commits/store/mutation_types';
 import actions from '~/projects/commits/store/actions';
 import createState from '~/projects/commits/store/state';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 jest.mock('~/flash');
 
@@ -38,8 +38,10 @@ describe('Project commits actions', () => {
       const mockDispatchContext = { dispatch: () => {}, commit: () => {}, state };
       actions.receiveAuthorsError(mockDispatchContext);
 
-      expect(createFlash).toHaveBeenCalledTimes(1);
-      expect(createFlash).toHaveBeenCalledWith('An error occurred fetching the project authors.');
+      expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
+      expect(deprecatedCreateFlash).toHaveBeenCalledWith(
+        'An error occurred fetching the project authors.',
+      );
     });
   });
 

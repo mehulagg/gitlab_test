@@ -4,7 +4,7 @@ import { GlToast } from '@gitlab/ui';
 import AccessorUtilities from '~/lib/utils/accessor';
 import PersistentUserCallout from '../persistent_user_callout';
 import { s__, sprintf } from '../locale';
-import { deprecatedCreateFlash as Flash } from '../flash';
+import { deprecatedCreateFlash } from '../flash';
 import Poll from '../lib/utils/poll';
 import initSettingsPanels from '../settings_panels';
 import eventHub from './event_hub';
@@ -304,7 +304,7 @@ export default class Clusters {
   }
 
   static handleError() {
-    Flash(s__('ClusterIntegration|Something went wrong on our end.'));
+    deprecatedCreateFlash(s__('ClusterIntegration|Something went wrong on our end.'));
   }
 
   handleClusterStatusSuccess(data) {
@@ -346,7 +346,7 @@ export default class Clusters {
           appList: appTitles.join(', '),
         },
       );
-      Flash(text, 'notice', this.successApplicationContainer);
+      deprecatedCreateFlash(text, 'notice', this.successApplicationContainer);
     }
   }
 

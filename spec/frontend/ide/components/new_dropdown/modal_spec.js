@@ -2,7 +2,7 @@ import Vue from 'vue';
 import { createComponentWithStore } from 'helpers/vue_mount_component_helper';
 import { createStore } from '~/ide/stores';
 import modal from '~/ide/components/new_dropdown/modal.vue';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 jest.mock('~/flash');
 
@@ -178,11 +178,11 @@ describe('new file modal component', () => {
     it('throws an error when target entry exists', () => {
       vm.open('rename', 'test-path/test');
 
-      expect(createFlash).not.toHaveBeenCalled();
+      expect(deprecatedCreateFlash).not.toHaveBeenCalled();
 
       vm.submitForm();
 
-      expect(createFlash).toHaveBeenCalledWith(
+      expect(deprecatedCreateFlash).toHaveBeenCalledWith(
         'The name "test-path/test" is already taken in this directory.',
         'alert',
         expect.anything(),
@@ -199,7 +199,7 @@ describe('new file modal component', () => {
       vm.entryName = 'test-path/test2';
       vm.submitForm();
 
-      expect(createFlash).not.toHaveBeenCalled();
+      expect(deprecatedCreateFlash).not.toHaveBeenCalled();
     });
 
     it('removes leading/trailing found in the new name', () => {

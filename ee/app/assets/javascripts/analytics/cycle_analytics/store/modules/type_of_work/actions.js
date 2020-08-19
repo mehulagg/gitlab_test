@@ -1,5 +1,5 @@
 import Api from 'ee/api';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 import * as types from './mutation_types';
 import { handleErrorOrRethrow } from '../../../utils';
@@ -13,7 +13,7 @@ export const receiveTopRankedGroupLabelsSuccess = ({ commit, dispatch }, data) =
 
 export const receiveTopRankedGroupLabelsError = ({ commit }, error) => {
   commit(types.RECEIVE_TOP_RANKED_GROUP_LABELS_ERROR, error);
-  createFlash(__('There was an error fetching the top labels for the selected group'));
+  deprecatedCreateFlash(__('There was an error fetching the top labels for the selected group'));
 };
 
 export const fetchTopRankedGroupLabels = ({ dispatch, commit, state, rootGetters }) => {
@@ -51,7 +51,7 @@ export const fetchTopRankedGroupLabels = ({ dispatch, commit, state, rootGetters
 
 export const receiveTasksByTypeDataError = ({ commit }, error) => {
   commit(types.RECEIVE_TASKS_BY_TYPE_DATA_ERROR, error);
-  createFlash(__('There was an error fetching data for the tasks by type chart'));
+  deprecatedCreateFlash(__('There was an error fetching data for the tasks by type chart'));
 };
 
 export const fetchTasksByTypeData = ({ dispatch, commit, state, rootGetters }) => {

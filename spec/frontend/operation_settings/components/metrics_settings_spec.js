@@ -9,7 +9,7 @@ import { timezones } from '~/monitoring/format_date';
 import store from '~/operation_settings/store';
 import axios from '~/lib/utils/axios_utils';
 import { refreshCurrentPage } from '~/lib/utils/url_utility';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 jest.mock('~/lib/utils/url_utility');
 jest.mock('~/flash');
@@ -51,7 +51,7 @@ describe('operation settings external dashboard component', () => {
     }
     axios.patch.mockReset();
     refreshCurrentPage.mockReset();
-    createFlash.mockReset();
+    deprecatedCreateFlash.mockReset();
   });
 
   it('renders header text', () => {
@@ -202,7 +202,7 @@ describe('operation settings external dashboard component', () => {
           .$nextTick()
           .then(jest.runAllTicks)
           .then(() =>
-            expect(createFlash).toHaveBeenCalledWith(
+            expect(deprecatedCreateFlash).toHaveBeenCalledWith(
               `There was an error saving your changes. ${message}`,
               'alert',
             ),

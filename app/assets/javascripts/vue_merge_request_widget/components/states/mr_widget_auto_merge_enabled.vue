@@ -1,6 +1,6 @@
 <script>
 import autoMergeMixin from 'ee_else_ce/vue_merge_request_widget/mixins/auto_merge';
-import { deprecatedCreateFlash as Flash } from '../../../flash';
+import { deprecatedCreateFlash } from '../../../flash';
 import statusIcon from '../mr_widget_status_icon.vue';
 import MrWidgetAuthor from '../mr_widget_author.vue';
 import eventHub from '../../event_hub';
@@ -55,7 +55,7 @@ export default {
         })
         .catch(() => {
           this.isCancellingAutoMerge = false;
-          Flash(__('Something went wrong. Please try again.'));
+          deprecatedCreateFlash(__('Something went wrong. Please try again.'));
         });
     },
     removeSourceBranch() {
@@ -76,7 +76,7 @@ export default {
         })
         .catch(() => {
           this.isRemovingSourceBranch = false;
-          Flash(__('Something went wrong. Please try again.'));
+          deprecatedCreateFlash(__('Something went wrong. Please try again.'));
         });
     },
   },

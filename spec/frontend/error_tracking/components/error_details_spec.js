@@ -10,7 +10,7 @@ import {
   GlSprintf,
 } from '@gitlab/ui';
 import { __ } from '~/locale';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import Stacktrace from '~/error_tracking/components/stacktrace.vue';
 import ErrorDetails from '~/error_tracking/components/error_details.vue';
 import {
@@ -147,7 +147,7 @@ describe('ErrorDetails', () => {
 
       return wrapper.vm.$nextTick().then(() => {
         expect(wrapper.find(GlLoadingIcon).exists()).toBe(true);
-        expect(createFlash).not.toHaveBeenCalled();
+        expect(deprecatedCreateFlash).not.toHaveBeenCalled();
         expect(mocks.$apollo.queries.error.stopPolling).not.toHaveBeenCalled();
       });
     });
@@ -160,7 +160,7 @@ describe('ErrorDetails', () => {
       return wrapper.vm.$nextTick().then(() => {
         expect(wrapper.find(GlLoadingIcon).exists()).toBe(false);
         expect(wrapper.find(GlLink).exists()).toBe(false);
-        expect(createFlash).toHaveBeenCalledWith(
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(
           'Could not connect to Sentry. Refresh the page to try again.',
           'warning',
         );

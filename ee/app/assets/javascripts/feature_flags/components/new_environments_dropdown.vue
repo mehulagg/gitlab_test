@@ -10,7 +10,7 @@ import {
 } from '@gitlab/ui';
 import axios from '~/lib/utils/axios_utils';
 import { __, sprintf } from '~/locale';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 export default {
   components: {
@@ -57,7 +57,7 @@ export default {
           this.results = data || [];
         })
         .catch(() => {
-          createFlash(__('Something went wrong on our end. Please try again.'));
+          deprecatedCreateFlash(__('Something went wrong on our end. Please try again.'));
         })
         .finally(() => {
           this.isLoading = false;

@@ -2,7 +2,7 @@ import MockAdapter from 'axios-mock-adapter';
 import testAction from 'helpers/vuex_action_helper';
 import Api from '~/api';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import getInitialState from '~/ci_variable_list/store/state';
 import * as actions from '~/ci_variable_list/store/actions';
 import * as types from '~/ci_variable_list/store/mutation_types';
@@ -121,7 +121,7 @@ describe('CI variable list store actions', () => {
           },
         ],
         () => {
-          expect(createFlash).toHaveBeenCalled();
+          expect(deprecatedCreateFlash).toHaveBeenCalled();
           done();
         },
       );
@@ -164,7 +164,7 @@ describe('CI variable list store actions', () => {
           },
         ],
         () => {
-          expect(createFlash).toHaveBeenCalled();
+          expect(deprecatedCreateFlash).toHaveBeenCalled();
           done();
         },
       );
@@ -207,7 +207,7 @@ describe('CI variable list store actions', () => {
           },
         ],
         () => {
-          expect(createFlash).toHaveBeenCalled();
+          expect(deprecatedCreateFlash).toHaveBeenCalled();
           done();
         },
       );
@@ -240,7 +240,9 @@ describe('CI variable list store actions', () => {
       mock.onGet(state.endpoint).reply(500);
 
       testAction(actions.fetchVariables, {}, state, [], [{ type: 'requestVariables' }], () => {
-        expect(createFlash).toHaveBeenCalledWith('There was an error fetching the variables.');
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(
+          'There was an error fetching the variables.',
+        );
         done();
       });
     });
@@ -278,7 +280,7 @@ describe('CI variable list store actions', () => {
         [],
         [{ type: 'requestEnvironments' }],
         () => {
-          expect(createFlash).toHaveBeenCalledWith(
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(
             'There was an error fetching the environments information.',
           );
           done();

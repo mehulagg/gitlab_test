@@ -3,7 +3,7 @@ import testAction from 'helpers/vuex_action_helper';
 import * as actions from 'ee/status_page_settings/store/actions';
 import * as types from 'ee/status_page_settings/store/mutation_types';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { refreshCurrentPage } from '~/lib/utils/url_utility';
 
 jest.mock('~/flash.js');
@@ -18,7 +18,7 @@ describe('Status Page actions', () => {
 
   afterEach(() => {
     mock.restore();
-    createFlash.mockClear();
+    deprecatedCreateFlash.mockClear();
   });
 
   const state = {
@@ -110,7 +110,7 @@ describe('Status Page actions', () => {
     const error = { response: { data: { message: 'Update error' } } };
     it('should handle error update', done => {
       testAction(actions.receiveStatusPageSettingsUpdateError, error, null, [], [], () => {
-        expect(createFlash).toHaveBeenCalledWith(
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(
           `There was an error saving your changes. ${error.response.data.message}`,
           'alert',
         );

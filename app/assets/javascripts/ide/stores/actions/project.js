@@ -1,5 +1,5 @@
 import { escape } from 'lodash';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __, sprintf } from '~/locale';
 import service from '../../services';
 import api from '../../../api';
@@ -19,7 +19,7 @@ export const getProjectData = ({ commit, state }, { namespace, projectId, force 
           resolve(data);
         })
         .catch(() => {
-          flash(
+          deprecatedCreateFlash(
             __('Error loading project data. Please try again.'),
             'alert',
             document,
@@ -45,7 +45,7 @@ export const refreshLastCommitData = ({ commit }, { projectId, branchId } = {}) 
       });
     })
     .catch(() => {
-      flash(__('Error loading last commit.'), 'alert', document, null, false, true);
+      deprecatedCreateFlash(__('Error loading last commit.'), 'alert', document, null, false, true);
     });
 
 export const createNewBranchFromDefault = ({ state, dispatch, getters }, branch) =>

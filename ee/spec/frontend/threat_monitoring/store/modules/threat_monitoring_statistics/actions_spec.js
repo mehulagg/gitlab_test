@@ -4,7 +4,7 @@ import testAction from 'helpers/vuex_action_helper';
 import * as actions from 'ee/threat_monitoring/store/modules/threat_monitoring_statistics/actions';
 import * as types from 'ee/threat_monitoring/store/modules/threat_monitoring_statistics/mutation_types';
 import getInitialState from 'ee/threat_monitoring/store/modules/threat_monitoring_statistics/state';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import httpStatus from '~/lib/utils/http_status';
 import axios from '~/lib/utils/axios_utils';
 
@@ -26,7 +26,7 @@ describe('threatMonitoringStatistics actions', () => {
   });
 
   afterEach(() => {
-    createFlash.mockClear();
+    deprecatedCreateFlash.mockClear();
   });
 
   describe('requestStatistics', () => {
@@ -76,7 +76,7 @@ describe('threatMonitoringStatistics actions', () => {
         ],
         [],
       ).then(() => {
-        expect(createFlash).toHaveBeenCalled();
+        expect(deprecatedCreateFlash).toHaveBeenCalled();
       }));
   });
 

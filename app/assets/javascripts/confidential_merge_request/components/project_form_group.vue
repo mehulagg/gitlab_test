@@ -1,7 +1,7 @@
 <script>
 import { GlLink, GlSprintf } from '@gitlab/ui';
 import { __ } from '../../locale';
-import { deprecatedCreateFlash as createFlash } from '../../flash';
+import { deprecatedCreateFlash } from '../../flash';
 import Api from '../../api';
 import state from '../state';
 import Dropdown from './dropdown.vue';
@@ -78,7 +78,7 @@ export default {
           this.selectProject(this.projects[0]);
         })
         .catch(e => {
-          createFlash(__('Error fetching forked projects. Please try again.'));
+          deprecatedCreateFlash(__('Error fetching forked projects. Please try again.'));
           throw e;
         });
     },

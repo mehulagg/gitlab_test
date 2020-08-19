@@ -8,7 +8,7 @@ import { sortBy } from 'lodash';
 import Cookies from 'js-cookie';
 import { __, sprintf } from '~/locale';
 import sidebarEventHub from '~/sidebar/event_hub';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { parseBoolean } from '~/lib/utils/common_utils';
 import axios from '~/lib/utils/axios_utils';
 
@@ -212,7 +212,7 @@ class BoardsStoreEE {
         })
         .catch(() => {
           issue.setLoadingState('weight', false);
-          createFlash(__('An error occurred when updating the issue weight'));
+          deprecatedCreateFlash(__('An error occurred when updating the issue weight'));
         });
     }
   }
@@ -228,7 +228,7 @@ class BoardsStoreEE {
         this.store.state[listType] = data;
       })
       .catch(() => {
-        createFlash(
+        deprecatedCreateFlash(
           sprintf(__('Something went wrong while fetching %{listType} list'), {
             listType,
           }),

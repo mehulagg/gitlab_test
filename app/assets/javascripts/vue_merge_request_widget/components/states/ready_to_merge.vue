@@ -9,7 +9,7 @@ import simplePoll from '~/lib/utils/simple_poll';
 import { __, sprintf } from '~/locale';
 import MergeRequest from '../../../merge_request';
 import { refreshUserMergeRequestCounts } from '~/commons/nav/user_merge_requests';
-import { deprecatedCreateFlash as Flash } from '../../../flash';
+import { deprecatedCreateFlash } from '../../../flash';
 import statusIcon from '../mr_widget_status_icon.vue';
 import eventHub from '../../event_hub';
 import SquashBeforeMerge from './squash_before_merge.vue';
@@ -203,7 +203,7 @@ export default {
         })
         .catch(() => {
           this.isMakingRequest = false;
-          new Flash(__('Something went wrong. Please try again.')); // eslint-disable-line
+          deprecatedCreateFlash(__('Something went wrong. Please try again.'));
         });
     },
     handleMergeImmediatelyButtonClick() {
@@ -254,7 +254,9 @@ export default {
           }
         })
         .catch(() => {
-          new Flash(__('Something went wrong while merging this merge request. Please try again.')); // eslint-disable-line
+          deprecatedCreateFlash(
+            __('Something went wrong while merging this merge request. Please try again.'),
+          );
           stopPolling();
         });
     },
@@ -284,7 +286,9 @@ export default {
           }
         })
         .catch(() => {
-          new Flash(__('Something went wrong while deleting the source branch. Please try again.')); // eslint-disable-line
+          deprecatedCreateFlash(
+            __('Something went wrong while deleting the source branch. Please try again.'),
+          );
         });
     },
   },

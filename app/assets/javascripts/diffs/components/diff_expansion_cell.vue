@@ -1,7 +1,7 @@
 <script>
 import { mapState, mapActions } from 'vuex';
 import { GlIcon } from '@gitlab/ui';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { s__, sprintf } from '~/locale';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { UNFOLD_COUNT, INLINE_DIFF_VIEW_TYPE, PARALLEL_DIFF_VIEW_TYPE } from '../constants';
@@ -112,7 +112,7 @@ export default {
           this.isRequesting = false;
         })
         .catch(() => {
-          createFlash(s__('Diffs|Something went wrong while fetching diff lines.'));
+          deprecatedCreateFlash(s__('Diffs|Something went wrong while fetching diff lines.'));
           this.isRequesting = false;
         });
     },

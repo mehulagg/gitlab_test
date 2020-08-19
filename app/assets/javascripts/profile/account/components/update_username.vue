@@ -4,7 +4,7 @@ import { escape } from 'lodash';
 import axios from '~/lib/utils/axios_utils';
 import DeprecatedModal2 from '~/vue_shared/components/deprecated_modal_2.vue';
 import { s__, sprintf } from '~/locale';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 export default {
   components: {
@@ -66,12 +66,12 @@ Please update your Git repository remotes as soon as possible.`),
       return axios
         .put(this.actionUrl, putData)
         .then(result => {
-          Flash(result.data.message, 'notice');
+          deprecatedCreateFlash(result.data.message, 'notice');
           this.username = username;
           this.isRequestPending = false;
         })
         .catch(error => {
-          Flash(error.response.data.message);
+          deprecatedCreateFlash(error.response.data.message);
           this.isRequestPending = false;
           throw error;
         });

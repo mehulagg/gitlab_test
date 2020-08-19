@@ -6,7 +6,7 @@ import { GlButton, GlModalDirective, GlTooltipDirective, GlIcon } from '@gitlab/
 import DashboardHeader from './dashboard_header.vue';
 import DashboardPanel from './dashboard_panel.vue';
 import { s__ } from '~/locale';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { ESC_KEY } from '~/lib/utils/keys';
 import { mergeUrlParams, updateHistory } from '~/lib/utils/url_utility';
 import invalidUrl from '~/lib/utils/invalid_url';
@@ -175,7 +175,7 @@ export default {
           this.setExpandedPanel(expandedPanel);
         }
       } catch {
-        createFlash(
+        deprecatedCreateFlash(
           s__(
             'Metrics|Link contains invalid chart information, please verify the link to see the expanded panel.',
           ),
@@ -200,7 +200,7 @@ export default {
        * This watcher is set for future SPA behaviour of the dashboard
        */
       if (hasWarnings) {
-        createFlash(
+        deprecatedCreateFlash(
           s__(
             'Metrics|Your dashboard schema is invalid. Edit the dashboard to correct the YAML schema.',
           ),
@@ -317,7 +317,7 @@ export default {
       this.isRearrangingPanels = isRearrangingPanels;
     },
     onDateTimePickerInvalid() {
-      createFlash(
+      deprecatedCreateFlash(
         s__(
           'Metrics|Link contains an invalid time window, please verify the link to see the requested time range.',
         ),

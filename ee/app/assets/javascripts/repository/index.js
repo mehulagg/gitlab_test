@@ -1,7 +1,7 @@
 import initTree from '~/repository';
 import axios from '~/lib/utils/axios_utils';
 import { __ } from '~/locale';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 export default () => {
   const { router, data } = initTree();
@@ -23,7 +23,7 @@ export default () => {
         .then(() => window.location.reload())
         .catch(() => {
           toggleBtn.removeAttribute('disabled');
-          createFlash(__('An error occurred while initializing path locks'));
+          deprecatedCreateFlash(__('An error occurred while initializing path locks'));
         });
     });
   }

@@ -1,7 +1,7 @@
 import { TEST_HOST } from 'spec/test_constants';
 import AxiosMockAdapter from 'axios-mock-adapter';
 import Api from '~/api';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import * as actions from '~/notes/stores/actions';
 import mutations from '~/notes/stores/mutations';
 import * as mutationTypes from '~/notes/stores/mutation_types';
@@ -859,7 +859,7 @@ describe('Actions Notes Store', () => {
           .then(() => done.fail('Expected error to be thrown!'))
           .catch(err => {
             expect(err).toBe(error);
-            expect(Flash).not.toHaveBeenCalled();
+            expect(deprecatedCreateFlash).not.toHaveBeenCalled();
           })
           .then(done)
           .catch(done.fail);
@@ -881,7 +881,7 @@ describe('Actions Notes Store', () => {
           )
           .then(resp => {
             expect(resp.hasFlash).toBe(true);
-            expect(Flash).toHaveBeenCalledWith(
+            expect(deprecatedCreateFlash).toHaveBeenCalledWith(
               'Your comment could not be submitted because something went wrong',
               'alert',
               flashContainer,
@@ -907,7 +907,7 @@ describe('Actions Notes Store', () => {
           )
           .then(data => {
             expect(data).toBe(res);
-            expect(Flash).not.toHaveBeenCalled();
+            expect(deprecatedCreateFlash).not.toHaveBeenCalled();
           })
           .then(done)
           .catch(done.fail);
@@ -945,7 +945,7 @@ describe('Actions Notes Store', () => {
         ]);
 
         expect(dispatch.mock.calls).toEqual([['resolveDiscussion', { discussionId }]]);
-        expect(Flash).not.toHaveBeenCalled();
+        expect(deprecatedCreateFlash).not.toHaveBeenCalled();
       });
     });
 
@@ -957,7 +957,11 @@ describe('Actions Notes Store', () => {
       testSubmitSuggestion(done, () => {
         expect(commit).not.toHaveBeenCalled();
         expect(dispatch).not.toHaveBeenCalled();
-        expect(Flash).toHaveBeenCalledWith(TEST_ERROR_MESSAGE, 'alert', flashContainer);
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(
+          TEST_ERROR_MESSAGE,
+          'alert',
+          flashContainer,
+        );
       });
     });
 
@@ -969,7 +973,7 @@ describe('Actions Notes Store', () => {
       testSubmitSuggestion(done, () => {
         expect(commit).not.toHaveBeenCalled();
         expect(dispatch).not.toHaveBeenCalled();
-        expect(Flash).toHaveBeenCalledWith(
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(
           'Something went wrong while applying the suggestion. Please try again.',
           'alert',
           flashContainer,
@@ -981,7 +985,7 @@ describe('Actions Notes Store', () => {
       dispatch.mockReturnValue(Promise.reject());
 
       testSubmitSuggestion(done, () => {
-        expect(Flash).not.toHaveBeenCalled();
+        expect(deprecatedCreateFlash).not.toHaveBeenCalled();
       });
     });
   });
@@ -1023,7 +1027,7 @@ describe('Actions Notes Store', () => {
           ['resolveDiscussion', { discussionId: discussionIds[1] }],
         ]);
 
-        expect(Flash).not.toHaveBeenCalled();
+        expect(deprecatedCreateFlash).not.toHaveBeenCalled();
       });
     });
 
@@ -1039,7 +1043,11 @@ describe('Actions Notes Store', () => {
         ]);
 
         expect(dispatch).not.toHaveBeenCalled();
-        expect(Flash).toHaveBeenCalledWith(TEST_ERROR_MESSAGE, 'alert', flashContainer);
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(
+          TEST_ERROR_MESSAGE,
+          'alert',
+          flashContainer,
+        );
       });
     });
 
@@ -1055,7 +1063,7 @@ describe('Actions Notes Store', () => {
         ]);
 
         expect(dispatch).not.toHaveBeenCalled();
-        expect(Flash).toHaveBeenCalledWith(
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(
           'Something went wrong while applying the batch of suggestions. Please try again.',
           'alert',
           flashContainer,
@@ -1075,7 +1083,7 @@ describe('Actions Notes Store', () => {
           [mutationTypes.SET_APPLYING_BATCH_STATE, false],
         ]);
 
-        expect(Flash).not.toHaveBeenCalled();
+        expect(deprecatedCreateFlash).not.toHaveBeenCalled();
       });
     });
   });
@@ -1214,7 +1222,7 @@ describe('Actions Notes Store', () => {
         )
           .then(() => done.fail('Expected error to be thrown'))
           .catch(() => {
-            expect(Flash).toHaveBeenCalled();
+            expect(deprecatedCreateFlash).toHaveBeenCalled();
             done();
           });
       });

@@ -1,5 +1,5 @@
 import Api from 'ee/api';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __, sprintf } from '~/locale';
 import httpStatusCodes from '~/lib/utils/http_status';
 import * as types from './mutation_types';
@@ -40,13 +40,16 @@ export const clearSavingCustomStage = ({ commit }) => commit(types.CLEAR_SAVING_
 
 export const receiveCreateStageSuccess = ({ commit, dispatch }, { data: { title } }) => {
   commit(types.RECEIVE_CREATE_STAGE_SUCCESS);
-  createFlash(sprintf(__(`Your custom stage '%{title}' was created`), { title }), 'notice');
+  deprecatedCreateFlash(
+    sprintf(__(`Your custom stage '%{title}' was created`), { title }),
+    'notice',
+  );
 
   return Promise.resolve()
     .then(() => dispatch('fetchGroupStagesAndEvents', null, { root: true }))
     .then(() => dispatch('clearSavingCustomStage'))
     .catch(() => {
-      createFlash(__('There was a problem refreshing the data, please try again'));
+      deprecatedCreateFlash(__('There was a problem refreshing the data, please try again'));
     });
 };
 
@@ -61,7 +64,7 @@ export const receiveCreateStageError = (
       ? sprintf(__(`'%{name}' stage already exists`), { name })
       : __('There was a problem saving your custom stage, please try again');
 
-  createFlash(flashMessage);
+  deprecatedCreateFlash(flashMessage);
   return dispatch('setStageFormErrors', errors);
 };
 

@@ -9,7 +9,7 @@ import {
   GlSearchBoxByType,
 } from '@gitlab/ui';
 import { mapGetters } from 'vuex';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 import { removeFlash } from '../utils';
 import { DATA_REFETCH_DELAY } from '../../shared/constants';
@@ -102,7 +102,9 @@ export default {
           this.labels = data;
         })
         .catch(() => {
-          createFlash(__('There was an error fetching label data for the selected group'));
+          deprecatedCreateFlash(
+            __('There was an error fetching label data for the selected group'),
+          );
         })
         .finally(() => {
           this.loading = false;

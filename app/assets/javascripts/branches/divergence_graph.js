@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import { __ } from '../locale';
-import { deprecatedCreateFlash as createFlash } from '../flash';
+import { deprecatedCreateFlash } from '../flash';
 import axios from '../lib/utils/axios_utils';
 import DivergenceGraph from './components/divergence_graph.vue';
 
@@ -51,6 +51,6 @@ export default endpoint => {
       });
     })
     .catch(() =>
-      createFlash(__('Error fetching diverging counts for branches. Please try again.')),
+      deprecatedCreateFlash(__('Error fetching diverging counts for branches. Please try again.')),
     );
 };

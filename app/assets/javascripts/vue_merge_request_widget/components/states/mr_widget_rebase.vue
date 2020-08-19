@@ -5,7 +5,7 @@ import { escape } from 'lodash';
 import simplePoll from '../../../lib/utils/simple_poll';
 import eventHub from '../../event_hub';
 import statusIcon from '../mr_widget_status_icon.vue';
-import { deprecatedCreateFlash as Flash } from '../../../flash';
+import { deprecatedCreateFlash } from '../../../flash';
 import { __, sprintf } from '~/locale';
 
 export default {
@@ -71,7 +71,7 @@ export default {
           if (error.response && error.response.data && error.response.data.merge_error) {
             this.rebasingError = error.response.data.merge_error;
           } else {
-            Flash(__('Something went wrong. Please try again.'));
+            deprecatedCreateFlash(__('Something went wrong. Please try again.'));
           }
         });
     },
@@ -87,7 +87,7 @@ export default {
 
             if (res.merge_error && res.merge_error.length) {
               this.rebasingError = res.merge_error;
-              Flash(__('Something went wrong. Please try again.'));
+              deprecatedCreateFlash(__('Something went wrong. Please try again.'));
             }
 
             eventHub.$emit('MRWidgetRebaseSuccess');
@@ -96,7 +96,7 @@ export default {
         })
         .catch(() => {
           this.isMakingRequest = false;
-          Flash(__('Something went wrong. Please try again.'));
+          deprecatedCreateFlash(__('Something went wrong. Please try again.'));
           stopPolling();
         });
     },

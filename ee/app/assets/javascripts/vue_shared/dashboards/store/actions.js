@@ -3,7 +3,7 @@ import { find } from 'lodash';
 import Api from '~/api';
 import axios from '~/lib/utils/axios_utils';
 import Poll from '~/lib/utils/poll';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __, s__, n__, sprintf } from '~/locale';
 import * as types from './mutation_types';
 
@@ -70,7 +70,7 @@ export const receiveAddProjectsToDashboardSuccess = ({ dispatch, state }, data) 
     } else {
       invalidProjects = firstProject;
     }
-    createFlash(
+    deprecatedCreateFlash(
       sprintf(
         s__(
           'Dashboard|Unable to add %{invalidProjects}. This dashboard is available for public projects, and private projects in groups with a Silver plan.',
@@ -88,7 +88,7 @@ export const receiveAddProjectsToDashboardSuccess = ({ dispatch, state }, data) 
 };
 
 export const receiveAddProjectsToDashboardError = ({ state }) => {
-  createFlash(
+  deprecatedCreateFlash(
     sprintf(__('Something went wrong, unable to add %{project} to dashboard'), {
       project: n__('project', 'projects', state.selectedProjects.length),
     }),
@@ -134,7 +134,7 @@ export const requestProjects = ({ commit }) => {
 
 export const receiveProjectsError = ({ commit }) => {
   commit(types.RECEIVE_PROJECTS_ERROR);
-  createFlash(__('Something went wrong, unable to get projects'));
+  deprecatedCreateFlash(__('Something went wrong, unable to get projects'));
 };
 
 export const removeProject = ({ dispatch }, removePath) => {
@@ -147,7 +147,7 @@ export const removeProject = ({ dispatch }, removePath) => {
 export const receiveRemoveProjectSuccess = ({ dispatch }) => dispatch('forceProjectsRequest');
 
 export const receiveRemoveProjectError = () => {
-  createFlash(__('Something went wrong, unable to delete project'));
+  deprecatedCreateFlash(__('Something went wrong, unable to delete project'));
 };
 
 export const setSearchQuery = ({ commit }, query) => commit(types.SET_SEARCH_QUERY, query);

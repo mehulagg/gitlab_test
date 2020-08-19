@@ -14,7 +14,7 @@ import {
 
 import axios from '~/lib/utils/axios_utils';
 import { s__, n__ } from '~/locale';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { getDayDifference } from '~/lib/utils/datetime_utility';
 import { capitalizeFirstCharacter } from '~/lib/utils/text_utility';
 import { mergeUrlParams } from '~/lib/utils/url_utility';
@@ -120,7 +120,7 @@ export default {
           this.isLoading = false;
         })
         .catch(() => {
-          createFlash(s__('IssueAnalytics|Failed to load issues. Please try again.'));
+          deprecatedCreateFlash(s__('IssueAnalytics|Failed to load issues. Please try again.'));
           this.isLoading = false;
         });
     },

@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import axios from '../lib/utils/axios_utils';
-import { deprecatedCreateFlash as flash } from '../flash';
+import { deprecatedCreateFlash } from '../flash';
 import { __ } from '~/locale';
 import initForm from './edit';
 import eventHub from './edit/event_hub';
@@ -128,7 +128,12 @@ export default class IntegrationSettingsForm {
             };
           }
 
-          flash(`${data.message} ${data.service_response}`, 'alert', document, flashActions);
+          deprecatedCreateFlash(
+            `${data.message} ${data.service_response}`,
+            'alert',
+            document,
+            flashActions,
+          );
         } else {
           this.$form.submit();
         }
@@ -136,7 +141,7 @@ export default class IntegrationSettingsForm {
         this.toggleSubmitBtnState(false);
       })
       .catch(() => {
-        flash(__('Something went wrong on our end.'));
+        deprecatedCreateFlash(__('Something went wrong on our end.'));
         this.toggleSubmitBtnState(false);
       });
   }

@@ -2,7 +2,7 @@ import $ from 'jquery';
 import { escape } from 'lodash';
 import { __, sprintf } from './locale';
 import axios from './lib/utils/axios_utils';
-import { deprecatedCreateFlash as flash } from './flash';
+import { deprecatedCreateFlash } from './flash';
 import { parseBoolean } from './lib/utils/common_utils';
 
 class ImporterStatus {
@@ -93,7 +93,9 @@ class ImporterStatus {
           details = error.response.data.errors;
         }
 
-        flash(sprintf(__('An error occurred while importing project: %{details}'), { details }));
+        deprecatedCreateFlash(
+          sprintf(__('An error occurred while importing project: %{details}'), { details }),
+        );
       });
   }
 

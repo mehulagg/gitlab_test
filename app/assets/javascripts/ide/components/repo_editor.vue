@@ -1,7 +1,7 @@
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex';
 import { viewerInformationForPath } from '~/vue_shared/components/content_viewer/lib/viewer_utils';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import ContentViewer from '~/vue_shared/components/content_viewer/content_viewer.vue';
 import DiffViewer from '~/vue_shared/components/diff_viewer/diff_viewer.vue';
 import {
@@ -201,7 +201,7 @@ export default {
           this.createEditorInstance();
         })
         .catch(err => {
-          flash(
+          deprecatedCreateFlash(
             __('Error setting up editor. Please try again.'),
             'alert',
             document,

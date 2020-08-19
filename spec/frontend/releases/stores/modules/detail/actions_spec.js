@@ -6,7 +6,7 @@ import * as actions from '~/releases/stores/modules/detail/actions';
 import * as types from '~/releases/stores/modules/detail/mutation_types';
 import { release as originalRelease } from '../../../mock_data';
 import createState from '~/releases/stores/modules/detail/state';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 import { redirectTo } from '~/lib/utils/url_utility';
 import api from '~/api';
@@ -51,7 +51,7 @@ describe('Release detail actions', () => {
     mock = new MockAdapter(axios);
     gon.api_version = 'v4';
     error = { message: 'An error occurred' };
-    createFlash.mockClear();
+    deprecatedCreateFlash.mockClear();
   });
 
   afterEach(() => {
@@ -153,8 +153,8 @@ describe('Release detail actions', () => {
 
         it(`shows a flash message`, () => {
           return actions.fetchRelease({ commit: jest.fn(), state }).then(() => {
-            expect(createFlash).toHaveBeenCalledTimes(1);
-            expect(createFlash).toHaveBeenCalledWith(
+            expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
+            expect(deprecatedCreateFlash).toHaveBeenCalledWith(
               'Something went wrong while getting the release details',
             );
           });
@@ -357,8 +357,8 @@ describe('Release detail actions', () => {
           return actions
             .createRelease({ commit: jest.fn(), dispatch: jest.fn(), state, getters: {} })
             .then(() => {
-              expect(createFlash).toHaveBeenCalledTimes(1);
-              expect(createFlash).toHaveBeenCalledWith(
+              expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
+              expect(deprecatedCreateFlash).toHaveBeenCalledWith(
                 'Something went wrong while creating a new release',
               );
             });
@@ -471,8 +471,8 @@ describe('Release detail actions', () => {
 
         it('shows a flash message', () => {
           return actions.updateRelease({ commit, dispatch, state, getters }).then(() => {
-            expect(createFlash).toHaveBeenCalledTimes(1);
-            expect(createFlash).toHaveBeenCalledWith(
+            expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
+            expect(deprecatedCreateFlash).toHaveBeenCalledWith(
               'Something went wrong while saving the release details',
             );
           });

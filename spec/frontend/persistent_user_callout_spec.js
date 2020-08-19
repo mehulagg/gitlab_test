@@ -2,7 +2,7 @@ import MockAdapter from 'axios-mock-adapter';
 import waitForPromises from 'helpers/wait_for_promises';
 import axios from '~/lib/utils/axios_utils';
 import PersistentUserCallout from '~/persistent_user_callout';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 jest.mock('~/flash');
 
@@ -96,7 +96,7 @@ describe('PersistentUserCallout', () => {
 
       return waitForPromises().then(() => {
         expect(persistentUserCallout.container.remove).not.toHaveBeenCalled();
-        expect(Flash).toHaveBeenCalledWith(
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(
           'An error occurred while dismissing the alert. Refresh the page and try again.',
         );
       });
@@ -203,7 +203,7 @@ describe('PersistentUserCallout', () => {
 
       return waitForPromises().then(() => {
         expect(window.location.assign).not.toHaveBeenCalled();
-        expect(Flash).toHaveBeenCalledWith(
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(
           'An error occurred while acknowledging the notification. Refresh the page and try again.',
         );
       });

@@ -1,6 +1,6 @@
 <script>
 import Store from '../../stores/sidebar_store';
-import { deprecatedCreateFlash as Flash } from '../../../flash';
+import { deprecatedCreateFlash } from '../../../flash';
 import { __ } from '../../../locale';
 import subscriptions from './subscriptions.vue';
 
@@ -22,7 +22,7 @@ export default {
   methods: {
     onToggleSubscription() {
       this.mediator.toggleSubscription().catch(() => {
-        Flash(__('Error occurred when toggling the notification subscription'));
+        deprecatedCreateFlash(__('Error occurred when toggling the notification subscription'));
       });
     },
   },

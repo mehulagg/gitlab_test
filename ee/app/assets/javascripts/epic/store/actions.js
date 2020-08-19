@@ -1,4 +1,4 @@
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __, s__, sprintf } from '~/locale';
 
 import axios from '~/lib/utils/axios_utils';
@@ -41,7 +41,7 @@ export const fetchEpicDetails = ({ state, dispatch }) => {
 };
 
 export const requestEpicParticipantsFailure = () => {
-  flash(__('There was an error getting the epic participants.'));
+  deprecatedCreateFlash(__('There was an error getting the epic participants.'));
 };
 
 export const requestEpicStatusChange = ({ commit }) => commit(types.REQUEST_EPIC_STATUS_CHANGE);
@@ -51,7 +51,7 @@ export const requestEpicStatusChangeSuccess = ({ commit }, data) =>
 
 export const requestEpicStatusChangeFailure = ({ commit }) => {
   commit(types.REQUEST_EPIC_STATUS_CHANGE_FAILURE);
-  flash(__('Unable to update this epic at this time.'));
+  deprecatedCreateFlash(__('Unable to update this epic at this time.'));
 };
 
 export const triggerIssuableEvent = (_, { isEpicOpen }) => {
@@ -105,9 +105,9 @@ export const requestEpicTodoToggleFailure = ({ commit, state }, data) => {
   commit(types.REQUEST_EPIC_TODO_TOGGLE_FAILURE, data);
 
   if (state.todoExists) {
-    flash(__('There was an error deleting the To Do.'));
+    deprecatedCreateFlash(__('There was an error deleting the To Do.'));
   } else {
-    flash(__('There was an error adding a To Do.'));
+    deprecatedCreateFlash(__('There was an error adding a To Do.'));
   }
 };
 export const triggerTodoToggleEvent = (_, { count }) => {
@@ -149,7 +149,7 @@ export const requestEpicDateSaveSuccess = ({ commit }, data) =>
   commit(types.REQUEST_EPIC_DATE_SAVE_SUCCESS, data);
 export const requestEpicDateSaveFailure = ({ commit }, data) => {
   commit(types.REQUEST_EPIC_DATE_SAVE_FAILURE, data);
-  flash(
+  deprecatedCreateFlash(
     sprintf(s__('Epics|An error occurred while saving the %{epicDateType} date'), {
       epicDateType: dateTypes.start === data.dateType ? s__('Epics|start') : s__('Epics|due'),
     }),
@@ -219,7 +219,7 @@ export const updateConfidentialityOnIssuable = ({ state, commit }, { confidentia
       }
     })
     .catch(error => {
-      flash(error);
+      deprecatedCreateFlash(error);
       throw error;
     });
 };
@@ -232,7 +232,7 @@ export const receiveEpicLabelsSelectSuccess = ({ commit }, labels) =>
   commit(types.RECEIVE_EPIC_LABELS_SELECT_SUCCESS, labels);
 export const receiveEpicLabelsSelectFailure = ({ commit }) => {
   commit(types.RECEIVE_EPIC_LABELS_SELECT_FAILURE);
-  flash(s__('Epics|An error occurred while updating labels.'));
+  deprecatedCreateFlash(s__('Epics|An error occurred while updating labels.'));
 };
 export const updateEpicLabels = ({ dispatch, state }, labels) => {
   const addLabelIds = labels.filter(label => label.set).map(label => label.id);
@@ -275,9 +275,9 @@ export const requestEpicSubscriptionToggleSuccess = ({ commit }, data) =>
 export const requestEpicSubscriptionToggleFailure = ({ commit, state }) => {
   commit(types.REQUEST_EPIC_SUBSCRIPTION_TOGGLE_FAILURE);
   if (state.subscribed) {
-    flash(__('An error occurred while unsubscribing to notifications.'));
+    deprecatedCreateFlash(__('An error occurred while unsubscribing to notifications.'));
   } else {
-    flash(__('An error occurred while subscribing to notifications.'));
+    deprecatedCreateFlash(__('An error occurred while subscribing to notifications.'));
   }
 };
 export const toggleEpicSubscription = ({ state, dispatch }) => {
@@ -318,7 +318,7 @@ export const requestEpicCreate = ({ commit }) => commit(types.REQUEST_EPIC_CREAT
 export const requestEpicCreateSuccess = (_, webUrl) => visitUrl(webUrl);
 export const requestEpicCreateFailure = ({ commit }) => {
   commit(types.REQUEST_EPIC_CREATE_FAILURE);
-  flash(s__('Error creating epic'));
+  deprecatedCreateFlash(s__('Error creating epic'));
 };
 export const createEpic = ({ state, dispatch }) => {
   dispatch('requestEpicCreate');

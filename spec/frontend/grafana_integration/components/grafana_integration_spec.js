@@ -5,7 +5,7 @@ import GrafanaIntegration from '~/grafana_integration/components/grafana_integra
 import { createStore } from '~/grafana_integration/store';
 import axios from '~/lib/utils/axios_utils';
 import { refreshCurrentPage } from '~/lib/utils/url_utility';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 jest.mock('~/lib/utils/url_utility');
 jest.mock('~/flash');
@@ -28,7 +28,7 @@ describe('grafana integration component', () => {
   afterEach(() => {
     if (wrapper.destroy) {
       wrapper.destroy();
-      createFlash.mockReset();
+      deprecatedCreateFlash.mockReset();
       refreshCurrentPage.mockReset();
     }
   });
@@ -114,7 +114,7 @@ describe('grafana integration component', () => {
           .$nextTick()
           .then(jest.runAllTicks)
           .then(() =>
-            expect(createFlash).toHaveBeenCalledWith(
+            expect(deprecatedCreateFlash).toHaveBeenCalledWith(
               `There was an error saving your changes. ${message}`,
               'alert',
             ),

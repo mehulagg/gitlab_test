@@ -5,7 +5,7 @@ import Activities from '~/activities';
 import { localTimeAgo } from '~/lib/utils/datetime_utility';
 import AjaxCache from '~/lib/utils/ajax_cache';
 import { __ } from '~/locale';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import ActivityCalendar from './activity_calendar';
 import UserOverviewBlock from './user_overview_block';
 
@@ -214,7 +214,9 @@ export default class UserTabs {
 
     AjaxCache.retrieve(calendarPath)
       .then(data => UserTabs.renderActivityCalendar(data, $calendarWrap))
-      .catch(() => flash(__('There was an error loading users activity calendar.')));
+      .catch(() =>
+        deprecatedCreateFlash(__('There was an error loading users activity calendar.')),
+      );
   }
 
   static renderActivityCalendar(data, $calendarWrap) {

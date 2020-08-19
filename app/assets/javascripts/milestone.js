@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import axios from './lib/utils/axios_utils';
-import { deprecatedCreateFlash as flash } from './flash';
+import { deprecatedCreateFlash } from './flash';
 import { mouseenter, debouncedMouseleave, togglePopover } from './shared/popover';
 import { __ } from './locale';
 
@@ -43,7 +43,7 @@ export default class Milestone {
           $(tabElId).html(data.html);
           $target.addClass('is-loaded');
         })
-        .catch(() => flash(__('Error loading milestone tab')));
+        .catch(() => deprecatedCreateFlash(__('Error loading milestone tab')));
     }
   }
 

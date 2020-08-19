@@ -1,5 +1,5 @@
 <script>
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import Approvals from '~/vue_merge_request_widget/components/approvals/approvals.vue';
 import approvalsMixin from '~/vue_merge_request_widget/mixins/approvals';
 import ApprovalsAuth from './approvals_auth.vue';
@@ -66,7 +66,7 @@ export default {
       if (this.isBasic) return Promise.resolve();
 
       return Promise.all([this.refreshRules(), this.refreshApprovals()]).catch(() =>
-        createFlash(FETCH_ERROR),
+        deprecatedCreateFlash(FETCH_ERROR),
       );
     },
     refreshRules() {

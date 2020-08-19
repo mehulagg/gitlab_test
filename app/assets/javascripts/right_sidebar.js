@@ -2,7 +2,7 @@
 
 import $ from 'jquery';
 import Cookies from 'js-cookie';
-import { deprecatedCreateFlash as flash } from './flash';
+import { deprecatedCreateFlash } from './flash';
 import axios from './lib/utils/axios_utils';
 import { sprintf, s__, __ } from './locale';
 
@@ -91,7 +91,7 @@ Sidebar.prototype.toggleTodo = function(e) {
       this.todoUpdateDone(data);
     })
     .catch(() =>
-      flash(
+      deprecatedCreateFlash(
         sprintf(__('There was an error %{message} todo.'), {
           message:
             ajaxType === 'post' ? s__('RightSidebar|adding a') : s__('RightSidebar|deleting the'),

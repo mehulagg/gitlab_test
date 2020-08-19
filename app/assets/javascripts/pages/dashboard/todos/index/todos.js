@@ -7,7 +7,7 @@ import UsersSelect from '~/users_select';
 import { isMetaClick } from '~/lib/utils/common_utils';
 import { addDelimiter } from '~/lib/utils/text_utility';
 import { __ } from '~/locale';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import axios from '~/lib/utils/axios_utils';
 
 export default class Todos {
@@ -84,7 +84,7 @@ export default class Todos {
       })
       .catch(() => {
         this.updateRowState(target, true);
-        return flash(__('Error updating status of to-do item.'));
+        return deprecatedCreateFlash(__('Error updating status of to-do item.'));
       });
   }
 
@@ -126,7 +126,7 @@ export default class Todos {
         this.updateAllState(target, data);
         this.updateBadges(data);
       })
-      .catch(() => flash(__('Error updating status for all to-do items.')));
+      .catch(() => deprecatedCreateFlash(__('Error updating status for all to-do items.')));
   }
 
   updateAllState(target, data) {

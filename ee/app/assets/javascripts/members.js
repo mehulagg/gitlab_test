@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 import axios from '~/lib/utils/axios_utils';
 import Members from '~/members';
@@ -76,13 +76,15 @@ export default class MembersEE extends Members {
         $btn.enable();
 
         if (xhr.status === 403) {
-          createFlash(
+          deprecatedCreateFlash(
             __(
               'You do not have the correct permissions to override the settings from the LDAP group sync.',
             ),
           );
         } else {
-          createFlash(__('An error occurred while saving LDAP override status. Please try again.'));
+          deprecatedCreateFlash(
+            __('An error occurred while saving LDAP override status. Please try again.'),
+          );
         }
       });
   }

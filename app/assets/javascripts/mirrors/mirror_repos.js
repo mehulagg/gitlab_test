@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import { debounce } from 'lodash';
 import { __ } from '~/locale';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import axios from '~/lib/utils/axios_utils';
 import SSHMirror from './ssh_mirror';
 
@@ -109,7 +109,7 @@ export default class MirrorRepos {
     return axios
       .put(this.mirrorEndpoint, payload)
       .then(() => this.removeRow($target))
-      .catch(() => Flash(__('Failed to remove mirror.')));
+      .catch(() => deprecatedCreateFlash(__('Failed to remove mirror.')));
   }
 
   /* eslint-disable class-methods-use-this */

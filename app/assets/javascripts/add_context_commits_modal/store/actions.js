@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { s__ } from '~/locale';
 import Api from '~/api';
 import * as types from './mutation_types';
@@ -71,7 +71,9 @@ export const createContextCommits = ({ state }, { commits, forceReload = false }
     })
     .catch(() => {
       if (forceReload) {
-        createFlash(s__('ContextCommits|Failed to create context commits. Please try again.'));
+        deprecatedCreateFlash(
+          s__('ContextCommits|Failed to create context commits. Please try again.'),
+        );
       }
 
       return false;
@@ -111,7 +113,9 @@ export const removeContextCommits = ({ state }, forceReload = false) =>
     })
     .catch(() => {
       if (forceReload) {
-        createFlash(s__('ContextCommits|Failed to delete context commits. Please try again.'));
+        deprecatedCreateFlash(
+          s__('ContextCommits|Failed to delete context commits. Please try again.'),
+        );
       }
 
       return false;

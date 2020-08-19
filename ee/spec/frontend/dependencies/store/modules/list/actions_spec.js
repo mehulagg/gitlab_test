@@ -11,7 +11,7 @@ import {
   SORT_ORDER,
   FETCH_ERROR_MESSAGE,
 } from 'ee/dependencies/store/modules/list/constants';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 import mockDependenciesResponse from './data/mock_dependencies.json';
 
@@ -37,7 +37,7 @@ describe('Dependencies actions', () => {
   };
 
   afterEach(() => {
-    createFlash.mockClear();
+    deprecatedCreateFlash.mockClear();
   });
 
   describe('setDependenciesEndpoint', () => {
@@ -249,8 +249,8 @@ describe('Dependencies actions', () => {
             },
           ],
         ).then(() => {
-          expect(createFlash).toHaveBeenCalledTimes(1);
-          expect(createFlash).toHaveBeenCalledWith(FETCH_ERROR_MESSAGE);
+          expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(FETCH_ERROR_MESSAGE);
         }));
     });
   });

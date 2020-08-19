@@ -2,7 +2,7 @@
 import { GlButton, GlFormSelect } from '@gitlab/ui';
 import { s__, n__ } from '~/locale';
 import toast from '~/vue_shared/plugins/global_toast';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import dismissVulnerability from '../graphql/dismissVulnerability.graphql';
 
 const REASON_NONE = s__('SecurityReports|[No reason]');
@@ -68,7 +68,7 @@ export default {
           this.$emit('deselect-all-vulnerabilities');
         })
         .catch(() => {
-          createFlash(
+          deprecatedCreateFlash(
             s__('SecurityReports|There was an error dismissing the vulnerabilities.'),
             'alert',
           );

@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import AccessorUtilities from '~/lib/utils/accessor';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 import * as types from './mutation_types';
 import { parseIntPagination, normalizeHeaders } from '~/lib/utils/common_utils';
@@ -26,7 +26,7 @@ export default {
     if (AccessorUtilities.isLocalStorageAccessSafe()) {
       localStorage.setItem(state.projectEndpoints.list, state.projects.map(p => p.id));
     } else {
-      createFlash(
+      deprecatedCreateFlash(
         __('Project order will not be saved as local storage is not available.'),
         'warning',
       );

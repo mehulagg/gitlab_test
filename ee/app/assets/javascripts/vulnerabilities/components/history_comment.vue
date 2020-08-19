@@ -1,7 +1,7 @@
 <script>
 import { GlButton, GlSafeHtmlDirective as SafeHtml } from '@gitlab/ui';
 import EventItem from 'ee/vue_shared/security_reports/components/event_item.vue';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __, s__ } from '~/locale';
 import axios from '~/lib/utils/axios_utils';
 import HistoryCommentEditor from './history_comment_editor.vue';
@@ -91,7 +91,7 @@ export default {
           this.$emit(emitName, responseData, this.comment);
         })
         .catch(() => {
-          createFlash(
+          deprecatedCreateFlash(
             s__(
               'VulnerabilityManagement|Something went wrong while trying to save the comment. Please try again later.',
             ),
@@ -111,7 +111,7 @@ export default {
           this.$emit('onCommentDeleted', this.comment);
         })
         .catch(() =>
-          createFlash(
+          deprecatedCreateFlash(
             s__(
               'VulnerabilityManagement|Something went wrong while trying to delete the comment. Please try again later.',
             ),

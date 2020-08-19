@@ -3,7 +3,7 @@ import * as Sentry from '@sentry/browser';
 import { GlPagination } from '@gitlab/ui';
 import { __, sprintf } from '~/locale';
 import Api from '~/api';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { urlParamsToObject } from '~/lib/utils/common_utils';
 import { updateHistory, setUrlParams } from '~/lib/utils/url_utility';
 
@@ -142,7 +142,7 @@ export default {
         };
       },
       error: e => {
-        createFlash(__('Something went wrong while fetching requirements list.'));
+        deprecatedCreateFlash(__('Something went wrong while fetching requirements list.'));
         Sentry.captureException(e);
       },
     },
@@ -163,7 +163,7 @@ export default {
         };
       },
       error: e => {
-        createFlash(__('Something went wrong while fetching requirements count.'));
+        deprecatedCreateFlash(__('Something went wrong while fetching requirements count.'));
         Sentry.captureException(e);
       },
     },
@@ -346,7 +346,7 @@ export default {
           },
         })
         .catch(e => {
-          createFlash(errorFlashMessage);
+          deprecatedCreateFlash(errorFlashMessage);
           Sentry.captureException(e);
         });
     },
@@ -400,7 +400,7 @@ export default {
           }
         })
         .catch(e => {
-          createFlash(__('Something went wrong while creating a requirement.'));
+          deprecatedCreateFlash(__('Something went wrong while creating a requirement.'));
           Sentry.captureException(e);
         })
         .finally(() => {

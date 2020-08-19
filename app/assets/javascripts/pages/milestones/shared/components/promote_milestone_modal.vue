@@ -1,6 +1,6 @@
 <script>
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import DeprecatedModal2 from '~/vue_shared/components/deprecated_modal_2.vue';
 import { s__, sprintf } from '~/locale';
 import { visitUrl } from '~/lib/utils/url_utility';
@@ -55,7 +55,7 @@ export default {
             milestoneUrl: this.url,
             successful: false,
           });
-          createFlash(error);
+          deprecatedCreateFlash(error);
         });
     },
   },

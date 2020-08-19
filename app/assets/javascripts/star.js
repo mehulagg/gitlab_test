@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { deprecatedCreateFlash as Flash } from './flash';
+import { deprecatedCreateFlash } from './flash';
 import { __, s__ } from './locale';
 import { spriteIcon } from './lib/utils/common_utils';
 import axios from './lib/utils/axios_utils';
@@ -31,7 +31,7 @@ export default class Star {
             $this.prepend(spriteIcon('star', iconClasses));
           }
         })
-        .catch(() => Flash(__('Star toggle failed. Try again later.')));
+        .catch(() => deprecatedCreateFlash(__('Star toggle failed. Try again later.')));
     });
   }
 }

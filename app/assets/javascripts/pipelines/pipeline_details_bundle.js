@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import Translate from '~/vue_shared/translate';
 import { __ } from '~/locale';
 import { setUrlFragment, redirectTo } from '~/lib/utils/url_utility';
@@ -84,14 +84,14 @@ const createPipelineHeaderApp = mediator => {
         this.mediator.service
           .postAction(path)
           .then(() => this.mediator.refreshPipeline())
-          .catch(() => Flash(__('An error occurred while making the request.')));
+          .catch(() => deprecatedCreateFlash(__('An error occurred while making the request.')));
       },
       deleteAction(path) {
         this.mediator.stopPipelinePoll();
         this.mediator.service
           .deleteAction(path)
           .then(({ request }) => redirectTo(setUrlFragment(request.responseURL, 'delete_success')))
-          .catch(() => Flash(__('An error occurred while deleting the pipeline.')));
+          .catch(() => deprecatedCreateFlash(__('An error occurred while deleting the pipeline.')));
       },
     },
     render(createElement) {

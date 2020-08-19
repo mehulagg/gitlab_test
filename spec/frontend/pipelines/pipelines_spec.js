@@ -8,7 +8,7 @@ import PipelinesComponent from '~/pipelines/components/pipelines_list/pipelines.
 import Store from '~/pipelines/stores/pipelines_store';
 import { pipelineWithStages, stageReply, users, mockSearch, branches } from './mock_data';
 import { RAW_TEXT_WARNING } from '~/pipelines/constants';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 jest.mock('~/flash');
 
@@ -704,8 +704,8 @@ describe('Pipelines', () => {
     it('displays a warning message if raw text search is used', () => {
       findFilteredSearch().vm.$emit('submit', ['rawText']);
 
-      expect(createFlash).toHaveBeenCalledTimes(1);
-      expect(createFlash).toHaveBeenCalledWith(RAW_TEXT_WARNING, 'warning');
+      expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
+      expect(deprecatedCreateFlash).toHaveBeenCalledWith(RAW_TEXT_WARNING, 'warning');
     });
   });
 });

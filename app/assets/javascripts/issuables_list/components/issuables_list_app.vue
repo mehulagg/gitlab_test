@@ -6,7 +6,7 @@ import {
   GlDeprecatedSkeletonLoading as GlSkeletonLoading,
   GlSafeHtmlDirective as SafeHtml,
 } from '@gitlab/ui';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import axios from '~/lib/utils/axios_utils';
 import {
   scrollToElement,
@@ -261,7 +261,7 @@ export default {
         })
         .catch(() => {
           this.loading = false;
-          return flash(__('An error occurred while loading issues'));
+          return deprecatedCreateFlash(__('An error occurred while loading issues'));
         });
     },
     getQueryObject() {

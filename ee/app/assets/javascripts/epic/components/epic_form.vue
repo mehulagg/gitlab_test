@@ -8,7 +8,7 @@ import {
   GlFormInput,
 } from '@gitlab/ui';
 import { visitUrl } from '~/lib/utils/url_utility';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { s__ } from '~/locale';
 import LabelsSelectVue from '~/vue_shared/components/sidebar/labels_select_vue/labels_select_root.vue';
 import MarkdownField from '~/vue_shared/components/markdown/field.vue';
@@ -80,7 +80,7 @@ export default {
         .then(({ data }) => {
           const { errors, epic } = data.createEpic;
           if (errors?.length > 0) {
-            createFlash(errors[0]);
+            deprecatedCreateFlash(errors[0]);
             this.loading = false;
             return;
           }
@@ -89,7 +89,7 @@ export default {
         })
         .catch(() => {
           this.loading = false;
-          createFlash(s__('Epics|Unable to save epic. Please try again'));
+          deprecatedCreateFlash(s__('Epics|Unable to save epic. Please try again'));
         });
     },
     updateDueDate(val) {

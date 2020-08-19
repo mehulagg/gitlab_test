@@ -4,7 +4,7 @@ import * as types from 'ee/codequality_report/store/mutation_types';
 import { TEST_HOST } from 'helpers/test_constants';
 import testAction from 'helpers/vuex_action_helper';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { unparsedIssues, parsedIssues } from '../mock_data';
 
 jest.mock('~/flash');
@@ -89,7 +89,7 @@ describe('Codequality report actions', () => {
         [],
         [{ type: 'requestReport' }, { type: 'receiveReportError', payload: new Error() }],
         () => {
-          expect(createFlash).toHaveBeenCalledWith(
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(
             'There was an error fetching the codequality report.',
           );
           done();
@@ -105,7 +105,7 @@ describe('Codequality report actions', () => {
         [],
         [{ type: 'requestReport' }, { type: 'receiveReportError', payload: new Error() }],
         () => {
-          expect(createFlash).toHaveBeenCalledWith(
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(
             'There was an error fetching the codequality report.',
           );
           done();

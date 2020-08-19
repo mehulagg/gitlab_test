@@ -1,7 +1,7 @@
 <script>
 import { GlLoadingIcon, GlIcon } from '@gitlab/ui';
 import { s__ } from '~/locale';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import NavigationTabs from '~/vue_shared/components/navigation_tabs.vue';
 import eventHub from '../eventhub';
 import DeployKeysService from '../service';
@@ -88,14 +88,14 @@ export default {
         .catch(() => {
           this.isLoading = false;
           this.store.keys = {};
-          return new Flash(s__('DeployKeys|Error getting deploy keys'));
+          return deprecatedCreateFlash(s__('DeployKeys|Error getting deploy keys'));
         });
     },
     enableKey(deployKey) {
       this.service
         .enableKey(deployKey.id)
         .then(this.fetchKeys)
-        .catch(() => new Flash(s__('DeployKeys|Error enabling deploy key')));
+        .catch(() => deprecatedCreateFlash(s__('DeployKeys|Error enabling deploy key')));
     },
     disableKey(deployKey, callback) {
       if (
@@ -106,7 +106,7 @@ export default {
           .disableKey(deployKey.id)
           .then(this.fetchKeys)
           .then(callback)
-          .catch(() => new Flash(s__('DeployKeys|Error removing deploy key')));
+          .catch(() => deprecatedCreateFlash(s__('DeployKeys|Error removing deploy key')));
       } else {
         callback();
       }

@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as flash } from '../flash';
+import { deprecatedCreateFlash } from '../flash';
 import { parseBoolean } from '~/lib/utils/common_utils';
 import TimezoneDropdown, {
   formatTimezone,
@@ -79,14 +79,14 @@ export default class Profile {
           this.updateHeaderAvatar();
         }
 
-        flash(data.message, 'notice');
+        deprecatedCreateFlash(data.message, 'notice');
       })
       .then(() => {
         window.scrollTo(0, 0);
         // Enable submit button after requests ends
         self.form.find(':input[disabled]').enable();
       })
-      .catch(error => flash(error.message));
+      .catch(error => deprecatedCreateFlash(error.message));
   }
 
   updateHeaderAvatar() {

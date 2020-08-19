@@ -1,6 +1,6 @@
 import Api from 'ee/api';
 import { noneEpic } from 'ee/vue_shared/constants';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { s__, __ } from '~/locale';
 
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
@@ -36,7 +36,7 @@ export const receiveEpicsSuccess = ({ commit }, data) => {
   commit(types.RECEIVE_EPICS_SUCCESS, { epics });
 };
 export const receiveEpicsFailure = ({ commit }) => {
-  flash(s__('Epics|Something went wrong while fetching group epics.'));
+  deprecatedCreateFlash(s__('Epics|Something went wrong while fetching group epics.'));
   commit(types.RECEIVE_EPICS_FAILURE);
 };
 export const fetchEpics = ({ state, dispatch }, search = '') => {
@@ -109,7 +109,7 @@ export const receiveIssueUpdateSuccess = ({ state, commit }, { data, epic, isRem
  * @param {string} errorMessage
  */
 export const receiveIssueUpdateFailure = ({ commit }, errorMessage) => {
-  flash(errorMessage);
+  deprecatedCreateFlash(errorMessage);
   commit(types.RECEIVE_ISSUE_UPDATE_FAILURE);
 };
 

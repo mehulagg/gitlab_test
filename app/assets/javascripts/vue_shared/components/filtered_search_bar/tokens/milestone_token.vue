@@ -7,7 +7,7 @@ import {
 } from '@gitlab/ui';
 import { debounce } from 'lodash';
 
-import createFlash from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 
 import { stripQuotes } from '../filtered_search_utils';
@@ -65,7 +65,7 @@ export default {
         .then(({ data }) => {
           this.milestones = data;
         })
-        .catch(() => createFlash(__('There was a problem fetching milestones.')))
+        .catch(() => deprecatedCreateFlash(__('There was a problem fetching milestones.')))
         .finally(() => {
           this.loading = false;
         });

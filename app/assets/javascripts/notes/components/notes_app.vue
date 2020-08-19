@@ -1,7 +1,7 @@
 <script>
 import { mapGetters, mapActions } from 'vuex';
 import { getLocationHash, doesHashExistInUrl } from '../../lib/utils/url_utility';
-import { deprecatedCreateFlash as Flash } from '../../flash';
+import { deprecatedCreateFlash } from '../../flash';
 import * as constants from '../constants';
 import eventHub from '../event_hub';
 import noteableNote from './noteable_note.vue';
@@ -198,7 +198,9 @@ export default {
         .catch(() => {
           this.setLoadingState(false);
           this.setNotesFetchedState(true);
-          Flash(__('Something went wrong while fetching comments. Please try again.'));
+          deprecatedCreateFlash(
+            __('Something went wrong while fetching comments. Please try again.'),
+          );
         });
     },
     initPolling() {

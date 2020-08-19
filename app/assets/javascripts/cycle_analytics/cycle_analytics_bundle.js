@@ -2,7 +2,7 @@ import $ from 'jquery';
 import Vue from 'vue';
 import Cookies from 'js-cookie';
 import { GlEmptyState, GlLoadingIcon } from '@gitlab/ui';
-import { deprecatedCreateFlash as Flash } from '../flash';
+import { deprecatedCreateFlash } from '../flash';
 import { __ } from '~/locale';
 import Translate from '../vue_shared/translate';
 import banner from './components/banner.vue';
@@ -74,7 +74,9 @@ export default () => {
     methods: {
       handleError() {
         this.store.setErrorState(true);
-        return new Flash(__('There was an error while fetching value stream analytics data.'));
+        return deprecatedCreateFlash(
+          __('There was an error while fetching value stream analytics data.'),
+        );
       },
       initDropdown() {
         const $dropdown = $('.js-ca-dropdown');

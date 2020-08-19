@@ -6,7 +6,7 @@ import { __ } from '~/locale';
 import { mergeUrlParams } from '~/lib/utils/url_utility';
 import { serializeForm } from '~/lib/utils/forms';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import projectSelect from '../../project_select';
 import initDeprecatedJQueryDropdown from '~/deprecated_jquery_dropdown';
 
@@ -115,7 +115,7 @@ export default class Project {
               },
             })
             .then(({ data }) => callback(data))
-            .catch(() => flash(__('An error occurred while getting projects')));
+            .catch(() => deprecatedCreateFlash(__('An error occurred while getting projects')));
         },
         selectable: true,
         filterable: true,

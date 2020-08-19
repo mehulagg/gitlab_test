@@ -3,7 +3,7 @@ import $ from 'jquery';
 import Cookies from 'js-cookie';
 import BurnCharts from './components/burn_charts.vue';
 import BurndownChartData from './burn_chart_data';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import axios from '~/lib/utils/axios_utils';
 import { __ } from '~/locale';
 
@@ -70,7 +70,7 @@ export default () => {
         });
       })
       .catch(() => {
-        createFlash(__('Error loading burndown chart data'));
+        deprecatedCreateFlash(__('Error loading burndown chart data'));
       });
   }
 };

@@ -1,7 +1,7 @@
 import MockAdapter from 'axios-mock-adapter';
 import axios from '~/lib/utils/axios_utils';
 import { createStore } from '~/ide/stores';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import {
   getMergeRequestData,
   getMergeRequestChanges,
@@ -130,8 +130,10 @@ describe('IDE store merge request actions', () => {
         store
           .dispatch('getMergeRequestsForBranch', { projectId: TEST_PROJECT, branchId: 'bar' })
           .catch(() => {
-            expect(createFlash).toHaveBeenCalled();
-            expect(createFlash.mock.calls[0][0]).toBe('Error fetching merge requests for bar');
+            expect(deprecatedCreateFlash).toHaveBeenCalled();
+            expect(deprecatedCreateFlash.mock.calls[0][0]).toBe(
+              'Error fetching merge requests for bar',
+            );
           })
           .then(done)
           .catch(done.fail);
@@ -497,7 +499,7 @@ describe('IDE store merge request actions', () => {
 
       openMergeRequest(store, mr)
         .catch(() => {
-          expect(createFlash).toHaveBeenCalledWith(expect.any(String));
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(expect.any(String));
         })
         .then(done)
         .catch(done.fail);

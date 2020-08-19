@@ -2,7 +2,7 @@ import $ from 'jquery';
 import MockAdapter from 'axios-mock-adapter';
 import { TEST_HOST } from 'helpers/test_constants';
 import ProtectedBranchEdit from '~/protected_branches/protected_branch_edit';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import axios from '~/lib/utils/axios_utils';
 
 jest.mock('~/flash');
@@ -71,7 +71,7 @@ describe('EE ProtectedBranchEdit', () => {
           expect(mock.history.patch).toHaveLength(1);
 
           expect(toggle).not.toBeDisabled();
-          expect(flash).not.toHaveBeenCalled();
+          expect(deprecatedCreateFlash).not.toHaveBeenCalled();
         }));
     });
 
@@ -83,7 +83,7 @@ describe('EE ProtectedBranchEdit', () => {
 
       it('flashes error', () =>
         axios.waitForAll().then(() => {
-          expect(flash).toHaveBeenCalled();
+          expect(deprecatedCreateFlash).toHaveBeenCalled();
         }));
     });
   });

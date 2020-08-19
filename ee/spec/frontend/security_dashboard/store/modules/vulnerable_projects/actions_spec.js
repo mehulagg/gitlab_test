@@ -7,7 +7,7 @@ import * as types from 'ee/security_dashboard/store/modules/vulnerable_projects/
 import * as actions from 'ee/security_dashboard/store/modules/vulnerable_projects/actions';
 
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 jest.mock('~/flash');
 
@@ -127,8 +127,8 @@ describe('Vulnerable Projects actions', () => {
     it('creates a flash error message', () => {
       actions.receiveProjectsError(mockDispatchContext);
 
-      expect(createFlash).toHaveBeenCalledTimes(1);
-      expect(createFlash).toHaveBeenCalledWith('Unable to fetch vulnerable projects');
+      expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
+      expect(deprecatedCreateFlash).toHaveBeenCalledWith('Unable to fetch vulnerable projects');
     });
   });
 });

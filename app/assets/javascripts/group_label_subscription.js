@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import { __ } from '~/locale';
 import axios from './lib/utils/axios_utils';
-import { deprecatedCreateFlash as flash } from './flash';
+import { deprecatedCreateFlash } from './flash';
 
 const tooltipTitles = {
   group: __('Unsubscribe at group level'),
@@ -29,7 +29,9 @@ export default class GroupLabelSubscription {
         this.toggleSubscriptionButtons();
         this.$unsubscribeButtons.removeAttr('data-url');
       })
-      .catch(() => flash(__('There was an error when unsubscribing from this label.')));
+      .catch(() =>
+        deprecatedCreateFlash(__('There was an error when unsubscribing from this label.')),
+      );
   }
 
   subscribe(event) {
@@ -44,7 +46,7 @@ export default class GroupLabelSubscription {
       .post(url)
       .then(() => GroupLabelSubscription.setNewTooltip($btn))
       .then(() => this.toggleSubscriptionButtons())
-      .catch(() => flash(__('There was an error when subscribing to this label.')));
+      .catch(() => deprecatedCreateFlash(__('There was an error when subscribing to this label.')));
   }
 
   toggleSubscriptionButtons() {

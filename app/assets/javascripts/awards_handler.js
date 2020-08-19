@@ -7,7 +7,7 @@ import Cookies from 'js-cookie';
 import { __ } from './locale';
 import { updateTooltipTitle } from './lib/utils/common_utils';
 import { isInVueNoteablePage } from './lib/utils/dom_utils';
-import { deprecatedCreateFlash as flash } from './flash';
+import { deprecatedCreateFlash } from './flash';
 import axios from './lib/utils/axios_utils';
 import * as Emoji from '~/emoji';
 
@@ -480,7 +480,7 @@ export class AwardsHandler {
           callback();
         }
       })
-      .catch(() => flash(__('Something went wrong on our end.')));
+      .catch(() => deprecatedCreateFlash(__('Something went wrong on our end.')));
   }
 
   findEmojiIcon(votesBlock, emoji) {

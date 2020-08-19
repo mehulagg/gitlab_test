@@ -8,7 +8,7 @@ import BlobHeaderEdit from '~/blob/components/blob_edit_header.vue';
 import BlobContentEdit from '~/blob/components/blob_edit_content.vue';
 import axios from '~/lib/utils/axios_utils';
 import { joinPaths } from '~/lib/utils/url_utility';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 jest.mock('~/flash');
 
@@ -125,7 +125,7 @@ describe('Snippet Blob Edit component', () => {
     it('should call flash', async () => {
       await waitForPromises();
 
-      expect(createFlash).toHaveBeenCalledWith(
+      expect(deprecatedCreateFlash).toHaveBeenCalledWith(
         "Can't fetch content for the blob: Error: Request failed with status code 500",
       );
     });

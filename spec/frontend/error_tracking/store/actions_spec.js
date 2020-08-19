@@ -1,7 +1,7 @@
 import MockAdapter from 'axios-mock-adapter';
 import testAction from 'helpers/vuex_action_helper';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import * as actions from '~/error_tracking/store/actions';
 import * as types from '~/error_tracking/store/mutation_types';
 import { visitUrl } from '~/lib/utils/url_utility';
@@ -20,7 +20,7 @@ describe('Sentry common store actions', () => {
 
   afterEach(() => {
     mock.restore();
-    createFlash.mockClear();
+    deprecatedCreateFlash.mockClear();
   });
   const endpoint = '123/stacktrace';
   const redirectUrl = '/list';
@@ -52,7 +52,7 @@ describe('Sentry common store actions', () => {
       mock.onPut().reply(400, {});
       testAction(actions.updateStatus, params, {}, [], [], () => {
         expect(visitUrl).not.toHaveBeenCalled();
-        expect(createFlash).toHaveBeenCalledTimes(1);
+        expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
         done();
       });
     });

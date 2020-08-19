@@ -99,7 +99,7 @@ In this file, we will write the actions that will call mutations for handling a 
       .then(({ data }) => commit(types.RECEIVE_USERS_SUCCESS, data))
       .catch((error) => {
         commit(types.RECEIVE_USERS_ERROR, error)
-        createFlash('There was an error')
+        deprecatedCreateFlash('There was an error')
       });
   }
 

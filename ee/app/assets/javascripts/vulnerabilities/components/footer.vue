@@ -8,7 +8,7 @@ import { VULNERABILITY_STATE_OBJECTS } from 'ee/vulnerabilities/constants';
 import { GlIcon } from '@gitlab/ui';
 import axios from '~/lib/utils/axios_utils';
 import Poll from '~/lib/utils/poll';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { s__, __ } from '~/locale';
 import RelatedIssues from './related_issues.vue';
 import HistoryEntry from './history_entry.vue';
@@ -138,7 +138,7 @@ export default {
           });
         })
         .catch(() => {
-          createFlash(
+          deprecatedCreateFlash(
             s__(
               'VulnerabilityManagement|Something went wrong while trying to retrieve the vulnerability history. Please try again later.',
             ),
@@ -159,7 +159,7 @@ export default {
           this.lastFetchedAt = lastFetchedAt;
         },
         errorCallback: () =>
-          createFlash(__('Something went wrong while fetching latest comments.')),
+          deprecatedCreateFlash(__('Something went wrong while fetching latest comments.')),
       });
     },
     updateNotes(notes) {

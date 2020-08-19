@@ -2,7 +2,7 @@ import MockAdapter from 'axios-mock-adapter';
 import testAction from 'helpers/vuex_action_helper';
 import Api from '~/api';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import getInitialState from '~/deploy_freeze/store/state';
 import * as actions from '~/deploy_freeze/store/actions';
 import * as types from '~/deploy_freeze/store/mutation_types';
@@ -85,7 +85,7 @@ describe('deploy freeze store actions', () => {
         state,
         [],
         [{ type: 'requestAddFreezePeriod' }, { type: 'receiveAddFreezePeriodError' }],
-        () => expect(createFlash).toHaveBeenCalled(),
+        () => expect(deprecatedCreateFlash).toHaveBeenCalled(),
       );
     });
   });
@@ -114,7 +114,7 @@ describe('deploy freeze store actions', () => {
         [{ type: types.REQUEST_FREEZE_PERIODS }],
         [],
         () =>
-          expect(createFlash).toHaveBeenCalledWith(
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(
             'There was an error fetching the deploy freezes.',
           ),
       );

@@ -1,6 +1,6 @@
 import axios from '~/lib/utils/axios_utils';
 import { __ } from '~/locale';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 import {
   REQUEST_UNSCANNED_PROJECTS,
@@ -31,7 +31,7 @@ export const receiveUnscannedProjectsSuccess = ({ commit }, payload) => {
 };
 
 export const receiveUnscannedProjectsError = ({ commit }) => {
-  createFlash(__('Unable to fetch unscanned projects'));
+  deprecatedCreateFlash(__('Unable to fetch unscanned projects'));
 
   commit(RECEIVE_UNSCANNED_PROJECTS_ERROR);
 };

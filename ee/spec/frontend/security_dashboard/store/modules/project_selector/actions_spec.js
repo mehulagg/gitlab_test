@@ -4,7 +4,7 @@ import waitForPromises from 'helpers/wait_for_promises';
 import createState from 'ee/security_dashboard/store/modules/project_selector/state';
 import * as types from 'ee/security_dashboard/store/modules/project_selector/mutation_types';
 import * as actions from 'ee/security_dashboard/store/modules/project_selector/actions';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import axios from '~/lib/utils/axios_utils';
 
 jest.mock('~/flash');
@@ -196,7 +196,7 @@ describe('EE projectSelector actions', () => {
         [{ type: types.RECEIVE_ADD_PROJECTS_SUCCESS }],
         [],
       ).then(() => {
-        expect(createFlash).toHaveBeenCalledWith(`Unable to add ${invalidProject.name}`);
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(`Unable to add ${invalidProject.name}`);
       });
     });
 
@@ -215,7 +215,7 @@ describe('EE projectSelector actions', () => {
         [{ type: types.RECEIVE_ADD_PROJECTS_SUCCESS }],
         [],
       ).then(() => {
-        expect(createFlash).toHaveBeenCalledWith(
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(
           `Unable to add ${invalidProject1.name} and ${invalidProject2.name}`,
         );
       });
@@ -237,7 +237,7 @@ describe('EE projectSelector actions', () => {
         [{ type: types.RECEIVE_ADD_PROJECTS_SUCCESS }],
         [],
       ).then(() => {
-        expect(createFlash).toHaveBeenCalledWith(
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(
           `Unable to add ${invalidProject1.name}, ${invalidProject2.name}, and ${invalidProject3.name}`,
         );
       });
@@ -261,8 +261,8 @@ describe('EE projectSelector actions', () => {
     it('shows error message', () => {
       actions.receiveAddProjectsError(mockDispatchContext);
 
-      expect(createFlash).toHaveBeenCalledTimes(1);
-      expect(createFlash).toHaveBeenCalledWith(
+      expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
+      expect(deprecatedCreateFlash).toHaveBeenCalledWith(
         'Something went wrong, unable to add projects to dashboard',
       );
     });
@@ -350,7 +350,9 @@ describe('EE projectSelector actions', () => {
         ],
         [],
       ).then(() => {
-        expect(createFlash).toHaveBeenCalledWith('Something went wrong, unable to get projects');
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(
+          'Something went wrong, unable to get projects',
+        );
       }));
   });
 
@@ -429,8 +431,10 @@ describe('EE projectSelector actions', () => {
     it('displays project removal error', () => {
       actions.receiveRemoveProjectError(mockDispatchContext);
 
-      expect(createFlash).toHaveBeenCalledTimes(1);
-      expect(createFlash).toHaveBeenCalledWith('Something went wrong, unable to delete project');
+      expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
+      expect(deprecatedCreateFlash).toHaveBeenCalledWith(
+        'Something went wrong, unable to delete project',
+      );
     });
   });
 

@@ -1,6 +1,6 @@
 import axios from '../../../lib/utils/axios_utils';
 import { __ } from '../../../locale';
-import { deprecatedCreateFlash as flash } from '../../../flash';
+import { deprecatedCreateFlash } from '../../../flash';
 
 export default class PayloadPreviewer {
   constructor(trigger) {
@@ -38,7 +38,7 @@ export default class PayloadPreviewer {
       })
       .catch(() => {
         this.spinner.classList.remove('d-inline-flex');
-        flash(__('Error fetching payload data.'));
+        deprecatedCreateFlash(__('Error fetching payload data.'));
       });
   }
 

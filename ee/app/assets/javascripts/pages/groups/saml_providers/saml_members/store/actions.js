@@ -1,6 +1,6 @@
 import { __ } from '~/locale';
 import Api from '~/api';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { normalizeHeaders, parseIntPagination } from '~/lib/utils/common_utils';
 import * as types from './mutation_types';
 
@@ -22,6 +22,6 @@ export function fetchPage({ commit, state }, newPage) {
       });
     })
     .catch(() => {
-      createFlash(__('An error occurred while loading group members.'));
+      deprecatedCreateFlash(__('An error occurred while loading group members.'));
     });
 }

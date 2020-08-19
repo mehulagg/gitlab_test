@@ -7,7 +7,7 @@ import stateMaps from 'ee_else_ce/vue_merge_request_widget/stores/state_maps';
 import { sprintf, s__, __ } from '~/locale';
 import Project from '~/pages/projects/project';
 import SmartInterval from '~/smart_interval';
-import { deprecatedCreateFlash as createFlash } from '../flash';
+import { deprecatedCreateFlash } from '../flash';
 import mergeRequestQueryVariablesMixin from './mixins/merge_request_query_variables';
 import Loading from './components/loading.vue';
 import WidgetHeader from './components/mr_widget_header.vue';
@@ -197,7 +197,9 @@ export default {
     MRWidgetService.fetchInitialData()
       .then(({ data }) => this.initWidget(data))
       .catch(() =>
-        createFlash(__('Unable to load the merge request widget. Try reloading the page.')),
+        deprecatedCreateFlash(
+          __('Unable to load the merge request widget. Try reloading the page.'),
+        ),
       );
   },
   beforeDestroy() {
@@ -274,7 +276,7 @@ export default {
             cb.call(null, data);
           }
         })
-        .catch(() => createFlash(__('Something went wrong. Please try again.')));
+        .catch(() => deprecatedCreateFlash(__('Something went wrong. Please try again.')));
     },
     setFaviconHelper() {
       if (this.mr.ciStatusFaviconPath) {
@@ -328,7 +330,7 @@ export default {
         .catch(() => this.throwDeploymentsError());
     },
     throwDeploymentsError() {
-      createFlash(
+      deprecatedCreateFlash(
         __(
           'Something went wrong while fetching the environments for this merge request. Please try again.',
         ),
@@ -345,7 +347,7 @@ export default {
             Project.initRefSwitcher();
           }
         })
-        .catch(() => createFlash(__('Something went wrong. Please try again.')));
+        .catch(() => deprecatedCreateFlash(__('Something went wrong. Please try again.')));
     },
     handleNotification(data) {
       if (data.ci_status === this.mr.ciStatus) return;

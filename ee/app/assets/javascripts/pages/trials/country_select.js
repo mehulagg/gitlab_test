@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import axios from '~/lib/utils/axios_utils';
 import { __ } from '~/locale';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 document.addEventListener('DOMContentLoaded', () => {
   const selectElement = document.getElementById('country_select');
@@ -22,5 +22,5 @@ document.addEventListener('DOMContentLoaded', () => {
         .val(selectedOption)
         .trigger('change.select2');
     })
-    .catch(() => new Flash(__('Error loading countries data.')));
+    .catch(() => deprecatedCreateFlash(__('Error loading countries data.')));
 });

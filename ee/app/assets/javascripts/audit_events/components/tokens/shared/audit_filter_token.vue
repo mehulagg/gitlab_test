@@ -8,7 +8,7 @@ import {
 import { debounce } from 'lodash';
 import { sprintf, s__, __ } from '~/locale';
 import httpStatusCodes from '~/lib/utils/http_status';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { isNumeric } from '../../../utils';
 
 export default {
@@ -105,7 +105,7 @@ export default {
       } else {
         message = s__('AuditLogs|Failed to find %{type}. Please try again.');
       }
-      createFlash(sprintf(message, { type }));
+      deprecatedCreateFlash(sprintf(message, { type }));
     },
     selectActiveItem(id) {
       this.activeItem = this.suggestions.find(u => u.id === id);

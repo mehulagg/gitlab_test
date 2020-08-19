@@ -2,7 +2,7 @@
 import { __ } from '~/locale';
 import ListLabel from './label';
 import ListAssignee from './assignee';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import boardsStore from '../stores/boards_store';
 import ListMilestone from './milestone';
 import 'ee_else_ce/boards/models/issue';
@@ -123,7 +123,7 @@ class List {
         moveBeforeId,
         moveAfterId,
       })
-      .catch(() => flash(__('Something went wrong while moving issues.')));
+      .catch(() => deprecatedCreateFlash(__('Something went wrong while moving issues.')));
   }
 
   updateIssueLabel(issue, listFrom, moveBeforeId, moveAfterId) {
@@ -141,7 +141,7 @@ class List {
         moveBeforeId,
         moveAfterId,
       })
-      .catch(() => flash(__('Something went wrong while moving issues.')));
+      .catch(() => deprecatedCreateFlash(__('Something went wrong while moving issues.')));
   }
 
   findIssue(id) {

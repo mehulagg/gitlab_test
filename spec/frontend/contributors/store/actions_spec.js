@@ -1,7 +1,7 @@
 import MockAdapter from 'axios-mock-adapter';
 import testAction from 'helpers/vuex_action_helper';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as flashError } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import * as actions from '~/contributors/stores/actions';
 import * as types from '~/contributors/stores/mutation_types';
 
@@ -47,7 +47,7 @@ describe('Contributors store actions', () => {
         [{ type: types.SET_LOADING_STATE, payload: true }],
         [],
         () => {
-          expect(flashError).toHaveBeenCalledWith(expect.stringMatching('error'));
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(expect.stringMatching('error'));
           mock.restore();
           done();
         },

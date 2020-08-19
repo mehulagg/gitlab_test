@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 import axios from '~/lib/utils/axios_utils';
 
@@ -14,6 +14,6 @@ export default function initPathLocks(url, path) {
       .then(() => {
         window.location.reload();
       })
-      .catch(() => flash(__('An error occurred while initializing path locks')));
+      .catch(() => deprecatedCreateFlash(__('An error occurred while initializing path locks')));
   });
 }

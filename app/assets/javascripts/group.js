@@ -1,6 +1,6 @@
 import { slugify } from './lib/utils/text_utility';
 import fetchGroupPathAvailability from '~/pages/groups/new/fetch_group_path_availability';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 
 export default class Group {
@@ -63,11 +63,13 @@ export default class Group {
             element.value = suggestedSlug;
           });
         } else if (exists && !suggests.length) {
-          flash(__('Unable to suggest a path. Please refresh and try again.'));
+          deprecatedCreateFlash(__('Unable to suggest a path. Please refresh and try again.'));
         }
       })
       .catch(() =>
-        flash(__('An error occurred while checking group path. Please refresh and try again.')),
+        deprecatedCreateFlash(
+          __('An error occurred while checking group path. Please refresh and try again.'),
+        ),
       );
   }
 }

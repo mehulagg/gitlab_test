@@ -1,4 +1,4 @@
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 import service from '../../services';
 import * as types from '../mutation_types';
@@ -34,7 +34,7 @@ export const getMergeRequestsForBranch = (
       }
     })
     .catch(e => {
-      flash(
+      deprecatedCreateFlash(
         __(`Error fetching merge requests for ${branchId}`),
         'alert',
         document,
@@ -211,6 +211,6 @@ export const openMergeRequest = (
       });
     })
     .catch(e => {
-      flash(__('Error while loading the merge request. Please try again.'));
+      deprecatedCreateFlash(__('Error while loading the merge request. Please try again.'));
       throw e;
     });

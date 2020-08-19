@@ -1,4 +1,4 @@
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 
 export default {
@@ -13,7 +13,7 @@ export default {
         })
         .catch(() => {
           this.mediator.store.toggleLoading(pipeline);
-          flash(__('An error occurred while fetching the pipeline.'));
+          deprecatedCreateFlash(__('An error occurred while fetching the pipeline.'));
         });
     },
     /**
@@ -55,7 +55,7 @@ export default {
       // (whether in the dropdown or in the main nodes, we refresh the big graph)
       this.mediator
         .refreshPipeline()
-        .catch(() => flash(__('An error occurred while making the request.')));
+        .catch(() => deprecatedCreateFlash(__('An error occurred while making the request.')));
     },
   },
 };

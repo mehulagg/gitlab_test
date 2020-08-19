@@ -10,7 +10,7 @@ import ResolutionAlert from 'ee/vulnerabilities/components/resolution_alert.vue'
 import SplitButton from 'ee/vue_shared/security_reports/components/split_button.vue';
 import VulnerabilityStateDropdown from 'ee/vulnerabilities/components/vulnerability_state_dropdown.vue';
 import { FEEDBACK_TYPES, VULNERABILITY_STATE_OBJECTS } from 'ee/vulnerabilities/constants';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import * as urlUtility from '~/lib/utils/url_utility';
 import download from '~/lib/utils/downloader';
 import axios from '~/lib/utils/axios_utils';
@@ -85,7 +85,7 @@ describe('Vulnerability Header', () => {
     wrapper.destroy();
     wrapper = null;
     mockAxios.reset();
-    createFlash.mockReset();
+    deprecatedCreateFlash.mockReset();
   });
 
   describe('state dropdown', () => {
@@ -142,7 +142,7 @@ describe('Vulnerability Header', () => {
 
       return waitForPromises().then(() => {
         expect(mockAxios.history.post).toHaveLength(1);
-        expect(createFlash).toHaveBeenCalledTimes(1);
+        expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
       });
     });
   });
@@ -223,7 +223,7 @@ describe('Vulnerability Header', () => {
         findGlButton().vm.$emit('click');
         return waitForPromises().then(() => {
           expect(mockAxios.history.post).toHaveLength(1);
-          expect(createFlash).toHaveBeenCalledWith(
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(
             'There was an error creating the merge request. Please try again.',
           );
         });
@@ -348,7 +348,7 @@ describe('Vulnerability Header', () => {
       mockAxios.onGet().replyOnce(500);
 
       return waitForPromises().then(() => {
-        expect(createFlash).toHaveBeenCalledTimes(1);
+        expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
         expect(mockAxios.history.get).toHaveLength(1);
       });
     });

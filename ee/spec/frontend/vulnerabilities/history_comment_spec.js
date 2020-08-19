@@ -3,7 +3,7 @@ import MockAdapter from 'axios-mock-adapter';
 import HistoryComment from 'ee/vulnerabilities/components/history_comment.vue';
 import HistoryCommentEditor from 'ee/vulnerabilities/components/history_comment_editor.vue';
 import EventItem from 'ee/vue_shared/security_reports/components/event_item.vue';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import axios from '~/lib/utils/axios_utils';
 
 const mockAxios = new MockAdapter(axios);
@@ -75,7 +75,7 @@ describe('History Comment', () => {
   afterEach(() => {
     wrapper.destroy();
     mockAxios.reset();
-    createFlash.mockReset();
+    deprecatedCreateFlash.mockReset();
   });
 
   describe(`when there's no existing comment`, () => {
@@ -130,7 +130,7 @@ describe('History Comment', () => {
         })
         .then(() => {
           expect(mockAxios.history.post).toHaveLength(1);
-          expect(createFlash).toHaveBeenCalledTimes(1);
+          expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
           expect(commentEditor().exists()).toBe(true);
         });
     });
@@ -220,7 +220,7 @@ describe('History Comment', () => {
         })
         .then(() => {
           expect(mockAxios.history.delete).toHaveLength(1);
-          expect(createFlash).toHaveBeenCalledTimes(1);
+          expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
         });
     });
 
@@ -255,7 +255,7 @@ describe('History Comment', () => {
         })
         .then(() => {
           expect(mockAxios.history.put).toHaveLength(1);
-          expect(createFlash).toHaveBeenCalledTimes(1);
+          expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
         });
     });
   });

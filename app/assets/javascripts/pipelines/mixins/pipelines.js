@@ -1,7 +1,7 @@
 import Visibility from 'visibilityjs';
 import { GlLoadingIcon } from '@gitlab/ui';
 import { __ } from '~/locale';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import Poll from '~/lib/utils/poll';
 import EmptyState from '../components/pipelines_list/empty_state.vue';
 import SvgBlankState from '../components/pipelines_list/blank_state.vue';
@@ -158,7 +158,7 @@ export default {
       this.service
         .postAction(endpoint)
         .then(() => this.updateTable())
-        .catch(() => createFlash(__('An error occurred while making the request.')));
+        .catch(() => deprecatedCreateFlash(__('An error occurred while making the request.')));
     },
 
     /**
@@ -178,7 +178,7 @@ export default {
         .runMRPipeline(options)
         .then(() => this.updateTable())
         .catch(() => {
-          createFlash(
+          deprecatedCreateFlash(
             __('An error occurred while trying to run a new pipeline for this Merge Request.'),
           );
         })

@@ -2,7 +2,7 @@ import $ from 'jquery';
 import AccessDropdown from '~/projects/settings/access_dropdown';
 import axios from '~/lib/utils/axios_utils';
 import AccessorUtilities from '~/lib/utils/accessor';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import CreateItemDropdown from '~/create_item_dropdown';
 import { ACCESS_LEVELS, LEVEL_TYPES } from './constants';
 import { __ } from '~/locale';
@@ -67,7 +67,7 @@ export default class ProtectedEnvironmentCreate {
         callback(results);
       })
       .catch(() => {
-        Flash(__('An error occurred while fetching environments.'));
+        deprecatedCreateFlash(__('An error occurred while fetching environments.'));
         callback([]);
       });
   }
@@ -115,6 +115,6 @@ export default class ProtectedEnvironmentCreate {
         window.location.hash = 'js-protected-environments-settings';
         window.location.reload();
       })
-      .catch(() => Flash(__('Failed to protect the environment')));
+      .catch(() => deprecatedCreateFlash(__('Failed to protect the environment')));
   }
 }

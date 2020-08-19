@@ -15,7 +15,7 @@ import updateRequirement from 'ee/requirements/queries/updateRequirement.mutatio
 import { TEST_HOST } from 'helpers/test_constants';
 import AuthorToken from '~/vue_shared/components/filtered_search_bar/tokens/author_token.vue';
 import FilteredSearchBarRoot from '~/vue_shared/components/filtered_search_bar/filtered_search_bar_root.vue';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 import {
   FilterState,
@@ -351,7 +351,7 @@ describe('RequirementsRoot', () => {
         );
       });
 
-      it('calls `createFlash` with provided `errorFlashMessage` param and `Sentry.captureException` when request fails', () => {
+      it('calls `deprecatedCreateFlash` with provided `errorFlashMessage` param and `Sentry.captureException` when request fails', () => {
         jest.spyOn(wrapper.vm.$apollo, 'mutate').mockRejectedValue(new Error());
         jest.spyOn(Sentry, 'captureException').mockImplementation();
 
@@ -361,7 +361,7 @@ describe('RequirementsRoot', () => {
             errorFlashMessage: 'Something went wrong',
           })
           .then(() => {
-            expect(createFlash).toHaveBeenCalledWith('Something went wrong');
+            expect(deprecatedCreateFlash).toHaveBeenCalledWith('Something went wrong');
             expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Object));
           });
       });
@@ -453,11 +453,11 @@ describe('RequirementsRoot', () => {
         });
       });
 
-      it('sets `createRequirementRequestActive` prop to `false` and calls `createFlash` when `$apollo.mutate` request fails', () => {
+      it('sets `createRequirementRequestActive` prop to `false` and calls `deprecatedCreateFlash` when `$apollo.mutate` request fails', () => {
         jest.spyOn(wrapper.vm.$apollo, 'mutate').mockReturnValue(Promise.reject(new Error()));
 
         return wrapper.vm.handleNewRequirementSave('foo').then(() => {
-          expect(createFlash).toHaveBeenCalledWith(
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(
             'Something went wrong while creating a requirement.',
           );
           expect(wrapper.vm.createRequirementRequestActive).toBe(false);

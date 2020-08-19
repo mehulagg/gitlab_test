@@ -3,7 +3,7 @@ import { GlFilteredSearchToken, GlFilteredSearchSuggestion, GlLoadingIcon } from
 import { debounce } from 'lodash';
 import Api from '~/api';
 import { FETCH_TAG_ERROR_MESSAGE, FILTER_PIPELINES_SEARCH_DELAY } from '../../../constants';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 export default {
   components: {
@@ -38,7 +38,7 @@ export default {
           this.loading = false;
         })
         .catch(err => {
-          createFlash(FETCH_TAG_ERROR_MESSAGE);
+          deprecatedCreateFlash(FETCH_TAG_ERROR_MESSAGE);
           this.loading = false;
           throw err;
         });

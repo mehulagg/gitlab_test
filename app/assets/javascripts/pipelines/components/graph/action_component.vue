@@ -3,7 +3,7 @@ import { GlTooltipDirective, GlButton, GlLoadingIcon, GlIcon } from '@gitlab/ui'
 import axios from '~/lib/utils/axios_utils';
 import { dasherize } from '~/lib/utils/text_utility';
 import { __ } from '~/locale';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 /**
  * Renders either a cancel, retry or play icon button and handles the post request
@@ -74,7 +74,7 @@ export default {
           this.isDisabled = false;
           this.isLoading = false;
 
-          createFlash(__('An error occurred while making the request.'));
+          deprecatedCreateFlash(__('An error occurred while making the request.'));
         });
     },
   },

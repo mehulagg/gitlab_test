@@ -15,7 +15,7 @@ import {
   EXISTING_DESIGN_DROP_MANY_FILES_MESSAGE,
   EXISTING_DESIGN_DROP_INVALID_FILENAME_MESSAGE,
 } from '~/design_management/utils/error_messages';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import createRouter from '~/design_management/router';
 import * as utils from '~/design_management/utils/design_management_utils';
 import { DESIGN_DETAIL_LAYOUT_CLASSLIST } from '~/design_management/constants';
@@ -364,9 +364,9 @@ describe('Design management index page', () => {
       return wrapper.vm.$nextTick().then(() => {
         expect(wrapper.vm.filesToBeSaved).toEqual([]);
         expect(wrapper.vm.isSaving).toBeFalsy();
-        expect(createFlash).toHaveBeenCalled();
+        expect(deprecatedCreateFlash).toHaveBeenCalled();
 
-        createFlash.mockReset();
+        deprecatedCreateFlash.mockReset();
       });
     });
 
@@ -382,7 +382,7 @@ describe('Design management index page', () => {
       const MAXIMUM_FILE_UPLOAD_LIMIT = 10;
 
       afterEach(() => {
-        createFlash.mockReset();
+        deprecatedCreateFlash.mockReset();
       });
 
       it('does not warn when the max files are uploaded', () => {
@@ -390,7 +390,7 @@ describe('Design management index page', () => {
 
         wrapper.vm.onUploadDesign(new Array(MAXIMUM_FILE_UPLOAD_LIMIT).fill(mockDesigns[0]));
 
-        expect(createFlash).not.toHaveBeenCalled();
+        expect(deprecatedCreateFlash).not.toHaveBeenCalled();
       });
 
       it('warns when too many files are uploaded', () => {
@@ -398,7 +398,7 @@ describe('Design management index page', () => {
 
         wrapper.vm.onUploadDesign(new Array(MAXIMUM_FILE_UPLOAD_LIMIT + 1).fill(mockDesigns[0]));
 
-        expect(createFlash).toHaveBeenCalled();
+        expect(deprecatedCreateFlash).toHaveBeenCalled();
       });
     });
 
@@ -417,8 +417,8 @@ describe('Design management index page', () => {
       ]);
 
       return uploadDesign.then(() => {
-        expect(createFlash).toHaveBeenCalledTimes(1);
-        expect(createFlash).toHaveBeenCalledWith(
+        expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(
           'Upload skipped. test.jpg did not change.',
           'warning',
         );
@@ -452,12 +452,12 @@ describe('Design management index page', () => {
         description             | eventPayload                              | message
         ${'> 1 file'}           | ${[{ name: 'test' }, { name: 'test-2' }]} | ${EXISTING_DESIGN_DROP_MANY_FILES_MESSAGE}
         ${'different filename'} | ${[{ name: 'wrong-name' }]}               | ${EXISTING_DESIGN_DROP_INVALID_FILENAME_MESSAGE}
-      `('calls createFlash when upload has $description', ({ eventPayload, message }) => {
+      `('calls deprecatedCreateFlash when upload has $description', ({ eventPayload, message }) => {
         const designDropzone = findFirstDropzoneWithDesign();
         designDropzone.vm.$emit('change', eventPayload);
 
-        expect(createFlash).toHaveBeenCalledTimes(1);
-        expect(createFlash).toHaveBeenCalledWith(message);
+        expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(message);
       });
     });
   });

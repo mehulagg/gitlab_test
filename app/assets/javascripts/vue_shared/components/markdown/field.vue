@@ -6,7 +6,7 @@ import { unescape } from 'lodash';
 import { GlIcon } from '@gitlab/ui';
 import { __, sprintf } from '~/locale';
 import { stripHtml } from '~/lib/utils/text_utility';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import GLForm from '~/gl_form';
 import MarkdownHeader from './header.vue';
 import MarkdownToolbar from './toolbar.vue';
@@ -200,7 +200,7 @@ export default {
         axios
           .post(this.markdownPreviewPath, { text })
           .then(response => this.renderMarkdown(response.data))
-          .catch(() => new Flash(__('Error loading markdown preview')));
+          .catch(() => deprecatedCreateFlash(__('Error loading markdown preview')));
       } else {
         this.renderMarkdown();
       }
@@ -223,7 +223,7 @@ export default {
 
       this.$nextTick()
         .then(() => $(this.$refs['markdown-preview']).renderGFM())
-        .catch(() => new Flash(__('Error rendering markdown preview')));
+        .catch(() => deprecatedCreateFlash(__('Error rendering markdown preview')));
     },
   },
 };

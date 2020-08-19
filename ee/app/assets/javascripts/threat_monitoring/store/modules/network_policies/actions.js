@@ -1,6 +1,6 @@
 import { s__, sprintf } from '~/locale';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as createFlash, FLASH_TYPES } from '~/flash';
+import { deprecatedCreateFlash, FLASH_TYPES } from '~/flash';
 import { joinPaths } from '~/lib/utils/url_utility';
 import * as types from './mutation_types';
 
@@ -12,7 +12,7 @@ const commitReceivePoliciesError = (commit, payload) => {
   const error =
     payload?.error || s__('NetworkPolicies|Something went wrong, unable to fetch policies');
   commit(types.RECEIVE_POLICIES_ERROR, error);
-  createFlash(error);
+  deprecatedCreateFlash(error);
 };
 
 export const fetchPolicies = ({ state, commit }, environmentId) => {
@@ -30,7 +30,7 @@ const commitPolicyError = (commit, type, payload) => {
   const error =
     payload?.error || s__('NetworkPolicies|Something went wrong, failed to update policy');
   commit(type, error);
-  createFlash(error);
+  deprecatedCreateFlash(error);
 };
 
 export const createPolicy = ({ state, commit }, { environmentId, policy }) => {
@@ -47,7 +47,7 @@ export const createPolicy = ({ state, commit }, { environmentId, policy }) => {
     })
     .then(({ data }) => {
       commit(types.RECEIVE_CREATE_POLICY_SUCCESS, data);
-      createFlash(
+      deprecatedCreateFlash(
         sprintf(s__('NetworkPolicies|Policy %{policyName} was successfully changed'), {
           policyName: policy.name,
         }),
@@ -77,7 +77,7 @@ export const updatePolicy = ({ state, commit }, { environmentId, policy }) => {
         policy,
         updatedPolicy: data,
       });
-      createFlash(
+      deprecatedCreateFlash(
         sprintf(s__('NetworkPolicies|Policy %{policyName} was successfully changed'), {
           policyName: policy.name,
         }),

@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import axios from './lib/utils/axios_utils';
-import { deprecatedCreateFlash as flash } from './flash';
+import { deprecatedCreateFlash } from './flash';
 import { s__, __ } from './locale';
 import issuableInitBulkUpdateSidebar from './issuable_init_bulk_update_sidebar';
 
@@ -28,7 +28,7 @@ export default class IssuableIndex {
           $resetToken.text(s__('EmailToken|reset it'));
         })
         .catch(() => {
-          flash(__('There was an error when reseting email token.'));
+          deprecatedCreateFlash(__('There was an error when reseting email token.'));
 
           $resetToken.text(s__('EmailToken|reset it'));
         });

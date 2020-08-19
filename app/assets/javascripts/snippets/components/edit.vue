@@ -1,7 +1,7 @@
 <script>
 import { GlButton, GlLoadingIcon } from '@gitlab/ui';
 
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __, sprintf } from '~/locale';
 import TitleField from '~/vue_shared/components/form/title.vue';
 import { redirectTo, joinPaths } from '~/lib/utils/url_utility';
@@ -140,7 +140,7 @@ export default {
       const defaultErrorMsg = this.newSnippet
         ? SNIPPET_CREATE_MUTATION_ERROR
         : SNIPPET_UPDATE_MUTATION_ERROR;
-      Flash(sprintf(defaultErrorMsg, { err }));
+      deprecatedCreateFlash(sprintf(defaultErrorMsg, { err }));
       this.isUpdating = false;
     },
     onNewSnippetFetched() {

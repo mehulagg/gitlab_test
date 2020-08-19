@@ -1,6 +1,6 @@
 import { normalizeHeaders, parseIntPagination } from '~/lib/utils/common_utils';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 
 import { FETCH_ERROR_MESSAGE, SORT_BY, SORT_ORDER } from './constants';
@@ -46,5 +46,5 @@ export const receiveLicensesSuccess = ({ commit }, { headers, data }) => {
 
 export const receiveLicensesError = ({ commit }) => {
   commit(types.RECEIVE_LICENSES_ERROR);
-  createFlash(FETCH_ERROR_MESSAGE);
+  deprecatedCreateFlash(FETCH_ERROR_MESSAGE);
 };

@@ -1,6 +1,6 @@
 <script>
 import { __ } from '~/locale';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import DeprecatedModal from '~/vue_shared/components/deprecated_modal.vue';
 import { visitUrl } from '~/lib/utils/url_utility';
 import boardsStore from '~/boards/stores/boards_store';
@@ -134,7 +134,7 @@ export default {
             visitUrl(boardsStore.rootPath);
           })
           .catch(() => {
-            Flash(__('Failed to delete board. Please try again.'));
+            deprecatedCreateFlash(__('Failed to delete board. Please try again.'));
             this.isLoading = false;
           });
       } else {
@@ -145,7 +145,7 @@ export default {
             visitUrl(data.board_path);
           })
           .catch(() => {
-            Flash(__('Unable to save your changes. Please try again.'));
+            deprecatedCreateFlash(__('Unable to save your changes. Please try again.'));
             this.isLoading = false;
           });
       }

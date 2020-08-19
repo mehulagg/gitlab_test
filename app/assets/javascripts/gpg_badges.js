@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import { parseQueryStringIntoObject } from '~/lib/utils/common_utils';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 
 export default class GpgBadges {
@@ -15,7 +15,8 @@ export default class GpgBadges {
 
     badges.html('<i class="fa fa-spinner fa-spin"></i>');
 
-    const displayError = () => createFlash(__('An error occurred while loading commit signatures'));
+    const displayError = () =>
+      deprecatedCreateFlash(__('An error occurred while loading commit signatures'));
 
     const endpoint = tag.data('signaturesPath');
     if (!endpoint) {

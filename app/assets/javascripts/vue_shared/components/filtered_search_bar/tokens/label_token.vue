@@ -8,7 +8,7 @@ import {
 } from '@gitlab/ui';
 import { debounce } from 'lodash';
 
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
@@ -80,7 +80,7 @@ export default {
           // return response differently.
           this.labels = Array.isArray(res) ? res : res.data;
         })
-        .catch(() => createFlash(__('There was a problem fetching labels.')))
+        .catch(() => deprecatedCreateFlash(__('There was a problem fetching labels.')))
         .finally(() => {
           this.loading = false;
         });

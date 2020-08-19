@@ -2,7 +2,7 @@
 import $ from 'jquery';
 import { GlButton } from '@gitlab/ui';
 import { __ } from '~/locale';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import mergeRequestQueryVariablesMixin from '../../mixins/merge_request_query_variables';
 import getStateQuery from '../../queries/get_state.query.graphql';
@@ -76,7 +76,7 @@ export default {
             },
           ) {
             if (errors?.length) {
-              createFlash(__('Something went wrong. Please try again.'));
+              deprecatedCreateFlash(__('Something went wrong. Please try again.'));
 
               return;
             }
@@ -108,10 +108,10 @@ export default {
           },
         })
         .then(({ data: { mergeRequestSetWip: { mergeRequest: { title } } } }) => {
-          createFlash(__('The merge request can now be merged.'), 'notice');
+          deprecatedCreateFlash(__('The merge request can now be merged.'), 'notice');
           $('.merge-request .detail-page-description .title').text(title);
         })
-        .catch(() => createFlash(__('Something went wrong. Please try again.')))
+        .catch(() => deprecatedCreateFlash(__('Something went wrong. Please try again.')))
         .finally(() => {
           this.isMakingRequest = false;
         });
@@ -126,12 +126,12 @@ export default {
           .then(res => res.data)
           .then(data => {
             eventHub.$emit('UpdateWidgetData', data);
-            createFlash(__('The merge request can now be merged.'), 'notice');
+            deprecatedCreateFlash(__('The merge request can now be merged.'), 'notice');
             $('.merge-request .detail-page-description .title').text(this.mr.title);
           })
           .catch(() => {
             this.isMakingRequest = false;
-            createFlash(__('Something went wrong. Please try again.'));
+            deprecatedCreateFlash(__('Something went wrong. Please try again.'));
           });
       }
     },

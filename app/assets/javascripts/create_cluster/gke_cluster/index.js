@@ -1,6 +1,6 @@
 /* global gapi */
 import Vue from 'vue';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import GkeProjectIdDropdown from './components/gke_project_id_dropdown.vue';
 import GkeZoneDropdown from './components/gke_zone_dropdown.vue';
 import GkeMachineTypeDropdown from './components/gke_machine_type_dropdown.vue';
@@ -60,7 +60,7 @@ const mountGkeSubmitButton = () => {
 };
 
 const gkeDropdownErrorHandler = () => {
-  Flash(CONSTANTS.GCP_API_ERROR);
+  deprecatedCreateFlash(CONSTANTS.GCP_API_ERROR);
 };
 
 const initializeGapiClient = () => {

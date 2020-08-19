@@ -1,7 +1,6 @@
-/* eslint-disable no-new */
 import { debounce } from 'lodash';
 import axios from './lib/utils/axios_utils';
-import { deprecatedCreateFlash as Flash } from './flash';
+import { deprecatedCreateFlash } from './flash';
 import DropLab from './droplab/drop_lab';
 import ISetter from './droplab/plugins/input_setter';
 import { __, sprintf } from './locale';
@@ -132,7 +131,7 @@ export default class CreateMergeRequestDropdown {
       .catch(() => {
         this.unavailable();
         this.disable();
-        Flash(__('Failed to check related branches.'));
+        deprecatedCreateFlash(__('Failed to check related branches.'));
       });
   }
 
@@ -147,7 +146,9 @@ export default class CreateMergeRequestDropdown {
         this.branchCreated = true;
         window.location.href = data.url;
       })
-      .catch(() => Flash(__('Failed to create a branch for this issue. Please try again.')));
+      .catch(() =>
+        deprecatedCreateFlash(__('Failed to create a branch for this issue. Please try again.')),
+      );
   }
 
   createMergeRequest() {
@@ -163,7 +164,7 @@ export default class CreateMergeRequestDropdown {
         this.mergeRequestCreated = true;
         window.location.href = data.url;
       })
-      .catch(() => Flash(__('Failed to create Merge Request. Please try again.')));
+      .catch(() => deprecatedCreateFlash(__('Failed to create Merge Request. Please try again.')));
   }
 
   disable() {
@@ -262,7 +263,7 @@ export default class CreateMergeRequestDropdown {
       .catch(() => {
         this.unavailable();
         this.disable();
-        new Flash(__('Failed to get ref.'));
+        deprecatedCreateFlash(__('Failed to get ref.'));
 
         this.isGettingRef = false;
 

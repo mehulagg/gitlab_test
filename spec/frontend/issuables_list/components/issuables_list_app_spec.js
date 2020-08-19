@@ -8,7 +8,7 @@ import {
 } from '@gitlab/ui';
 import waitForPromises from 'helpers/wait_for_promises';
 import { TEST_HOST } from 'helpers/test_constants';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import IssuablesListApp from '~/issuables_list/components/issuables_list_app.vue';
 import Issuable from '~/issuables_list/components/issuable.vue';
 import FilteredSearchBar from '~/vue_shared/components/filtered_search_bar/filtered_search_bar_root.vue';
@@ -104,7 +104,7 @@ describe('Issuables list component', () => {
     });
 
     it('flashes an error', () => {
-      expect(flash).toHaveBeenCalledTimes(1);
+      expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
     });
   });
 

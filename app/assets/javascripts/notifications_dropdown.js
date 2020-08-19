@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { deprecatedCreateFlash as Flash } from './flash';
+import { deprecatedCreateFlash } from './flash';
 import { __ } from '~/locale';
 
 export default function notificationsDropdown() {
@@ -30,7 +30,7 @@ export default function notificationsDropdown() {
         .closest('.js-notification-dropdown')
         .replaceWith(data.html);
     } else {
-      Flash(__('Failed to save new settings'), 'alert');
+      deprecatedCreateFlash(__('Failed to save new settings'), 'alert');
     }
   });
 }

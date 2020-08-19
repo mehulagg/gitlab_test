@@ -1,5 +1,5 @@
 import { propertyOf } from 'lodash';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { s__ } from '~/locale';
 import getDesignListQuery from '../graphql/queries/get_design_list.query.graphql';
 import allVersionsMixin from './all_versions';
@@ -35,7 +35,7 @@ export default {
       },
       result() {
         if (this.$route.query.version && !this.hasValidVersion) {
-          createFlash(
+          deprecatedCreateFlash(
             s__(
               'DesignManagement|Requested design version does not exist. Showing latest version instead',
             ),

@@ -2,7 +2,7 @@ import Vue from 'vue';
 import { escape } from 'lodash';
 import { __, sprintf } from '~/locale';
 import { visitUrl } from '~/lib/utils/url_utility';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import * as types from './mutation_types';
 import { decorateFiles } from '../lib/files';
 import { stageKeys } from '../constants';
@@ -38,7 +38,7 @@ export const createTempEntry = (
   const fullName = name.slice(-1) !== '/' && type === 'tree' ? `${name}/` : name;
 
   if (getters.entryExists(name)) {
-    flash(
+    deprecatedCreateFlash(
       sprintf(__('The name "%{name}" is already taken in this directory.'), {
         name: name.split('/').pop(),
       }),
@@ -281,7 +281,7 @@ export const getBranchData = ({ commit, state }, { projectId, branchId, force = 
           if (e.response.status === 404) {
             reject(e);
           } else {
-            flash(
+            deprecatedCreateFlash(
               __('Error loading branch data. Please try again.'),
               'alert',
               document,

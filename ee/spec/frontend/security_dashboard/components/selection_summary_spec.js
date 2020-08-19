@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import SelectionSummary from 'ee/security_dashboard/components/selection_summary.vue';
 import { GlFormSelect, GlButton } from '@gitlab/ui';
 import waitForPromises from 'helpers/wait_for_promises';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import toast from '~/vue_shared/plugins/global_toast';
 
 jest.mock('~/flash');
@@ -118,7 +118,7 @@ describe('Selection Summary component', () => {
       mutateMock.mockRejectedValue();
       dismissButton().trigger('submit');
       return waitForPromises().then(() => {
-        expect(createFlash).toHaveBeenCalledWith(
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(
           'There was an error dismissing the vulnerabilities.',
           'alert',
         );

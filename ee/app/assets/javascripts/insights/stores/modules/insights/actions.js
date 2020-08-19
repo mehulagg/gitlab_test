@@ -1,5 +1,5 @@
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 
 import * as types from './mutation_types';
@@ -10,7 +10,7 @@ export const receiveConfigSuccess = ({ commit }, data) =>
 export const receiveConfigError = ({ commit }, errorMessage) => {
   const error = errorMessage || __('Unknown Error');
   const message = `${__('There was an error fetching configuration for charts')}: ${error}`;
-  createFlash(message);
+  deprecatedCreateFlash(message);
   commit(types.RECEIVE_CONFIG_ERROR);
 };
 
@@ -51,7 +51,7 @@ export const fetchChartData = ({ dispatch }, { endpoint, chart }) =>
       if (error.response.data && error.response.data.message) {
         message += `: ${error.response.data.message}`;
       }
-      createFlash(message);
+      deprecatedCreateFlash(message);
       dispatch('receiveChartDataError', { chart, error: message });
     });
 
@@ -65,7 +65,7 @@ export const setActiveTab = ({ commit, state }, key) => {
       commit(types.SET_ACTIVE_TAB, key);
       commit(types.SET_ACTIVE_PAGE, page);
     } else {
-      createFlash(__('The specified tab is invalid, please select another'));
+      deprecatedCreateFlash(__('The specified tab is invalid, please select another'));
     }
   }
 };

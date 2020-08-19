@@ -1,6 +1,6 @@
 <script>
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import DeprecatedModal2 from '~/vue_shared/components/deprecated_modal_2.vue';
 import { redirectTo } from '~/lib/utils/url_utility';
 import { s__ } from '~/locale';
@@ -31,7 +31,7 @@ export default {
           redirectTo(response.request.responseURL);
         })
         .catch(error => {
-          createFlash(s__('AdminArea|Stopping jobs failed'));
+          deprecatedCreateFlash(s__('AdminArea|Stopping jobs failed'));
           throw error;
         });
     },

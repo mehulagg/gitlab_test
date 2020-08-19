@@ -6,7 +6,7 @@ import SplitButton from 'ee/vue_shared/security_reports/components/split_button.
 import axios from '~/lib/utils/axios_utils';
 import download from '~/lib/utils/downloader';
 import { redirectTo } from '~/lib/utils/url_utility';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { s__ } from '~/locale';
 import UsersCache from '~/lib/utils/users_cache';
 import ResolutionAlert from './resolution_alert.vue';
@@ -108,7 +108,9 @@ export default {
             this.user = userData;
           })
           .catch(() => {
-            createFlash(s__('VulnerabilityManagement|Something went wrong, could not get user.'));
+            deprecatedCreateFlash(
+              s__('VulnerabilityManagement|Something went wrong, could not get user.'),
+            );
           })
           .finally(() => {
             this.isLoadingUser = false;
@@ -131,7 +133,7 @@ export default {
           this.$emit('vulnerability-state-change');
         })
         .catch(() => {
-          createFlash(
+          deprecatedCreateFlash(
             s__(
               'VulnerabilityManagement|Something went wrong, could not update vulnerability state.',
             ),
@@ -168,7 +170,7 @@ export default {
         })
         .catch(() => {
           this.isProcessingAction = false;
-          createFlash(
+          deprecatedCreateFlash(
             s__('ciReport|There was an error creating the merge request. Please try again.'),
           );
         });
@@ -198,7 +200,7 @@ export default {
         .catch(e => {
           // Don't show an error message if the request was cancelled through the cancel token.
           if (!axios.isCancel(e)) {
-            createFlash(
+            deprecatedCreateFlash(
               s__(
                 'VulnerabilityManagement|Something went wrong while trying to refresh the vulnerability. Please try again later.',
               ),

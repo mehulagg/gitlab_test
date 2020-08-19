@@ -3,7 +3,7 @@
 import $ from 'jquery';
 import { __ } from './locale';
 import axios from './lib/utils/axios_utils';
-import { deprecatedCreateFlash as flash } from './flash';
+import { deprecatedCreateFlash } from './flash';
 import { capitalizeFirstCharacter } from './lib/utils/text_utility';
 import initDeprecatedJQueryDropdown from '~/deprecated_jquery_dropdown';
 
@@ -36,7 +36,7 @@ export default function initCompareAutocomplete(limitTo = null, clickHandler = (
               callback(data);
             }
           })
-          .catch(() => flash(__('Error fetching refs')));
+          .catch(() => deprecatedCreateFlash(__('Error fetching refs')));
       },
       selectable: true,
       filterable: true,

@@ -6,7 +6,7 @@ import getInitialState from 'ee/threat_monitoring/store/modules/network_policies
 import { s__ } from '~/locale';
 import axios from '~/lib/utils/axios_utils';
 import httpStatus from '~/lib/utils/http_status';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { joinPaths } from '~/lib/utils/url_utility';
 
 import { mockPoliciesResponse } from '../../../mock_data';
@@ -28,7 +28,7 @@ describe('Network Policy actions', () => {
   });
 
   afterEach(() => {
-    createFlash.mockClear();
+    deprecatedCreateFlash.mockClear();
     mock.restore();
   });
 
@@ -92,7 +92,7 @@ describe('Network Policy actions', () => {
           ],
           [],
         ).then(() => {
-          expect(createFlash).toHaveBeenCalled();
+          expect(deprecatedCreateFlash).toHaveBeenCalled();
         }));
     });
 
@@ -114,7 +114,7 @@ describe('Network Policy actions', () => {
           ],
           [],
         ).then(() => {
-          expect(createFlash).toHaveBeenCalled();
+          expect(deprecatedCreateFlash).toHaveBeenCalled();
         }));
     });
 
@@ -132,7 +132,7 @@ describe('Network Policy actions', () => {
           ],
           [],
         ).then(() => {
-          expect(createFlash).toHaveBeenCalled();
+          expect(deprecatedCreateFlash).toHaveBeenCalled();
         }));
     });
   });
@@ -164,7 +164,7 @@ describe('Network Policy actions', () => {
           ],
           [],
         ).then(() => {
-          expect(createFlash).toHaveBeenCalled();
+          expect(deprecatedCreateFlash).toHaveBeenCalled();
         }));
     });
 
@@ -191,7 +191,7 @@ describe('Network Policy actions', () => {
           ],
           [],
         ).then(() => {
-          expect(createFlash).toHaveBeenCalled();
+          expect(deprecatedCreateFlash).toHaveBeenCalled();
         }));
     });
 
@@ -213,7 +213,7 @@ describe('Network Policy actions', () => {
           ],
           [],
         ).then(() => {
-          expect(createFlash).toHaveBeenCalled();
+          expect(deprecatedCreateFlash).toHaveBeenCalled();
         }));
     });
 
@@ -234,7 +234,7 @@ describe('Network Policy actions', () => {
           ],
           [],
         ).then(() => {
-          expect(createFlash).toHaveBeenCalled();
+          expect(deprecatedCreateFlash).toHaveBeenCalled();
         }));
     });
   });
@@ -293,7 +293,7 @@ describe('Network Policy actions', () => {
           ],
           [],
         ).then(() => {
-          expect(createFlash).toHaveBeenCalled();
+          expect(deprecatedCreateFlash).toHaveBeenCalled();
         }));
     });
 
@@ -315,7 +315,7 @@ describe('Network Policy actions', () => {
           ],
           [],
         ).then(() => {
-          expect(createFlash).toHaveBeenCalled();
+          expect(deprecatedCreateFlash).toHaveBeenCalled();
         }));
     });
 
@@ -336,7 +336,7 @@ describe('Network Policy actions', () => {
           ],
           [],
         ).then(() => {
-          expect(createFlash).toHaveBeenCalled();
+          expect(deprecatedCreateFlash).toHaveBeenCalled();
         }));
     });
   });

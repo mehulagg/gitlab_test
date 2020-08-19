@@ -8,7 +8,7 @@ import { gqClient } from 'ee/geo_replicable/utils';
 import buildReplicableTypeQuery from 'ee/geo_replicable/graphql/replicable_type_query_builder';
 import { normalizeHeaders, parseIntPagination } from '~/lib/utils/common_utils';
 import toast from '~/vue_shared/plugins/global_toast';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import {
   MOCK_BASIC_FETCH_DATA_MAP,
   MOCK_BASIC_FETCH_RESPONSE,
@@ -70,7 +70,7 @@ describe('GeoReplicable Store Actions', () => {
         [{ type: types.RECEIVE_REPLICABLE_ITEMS_ERROR }],
         [],
         () => {
-          expect(flash).toHaveBeenCalledTimes(1);
+          expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
         },
       );
     });
@@ -364,7 +364,7 @@ describe('GeoReplicable Store Actions', () => {
         [{ type: types.RECEIVE_INITIATE_ALL_REPLICABLE_SYNCS_ERROR }],
         [],
         () => {
-          expect(flash).toHaveBeenCalledTimes(1);
+          expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
         },
       );
     });
@@ -461,7 +461,7 @@ describe('GeoReplicable Store Actions', () => {
         [{ type: types.RECEIVE_INITIATE_REPLICABLE_SYNC_ERROR }],
         [],
         () => {
-          expect(flash).toHaveBeenCalledTimes(1);
+          expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
         },
       );
     });

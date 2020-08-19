@@ -1,7 +1,7 @@
 import MockAdapter from 'axios-mock-adapter';
 import testAction from 'helpers/vuex_action_helper';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import * as actions from '~/error_tracking/store/details/actions';
 import * as types from '~/error_tracking/store/details/mutation_types';
 import Poll from '~/lib/utils/poll';
@@ -19,7 +19,7 @@ describe('Sentry error details store actions', () => {
 
   afterEach(() => {
     mockedAdapter.restore();
-    createFlash.mockClear();
+    deprecatedCreateFlash.mockClear();
     if (mockedRestart) {
       mockedRestart.mockRestore();
       mockedRestart = null;
@@ -56,7 +56,7 @@ describe('Sentry error details store actions', () => {
         [{ type: types.SET_LOADING_STACKTRACE, payload: false }],
         [],
         () => {
-          expect(createFlash).toHaveBeenCalledTimes(1);
+          expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
           done();
         },
       );

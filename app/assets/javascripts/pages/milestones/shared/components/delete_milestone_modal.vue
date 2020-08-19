@@ -2,7 +2,7 @@
 import { GlSafeHtmlDirective as SafeHtml } from '@gitlab/ui';
 import axios from '~/lib/utils/axios_utils';
 
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import DeprecatedModal from '~/vue_shared/components/deprecated_modal.vue';
 import { n__, s__, sprintf } from '~/locale';
 import { redirectTo } from '~/lib/utils/url_utility';
@@ -99,13 +99,13 @@ Once deleted, it cannot be undone or recovered.`),
           });
 
           if (error.response && error.response.status === 404) {
-            Flash(
+            deprecatedCreateFlash(
               sprintf(s__('Milestones|Milestone %{milestoneTitle} was not found'), {
                 milestoneTitle: this.milestoneTitle,
               }),
             );
           } else {
-            Flash(
+            deprecatedCreateFlash(
               sprintf(s__('Milestones|Failed to delete milestone %{milestoneTitle}'), {
                 milestoneTitle: this.milestoneTitle,
               }),

@@ -7,7 +7,7 @@ import { issuableTypesMap, PathIdSeparator } from '~/related_issues/constants';
 import { sprintf, __, s__ } from '~/locale';
 import { joinPaths, redirectTo } from '~/lib/utils/url_utility';
 import { RELATED_ISSUES_ERRORS, FEEDBACK_TYPES } from '../constants';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { getFormattedIssue, getAddRelatedIssueRequestParams } from '../helpers';
 
 export default {
@@ -154,7 +154,7 @@ export default {
 
         if (hasErrors) {
           const messages = errors.map(error => sprintf(RELATED_ISSUES_ERRORS.LINK_ERROR, error));
-          createFlash(messages.join(' '));
+          deprecatedCreateFlash(messages.join(' '));
         }
       });
     },
@@ -167,7 +167,7 @@ export default {
           this.store.removeRelatedIssue(issue);
         })
         .catch(() => {
-          createFlash(RELATED_ISSUES_ERRORS.UNLINK_ERROR);
+          deprecatedCreateFlash(RELATED_ISSUES_ERRORS.UNLINK_ERROR);
         });
     },
     fetchRelatedIssues() {
@@ -192,7 +192,7 @@ export default {
           );
         })
         .catch(() => {
-          createFlash(__('An error occurred while fetching issues.'));
+          deprecatedCreateFlash(__('An error occurred while fetching issues.'));
         })
         .finally(() => {
           this.isFetching = false;

@@ -3,7 +3,7 @@
 import $ from 'jquery';
 import axios from './lib/utils/axios_utils';
 import { __ } from '~/locale';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import TaskList from './task_list';
 import MergeRequestTabs from './merge_request_tabs';
 import IssuablesHelper from './helpers/issuables_helper';
@@ -36,7 +36,7 @@ function MergeRequest(opts) {
         document.querySelector('#task_status_short').innerText = result.task_status_short;
       },
       onError: () => {
-        createFlash(
+        deprecatedCreateFlash(
           __(
             'Someone edited this merge request at the same time you did. Please refresh the page to see changes.',
           ),
@@ -82,7 +82,7 @@ MergeRequest.prototype.initMRBtnListeners = function() {
       return axios
         .put(url)
         .then(() => window.location.reload())
-        .catch(() => createFlash(__('Something went wrong.')));
+        .catch(() => deprecatedCreateFlash(__('Something went wrong.')));
     }
 
     if (shouldSubmit && $this.data('submitted')) {

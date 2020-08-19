@@ -1,6 +1,6 @@
 <script>
 import { GlButton, GlForm, GlFormInput } from '@gitlab/ui';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { visitUrl } from '~/lib/utils/url_utility';
 import { __ } from '~/locale';
 import MarkdownField from '~/vue_shared/components/markdown/field.vue';
@@ -91,7 +91,7 @@ export default {
           const { errors, iteration } = data.createIteration;
           if (errors.length > 0) {
             this.loading = false;
-            createFlash(errors[0]);
+            deprecatedCreateFlash(errors[0]);
             return;
           }
 
@@ -99,7 +99,7 @@ export default {
         })
         .catch(() => {
           this.loading = false;
-          createFlash(__('Unable to save iteration. Please try again'));
+          deprecatedCreateFlash(__('Unable to save iteration. Please try again'));
         });
     },
     updateIteration() {
@@ -116,14 +116,14 @@ export default {
         .then(({ data }) => {
           const { errors } = data.updateIteration;
           if (errors.length > 0) {
-            createFlash(errors[0]);
+            deprecatedCreateFlash(errors[0]);
             return;
           }
 
           this.$emit('updated');
         })
         .catch(() => {
-          createFlash(__('Unable to save iteration. Please try again'));
+          deprecatedCreateFlash(__('Unable to save iteration. Please try again'));
         })
         .finally(() => {
           this.loading = false;

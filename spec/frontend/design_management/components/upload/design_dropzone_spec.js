@@ -1,7 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
 import { GlIcon } from '@gitlab/ui';
 import DesignDropzone from '~/design_management/components/upload/design_dropzone.vue';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 jest.mock('~/flash');
 
@@ -126,13 +126,13 @@ describe('Design management dropzone component', () => {
         expect(wrapper.emitted().change[0]).toEqual([[mockFile]]);
       });
 
-      it('calls createFlash when files are invalid', () => {
+      it('calls deprecatedCreateFlash when files are invalid', () => {
         createComponent({ data: mockData });
 
         const mockEvent = mockDragEvent({ files: [{ type: 'audio/midi' }] });
 
         wrapper.vm.ondrop(mockEvent);
-        expect(createFlash).toHaveBeenCalledTimes(1);
+        expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
       });
     });
   });

@@ -1,7 +1,7 @@
 import { __ } from '~/locale';
 import axios from '~/lib/utils/axios_utils';
 import { refreshCurrentPage } from '~/lib/utils/url_utility';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { transformFrontendSettings } from '../utils';
 import * as types from './mutation_types';
 
@@ -46,7 +46,7 @@ export const requestSettings = ({ commit }) => {
 export const receiveSettingsError = ({ commit }, { response = {} }) => {
   const message = response.data && response.data.message ? response.data.message : '';
 
-  createFlash(`${__('There was an error saving your changes.')} ${message}`, 'alert');
+  deprecatedCreateFlash(`${__('There was an error saving your changes.')} ${message}`, 'alert');
   commit(types.UPDATE_SETTINGS_LOADING, false);
 };
 

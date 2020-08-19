@@ -4,7 +4,7 @@ import { GlLoadingIcon, GlPagination, GlSprintf } from '@gitlab/ui';
 import Mousetrap from 'mousetrap';
 import { __ } from '~/locale';
 import { getParameterByName, parseBoolean } from '~/lib/utils/common_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import PanelResizer from '~/vue_shared/components/panel_resizer.vue';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { isSingleViewStyle } from '~/helpers/diffs_helper';
@@ -320,7 +320,7 @@ export default {
           this.startDiffRendering();
         })
         .catch(() => {
-          createFlash(__('Something went wrong on our end. Please try again!'));
+          deprecatedCreateFlash(__('Something went wrong on our end. Please try again!'));
         });
 
       this.fetchDiffFilesBatch()
@@ -333,7 +333,7 @@ export default {
         })
         .then(() => this.startDiffRendering())
         .catch(() => {
-          createFlash(__('Something went wrong on our end. Please try again!'));
+          deprecatedCreateFlash(__('Something went wrong on our end. Please try again!'));
         });
 
       if (this.endpointCoverage) {

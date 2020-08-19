@@ -11,7 +11,7 @@ import {
   UPDATE_IMAGE_DIFF_NOTE_ERROR,
 } from '~/design_management/utils/error_messages';
 import design from '../mock_data/design';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 jest.mock('~/flash.js');
 
@@ -32,10 +32,10 @@ describe('Design Management cache update', () => {
       ${'updateStoreAfterUploadDesign'}        | ${updateStoreAfterUploadDesign}        | ${mockErrors[0]}                           | ${[]}
       ${'updateStoreAfterUpdateImageDiffNote'} | ${updateStoreAfterUpdateImageDiffNote} | ${UPDATE_IMAGE_DIFF_NOTE_ERROR}            | ${[]}
     `('$fnName handles errors in response', ({ subject, extraArgs, errorMessage }) => {
-      expect(createFlash).not.toHaveBeenCalled();
+      expect(deprecatedCreateFlash).not.toHaveBeenCalled();
       expect(() => subject(mockStore, { errors: mockErrors }, {}, ...extraArgs)).toThrow();
-      expect(createFlash).toHaveBeenCalledTimes(1);
-      expect(createFlash).toHaveBeenCalledWith(errorMessage);
+      expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
+      expect(deprecatedCreateFlash).toHaveBeenCalledWith(errorMessage);
     });
   });
 });

@@ -4,7 +4,7 @@ import FilteredSearchContainer from '~/filtered_search/container';
 import FilteredSearchVisualTokens from '~/filtered_search/filtered_search_visual_tokens';
 import AjaxCache from '~/lib/utils/ajax_cache';
 import DropdownUtils from '~/filtered_search/dropdown_utils';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import UsersCache from '~/lib/utils/users_cache';
 import { __ } from '~/locale';
 import * as Emoji from '~/emoji';
@@ -83,7 +83,7 @@ export default class VisualTokenValue {
           matchingLabel.text_color,
         );
       })
-      .catch(() => new Flash(__('An error occurred while fetching label colors.')));
+      .catch(() => deprecatedCreateFlash(__('An error occurred while fetching label colors.')));
   }
 
   updateEpicLabel(tokenValueContainer) {
@@ -105,7 +105,9 @@ export default class VisualTokenValue {
 
         VisualTokenValue.replaceEpicTitle(tokenValueContainer, matchingEpic.title, matchingEpic.id);
       })
-      .catch(() => new Flash(__('An error occurred while adding formatted title for epic')));
+      .catch(() =>
+        deprecatedCreateFlash(__('An error occurred while adding formatted title for epic')),
+      );
   }
 
   static replaceEpicTitle(tokenValueContainer, epicTitle, epicId) {

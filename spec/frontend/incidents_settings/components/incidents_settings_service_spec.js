@@ -3,7 +3,7 @@ import axios from '~/lib/utils/axios_utils';
 import httpStatusCodes from '~/lib/utils/http_status';
 import IncidentsSettingsService from '~/incidents_settings/incidents_settings_service';
 import { ERROR_MSG } from '~/incidents_settings/constants';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { refreshCurrentPage } from '~/lib/utils/url_utility';
 
 jest.mock('~/flash');
@@ -37,7 +37,10 @@ describe('IncidentsSettingsService', () => {
       mock.onPatch().reply(httpStatusCodes.BAD_REQUEST);
 
       return service.updateSettings({}).then(() => {
-        expect(createFlash).toHaveBeenCalledWith(expect.stringContaining(ERROR_MSG), 'alert');
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(
+          expect.stringContaining(ERROR_MSG),
+          'alert',
+        );
       });
     });
   });

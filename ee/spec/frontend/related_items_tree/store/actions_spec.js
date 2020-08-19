@@ -14,7 +14,7 @@ import {
   PathIdSeparator,
 } from '~/related_issues/constants';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 import {
   mockInitialConfig,
@@ -34,7 +34,7 @@ jest.mock('~/flash');
 
 describe('RelatedItemTree', () => {
   afterEach(() => {
-    createFlash.mockClear();
+    deprecatedCreateFlash.mockClear();
   });
 
   describe('store', () => {
@@ -324,7 +324,7 @@ describe('RelatedItemTree', () => {
             {},
           );
 
-          expect(createFlash).toHaveBeenCalledWith(message);
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(message);
         });
       });
 
@@ -458,7 +458,7 @@ describe('RelatedItemTree', () => {
             {},
           );
 
-          expect(createFlash).toHaveBeenCalledWith(message);
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(message);
         });
       });
 
@@ -665,7 +665,9 @@ describe('RelatedItemTree', () => {
             },
           );
 
-          expect(createFlash).toHaveBeenCalledWith('An error occurred while removing epics.');
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(
+            'An error occurred while removing epics.',
+          );
         });
       });
 
@@ -1047,7 +1049,7 @@ describe('RelatedItemTree', () => {
             },
           );
 
-          expect(createFlash).toHaveBeenCalledWith(message);
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(message);
         });
       });
 
@@ -1128,7 +1130,7 @@ describe('RelatedItemTree', () => {
             },
           );
 
-          expect(createFlash).toHaveBeenCalledWith(message);
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(message);
         });
       });
 
@@ -1273,7 +1275,7 @@ describe('RelatedItemTree', () => {
             },
           );
 
-          expect(createFlash).toHaveBeenCalledWith(message);
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(message);
         });
       });
 
@@ -1470,7 +1472,7 @@ describe('RelatedItemTree', () => {
             },
           );
 
-          expect(createFlash).toHaveBeenCalledWith(message);
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(message);
         });
       });
 
@@ -1533,7 +1535,7 @@ describe('RelatedItemTree', () => {
                 expect.objectContaining({ parentItem }),
               );
 
-              expect(createFlash).not.toHaveBeenCalled();
+              expect(deprecatedCreateFlash).not.toHaveBeenCalled();
             });
           });
         });
@@ -1596,7 +1598,7 @@ describe('RelatedItemTree', () => {
             },
           );
 
-          expect(createFlash).toHaveBeenCalledWith(message);
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(message);
         });
       });
 

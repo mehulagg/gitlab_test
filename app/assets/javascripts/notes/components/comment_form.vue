@@ -6,7 +6,7 @@ import Autosize from 'autosize';
 import { GlAlert, GlIntersperse, GlLink, GlSprintf, GlButton } from '@gitlab/ui';
 import { __, sprintf } from '~/locale';
 import TimelineEntryItem from '~/vue_shared/components/notes/timeline_entry_item.vue';
-import { deprecatedCreateFlash as Flash } from '../../flash';
+import { deprecatedCreateFlash } from '../../flash';
 import Autosave from '../../autosave';
 import {
   capitalizeFirstCharacter,
@@ -225,7 +225,7 @@ export default {
             const msg = __(
               'Your comment could not be submitted! Please check your network connection and try again.',
             );
-            Flash(msg, 'alert', this.$el);
+            deprecatedCreateFlash(msg, 'alert', this.$el);
             this.note = noteData.data.note.note; // Restore textarea content.
             this.removePlaceholderNotes();
           });
@@ -266,7 +266,7 @@ export default {
               errorMessage = Object.values(data).join('\n');
             }
 
-            Flash(errorMessage);
+            deprecatedCreateFlash(errorMessage);
           });
       }
     },
@@ -279,7 +279,7 @@ export default {
         .catch(() => {
           this.enableButton();
           this.toggleStateButtonLoading(false);
-          Flash(
+          deprecatedCreateFlash(
             sprintf(
               __('Something went wrong while closing the %{issuable}. Please try again later'),
               { issuable: this.noteableDisplayName },

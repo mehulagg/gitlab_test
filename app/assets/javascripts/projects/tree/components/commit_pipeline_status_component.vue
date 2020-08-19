@@ -3,7 +3,7 @@ import Visibility from 'visibilityjs';
 import { GlLoadingIcon } from '@gitlab/ui';
 import ciIcon from '~/vue_shared/components/ci_icon.vue';
 import Poll from '~/lib/utils/poll';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __, s__, sprintf } from '~/locale';
 import tooltip from '~/vue_shared/directives/tooltip';
 import CommitPipelineService from '../services/commit_pipeline_service';
@@ -58,7 +58,7 @@ export default {
         group: 'notfound',
       };
       this.isLoading = false;
-      Flash(s__('Something went wrong on our end'));
+      deprecatedCreateFlash(s__('Something went wrong on our end'));
     },
     initPolling() {
       this.poll = new Poll({

@@ -20,7 +20,7 @@ import { localTimeAgo } from './lib/utils/datetime_utility';
 import { getLocationHash, visitUrl } from './lib/utils/url_utility';
 
 // everything else
-import { deprecatedCreateFlash as Flash, removeFlashClickListener } from './flash';
+import { deprecatedCreateFlash, removeFlashClickListener } from './flash';
 import initTodoToggle from './header';
 import initImporterStatus from './importer_status';
 import initLayoutNav from './layout_nav';
@@ -235,9 +235,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const ref = xhrObj.status;
 
     if (ref === 401) {
-      Flash(__('You need to be logged in.'));
+      deprecatedCreateFlash(__('You need to be logged in.'));
     } else if (ref === 404 || ref === 500) {
-      Flash(__('Something went wrong on our end.'));
+      deprecatedCreateFlash(__('Something went wrong on our end.'));
     }
   });
 

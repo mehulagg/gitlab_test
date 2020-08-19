@@ -13,7 +13,7 @@ import {
 } from 'jest/vue_shared/components/sidebar/labels_select_vue/mock_data';
 import axios from '~/lib/utils/axios_utils';
 
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import {
   DEFAULT_LABELS,
   DEFAULT_LABEL_NONE,
@@ -136,13 +136,15 @@ describe('LabelToken', () => {
         });
       });
 
-      it('calls `createFlash` with flash error message when request fails', () => {
+      it('calls `deprecatedCreateFlash` with flash error message when request fails', () => {
         jest.spyOn(wrapper.vm.config, 'fetchLabels').mockRejectedValue({});
 
         wrapper.vm.fetchLabelBySearchTerm('foo');
 
         return waitForPromises().then(() => {
-          expect(createFlash).toHaveBeenCalledWith('There was a problem fetching labels.');
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(
+            'There was a problem fetching labels.',
+          );
         });
       });
 

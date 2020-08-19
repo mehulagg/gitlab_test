@@ -3,7 +3,7 @@ import * as types from './mutation_types';
 import axios from '~/lib/utils/axios_utils';
 import Poll from '~/lib/utils/poll';
 import { setFaviconOverlay, resetFavicon } from '~/lib/utils/common_utils';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 import {
   canScroll,
@@ -98,7 +98,7 @@ export const receiveJobSuccess = ({ commit }, data = {}) => {
 };
 export const receiveJobError = ({ commit }) => {
   commit(types.RECEIVE_JOB_ERROR);
-  flash(__('An error occurred while fetching the job.'));
+  deprecatedCreateFlash(__('An error occurred while fetching the job.'));
   resetFavicon();
 };
 
@@ -192,7 +192,7 @@ export const stopPollingTrace = ({ state, commit }) => {
 export const receiveTraceSuccess = ({ commit }, log) => commit(types.RECEIVE_TRACE_SUCCESS, log);
 export const receiveTraceError = ({ dispatch }) => {
   dispatch('stopPollingTrace');
-  flash(__('An error occurred while fetching the job log.'));
+  deprecatedCreateFlash(__('An error occurred while fetching the job log.'));
 };
 /**
  * When the user clicks a collapsible line in the job
@@ -231,7 +231,7 @@ export const receiveJobsForStageSuccess = ({ commit }, data) =>
   commit(types.RECEIVE_JOBS_FOR_STAGE_SUCCESS, data);
 export const receiveJobsForStageError = ({ commit }) => {
   commit(types.RECEIVE_JOBS_FOR_STAGE_ERROR);
-  flash(__('An error occurred while fetching the jobs.'));
+  deprecatedCreateFlash(__('An error occurred while fetching the jobs.'));
 };
 
 export const triggerManualJob = ({ state }, variables) => {
@@ -245,5 +245,5 @@ export const triggerManualJob = ({ state }, variables) => {
     .post(state.job.status.action.path, {
       job_variables_attributes: parsedVariables,
     })
-    .catch(() => flash(__('An error occurred while triggering the job.')));
+    .catch(() => deprecatedCreateFlash(__('An error occurred while triggering the job.')));
 };

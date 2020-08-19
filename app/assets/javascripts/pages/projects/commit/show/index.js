@@ -12,7 +12,7 @@ import '~/sourcegraph/load';
 import { handleLocationHash } from '~/lib/utils/common_utils';
 import axios from '~/lib/utils/axios_utils';
 import syntaxHighlight from '~/syntax_highlight';
-import flash from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 import loadAwardsHandler from '~/awards_handler';
 
@@ -43,9 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         handleLocationHash();
         new Diff();
       })
-      .catch(() => {
-        flash(__('An error occurred while retrieving diff files'));
-      });
+      .catch(() => deprecatedCreateFlash(__('An error occurred while retrieving diff files')));
   } else {
     new Diff();
   }

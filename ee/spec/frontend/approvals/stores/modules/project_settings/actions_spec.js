@@ -3,7 +3,7 @@ import testAction from 'helpers/vuex_action_helper';
 import * as types from 'ee/approvals/stores/modules/base/mutation_types';
 import * as actions from 'ee/approvals/stores/modules/project_settings/actions';
 import { mapApprovalRuleRequest, mapApprovalSettingsResponse } from 'ee/approvals/mappers';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import axios from '~/lib/utils/axios_utils';
 
 jest.mock('~/flash');
@@ -77,12 +77,12 @@ describe('EE approvals project settings module actions', () => {
 
   describe('receiveRulesError', () => {
     it('creates a flash', () => {
-      expect(createFlash).not.toHaveBeenCalled();
+      expect(deprecatedCreateFlash).not.toHaveBeenCalled();
 
       actions.receiveRulesError();
 
-      expect(createFlash).toHaveBeenCalledTimes(1);
-      expect(createFlash).toHaveBeenCalledWith(expect.stringMatching('error occurred'));
+      expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
+      expect(deprecatedCreateFlash).toHaveBeenCalledWith(expect.stringMatching('error occurred'));
     });
   });
 
@@ -189,11 +189,13 @@ describe('EE approvals project settings module actions', () => {
 
   describe('deleteRuleError', () => {
     it('creates a flash', () => {
-      expect(createFlash).not.toHaveBeenCalled();
+      expect(deprecatedCreateFlash).not.toHaveBeenCalled();
 
       actions.deleteRuleError();
 
-      expect(createFlash.mock.calls[0]).toEqual([expect.stringMatching('error occurred')]);
+      expect(deprecatedCreateFlash.mock.calls[0]).toEqual([
+        expect.stringMatching('error occurred'),
+      ]);
     });
   });
 

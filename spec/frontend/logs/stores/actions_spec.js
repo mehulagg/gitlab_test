@@ -17,7 +17,7 @@ import {
 import { defaultTimeRange } from '~/vue_shared/constants';
 
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 import {
   mockPodName,
@@ -80,7 +80,7 @@ describe('Logs Store actions', () => {
   });
 
   afterEach(() => {
-    flash.mockClear();
+    deprecatedCreateFlash.mockClear();
   });
 
   describe('setInitData', () => {

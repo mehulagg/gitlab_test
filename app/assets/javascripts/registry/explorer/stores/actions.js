@@ -1,5 +1,5 @@
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import * as types from './mutation_types';
 import {
   FETCH_IMAGES_LIST_ERROR_MESSAGE,
@@ -36,7 +36,7 @@ export const requestImagesList = (
       dispatch('receiveImagesListSuccess', { data, headers });
     })
     .catch(() => {
-      createFlash(FETCH_IMAGES_LIST_ERROR_MESSAGE);
+      deprecatedCreateFlash(FETCH_IMAGES_LIST_ERROR_MESSAGE);
     })
     .finally(() => {
       commit(types.SET_MAIN_LOADING, false);
@@ -54,7 +54,7 @@ export const requestTagsList = ({ commit, dispatch }, { pagination = {}, params 
       dispatch('receiveTagsListSuccess', { data, headers });
     })
     .catch(() => {
-      createFlash(FETCH_TAGS_LIST_ERROR_MESSAGE);
+      deprecatedCreateFlash(FETCH_TAGS_LIST_ERROR_MESSAGE);
     })
     .finally(() => {
       commit(types.SET_MAIN_LOADING, false);

@@ -4,7 +4,7 @@ import AxiosMockAdapter from 'axios-mock-adapter';
 import AutoFixSettings from 'ee/security_configuration/components/auto_fix_settings.vue';
 import waitForPromises from 'helpers/wait_for_promises';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 jest.mock('~/flash.js');
 
@@ -155,7 +155,7 @@ describe('Auto-fix Settings', () => {
             itShowsInitialState();
 
             it('shows error flash', () => {
-              expect(createFlash).toHaveBeenCalledWith(
+              expect(deprecatedCreateFlash).toHaveBeenCalledWith(
                 'Something went wrong while toggling auto-fix settings, please try again later.',
               );
             });

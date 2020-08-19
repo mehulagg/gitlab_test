@@ -1,6 +1,6 @@
 import service from '../services';
 import * as types from './mutation_types';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { visitUrl } from '~/lib/utils/url_utility';
 import { __ } from '~/locale';
 
@@ -17,7 +17,7 @@ export const updateStatus = ({ commit }, { endpoint, redirectUrl, status }) =>
 
       return resp.data.result;
     })
-    .catch(() => createFlash(__('Failed to update issue status')));
+    .catch(() => deprecatedCreateFlash(__('Failed to update issue status')));
 
 export const updateResolveStatus = ({ commit, dispatch }, params) => {
   commit(types.SET_UPDATING_RESOLVE_STATUS, true);

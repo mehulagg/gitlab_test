@@ -1,4 +1,4 @@
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 
 const FLASH_MESSAGES = {
@@ -17,5 +17,5 @@ const FLASH_MESSAGES = {
 export default function flashMessage(action, status) {
   const messages = FLASH_MESSAGES[action];
 
-  createFlash(messages[status] || messages.default);
+  deprecatedCreateFlash(messages[status] || messages.default);
 }

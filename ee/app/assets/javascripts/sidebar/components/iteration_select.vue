@@ -13,7 +13,7 @@ import groupIterationsQuery from '../queries/group_iterations.query.graphql';
 import currentIterationQuery from '../queries/issue_iteration.query.graphql';
 import setIssueIterationMutation from '../queries/set_iteration_on_issue.mutation.graphql';
 import { iterationSelectTextMap } from '../constants';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 export default {
   noIteration: iterationSelectTextMap.noIteration,
@@ -135,7 +135,7 @@ export default {
         })
         .then(({ data }) => {
           if (data.issueSetIteration?.errors?.length) {
-            createFlash(data.issueSetIteration.errors[0]);
+            deprecatedCreateFlash(data.issueSetIteration.errors[0]);
           } else {
             this.currentIteration = data.issueSetIteration?.issue?.iteration?.id;
           }
@@ -143,7 +143,7 @@ export default {
         .catch(() => {
           const { iterationSelectFail } = iterationSelectTextMap;
 
-          createFlash(iterationSelectFail);
+          deprecatedCreateFlash(iterationSelectFail);
         });
     },
     handleOffClick(event) {

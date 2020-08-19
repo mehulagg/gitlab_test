@@ -1,5 +1,5 @@
 <script>
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import eventHub from '~/sidebar/event_hub';
 import Store from '~/sidebar/stores/sidebar_store';
 import { refreshUserMergeRequestCounts } from '~/commons/nav/user_merge_requests';
@@ -93,7 +93,7 @@ export default {
         })
         .catch(() => {
           this.loading = false;
-          return new Flash(__('Error occurred when saving assignees'));
+          return deprecatedCreateFlash(__('Error occurred when saving assignees'));
         });
     },
   },

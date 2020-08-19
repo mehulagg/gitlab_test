@@ -9,7 +9,7 @@ import MockAdapter from 'axios-mock-adapter';
 import waitForPromises from 'helpers/wait_for_promises';
 import axios from '~/lib/utils/axios_utils';
 
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import {
   DEFAULT_LABEL_NONE,
   DEFAULT_LABEL_ANY,
@@ -110,13 +110,13 @@ describe('AuthorToken', () => {
       });
     });
 
-    it('calls `createFlash` with flash error message when request fails', () => {
+    it('calls `deprecatedCreateFlash` with flash error message when request fails', () => {
       jest.spyOn(wrapper.vm.config, 'fetchAuthors').mockRejectedValue({});
 
       wrapper.vm.fetchAuthorBySearchTerm('root');
 
       return waitForPromises().then(() => {
-        expect(createFlash).toHaveBeenCalledWith('There was a problem fetching users.');
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith('There was a problem fetching users.');
       });
     });
 

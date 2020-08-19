@@ -1,5 +1,5 @@
 import Api from 'ee/api';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 import * as types from './mutation_types';
 
@@ -9,7 +9,9 @@ export const requestDurationData = ({ commit }) => commit(types.REQUEST_DURATION
 
 export const receiveDurationDataError = ({ commit }) => {
   commit(types.RECEIVE_DURATION_DATA_ERROR);
-  createFlash(__('There was an error while fetching value stream analytics duration data.'));
+  deprecatedCreateFlash(
+    __('There was an error while fetching value stream analytics duration data.'),
+  );
 };
 
 export const fetchDurationData = ({ dispatch, commit, rootGetters }) => {

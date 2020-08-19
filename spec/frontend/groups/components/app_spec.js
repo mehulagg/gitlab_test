@@ -1,4 +1,3 @@
-import '~/flash';
 import $ from 'jquery';
 import Vue from 'vue';
 import AxiosMockAdapter from 'axios-mock-adapter';
@@ -11,6 +10,7 @@ import eventHub from '~/groups/event_hub';
 import GroupsStore from '~/groups/store/groups_store';
 import GroupsService from '~/groups/service/groups_service';
 import * as urlUtilities from '~/lib/utils/url_utility';
+import { deprecatedCreateFlash } from '~/flash';
 
 import {
   mockEndpoint,
@@ -22,6 +22,8 @@ import {
   mockChildren,
   mockPageInfo,
 } from '../mock_data';
+
+jest.mock('~/flash');
 
 const createComponent = (hideProjects = false) => {
   const Component = Vue.extend(appComponent);
@@ -126,12 +128,13 @@ describe('AppComponent', () => {
         mock.onGet('/dashboard/groups.json').reply(400);
 
         jest.spyOn($, 'scrollTo').mockImplementation(() => {});
-        jest.spyOn(window, 'Flash').mockImplementation(() => {});
 
         return vm.fetchGroups({}).then(() => {
           expect(vm.isLoading).toBe(false);
           expect($.scrollTo).toHaveBeenCalledWith(0);
-          expect(window.Flash).toHaveBeenCalledWith('An error occurred. Please try again.');
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(
+            'An error occurred. Please try again.',
+          );
         });
       });
     });
@@ -324,7 +327,7 @@ describe('AppComponent', () => {
         const notice = `You left the "${childGroupItem.fullName}" group.`;
         jest.spyOn(vm.service, 'leaveGroup').mockResolvedValue({ data: { notice } });
         jest.spyOn(vm.store, 'removeGroup');
-        jest.spyOn(window, 'Flash').mockImplementation(() => {});
+
         jest.spyOn($, 'scrollTo').mockImplementation(() => {});
 
         vm.leaveGroup();
@@ -335,7 +338,7 @@ describe('AppComponent', () => {
         return waitForPromises().then(() => {
           expect($.scrollTo).toHaveBeenCalledWith(0);
           expect(vm.store.removeGroup).toHaveBeenCalledWith(vm.targetGroup, vm.targetParentGroup);
-          expect(window.Flash).toHaveBeenCalledWith(notice, 'notice');
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(notice, 'notice');
         });
       });
 
@@ -343,7 +346,6 @@ describe('AppComponent', () => {
         const message = 'An error occurred. Please try again.';
         jest.spyOn(vm.service, 'leaveGroup').mockRejectedValue({ status: 500 });
         jest.spyOn(vm.store, 'removeGroup');
-        jest.spyOn(window, 'Flash').mockImplementation(() => {});
 
         vm.leaveGroup();
 
@@ -351,7 +353,7 @@ describe('AppComponent', () => {
         expect(vm.service.leaveGroup).toHaveBeenCalledWith(childGroupItem.leavePath);
         return waitForPromises().then(() => {
           expect(vm.store.removeGroup).not.toHaveBeenCalled();
-          expect(window.Flash).toHaveBeenCalledWith(message);
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(message);
           expect(vm.targetGroup.isBeingRemoved).toBe(false);
         });
       });
@@ -360,7 +362,6 @@ describe('AppComponent', () => {
         const message = 'Failed to leave the group. Please make sure you are not the only owner.';
         jest.spyOn(vm.service, 'leaveGroup').mockRejectedValue({ status: 403 });
         jest.spyOn(vm.store, 'removeGroup');
-        jest.spyOn(window, 'Flash').mockImplementation(() => {});
 
         vm.leaveGroup(childGroupItem, groupItem);
 
@@ -368,7 +369,7 @@ describe('AppComponent', () => {
         expect(vm.service.leaveGroup).toHaveBeenCalledWith(childGroupItem.leavePath);
         return waitForPromises().then(() => {
           expect(vm.store.removeGroup).not.toHaveBeenCalled();
-          expect(window.Flash).toHaveBeenCalledWith(message);
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(message);
           expect(vm.targetGroup.isBeingRemoved).toBe(false);
         });
       });

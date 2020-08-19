@@ -6,7 +6,7 @@ import ProjectList from 'ee/security_dashboard/components/first_class_project_ma
 import getProjects from 'ee/security_dashboard/graphql/get_projects.query.graphql';
 import waitForPromises from 'helpers/wait_for_promises';
 import ProjectSelector from '~/vue_shared/components/project_selector/project_selector.vue';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 jest.mock('~/flash');
 
@@ -160,8 +160,8 @@ describe('Project Manager component', () => {
       createWrapper({ data: { selectedProjects: singleProjectList }, mocks });
       findAddProjectsButton().vm.$emit('click');
       return waitForPromises().then(() => {
-        expect(createFlash).toHaveBeenCalledTimes(1);
-        expect(createFlash).toHaveBeenCalledWith(
+        expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(
           'Unable to add Sample Project 1: Project was not found or you do not have permission to add this project to Security Dashboards.',
         );
       });
@@ -176,8 +176,8 @@ describe('Project Manager component', () => {
       createWrapper({ data: { selectedProjects: multipleProjectsList }, mocks });
       findAddProjectsButton().vm.$emit('click');
       return waitForPromises().then(() => {
-        expect(createFlash).toHaveBeenCalledTimes(1);
-        expect(createFlash).toHaveBeenCalledWith(
+        expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(
           'Unable to add Sample Project 2 and Sample Project 3: Project was not found or you do not have permission to add this project to Security Dashboards.',
         );
       });
@@ -200,7 +200,7 @@ describe('Project Manager component', () => {
       createWrapper({ props: { selectedProjects: multipleProjectsList }, mocks });
       findProjectList().vm.$emit('projectRemoved', mockProject);
       return waitForPromises().then(() => {
-        expect(createFlash).toHaveBeenCalledTimes(1);
+        expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
       });
     });
   });

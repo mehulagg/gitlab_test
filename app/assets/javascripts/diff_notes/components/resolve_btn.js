@@ -3,7 +3,7 @@
 
 import $ from 'jquery';
 import Vue from 'vue';
-import { deprecatedCreateFlash as Flash } from '../../flash';
+import { deprecatedCreateFlash } from '../../flash';
 import { sprintf, __ } from '~/locale';
 
 const ResolveBtn = Vue.extend({
@@ -134,9 +134,10 @@ const ResolveBtn = Vue.extend({
           gl.mrWidget.checkStatus();
           this.updateTooltip();
         })
-        .catch(
-          () =>
-            new Flash(__('An error occurred when trying to resolve a comment. Please try again.')),
+        .catch(() =>
+          deprecatedCreateFlash(
+            __('An error occurred when trying to resolve a comment. Please try again.'),
+          ),
         );
     },
   },

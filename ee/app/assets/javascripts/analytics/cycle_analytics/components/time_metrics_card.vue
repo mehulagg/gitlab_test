@@ -1,7 +1,7 @@
 <script>
 import Api from 'ee/api';
 import { sprintf, __, s__ } from '~/locale';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import MetricCard from '../../shared/components/metric_card.vue';
 import { removeFlash, prepareTimeMetricsData } from '../utils';
 import { OVERVIEW_METRICS } from '../constants';
@@ -65,7 +65,7 @@ export default {
             this.requestType === OVERVIEW_METRICS.TIME_SUMMARY
               ? __('time summary')
               : __('recent activity');
-          createFlash(
+          deprecatedCreateFlash(
             sprintf(
               s__(
                 'There was an error while fetching value stream analytics %{requestTypeName} data.',

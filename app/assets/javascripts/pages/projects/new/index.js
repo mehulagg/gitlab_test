@@ -1,7 +1,7 @@
 import initProjectVisibilitySelector from '../../../project_visibility';
 import initProjectNew from '../../../projects/project_new';
 import { __ } from '~/locale';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import Tracking from '~/tracking';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
         m.default(el, config);
       })
       .catch(() => {
-        createFlash(__('An error occurred while loading project creation UI'));
+        deprecatedCreateFlash(__('An error occurred while loading project creation UI'));
       });
   }
 });

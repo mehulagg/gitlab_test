@@ -1,7 +1,7 @@
 <script>
 import { mapActions, mapState, mapGetters } from 'vuex';
 import { GlModal } from '@gitlab/ui';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __, sprintf, s__ } from '~/locale';
 import { modalTypes } from '../../constants';
 import { trimPathComponents, getPathParent } from '../../utils';
@@ -56,7 +56,7 @@ export default {
 
       if (this.modalType === modalTypes.rename) {
         if (this.entries[this.entryName] && !this.entries[this.entryName].deleted) {
-          flash(
+          deprecatedCreateFlash(
             sprintf(s__('The name "%{name}" is already taken in this directory.'), {
               name: this.entryName,
             }),

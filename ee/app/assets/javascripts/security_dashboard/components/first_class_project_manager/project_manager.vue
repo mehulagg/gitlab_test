@@ -8,7 +8,7 @@ import { createInvalidProjectMessage } from 'ee/security_dashboard/utils/first_c
 import ProjectList from './project_list.vue';
 import ProjectSelector from '~/vue_shared/components/project_selector/project_selector.vue';
 import { __, s__, sprintf } from '~/locale';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 export default {
   MINIMUM_QUERY_LENGTH: 3,
@@ -128,7 +128,7 @@ export default {
               },
             );
 
-            createFlash(errorMessages.join('<br/>'));
+            deprecatedCreateFlash(errorMessages.join('<br/>'));
           }
         })
         .finally(() => {
@@ -157,7 +157,7 @@ export default {
         .then(() => {
           this.$emit('handleProjectManipulation', false);
         })
-        .catch(() => createFlash(__('Something went wrong, unable to delete project')));
+        .catch(() => deprecatedCreateFlash(__('Something went wrong, unable to delete project')));
     },
     searched(query) {
       this.searchQuery = query;

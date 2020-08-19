@@ -1,6 +1,6 @@
 import Api from 'ee/api';
 import { flatten } from 'lodash';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { visitUrl } from '~/lib/utils/url_utility';
 import { convertObjectPropsToSnakeCase } from '~/lib/utils/common_utils';
 import { __ } from '~/locale';
@@ -21,7 +21,7 @@ export const requestSyncNamespaces = ({ commit }) => commit(types.REQUEST_SYNC_N
 export const receiveSyncNamespacesSuccess = ({ commit }, data) =>
   commit(types.RECEIVE_SYNC_NAMESPACES_SUCCESS, data);
 export const receiveSyncNamespacesError = ({ commit }) => {
-  createFlash(__("There was an error fetching the Node's Groups"));
+  deprecatedCreateFlash(__("There was an error fetching the Node's Groups"));
   commit(types.RECEIVE_SYNC_NAMESPACES_ERROR);
 };
 
@@ -49,7 +49,7 @@ export const receiveSaveGeoNodeError = ({ commit }, data) => {
     errorMessage += ` ${getSaveErrorMessage(data.message)}`;
   }
 
-  createFlash(errorMessage);
+  deprecatedCreateFlash(errorMessage);
   commit(types.RECEIVE_SAVE_GEO_NODE_COMPLETE);
 };
 

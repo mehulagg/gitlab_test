@@ -1,5 +1,5 @@
 import Api from '~/api';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { FETCH_PACKAGE_VERSIONS_ERROR } from '../constants';
 import { DELETE_PACKAGE_ERROR_MESSAGE } from '~/packages/shared/constants';
 import * as types from './mutation_types';
@@ -16,7 +16,7 @@ export const fetchPackageVersions = ({ commit, state }) => {
       }
     })
     .catch(() => {
-      createFlash(FETCH_PACKAGE_VERSIONS_ERROR);
+      deprecatedCreateFlash(FETCH_PACKAGE_VERSIONS_ERROR);
     })
     .finally(() => {
       commit(types.SET_LOADING, false);

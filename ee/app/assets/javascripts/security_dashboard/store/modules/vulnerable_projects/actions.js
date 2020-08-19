@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import { __ } from '~/locale';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 
@@ -34,7 +34,7 @@ export const receiveProjectsSuccess = ({ commit }, payload) => {
 };
 
 export const receiveProjectsError = ({ commit }) => {
-  createFlash(__('Unable to fetch vulnerable projects'));
+  deprecatedCreateFlash(__('Unable to fetch vulnerable projects'));
 
   commit(SET_HAS_ERROR, true);
 };

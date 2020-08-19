@@ -2,7 +2,7 @@ import $ from 'jquery';
 import 'deckar01-task_list';
 import { __ } from '~/locale';
 import axios from './lib/utils/axios_utils';
-import { deprecatedCreateFlash as Flash } from './flash';
+import { deprecatedCreateFlash } from './flash';
 
 export default class TaskList {
   constructor(options = {}) {
@@ -22,7 +22,7 @@ export default class TaskList {
           errorMessages = e.response.data.errors.join(' ');
         }
 
-        return new Flash(errorMessages || __('Update failed'), 'alert');
+        return deprecatedCreateFlash(errorMessages || __('Update failed'), 'alert');
       };
 
     this.init();

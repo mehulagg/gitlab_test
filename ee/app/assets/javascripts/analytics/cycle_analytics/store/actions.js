@@ -1,5 +1,5 @@
 import Api from 'ee/api';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __, sprintf } from '~/locale';
 import httpStatus from '~/lib/utils/http_status';
 import * as types from './mutation_types';
@@ -50,7 +50,7 @@ export const receiveStageDataSuccess = ({ commit }, data) => {
 
 export const receiveStageDataError = ({ commit }) => {
   commit(types.RECEIVE_STAGE_DATA_ERROR);
-  createFlash(__('There was an error fetching data for the selected stage'));
+  deprecatedCreateFlash(__('There was an error fetching data for the selected stage'));
 };
 
 export const fetchStageData = ({ dispatch, getters }, stageId) => {
@@ -74,7 +74,7 @@ export const receiveStageMedianValuesSuccess = ({ commit }, data) => {
 
 export const receiveStageMedianValuesError = ({ commit }) => {
   commit(types.RECEIVE_STAGE_MEDIANS_ERROR);
-  createFlash(__('There was an error fetching median data for stages'));
+  deprecatedCreateFlash(__('There was an error fetching median data for stages'));
 };
 
 const fetchStageMedian = ({ groupId, valueStreamId, stageId, params }) =>
@@ -124,7 +124,7 @@ export const receiveCycleAnalyticsDataError = ({ commit }, { response }) => {
 
   commit(types.RECEIVE_CYCLE_ANALYTICS_DATA_ERROR, status);
   if (status !== httpStatus.FORBIDDEN) {
-    createFlash(__('There was an error while fetching value stream analytics data.'));
+    deprecatedCreateFlash(__('There was an error while fetching value stream analytics data.'));
   }
 };
 
@@ -148,7 +148,7 @@ export const requestGroupStages = ({ commit }) => commit(types.REQUEST_GROUP_STA
 
 export const receiveGroupStagesError = ({ commit }, error) => {
   commit(types.RECEIVE_GROUP_STAGES_ERROR, error);
-  createFlash(__('There was an error fetching value stream analytics stages.'));
+  deprecatedCreateFlash(__('There was an error fetching value stream analytics stages.'));
 };
 
 export const setDefaultSelectedStage = ({ dispatch, getters }) => {
@@ -161,7 +161,7 @@ export const setDefaultSelectedStage = ({ dispatch, getters }) => {
     ]);
   }
 
-  createFlash(__('There was an error while fetching value stream analytics data.'));
+  deprecatedCreateFlash(__('There was an error while fetching value stream analytics data.'));
   return Promise.resolve();
 };
 
@@ -203,12 +203,12 @@ export const fetchGroupStagesAndEvents = ({ dispatch, getters }) => {
 export const requestUpdateStage = ({ commit }) => commit(types.REQUEST_UPDATE_STAGE);
 export const receiveUpdateStageSuccess = ({ commit, dispatch }, updatedData) => {
   commit(types.RECEIVE_UPDATE_STAGE_SUCCESS);
-  createFlash(__('Stage data updated'), 'notice');
+  deprecatedCreateFlash(__('Stage data updated'), 'notice');
   return Promise.resolve()
     .then(() => dispatch('fetchGroupStagesAndEvents'))
     .then(() => dispatch('customStages/showEditForm', updatedData))
     .catch(() => {
-      createFlash(__('There was a problem refreshing the data, please try again'));
+      deprecatedCreateFlash(__('There was a problem refreshing the data, please try again'));
     });
 };
 
@@ -224,7 +224,7 @@ export const receiveUpdateStageError = (
       ? sprintf(__(`'%{name}' stage already exists`), { name })
       : __('There was a problem saving your custom stage, please try again');
 
-  createFlash(__(message));
+  deprecatedCreateFlash(__(message));
   return dispatch('customStages/setStageFormErrors', errors);
 };
 
@@ -249,13 +249,13 @@ export const updateStage = ({ dispatch, getters }, { id, ...params }) => {
 export const requestRemoveStage = ({ commit }) => commit(types.REQUEST_REMOVE_STAGE);
 export const receiveRemoveStageSuccess = ({ commit, dispatch }) => {
   commit(types.RECEIVE_REMOVE_STAGE_RESPONSE);
-  createFlash(__('Stage removed'), 'notice');
+  deprecatedCreateFlash(__('Stage removed'), 'notice');
   return dispatch('fetchCycleAnalyticsData');
 };
 
 export const receiveRemoveStageError = ({ commit }) => {
   commit(types.RECEIVE_REMOVE_STAGE_RESPONSE);
-  createFlash(__('There was an error removing your custom stage, please try again'));
+  deprecatedCreateFlash(__('There was an error removing your custom stage, please try again'));
 };
 
 export const removeStage = ({ dispatch, getters }, stageId) => {
@@ -313,7 +313,9 @@ export const receiveReorderStageSuccess = ({ commit }) =>
 
 export const receiveReorderStageError = ({ commit }) => {
   commit(types.RECEIVE_REORDER_STAGE_ERROR);
-  createFlash(__('There was an error updating the stage order. Please try reloading the page.'));
+  deprecatedCreateFlash(
+    __('There was an error updating the stage order. Please try reloading the page.'),
+  );
 };
 
 export const reorderStage = ({ dispatch, getters }, initialData) => {

@@ -1,5 +1,5 @@
 import { sprintf, __ } from '~/locale';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import httpStatusCodes from '~/lib/utils/http_status';
 import * as rootTypes from '../../mutation_types';
 import { createCommitPayload, createNewMergeRequestUrl } from '../../utils';
@@ -132,7 +132,7 @@ export const commitChanges = ({ commit, state, getters, dispatch, rootState, roo
       commit(types.UPDATE_LOADING, false);
 
       if (!data.short_id) {
-        flash(data.message, 'alert', document, null, false, true);
+        deprecatedCreateFlash(data.message, 'alert', document, null, false, true);
         return null;
       }
 

@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import { __ } from './locale';
 import axios from './lib/utils/axios_utils';
-import { deprecatedCreateFlash as flash } from './flash';
+import { deprecatedCreateFlash } from './flash';
 
 const tooltipTitles = {
   group: {
@@ -59,7 +59,7 @@ export default class ProjectLabelSubscription {
           return button;
         });
       })
-      .catch(() => flash(__('There was an error subscribing to this label.')));
+      .catch(() => deprecatedCreateFlash(__('There was an error subscribing to this label.')));
   }
 
   static setNewTitle($button, originalTitle, newStatus) {

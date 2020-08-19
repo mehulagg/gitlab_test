@@ -3,7 +3,7 @@ import $ from 'jquery';
 import Visibility from 'visibilityjs';
 import axios from '~/lib/utils/axios_utils';
 import TaskList from '../../task_list';
-import { deprecatedCreateFlash as Flash } from '../../flash';
+import { deprecatedCreateFlash } from '../../flash';
 import Poll from '../../lib/utils/poll';
 import * as types from './mutation_types';
 import * as utils from './utils';
@@ -351,7 +351,7 @@ export const saveNote = ({ commit, dispatch }, noteData) => {
 
       $('.js-gfm-input').trigger('clear-commands-cache.atwho');
 
-      Flash(message || __('Commands applied'), 'notice', noteData.flashContainer);
+      deprecatedCreateFlash(message || __('Commands applied'), 'notice', noteData.flashContainer);
     }
 
     return res;
@@ -372,7 +372,7 @@ export const saveNote = ({ commit, dispatch }, noteData) => {
         awardsHandler.scrollToAwards();
       })
       .catch(() => {
-        Flash(
+        deprecatedCreateFlash(
           __('Something went wrong while adding your award. Please try again.'),
           'alert',
           noteData.flashContainer,
@@ -414,7 +414,7 @@ export const saveNote = ({ commit, dispatch }, noteData) => {
         const errorMsg = sprintf(__('Your comment could not be submitted because %{error}'), {
           error: base[0].toLowerCase(),
         });
-        Flash(errorMsg, 'alert', noteData.flashContainer);
+        deprecatedCreateFlash(errorMsg, 'alert', noteData.flashContainer);
         return { ...data, hasFlash: true };
       }
     }
@@ -458,7 +458,7 @@ export const fetchData = ({ commit, state, getters, dispatch }) => {
   axios
     .get(endpoint, options)
     .then(({ data }) => pollSuccessCallBack(data, commit, state, getters, dispatch))
-    .catch(() => Flash(__('Something went wrong while fetching latest comments.')));
+    .catch(() => deprecatedCreateFlash(__('Something went wrong while fetching latest comments.')));
 };
 
 export const poll = ({ commit, state, getters, dispatch }) => {
@@ -471,7 +471,8 @@ export const poll = ({ commit, state, getters, dispatch }) => {
     },
     method: 'poll',
     successCallback: ({ data }) => pollSuccessCallBack(data, commit, state, getters, dispatch),
-    errorCallback: () => Flash(__('Something went wrong while fetching latest comments.')),
+    errorCallback: () =>
+      deprecatedCreateFlash(__('Something went wrong while fetching latest comments.')),
   });
 
   if (!Visibility.hidden()) {
@@ -541,7 +542,7 @@ export const filterDiscussion = ({ dispatch }, { path, filter, persistFilter }) 
     .catch(() => {
       dispatch('setLoadingState', false);
       dispatch('setNotesFetchedState', true);
-      Flash(__('Something went wrong while fetching comments. Please try again.'));
+      deprecatedCreateFlash(__('Something went wrong while fetching comments. Please try again.'));
     });
 };
 
@@ -582,7 +583,7 @@ export const submitSuggestion = (
 
       const flashMessage = errorMessage || defaultMessage;
 
-      Flash(__(flashMessage), 'alert', flashContainer);
+      deprecatedCreateFlash(__(flashMessage), 'alert', flashContainer);
     });
 };
 
@@ -615,7 +616,7 @@ export const submitSuggestionBatch = ({ commit, dispatch, state }, { flashContai
 
       const flashMessage = errorMessage || defaultMessage;
 
-      Flash(__(flashMessage), 'alert', flashContainer);
+      deprecatedCreateFlash(__(flashMessage), 'alert', flashContainer);
     })
     .finally(() => commit(types.SET_APPLYING_BATCH_STATE, false));
 };
@@ -650,7 +651,9 @@ export const fetchDescriptionVersion = ({ dispatch }, { endpoint, startingVersio
     })
     .catch(error => {
       dispatch('receiveDescriptionVersionError', error);
-      Flash(__('Something went wrong while fetching description changes. Please try again.'));
+      deprecatedCreateFlash(
+        __('Something went wrong while fetching description changes. Please try again.'),
+      );
     });
 };
 
@@ -682,7 +685,9 @@ export const softDeleteDescriptionVersion = (
     })
     .catch(error => {
       dispatch('receiveDeleteDescriptionVersionError', error);
-      Flash(__('Something went wrong while deleting description changes. Please try again.'));
+      deprecatedCreateFlash(
+        __('Something went wrong while deleting description changes. Please try again.'),
+      );
 
       // Throw an error here because a component like SystemNote -
       //  needs to know if the request failed to reset its internal state.

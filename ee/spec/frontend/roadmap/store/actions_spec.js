@@ -9,7 +9,7 @@ import { PRESET_TYPES, EXTEND_AS } from 'ee/roadmap/constants';
 import groupMilestones from 'ee/roadmap/queries/groupMilestones.query.graphql';
 import testAction from 'helpers/vuex_action_helper';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import {
   mockGroupId,
   basePath,
@@ -188,7 +188,9 @@ describe('Roadmap Vuex Actions', () => {
     it('should show flash error', () => {
       actions.receiveEpicsFailure({ commit: () => {} });
 
-      expect(createFlash).toHaveBeenCalledWith('Something went wrong while fetching epics');
+      expect(deprecatedCreateFlash).toHaveBeenCalledWith(
+        'Something went wrong while fetching epics',
+      );
     });
   });
 
@@ -741,7 +743,9 @@ describe('Roadmap Vuex Actions', () => {
     it('should show flash error', () => {
       actions.receiveMilestonesFailure({ commit: () => {} });
 
-      expect(createFlash).toHaveBeenCalledWith('Something went wrong while fetching milestones');
+      expect(deprecatedCreateFlash).toHaveBeenCalledWith(
+        'Something went wrong while fetching milestones',
+      );
     });
   });
 

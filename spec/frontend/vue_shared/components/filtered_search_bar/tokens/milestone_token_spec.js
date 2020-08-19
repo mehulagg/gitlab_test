@@ -9,7 +9,7 @@ import MockAdapter from 'axios-mock-adapter';
 import waitForPromises from 'helpers/wait_for_promises';
 import axios from '~/lib/utils/axios_utils';
 
-import createFlash from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { DEFAULT_MILESTONES } from '~/vue_shared/components/filtered_search_bar/constants';
 import MilestoneToken from '~/vue_shared/components/filtered_search_bar/tokens/milestone_token.vue';
 
@@ -114,13 +114,15 @@ describe('MilestoneToken', () => {
         });
       });
 
-      it('calls `createFlash` with flash error message when request fails', () => {
+      it('calls `deprecatedCreateFlash` with flash error message when request fails', () => {
         jest.spyOn(wrapper.vm.config, 'fetchMilestones').mockRejectedValue({});
 
         wrapper.vm.fetchMilestoneBySearchTerm('foo');
 
         return waitForPromises().then(() => {
-          expect(createFlash).toHaveBeenCalledWith('There was a problem fetching milestones.');
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(
+            'There was a problem fetching milestones.',
+          );
         });
       });
 

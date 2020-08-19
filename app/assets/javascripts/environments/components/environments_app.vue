@@ -1,6 +1,6 @@
 <script>
 import { GlDeprecatedButton } from '@gitlab/ui';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { s__ } from '~/locale';
 import emptyState from './empty_state.vue';
 import eventHub from '../event_hub';
@@ -106,7 +106,9 @@ export default {
         .then(response => this.store.setfolderContent(folder, response.data.environments))
         .then(() => this.store.updateEnvironmentProp(folder, 'isLoadingFolderContent', false))
         .catch(() => {
-          Flash(s__('Environments|An error occurred while fetching the environments.'));
+          deprecatedCreateFlash(
+            s__('Environments|An error occurred while fetching the environments.'),
+          );
           this.store.updateEnvironmentProp(folder, 'isLoadingFolderContent', false);
         });
     },

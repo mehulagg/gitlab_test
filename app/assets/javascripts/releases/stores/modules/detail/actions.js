@@ -1,6 +1,6 @@
 import * as types from './mutation_types';
 import api from '~/api';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { s__ } from '~/locale';
 import { redirectTo } from '~/lib/utils/url_utility';
 import { releaseToApiJson, apiJsonToRelease } from '~/releases/util';
@@ -28,7 +28,7 @@ export const fetchRelease = ({ commit, state }) => {
     })
     .catch(error => {
       commit(types.RECEIVE_RELEASE_ERROR, error);
-      createFlash(s__('Release|Something went wrong while getting the release details'));
+      deprecatedCreateFlash(s__('Release|Something went wrong while getting the release details'));
     });
 };
 
@@ -94,7 +94,7 @@ export const createRelease = ({ commit, dispatch, state, getters }) => {
     })
     .catch(error => {
       commit(types.RECEIVE_SAVE_RELEASE_ERROR, error);
-      createFlash(s__('Release|Something went wrong while creating a new release'));
+      deprecatedCreateFlash(s__('Release|Something went wrong while creating a new release'));
     });
 };
 
@@ -152,7 +152,7 @@ export const updateRelease = ({ commit, dispatch, state, getters }) => {
       })
       .catch(error => {
         commit(types.RECEIVE_SAVE_RELEASE_ERROR, error);
-        createFlash(s__('Release|Something went wrong while saving the release details'));
+        deprecatedCreateFlash(s__('Release|Something went wrong while saving the release details'));
       })
   );
 };

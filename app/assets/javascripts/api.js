@@ -1,6 +1,6 @@
 import axios from './lib/utils/axios_utils';
 import { joinPaths } from './lib/utils/url_utility';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 
 const DEFAULT_PER_PAGE = 20;
@@ -353,7 +353,7 @@ const Api = {
         params: { ...defaults, ...options },
       })
       .then(({ data }) => callback(data))
-      .catch(() => flash(__('Something went wrong while fetching projects')));
+      .catch(() => deprecatedCreateFlash(__('Something went wrong while fetching projects')));
   },
 
   commit(id, sha, params = {}) {
@@ -485,7 +485,7 @@ const Api = {
         params: { ...defaults, ...options },
       })
       .then(({ data }) => callback(data))
-      .catch(() => flash(__('Something went wrong while fetching projects')));
+      .catch(() => deprecatedCreateFlash(__('Something went wrong while fetching projects')));
   },
 
   branches(id, query = '', options = {}) {

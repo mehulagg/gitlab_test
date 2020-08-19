@@ -1,7 +1,7 @@
 <script>
 import { GlPopover, GlIcon, GlLink, GlButton, GlTooltipDirective } from '@gitlab/ui';
 import { __, s__ } from '~/locale';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import axios from '~/lib/utils/axios_utils';
 import { formatDate } from '~/lib/utils/datetime_utility';
 import pollUntilComplete from '~/lib/utils/poll_until_complete';
@@ -66,7 +66,9 @@ export default {
           });
         })
         .catch(() => {
-          createFlash(s__('SecurityReports|There was an error while generating the report.'));
+          deprecatedCreateFlash(
+            s__('SecurityReports|There was an error while generating the report.'),
+          );
         })
         .finally(() => {
           this.isPreparingCsvExport = false;

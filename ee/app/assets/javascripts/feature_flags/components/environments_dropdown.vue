@@ -3,7 +3,7 @@ import { debounce } from 'lodash';
 import { GlDeprecatedButton, GlSearchBoxByType } from '@gitlab/ui';
 import axios from '~/lib/utils/axios_utils';
 import { __ } from '~/locale';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 /**
  * Creates a searchable input for environments.
@@ -90,7 +90,7 @@ export default {
         .catch(() => {
           this.isLoading = false;
           this.closeSuggestions();
-          createFlash(__('Something went wrong on our end. Please try again.'));
+          deprecatedCreateFlash(__('Something went wrong on our end. Please try again.'));
         });
     }, 250),
     /**

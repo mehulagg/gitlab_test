@@ -1,7 +1,7 @@
 <script>
 import { GlButton } from '@gitlab/ui';
 import footerEEMixin from 'ee_else_ce/boards/mixins/modal_footer';
-import { deprecatedCreateFlash as Flash } from '../../../flash';
+import { deprecatedCreateFlash } from '../../../flash';
 import { __, n__ } from '../../../locale';
 import ListsDropdown from './lists_dropdown.vue';
 import ModalStore from '../../stores/modal_store';
@@ -45,7 +45,7 @@ export default {
 
       // Post the data to the backend
       boardsStore.bulkUpdate(issueIds, req).catch(() => {
-        Flash(__('Failed to update issues, please try again.'));
+        deprecatedCreateFlash(__('Failed to update issues, please try again.'));
 
         selectedIssues.forEach(issue => {
           list.removeIssue(issue);

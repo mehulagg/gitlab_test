@@ -1,5 +1,5 @@
 import Api from 'ee/api';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import toast from '~/vue_shared/plugins/global_toast';
 import { __, sprintf } from '~/locale';
 import {
@@ -17,7 +17,7 @@ export const requestReplicableItems = ({ commit }) => commit(types.REQUEST_REPLI
 export const receiveReplicableItemsSuccess = ({ commit }, data) =>
   commit(types.RECEIVE_REPLICABLE_ITEMS_SUCCESS, data);
 export const receiveReplicableItemsError = ({ state, commit }) => {
-  createFlash(
+  deprecatedCreateFlash(
     sprintf(__('There was an error fetching the %{replicableType}'), {
       replicableType: state.replicableType,
     }),
@@ -110,7 +110,7 @@ export const receiveInitiateAllReplicableSyncsSuccess = (
   dispatch('fetchReplicableItems');
 };
 export const receiveInitiateAllReplicableSyncsError = ({ state, commit }) => {
-  createFlash(
+  deprecatedCreateFlash(
     sprintf(__('There was an error syncing the %{replicableType}'), {
       replicableType: state.replicableType,
     }),
@@ -137,7 +137,7 @@ export const receiveInitiateReplicableSyncSuccess = ({ commit, dispatch }, { nam
   dispatch('fetchReplicableItems');
 };
 export const receiveInitiateReplicableSyncError = ({ commit }, { name }) => {
-  createFlash(sprintf(__('There was an error syncing project %{name}'), { name }));
+  deprecatedCreateFlash(sprintf(__('There was an error syncing project %{name}'), { name }));
   commit(types.RECEIVE_INITIATE_REPLICABLE_SYNC_ERROR);
 };
 

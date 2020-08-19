@@ -11,7 +11,7 @@ import {
 import { intersection, debounce } from 'lodash';
 import { __, sprintf } from '~/locale';
 import Api from '~/api';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 const SEARCH_DEBOUNCE_MS = 250;
 
@@ -115,7 +115,7 @@ export default {
           this.selectedMilestones = intersection(this.projectMilestones, this.milestoneTitles);
         })
         .catch(() => {
-          createFlash(__('An error occurred while loading milestones'));
+          deprecatedCreateFlash(__('An error occurred while loading milestones'));
         })
         .finally(() => {
           this.requestCount -= 1;
@@ -141,7 +141,7 @@ export default {
           this.searchResults = searchResults.length ? searchResults : [];
         })
         .catch(() => {
-          createFlash(__('An error occurred while searching for milestones'));
+          deprecatedCreateFlash(__('An error occurred while searching for milestones'));
         })
         .finally(() => {
           this.requestCount -= 1;

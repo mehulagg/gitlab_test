@@ -1,7 +1,7 @@
 <script>
 import { GlDeprecatedDropdownDivider, GlSegmentedControl, GlIcon } from '@gitlab/ui';
 import { s__, sprintf } from '~/locale';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { removeFlash } from '../../utils';
 import {
   TASKS_BY_TYPE_FILTERS,
@@ -84,7 +84,7 @@ export default {
           s__('CycleAnalytics|Only %{maxLabels} labels can be selected at this time'),
           { maxLabels },
         );
-        createFlash(message, 'notice');
+        deprecatedCreateFlash(message, 'notice');
       }
     },
   },

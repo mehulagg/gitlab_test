@@ -1,5 +1,5 @@
 import * as types from './mutation_types';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 import api from '~/api';
 import {
@@ -41,5 +41,5 @@ export const receiveReleasesSuccess = ({ commit }, { data, headers }) => {
 
 export const receiveReleasesError = ({ commit }) => {
   commit(types.RECEIVE_RELEASES_ERROR);
-  createFlash(__('An error occurred while fetching the releases. Please try again.'));
+  deprecatedCreateFlash(__('An error occurred while fetching the releases. Please try again.'));
 };

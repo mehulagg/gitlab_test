@@ -5,7 +5,7 @@ import Tracking from '~/tracking';
 import axios from '~/lib/utils/axios_utils';
 import statusCodes from '~/lib/utils/http_status';
 import * as commonUtils from '~/lib/utils/common_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { defaultTimeRange } from '~/vue_shared/constants';
 import * as getters from '~/monitoring/stores/getters';
 import { ENVIRONMENT_AVAILABLE_STATE } from '~/monitoring/constants';
@@ -82,7 +82,7 @@ describe('Monitoring store actions', () => {
     mock.reset();
 
     commonUtils.backOff.mockReset();
-    createFlash.mockReset();
+    deprecatedCreateFlash.mockReset();
   });
 
   // Setup
@@ -244,7 +244,7 @@ describe('Monitoring store actions', () => {
               'receiveMetricsDashboardFailure',
               new Error('Request failed with status code 500'),
             );
-            expect(createFlash).toHaveBeenCalled();
+            expect(deprecatedCreateFlash).toHaveBeenCalled();
             done();
           })
           .catch(done.fail);
@@ -257,7 +257,7 @@ describe('Monitoring store actions', () => {
               'receiveMetricsDashboardFailure',
               new Error('Request failed with status code 500'),
             );
-            expect(createFlash).toHaveBeenCalledWith(
+            expect(deprecatedCreateFlash).toHaveBeenCalledWith(
               expect.stringContaining(mockDashboardsErrorResponse.message),
             );
             done();
@@ -274,7 +274,7 @@ describe('Monitoring store actions', () => {
               'receiveMetricsDashboardFailure',
               new Error('Request failed with status code 500'),
             );
-            expect(createFlash).not.toHaveBeenCalled();
+            expect(deprecatedCreateFlash).not.toHaveBeenCalled();
             done();
           })
           .catch(done.fail);
@@ -347,7 +347,7 @@ describe('Monitoring store actions', () => {
             },
           });
 
-          expect(createFlash).not.toHaveBeenCalled();
+          expect(deprecatedCreateFlash).not.toHaveBeenCalled();
           done();
         })
         .catch(done.fail);
@@ -418,7 +418,7 @@ describe('Monitoring store actions', () => {
             defaultQueryParams,
           });
 
-          expect(createFlash).toHaveBeenCalledTimes(1);
+          expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
 
           done();
         })
@@ -618,7 +618,7 @@ describe('Monitoring store actions', () => {
         [],
         [{ type: 'receiveDeploymentsDataFailure' }],
         () => {
-          expect(createFlash).toHaveBeenCalled();
+          expect(deprecatedCreateFlash).toHaveBeenCalled();
         },
       );
     });
@@ -1147,8 +1147,8 @@ describe('Monitoring store actions', () => {
 
       return testAction(fetchVariableMetricLabelValues, { defaultQueryParams }, state, [], []).then(
         () => {
-          expect(createFlash).toHaveBeenCalledTimes(1);
-          expect(createFlash).toHaveBeenCalledWith(
+          expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(
             expect.stringContaining('error getting options for variable "label1"'),
           );
         },

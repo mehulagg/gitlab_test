@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import '~/behaviors/markdown/render_gfm';
-import { deprecatedCreateFlash as Flash } from '../../flash';
+import { deprecatedCreateFlash } from '../../flash';
 import { handleLocationHash } from '../../lib/utils/common_utils';
 import axios from '../../lib/utils/axios_utils';
 import eventHub from '../../notes/event_hub';
@@ -31,7 +31,7 @@ export const handleBlobRichViewer = (viewer, type) => {
   loadRichBlobViewer(type)
     .then(module => module?.default(viewer))
     .catch(error => {
-      Flash(__('Error loading file viewer.'));
+      deprecatedCreateFlash(__('Error loading file viewer.'));
       throw error;
     });
 };
@@ -162,7 +162,7 @@ export default class BlobViewer {
 
         this.toggleCopyButtonState();
       })
-      .catch(() => new Flash(__('Error loading viewer')));
+      .catch(() => deprecatedCreateFlash(__('Error loading viewer')));
   }
 
   static loadViewer(viewerParam) {

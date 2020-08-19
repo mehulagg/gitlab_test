@@ -1,5 +1,5 @@
 <script>
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '../../locale';
 import FileTable from './table/index.vue';
 import getRefMixin from '../mixins/get_ref';
@@ -113,7 +113,7 @@ export default {
           }
         })
         .catch(error => {
-          createFlash(__('An error occurred while fetching folder content.'));
+          deprecatedCreateFlash(__('An error occurred while fetching folder content.'));
           throw error;
         });
     },

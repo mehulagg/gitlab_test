@@ -1,7 +1,7 @@
 import { s__ } from '~/locale';
 import pollUntilComplete from '~/lib/utils/poll_until_complete';
 import httpStatusCodes from '~/lib/utils/http_status';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import * as types from './mutation_types';
 import { getTimeWindowParams } from '../../utils';
 
@@ -13,7 +13,7 @@ export const receiveStatisticsSuccess = ({ commit }, statistics) =>
   commit(types.RECEIVE_STATISTICS_SUCCESS, statistics);
 export const receiveStatisticsError = ({ commit }) => {
   commit(types.RECEIVE_STATISTICS_ERROR);
-  createFlash(s__('ThreatMonitoring|Something went wrong, unable to fetch statistics'));
+  deprecatedCreateFlash(s__('ThreatMonitoring|Something went wrong, unable to fetch statistics'));
 };
 
 export const fetchStatistics = ({ state, dispatch, rootState }) => {

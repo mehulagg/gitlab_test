@@ -3,7 +3,7 @@
 import $ from 'jquery';
 import { __ } from '~/locale';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import CreateLabelDropdown from '../../create_label';
 import boardsStore from '../stores/boards_store';
 import initDeprecatedJQueryDropdown from '~/deprecated_jquery_dropdown';
@@ -44,7 +44,7 @@ export default function initNewListDropdown() {
           .then(({ data }) => callback(data))
           .catch(() => {
             $dropdownToggle.data('bs.dropdown').hide();
-            flash(__('Error fetching labels.'));
+            deprecatedCreateFlash(__('Error fetching labels.'));
           });
       },
       renderRow(label) {

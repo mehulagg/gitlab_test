@@ -5,7 +5,7 @@ import * as messages from '~/ide/stores/modules/terminal/messages';
 import * as mutationTypes from '~/ide/stores/modules/terminal/mutation_types';
 import * as actions from '~/ide/stores/modules/terminal/actions/session_status';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 jest.mock('~/flash');
 
@@ -115,7 +115,7 @@ describe('IDE store terminal session controls actions', () => {
     it('flashes message', () => {
       actions.receiveSessionStatusError({ dispatch });
 
-      expect(createFlash).toHaveBeenCalledWith(messages.UNEXPECTED_ERROR_STATUS);
+      expect(deprecatedCreateFlash).toHaveBeenCalledWith(messages.UNEXPECTED_ERROR_STATUS);
     });
 
     it('kills the session', () => {

@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { visitUrl } from '~/lib/utils/url_utility';
 import MRWidgetService from '~/vue_merge_request_widget/services/mr_widget_service';
 import DeploymentActions from '~/vue_merge_request_widget/components/deployment/deployment_actions.vue';
@@ -165,7 +165,7 @@ describe('DeploymentAction component', () => {
               });
 
               it('should not throw an error', () => {
-                expect(createFlash).not.toHaveBeenCalled();
+                expect(deprecatedCreateFlash).not.toHaveBeenCalled();
               });
 
               describe('response includes redirect_url', () => {
@@ -204,9 +204,9 @@ describe('DeploymentAction component', () => {
                   confirmAction();
                 });
 
-                it('should call createFlash with error message', () => {
-                  expect(createFlash).toHaveBeenCalled();
-                  expect(createFlash).toHaveBeenCalledWith(
+                it('should call deprecatedCreateFlash with error message', () => {
+                  expect(deprecatedCreateFlash).toHaveBeenCalled();
+                  expect(deprecatedCreateFlash).toHaveBeenCalledWith(
                     actionButtonMocks[configConst].errorMessage,
                   );
                 });

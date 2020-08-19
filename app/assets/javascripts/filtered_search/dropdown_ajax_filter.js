@@ -1,4 +1,4 @@
-import { deprecatedCreateFlash as createFlash } from '../flash';
+import { deprecatedCreateFlash } from '../flash';
 import AjaxFilter from '../droplab/plugins/ajax_filter';
 import FilteredSearchDropdown from './filtered_search_dropdown';
 import DropdownUtils from './dropdown_utils';
@@ -27,7 +27,7 @@ export default class DropdownAjaxFilter extends FilteredSearchDropdown {
       searchValueFunction: this.getSearchInput.bind(this),
       loadingTemplate: this.loadingTemplate,
       onError() {
-        createFlash(__('An error occurred fetching the dropdown data.'));
+        deprecatedCreateFlash(__('An error occurred fetching the dropdown data.'));
       },
     };
   }

@@ -3,7 +3,7 @@ import $ from 'jquery';
 import { GlLoadingIcon } from '@gitlab/ui';
 import { mapActions } from 'vuex';
 import { __, sprintf } from '../../../locale';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import eventHub from '../../event_hub';
 
 export default {
@@ -52,7 +52,9 @@ export default {
           const flashMessage = __(
             'Something went wrong trying to change the locked state of this %{issuableDisplayName}',
           );
-          Flash(sprintf(flashMessage, { issuableDisplayName: this.issuableDisplayName }));
+          deprecatedCreateFlash(
+            sprintf(flashMessage, { issuableDisplayName: this.issuableDisplayName }),
+          );
         })
         .finally(() => {
           this.closeForm();

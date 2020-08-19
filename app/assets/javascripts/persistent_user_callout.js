@@ -1,7 +1,7 @@
 import { parseBoolean } from './lib/utils/common_utils';
 import axios from './lib/utils/axios_utils';
 import { __ } from './locale';
-import { deprecatedCreateFlash as Flash } from './flash';
+import { deprecatedCreateFlash } from './flash';
 
 const DEFERRED_LINK_CLASS = 'deferred-link';
 
@@ -62,7 +62,9 @@ export default class PersistentUserCallout {
         }
       })
       .catch(() => {
-        Flash(__('An error occurred while dismissing the alert. Refresh the page and try again.'));
+        deprecatedCreateFlash(
+          __('An error occurred while dismissing the alert. Refresh the page and try again.'),
+        );
       });
   }
 
@@ -79,7 +81,7 @@ export default class PersistentUserCallout {
         window.location.assign(href);
       })
       .catch(() => {
-        Flash(
+        deprecatedCreateFlash(
           __(
             'An error occurred while acknowledging the notification. Refresh the page and try again.',
           ),

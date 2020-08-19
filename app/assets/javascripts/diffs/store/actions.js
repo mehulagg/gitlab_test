@@ -3,7 +3,7 @@ import Cookies from 'js-cookie';
 import Poll from '~/lib/utils/poll';
 import axios from '~/lib/utils/axios_utils';
 import httpStatusCodes from '~/lib/utils/http_status';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __, s__ } from '~/locale';
 import { handleLocationHash, historyPushState, scrollToElement } from '~/lib/utils/common_utils';
 import { mergeUrlParams, getLocationHash } from '~/lib/utils/url_utility';
@@ -174,7 +174,8 @@ export const fetchCoverageFiles = ({ commit, state }) => {
         coveragePoll.stop();
       }
     },
-    errorCallback: () => createFlash(__('Something went wrong on our end. Please try again!')),
+    errorCallback: () =>
+      deprecatedCreateFlash(__('Something went wrong on our end. Please try again!')),
   });
 
   coveragePoll.makeRequest();
@@ -421,7 +422,7 @@ export const saveDiffDiscussion = ({ state, dispatch }, { note, formData }) => {
     .then(discussion => dispatch('assignDiscussionsToDiff', [discussion]))
     .then(() => dispatch('updateResolvableDiscussionsCounts', null, { root: true }))
     .then(() => dispatch('closeDiffFileCommentForm', formData.diffFile.file_hash))
-    .catch(() => createFlash(s__('MergeRequests|Saving the comment failed')));
+    .catch(() => deprecatedCreateFlash(s__('MergeRequests|Saving the comment failed')));
 };
 
 export const toggleTreeOpen = ({ commit }, path) => {
@@ -492,7 +493,7 @@ export const cacheTreeListWidth = (_, size) => {
 
 export const receiveFullDiffError = ({ commit }, filePath) => {
   commit(types.RECEIVE_FULL_DIFF_ERROR, filePath);
-  createFlash(s__('MergeRequest|Error loading full diff. Please try again.'));
+  deprecatedCreateFlash(s__('MergeRequest|Error loading full diff. Please try again.'));
 };
 
 export const setExpandedDiffLines = ({ commit, state }, { file, data }) => {
@@ -652,7 +653,9 @@ export const setSuggestPopoverDismissed = ({ commit, state }) =>
       commit(types.SET_SHOW_SUGGEST_POPOVER);
     })
     .catch(() => {
-      createFlash(s__('MergeRequest|Error dismissing suggestion popover. Please try again.'));
+      deprecatedCreateFlash(
+        s__('MergeRequest|Error dismissing suggestion popover. Please try again.'),
+      );
     });
 
 export function changeCurrentCommit({ dispatch, commit, state }, { commitId }) {

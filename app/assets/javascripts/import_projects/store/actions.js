@@ -8,7 +8,7 @@ import {
 } from '~/lib/utils/common_utils';
 import Poll from '~/lib/utils/poll';
 import { visitUrl, objectToQuery } from '~/lib/utils/url_utility';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { s__, sprintf } from '~/locale';
 import axios from '~/lib/utils/axios_utils';
 
@@ -86,7 +86,7 @@ const fetchReposFactory = ({ reposPath = isRequired(), hasPagination }) => ({
       if (hasRedirectInError(e)) {
         redirectToUrlInError(e);
       } else {
-        createFlash(
+        deprecatedCreateFlash(
           sprintf(s__('ImportProjects|Requesting your %{provider} repositories failed'), {
             provider,
           }),
@@ -129,7 +129,7 @@ const fetchImportFactory = (importPath = isRequired()) => ({ state, commit, gett
           )
         : s__('ImportProjects|Importing the project failed');
 
-      createFlash(flashMessage);
+      deprecatedCreateFlash(flashMessage);
 
       commit(types.RECEIVE_IMPORT_ERROR, repoId);
     });
@@ -154,7 +154,9 @@ export const fetchJobsFactory = (jobsPath = isRequired()) => ({ state, commit, d
       if (hasRedirectInError(e)) {
         redirectToUrlInError(e);
       } else {
-        createFlash(s__('ImportProjects|Update of imported projects with realtime changes failed'));
+        deprecatedCreateFlash(
+          s__('ImportProjects|Update of imported projects with realtime changes failed'),
+        );
       }
     },
     data: { filter },
@@ -181,7 +183,7 @@ const fetchNamespacesFactory = (namespacesPath = isRequired()) => ({ commit }) =
       commit(types.RECEIVE_NAMESPACES_SUCCESS, convertObjectPropsToCamelCase(data, { deep: true })),
     )
     .catch(() => {
-      createFlash(s__('ImportProjects|Requesting namespaces failed'));
+      deprecatedCreateFlash(s__('ImportProjects|Requesting namespaces failed'));
 
       commit(types.RECEIVE_NAMESPACES_ERROR);
     });

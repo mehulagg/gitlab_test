@@ -1,7 +1,7 @@
 import MockAdapter from 'axios-mock-adapter';
 import testAction from 'helpers/vuex_action_helper';
 import { TEST_HOST } from 'helpers/test_constants';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import axios from '~/lib/utils/axios_utils';
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 import {
@@ -210,7 +210,7 @@ describe('import_projects store actions', () => {
         [],
       );
 
-      expect(createFlash).toHaveBeenCalledWith('Importing the project failed');
+      expect(deprecatedCreateFlash).toHaveBeenCalledWith('Importing the project failed');
     });
 
     it('commits REQUEST_IMPORT and RECEIVE_IMPORT_ERROR and shows detailed error message on an unsuccessful request with errors fields in response', async () => {
@@ -231,7 +231,9 @@ describe('import_projects store actions', () => {
         [],
       );
 
-      expect(createFlash).toHaveBeenCalledWith(`Importing the project failed: ${ERROR_MESSAGE}`);
+      expect(deprecatedCreateFlash).toHaveBeenCalledWith(
+        `Importing the project failed: ${ERROR_MESSAGE}`,
+      );
     });
   });
 
@@ -330,7 +332,7 @@ describe('import_projects store actions', () => {
         [],
       );
 
-      expect(createFlash).toHaveBeenCalledWith('Requesting namespaces failed');
+      expect(deprecatedCreateFlash).toHaveBeenCalledWith('Requesting namespaces failed');
     });
   });
 

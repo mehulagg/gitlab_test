@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import AccessDropdown from '~/projects/settings/access_dropdown';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import CreateItemDropdown from '~/create_item_dropdown';
 import { s__, __ } from '~/locale';
 import { ACCESS_LEVELS, LEVEL_TYPES } from './constants';
@@ -98,6 +98,6 @@ export default class ProtectedTagCreate {
       .then(() => {
         window.location.reload();
       })
-      .catch(() => createFlash(s__('ProjectSettings|Failed to protect the tag')));
+      .catch(() => deprecatedCreateFlash(s__('ProjectSettings|Failed to protect the tag')));
   }
 }

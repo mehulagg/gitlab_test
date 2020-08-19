@@ -11,7 +11,7 @@ import {
   SORT_BY,
   SORT_ORDER,
 } from 'ee/license_compliance/store/modules/list/constants';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 import mockLicensesResponse from './data/mock_licenses.json';
 
@@ -37,7 +37,7 @@ describe('Licenses actions', () => {
   };
 
   afterEach(() => {
-    createFlash.mockClear();
+    deprecatedCreateFlash.mockClear();
   });
 
   describe('setLicensesEndpoint', () => {
@@ -106,8 +106,8 @@ describe('Licenses actions', () => {
         ],
         [],
       ).then(() => {
-        expect(createFlash).toHaveBeenCalledTimes(1);
-        expect(createFlash).toHaveBeenCalledWith(FETCH_ERROR_MESSAGE);
+        expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(FETCH_ERROR_MESSAGE);
       });
     });
   });

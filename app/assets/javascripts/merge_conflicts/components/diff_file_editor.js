@@ -3,7 +3,7 @@
 
 import Vue from 'vue';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { __ } from '~/locale';
 import getModeByFileExtension from '~/lib/utils/ace_utils';
 
@@ -81,7 +81,7 @@ import getModeByFileExtension from '~/lib/utils/ace_utils';
             this.loading = false;
           })
           .catch(() => {
-            flash(__('An error occurred while loading the file'));
+            deprecatedCreateFlash(__('An error occurred while loading the file'));
             this.loading = false;
           });
       },

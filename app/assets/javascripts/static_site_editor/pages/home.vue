@@ -6,7 +6,7 @@ import SubmitChangesError from '../components/submit_changes_error.vue';
 import appDataQuery from '../graphql/queries/app_data.query.graphql';
 import sourceContentQuery from '../graphql/queries/source_content.query.graphql';
 import submitContentChangesMutation from '../graphql/mutations/submit_content_changes.mutation.graphql';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import Tracking from '~/tracking';
 import { LOAD_CONTENT_ERROR, TRACKING_ACTION_INITIALIZE_EDITOR } from '../constants';
 import { SUCCESS_ROUTE } from '../router/constants';
@@ -41,7 +41,7 @@ export default {
         return !this.appData.isSupportedContent;
       },
       error() {
-        createFlash(LOAD_CONTENT_ERROR);
+        deprecatedCreateFlash(LOAD_CONTENT_ERROR);
       },
     },
   },

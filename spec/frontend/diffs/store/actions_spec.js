@@ -58,7 +58,7 @@ import * as utils from '~/diffs/store/utils';
 import * as commonUtils from '~/lib/utils/common_utils';
 import { mergeUrlParams } from '~/lib/utils/url_utility';
 import { diffMetadata } from '../mock_data/diff_metadata';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 jest.mock('~/flash');
 
@@ -88,7 +88,7 @@ describe('DiffsStoreActions', () => {
     ['requestAnimationFrame', 'requestIdleCallback'].forEach(method => {
       global[method] = originalMethods[method];
     });
-    createFlash.mockClear();
+    deprecatedCreateFlash.mockClear();
   });
 
   describe('setBaseConfig', () => {
@@ -289,8 +289,10 @@ describe('DiffsStoreActions', () => {
       mock.onGet(endpointCoverage).reply(400);
 
       testAction(fetchCoverageFiles, {}, { endpointCoverage }, [], [], () => {
-        expect(createFlash).toHaveBeenCalledTimes(1);
-        expect(createFlash).toHaveBeenCalledWith(expect.stringMatching('Something went wrong'));
+        expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
+        expect(deprecatedCreateFlash).toHaveBeenCalledWith(
+          expect.stringMatching('Something went wrong'),
+        );
         done();
       });
     });

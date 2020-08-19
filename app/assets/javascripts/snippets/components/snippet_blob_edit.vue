@@ -5,7 +5,7 @@ import BlobContentEdit from '~/blob/components/blob_edit_content.vue';
 import { getBaseURL, joinPaths } from '~/lib/utils/url_utility';
 import axios from '~/lib/utils/axios_utils';
 import { SNIPPET_BLOB_CONTENT_FETCH_ERROR } from '~/snippets/constants';
-import { deprecatedCreateFlash as Flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { sprintf } from '~/locale';
 
 export default {
@@ -63,7 +63,7 @@ export default {
         .catch(e => this.flashAPIFailure(e));
     },
     flashAPIFailure(err) {
-      Flash(sprintf(SNIPPET_BLOB_CONTENT_FETCH_ERROR, { err }));
+      deprecatedCreateFlash(sprintf(SNIPPET_BLOB_CONTENT_FETCH_ERROR, { err }));
     },
   },
 };

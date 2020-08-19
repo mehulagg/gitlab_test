@@ -1,7 +1,7 @@
 <script>
 import { GlButton } from '@gitlab/ui';
 import axios from '~/lib/utils/axios_utils';
-import { deprecatedCreateFlash as Flash } from '../../../flash';
+import { deprecatedCreateFlash } from '../../../flash';
 import { __ } from '../../../locale';
 import boardsStore from '../../stores/boards_store';
 
@@ -40,7 +40,7 @@ export default {
 
       // Post the remove data
       axios.patch(this.updateUrl, data).catch(() => {
-        Flash(__('Failed to remove issue from board, please try again.'));
+        deprecatedCreateFlash(__('Failed to remove issue from board, please try again.'));
 
         lists.forEach(list => {
           list.addIssue(issue);

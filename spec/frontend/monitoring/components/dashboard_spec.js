@@ -30,7 +30,7 @@ import {
   metricsDashboardPanelCount,
   dashboardProps,
 } from '../fixture_data';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 jest.mock('~/flash');
 
@@ -204,7 +204,7 @@ describe('Dashboard', () => {
       );
 
       return wrapper.vm.$nextTick().then(() => {
-        expect(createFlash).toHaveBeenCalled();
+        expect(deprecatedCreateFlash).toHaveBeenCalled();
       });
     });
 
@@ -217,7 +217,7 @@ describe('Dashboard', () => {
       );
 
       return wrapper.vm.$nextTick().then(() => {
-        expect(createFlash).not.toHaveBeenCalled();
+        expect(deprecatedCreateFlash).not.toHaveBeenCalled();
       });
     });
   });
@@ -294,7 +294,7 @@ describe('Dashboard', () => {
       setupStoreWithData(store);
 
       return wrapper.vm.$nextTick().then(() => {
-        expect(createFlash).toHaveBeenCalled();
+        expect(deprecatedCreateFlash).toHaveBeenCalled();
         expect(store.dispatch).not.toHaveBeenCalledWith(
           'monitoringDashboard/setExpandedPanel',
           expect.anything(),

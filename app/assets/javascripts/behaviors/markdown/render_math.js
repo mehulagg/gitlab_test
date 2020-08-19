@@ -1,4 +1,4 @@
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import { s__, sprintf } from '~/locale';
 import { differenceInMilliseconds } from '~/lib/utils/datetime_utility';
 
@@ -14,7 +14,7 @@ const MAX_MATH_CHARS = 1000;
 const MAX_RENDER_TIME_MS = 2000;
 
 // These messages might be used with inline errors in the future. Keep them around. For now, we will
-// display a single error message using flash().
+// display a single error message using deprecatedCreateFlash().
 
 // const CHAR_LIMIT_EXCEEDED_MSG = sprintf(
 //   s__(
@@ -81,7 +81,7 @@ class SafeMathRenderer {
 
     if (this.totalMS >= MAX_RENDER_TIME_MS || text.length > MAX_MATH_CHARS) {
       if (!this.flashShown) {
-        flash(RENDER_FLASH_MSG);
+        deprecatedCreateFlash(RENDER_FLASH_MSG);
         this.flashShown = true;
       }
 

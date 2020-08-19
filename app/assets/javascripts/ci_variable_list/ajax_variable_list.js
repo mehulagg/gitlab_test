@@ -1,7 +1,7 @@
 import { escape } from 'lodash';
 import axios from '../lib/utils/axios_utils';
 import { s__ } from '../locale';
-import { deprecatedCreateFlash as Flash } from '../flash';
+import { deprecatedCreateFlash } from '../flash';
 import { parseBoolean } from '../lib/utils/common_utils';
 import statusCodes from '../lib/utils/http_status';
 import VariableList from './ci_variable_list';
@@ -93,7 +93,7 @@ export default class AjaxVariableList {
       .catch(() => {
         loadingIcon.classList.toggle('hide', true);
         this.variableList.toggleEnableRow(true);
-        Flash(s__('CiVariable|Error occurred while saving variables'));
+        deprecatedCreateFlash(s__('CiVariable|Error occurred while saving variables'));
       });
   }
 

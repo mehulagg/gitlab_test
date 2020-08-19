@@ -1,6 +1,4 @@
 <script>
-/* global Flash */
-
 import $ from 'jquery';
 import { GlLoadingIcon } from '@gitlab/ui';
 import { s__, sprintf } from '~/locale';
@@ -8,7 +6,7 @@ import DeprecatedModal from '~/vue_shared/components/deprecated_modal.vue';
 import { HIDDEN_CLASS } from '~/lib/utils/constants';
 import { getParameterByName } from '~/lib/utils/common_utils';
 import { mergeUrlParams } from '~/lib/utils/url_utility';
-
+import { deprecatedCreateFlash } from '~/flash';
 import eventHub from '../event_hub';
 import { COMMON_STR, CONTENT_LIST_CLASS } from '../constants';
 import groupsComponent from './groups.vue';
@@ -101,7 +99,7 @@ export default {
           this.isLoading = false;
           $.scrollTo(0);
 
-          Flash(COMMON_STR.FAILURE);
+          deprecatedCreateFlash(COMMON_STR.FAILURE);
         });
     },
     fetchAllGroups() {
@@ -190,14 +188,14 @@ export default {
         .then(res => {
           $.scrollTo(0);
           this.store.removeGroup(this.targetGroup, this.targetParentGroup);
-          Flash(res.data.notice, 'notice');
+          deprecatedCreateFlash(res.data.notice, 'notice');
         })
         .catch(err => {
           let message = COMMON_STR.FAILURE;
           if (err.status === 403) {
             message = COMMON_STR.LEAVE_FORBIDDEN;
           }
-          Flash(message);
+          deprecatedCreateFlash(message);
           this.targetGroup.isBeingRemoved = false;
         });
     },

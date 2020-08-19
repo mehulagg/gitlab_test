@@ -5,8 +5,7 @@ import toast from '~/vue_shared/plugins/global_toast';
 import { __ } from '~/locale';
 import initPopover from '~/blob/suggest_gitlab_ci_yml';
 
-import { deprecatedCreateFlash as Flash } from '../flash';
-
+import { deprecatedCreateFlash } from '../flash';
 import FileTemplateTypeSelector from './template_selectors/type_selector';
 import BlobCiYamlSelector from './template_selectors/ci_yaml_selector';
 import DockerfileSelector from './template_selectors/dockerfile_selector';
@@ -157,7 +156,7 @@ export default class FileTemplateMediator {
           initPopover(suggestCommitChanges);
         }
       })
-      .catch(err => new Flash(`An error occurred while fetching the template: ${err}`));
+      .catch(err => deprecatedCreateFlash(`An error occurred while fetching the template: ${err}`));
   }
 
   displayMatchedTemplateSelector() {

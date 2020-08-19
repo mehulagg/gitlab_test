@@ -4,7 +4,7 @@ import { GlButton, GlFormGroup, GlFormInput, GlModal, GlModalDirective } from '@
 import ClipboardButton from '~/vue_shared/components/clipboard_button.vue';
 import axios from '~/lib/utils/axios_utils';
 import { __, sprintf } from '~/locale';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 export default {
   copyToClipboard: __('Copy'),
@@ -65,7 +65,7 @@ export default {
           this.authorizationKey = res.data.token;
         })
         .catch(() => {
-          createFlash(__('Failed to reset key. Please try again.'));
+          deprecatedCreateFlash(__('Failed to reset key. Please try again.'));
         });
     },
   },

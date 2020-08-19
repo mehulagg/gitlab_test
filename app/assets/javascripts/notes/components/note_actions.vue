@@ -6,7 +6,7 @@ import resolvedStatusMixin from '~/batch_comments/mixins/resolved_status';
 import ReplyButton from './note_actions/reply_button.vue';
 import eventHub from '~/sidebar/event_hub';
 import Api from '~/api';
-import { deprecatedCreateFlash as flash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 export default {
   name: 'NoteActions',
@@ -166,7 +166,7 @@ export default {
           assignee_ids: assignees.map(assignee => assignee.id),
         })
           .then(() => this.handleAssigneeUpdate(assignees))
-          .catch(() => flash(__('Something went wrong while updating assignees')));
+          .catch(() => deprecatedCreateFlash(__('Something went wrong while updating assignees')));
       }
     },
   },

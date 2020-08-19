@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import WorkInProgress from '~/vue_merge_request_widget/components/states/work_in_progress.vue';
 import eventHub from '~/vue_merge_request_widget/event_hub';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 
 jest.mock('~/flash');
 
@@ -63,7 +63,7 @@ describe('Wip', () => {
         setImmediate(() => {
           expect(vm.isMakingRequest).toBeTruthy();
           expect(eventHub.$emit).toHaveBeenCalledWith('UpdateWidgetData', mrObj);
-          expect(createFlash).toHaveBeenCalledWith(
+          expect(deprecatedCreateFlash).toHaveBeenCalledWith(
             'The merge request can now be merged.',
             'notice',
           );

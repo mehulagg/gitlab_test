@@ -1,6 +1,6 @@
 import MockAdapter from 'axios-mock-adapter';
 import testAction from 'helpers/vuex_action_helper';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash } from '~/flash';
 import axios from '~/lib/utils/axios_utils';
 import * as types from '~/related_merge_requests/store/mutation_types';
 import * as actions from '~/related_merge_requests/store/actions';
@@ -99,8 +99,10 @@ describe('RelatedMergeRequest store actions', () => {
           [],
           [{ type: 'requestData' }, { type: 'receiveDataError' }],
           () => {
-            expect(createFlash).toHaveBeenCalledTimes(1);
-            expect(createFlash).toHaveBeenCalledWith(expect.stringMatching('Something went wrong'));
+            expect(deprecatedCreateFlash).toHaveBeenCalledTimes(1);
+            expect(deprecatedCreateFlash).toHaveBeenCalledWith(
+              expect.stringMatching('Something went wrong'),
+            );
 
             done();
           },
