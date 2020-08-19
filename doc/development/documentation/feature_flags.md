@@ -109,7 +109,7 @@ For example, for a feature initially deployed disabled by default, that became e
 > - It was deployed behind a feature flag, disabled by default.
 > - [Became enabled by default](link-to-issue) on GitLab 12.1.
 > - It's enabled on GitLab.com.
-> - It's not able to be enabled or disabled by project.
+> - It cannot be enabled or disabled by project.
 > - It's recommended for production use.
 > - For GitLab self-managed instances, GitLab administrators can opt to [disable it](#anchor-to-section). **(CORE ONLY)**
 
