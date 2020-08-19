@@ -141,10 +141,11 @@ export default {
           <actions />
           <gl-button
             :loading="submitCommitLoading"
-            :label="commitButtonText"
             class="float-left qa-commit-button"
+            size = "small"
             @click="commit"
             category="primary"
+            variant = "success"
           >           
             
             {{ __('Commit') }}
@@ -157,14 +158,17 @@ export default {
           >
             {{ __('Discard draft') }}
           </button>
-          <button
+          <gl-button
             v-else
             type="button"
-            class="btn btn-default btn-sm float-right"
+            class="float-right"
+            category = "secondary"
+            variant = "default"
+            size = "small"
             @click="toggleIsCompact"
           >
             {{ __('Collapse') }}
-          </button>
+          </gl-button>
         </div>
         <gl-modal
           ref="createBranchModal"
