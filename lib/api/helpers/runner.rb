@@ -47,8 +47,8 @@ module API
         forbidden!('Project has been deleted!') if job.project.nil? || job.project.pending_delete?
         forbidden!('Job has been erased!') if job.erased?
 
-        if require_running
-          job_forbidden!(job, 'Job is not running') unless job.running?
+        if require_running && !job.running? && !job.canceling?
+          job_forbidden!(job, 'Job is not running or canceling')
         end
 
         if Gitlab::Ci::Features.job_heartbeats_runner?(job.project)
@@ -70,7 +70,7 @@ module API
       end
 
       def job_forbidden!(job, reason)
-        header 'Job-Status', job.status
+        header 'Job-Status', job.runner_status
         forbidden!(reason)
       end
     end

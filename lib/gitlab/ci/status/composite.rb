@@ -41,6 +41,8 @@ module Gitlab
               'preparing'
             elsif only_of?(:canceled, :success, :skipped, :success_with_warnings, :ignored)
               'canceled'
+            elsif only_of?(:canceling)
+              'canceling'
             elsif only_of?(:pending, :created, :skipped, :success_with_warnings, :ignored)
               'pending'
             elsif any_of?(:running, :pending)

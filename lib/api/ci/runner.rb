@@ -183,6 +183,8 @@ module API
           when 'failed'
             job.drop!(params[:failure_reason] || :unknown_failure)
           end
+
+          header 'Job-Status', job.runner_status
         end
 
         desc 'Appends a patch to the job trace' do
@@ -219,7 +221,7 @@ module API
           end
 
           status 202
-          header 'Job-Status', job.status
+          header 'Job-Status', job.runner_status
           header 'Range', "0-#{stream_size}"
           header 'X-GitLab-Trace-Update-Interval', job.trace.update_interval.to_s
         end

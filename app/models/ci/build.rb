@@ -431,7 +431,7 @@ module Ci
     # rubocop: enable CodeReuse/ServiceClass
 
     def cancelable?
-      active? || created?
+      active? && !canceling? || created?
     end
 
     def retryable?
@@ -444,6 +444,10 @@ module Ci
 
     def any_unmet_prerequisites?
       prerequisites.present?
+    end
+
+    def supports_canceling?
+      true
     end
 
     def prerequisites
@@ -682,6 +686,18 @@ module Ci
       return unless has_old_trace?
 
       update_column(:trace, nil)
+    end
+
+    def runner_status
+      # TODO: This is status send in `Job-Status` header to Runner
+      # Drop the `canceling?` override once old Runner support is removed likely 14.0 or 15.0
+      # This makes it backward compatible with old Runners that do support `canceled` as a state
+      # regardless of HTTP status returned in response to API
+      if canceling?
+        'canceled'
+      else
+        status
+      end
     end
 
     def artifacts_expose_as

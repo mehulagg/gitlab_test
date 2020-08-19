@@ -129,14 +129,18 @@ class CommitStatus < ApplicationRecord
 
     event :drop do
       transition [:created, :waiting_for_resource, :preparing, :pending, :running, :scheduled] => :failed
+      transition canceling: :canceled
     end
 
     event :success do
       transition [:created, :waiting_for_resource, :preparing, :pending, :running] => :success
+      transition canceling: :canceled
     end
 
     event :cancel do
-      transition [:created, :waiting_for_resource, :preparing, :pending, :running, :manual, :scheduled] => :canceled
+      transition [:created, :waiting_for_resource, :preparing, :pending, :manual, :scheduled] => :canceled
+      transition [:running] => :canceling, if: :supports_canceling?
+      transition [:running] => :canceled, unless: :supports_canceling?
     end
 
     before_transition [:created, :waiting_for_resource, :preparing, :skipped, :manual, :scheduled] => :pending do |commit_status|
@@ -223,6 +227,10 @@ class CommitStatus < ApplicationRecord
   end
 
   def cancelable?
+    false
+  end
+
+  def supports_canceling?
     false
   end
 
