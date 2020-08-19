@@ -14935,6 +14935,29 @@ CREATE SEQUENCE public.push_rules_id_seq
 
 ALTER SEQUENCE public.push_rules_id_seq OWNED BY public.push_rules.id;
 
+CREATE TABLE public.quality_test_cases (
+    id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    project_id bigint NOT NULL,
+    cached_markdown_version integer,
+    iid integer NOT NULL,
+    state smallint DEFAULT 1 NOT NULL,
+    title character varying(255) NOT NULL,
+    title_html text,
+    description text,
+    description_html text
+);
+
+CREATE SEQUENCE public.quality_test_cases_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.quality_test_cases_id_seq OWNED BY public.quality_test_cases.id;
+
 CREATE TABLE public.raw_usage_data (
     id bigint NOT NULL,
     created_at timestamp with time zone NOT NULL,
@@ -17250,6 +17273,8 @@ ALTER TABLE ONLY public.protected_tags ALTER COLUMN id SET DEFAULT nextval('publ
 
 ALTER TABLE ONLY public.push_rules ALTER COLUMN id SET DEFAULT nextval('public.push_rules_id_seq'::regclass);
 
+ALTER TABLE ONLY public.quality_test_cases ALTER COLUMN id SET DEFAULT nextval('public.quality_test_cases_id_seq'::regclass);
+
 ALTER TABLE ONLY public.raw_usage_data ALTER COLUMN id SET DEFAULT nextval('public.raw_usage_data_id_seq'::regclass);
 
 ALTER TABLE ONLY public.redirect_routes ALTER COLUMN id SET DEFAULT nextval('public.redirect_routes_id_seq'::regclass);
@@ -18476,6 +18501,9 @@ ALTER TABLE ONLY public.protected_tags
 
 ALTER TABLE ONLY public.push_rules
     ADD CONSTRAINT push_rules_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.quality_test_cases
+    ADD CONSTRAINT quality_test_cases_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY public.raw_usage_data
     ADD CONSTRAINT raw_usage_data_pkey PRIMARY KEY (id);
@@ -20554,6 +20582,8 @@ CREATE UNIQUE INDEX index_push_event_payloads_on_event_id ON public.push_event_p
 CREATE INDEX index_push_rules_on_is_sample ON public.push_rules USING btree (is_sample) WHERE is_sample;
 
 CREATE INDEX index_push_rules_on_project_id ON public.push_rules USING btree (project_id);
+
+CREATE INDEX index_quality_test_cases_on_project_id ON public.quality_test_cases USING btree (project_id);
 
 CREATE UNIQUE INDEX index_raw_usage_data_on_recorded_at ON public.raw_usage_data USING btree (recorded_at);
 
@@ -22936,6 +22966,9 @@ ALTER TABLE ONLY public.vulnerability_occurrences
 
 ALTER TABLE ONLY public.project_export_jobs
     ADD CONSTRAINT fk_rails_c88d8db2e1 FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.quality_test_cases
+    ADD CONSTRAINT fk_rails_c8bc58bbda FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.resource_state_events
     ADD CONSTRAINT fk_rails_c913c64977 FOREIGN KEY (epic_id) REFERENCES public.epics(id) ON DELETE CASCADE;

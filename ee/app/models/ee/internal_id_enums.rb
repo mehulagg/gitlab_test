@@ -9,7 +9,10 @@ module EE
 
       override :usage_resources
       def usage_resources
-        super.merge(requirements: 1000)
+        super.merge({
+          requirements: 1000,
+          quality_test_cases: 1001
+        })
       end
     end
   end

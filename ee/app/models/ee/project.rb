@@ -57,6 +57,8 @@ module EE
       has_many :audit_events, as: :entity
       has_many :path_locks
       has_many :requirements, inverse_of: :project, class_name: 'RequirementsManagement::Requirement'
+      has_many :test_cases, inverse_of: :project, class_name: 'Quality::TestCase'
+
       has_many :dast_scanner_profiles
 
       # the rationale behind vulnerabilities and vulnerability_findings can be found here:
