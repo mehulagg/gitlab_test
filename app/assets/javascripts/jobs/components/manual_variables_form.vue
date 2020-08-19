@@ -136,7 +136,7 @@ export default {
           <div class="table-mobile-header" role="rowheader"></div>
           <div class="table-mobile-content justify-content-end">
             <gl-button
-              class="btn-transparent"
+              category="tertiary"
               :aria-label="s__('Clear variable')"
               icon="clear"
               @click="deleteVariable(variable.id)"
