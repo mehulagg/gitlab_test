@@ -67,7 +67,7 @@ not ready for production use:
 <Feature Name> is under development and not ready for production use. It is
 deployed behind a feature flag that is **disabled by default**.
 [GitLab administrators with access to the GitLab Rails console](../path/to/administration/feature_flags.md)
-can enable it for your instance. <Feature Name> can be enabled or disabled by project.
+can enable it for your instance.
 
 To enable it:
 
