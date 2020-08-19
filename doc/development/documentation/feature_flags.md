@@ -109,7 +109,7 @@ For example, for a feature initially deployed disabled by default, that became e
 > - It was deployed behind a feature flag, disabled by default.
 > - [Became enabled by default](link-to-issue) on GitLab 12.1.
 > - It's enabled on GitLab.com.
-> - It cannot be enabled or disabled by project.
+> - It's not able to be enabled or disabled by project.
 > - It's recommended for production use.
 > - For GitLab self-managed instances, GitLab administrators can opt to [disable it](#anchor-to-section). **(CORE ONLY)**
 
@@ -120,7 +120,7 @@ For example, for a feature initially deployed disabled by default, that became e
 <Feature Name> is under development but ready for production use.
 It is deployed behind a feature flag that is **enabled by default**.
 [GitLab administrators with access to the GitLab Rails console](..path/to/administration/feature_flags.md)
-can opt to disable it for your instance it cannot be enabled or disabled by project.
+can opt to disable it for your instance.
 
 To disable it:
 
