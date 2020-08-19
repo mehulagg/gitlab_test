@@ -14,6 +14,7 @@ const profileTypes = [
     query: dastSiteProfilesQuery,
     mutation: dastSiteProfilesDelete,
     isEnabled: () => true || false, // feature flag?
+    fields: ['profileName', 'targetUrl'],
     i18n: {
       title: s__('DastProfiles|Site Profiles'),
       errorMessages: {
@@ -32,6 +33,7 @@ const profileTypes = [
     query: dastScannerProfilesQuery,
     mutation: dastSiteProfilesDelete,
     isEnabled: () => true || false, // feature flag?
+    fields: ['profileName', 'scannerType'],
     i18n: {
       title: s__('DastProfiles|Scanner Profiles'),
       errorMessages: {
@@ -260,8 +262,9 @@ export default {
           :is-loading="isLoadingProfiles(profileType.key)"
           :profiles-per-page="$options.profilesPerPage"
           :profiles="profiles[profileType.key]"
+          :fields="profileType.fields"
           @loadMoreProfiles="fetchMoreProfiles(profileType.key)"
-          @deleteProfile="id => deleteProfile(profileType.key, id)"
+          @deleteProfile="deleteProfile(profileType.key, $event)"
         />
       </gl-tab>
     </gl-tabs>

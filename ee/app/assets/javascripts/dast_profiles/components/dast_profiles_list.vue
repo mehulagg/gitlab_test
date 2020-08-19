@@ -27,6 +27,10 @@ export default {
       type: Array,
       required: true,
     },
+    fields: {
+      type: Array,
+      required: true,
+    },
     errorMessage: {
       type: String,
       required: false,
@@ -76,6 +80,13 @@ export default {
     modalId() {
       return `dast-profiles-list-${uniqueId()}`;
     },
+    tableFields() {
+      const defaultClasses = ['gl-word-break-all'];
+      const dataFields = this.fields.map(key => ({ key, class: defaultClasses }));
+      const staticFields = [{ key: 'actions' }];
+
+      return [...dataFields, ...staticFields];
+    },
   },
   methods: {
     handleDelete() {
@@ -89,25 +100,6 @@ export default {
       this.toBeDeletedProfileId = null;
     },
   },
-  tableFields: [
-    {
-      key: 'profileName',
-      class: 'gl-word-break-all',
-    },
-    {
-      key: 'targetUrl',
-      class: 'gl-word-break-all',
-    },
-    {
-      key: 'validationStatus',
-      // NOTE: hidden for now, since the site validation is still WIP and will be finished in an upcoming iteration
-      // roadmap: https://gitlab.com/groups/gitlab-org/-/epics/2912#ui-configuration
-      class: 'gl-display-none!',
-    },
-    {
-      key: 'actions',
-    },
-  ],
 };
 </script>
 <template>
@@ -116,7 +108,7 @@ export default {
       <gl-table
         :aria-label="s__('DastProfiles|Site Profiles')"
         :busy="isLoadingInitialProfiles"
-        :fields="$options.tableFields"
+        :fields="tableFields"
         :items="profiles"
         stacked="md"
         thead-class="gl-display-none"
