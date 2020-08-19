@@ -61,11 +61,7 @@ describe('BoardSettingsSidebar', () => {
 
       await wrapper.vm.$nextTick();
 
-      expect(storeActions.setActiveId).toHaveBeenCalledWith(
-        expect.anything(),
-        inactiveId,
-        undefined,
-      );
+      expect(storeActions.setActiveId).toHaveBeenCalledWith(expect.anything(), inactiveId);
     });
 
     it('calls closeSidebar on sidebar.closeAll event', async () => {
@@ -75,11 +71,7 @@ describe('BoardSettingsSidebar', () => {
 
       await wrapper.vm.$nextTick();
 
-      expect(storeActions.setActiveId).toHaveBeenCalledWith(
-        expect.anything(),
-        inactiveId,
-        undefined,
-      );
+      expect(storeActions.setActiveId).toHaveBeenCalledWith(expect.anything(), inactiveId);
     });
   });
 

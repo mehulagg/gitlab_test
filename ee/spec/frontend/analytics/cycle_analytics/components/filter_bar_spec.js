@@ -120,16 +120,12 @@ describe('Filter bar', () => {
         { type: 'labels', value: { data: selectedLabel[0].title, operator: '=' } },
       ]);
 
-      expect(setFiltersMock).toHaveBeenCalledWith(
-        expect.anything(),
-        {
-          selectedLabels: [selectedLabel[0].title],
-          selectedMilestone: selectedMilestone[0].title,
-          selectedAssignees: [],
-          selectedAuthor: null,
-        },
-        undefined,
-      );
+      expect(setFiltersMock).toHaveBeenCalledWith(expect.anything(), {
+        selectedLabels: [selectedLabel[0].title],
+        selectedMilestone: selectedMilestone[0].title,
+        selectedAssignees: [],
+        selectedAuthor: null,
+      });
     });
 
     it('removes wrapping double quotes from the data and dispatches setFilters', () => {
@@ -137,16 +133,12 @@ describe('Filter bar', () => {
         { type: 'milestone', value: { data: '"milestone with spaces"', operator: '=' } },
       ]);
 
-      expect(setFiltersMock).toHaveBeenCalledWith(
-        expect.anything(),
-        {
-          selectedMilestone: 'milestone with spaces',
-          selectedLabels: [],
-          selectedAssignees: [],
-          selectedAuthor: null,
-        },
-        undefined,
-      );
+      expect(setFiltersMock).toHaveBeenCalledWith(expect.anything(), {
+        selectedMilestone: 'milestone with spaces',
+        selectedLabels: [],
+        selectedAssignees: [],
+        selectedAuthor: null,
+      });
     });
 
     it('removes wrapping single quotes from the data and dispatches setFilters', () => {
@@ -154,16 +146,12 @@ describe('Filter bar', () => {
         { type: 'milestone', value: { data: "'milestone with spaces'", operator: '=' } },
       ]);
 
-      expect(setFiltersMock).toHaveBeenCalledWith(
-        expect.anything(),
-        {
-          selectedMilestone: 'milestone with spaces',
-          selectedLabels: [],
-          selectedAssignees: [],
-          selectedAuthor: null,
-        },
-        undefined,
-      );
+      expect(setFiltersMock).toHaveBeenCalledWith(expect.anything(), {
+        selectedMilestone: 'milestone with spaces',
+        selectedLabels: [],
+        selectedAssignees: [],
+        selectedAuthor: null,
+      });
     });
 
     it('does not remove inner double quotes from the data and dispatches setFilters ', () => {
@@ -171,16 +159,12 @@ describe('Filter bar', () => {
         { type: 'milestone', value: { data: 'milestone "with" spaces', operator: '=' } },
       ]);
 
-      expect(setFiltersMock).toHaveBeenCalledWith(
-        expect.anything(),
-        {
-          selectedMilestone: 'milestone "with" spaces',
-          selectedAssignees: [],
-          selectedAuthor: null,
-          selectedLabels: [],
-        },
-        undefined,
-      );
+      expect(setFiltersMock).toHaveBeenCalledWith(expect.anything(), {
+        selectedMilestone: 'milestone "with" spaces',
+        selectedAssignees: [],
+        selectedAuthor: null,
+        selectedLabels: [],
+      });
     });
   });
 

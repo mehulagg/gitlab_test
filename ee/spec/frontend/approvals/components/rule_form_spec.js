@@ -167,7 +167,7 @@ describe('EE Approvals RuleForm', () => {
 
           wrapper.vm.submit();
 
-          expect(actions.postRule).toHaveBeenCalledWith(expect.anything(), expected, undefined);
+          expect(actions.postRule).toHaveBeenCalledWith(expect.anything(), expected);
         });
       });
     });
@@ -267,7 +267,7 @@ describe('EE Approvals RuleForm', () => {
 
         wrapper.vm.submit();
 
-        expect(actions.postRule).toHaveBeenCalledWith(expect.anything(), expected, undefined);
+        expect(actions.postRule).toHaveBeenCalledWith(expect.anything(), expected);
       });
 
       it('adds selected approvers on selection', () => {
@@ -320,7 +320,7 @@ describe('EE Approvals RuleForm', () => {
 
         wrapper.vm.submit();
 
-        expect(actions.putRule).toHaveBeenCalledWith(expect.anything(), expected, undefined);
+        expect(actions.putRule).toHaveBeenCalledWith(expect.anything(), expected);
       });
     });
 

@@ -50,7 +50,7 @@ describe('Diff settiings dropdown component', () => {
 
       vm.find('.js-list-view').trigger('click');
 
-      expect(actions.setRenderTreeList).toHaveBeenCalledWith(expect.anything(), false, undefined);
+      expect(actions.setRenderTreeList).toHaveBeenCalledWith(expect.anything(), false);
     });
 
     it('tree view button dispatches setRenderTreeList with true', () => {
@@ -58,7 +58,7 @@ describe('Diff settiings dropdown component', () => {
 
       vm.find('.js-tree-view').trigger('click');
 
-      expect(actions.setRenderTreeList).toHaveBeenCalledWith(expect.anything(), true, undefined);
+      expect(actions.setRenderTreeList).toHaveBeenCalledWith(expect.anything(), true);
     });
 
     it('sets list button as active when renderTreeList is false', () => {
@@ -153,14 +153,10 @@ describe('Diff settiings dropdown component', () => {
       checkbox.element.checked = true;
       checkbox.trigger('change');
 
-      expect(actions.setShowWhitespace).toHaveBeenCalledWith(
-        expect.anything(),
-        {
-          showWhitespace: true,
-          pushState: true,
-        },
-        undefined,
-      );
+      expect(actions.setShowWhitespace).toHaveBeenCalledWith(expect.anything(), {
+        showWhitespace: true,
+        pushState: true,
+      });
     });
   });
 });
