@@ -30,6 +30,14 @@ normally would! Danger does not automatically notify them for you.
 | -------- | -------- | ---------- |
 MARKDOWN
 
+TRAINEE_MAINTAINER_MESSAGE = <<~MARKDOWN
+
+Consider assigning this MR to a [trainee maintainer](https://about.gitlab.com/handbook/engineering/workflow/code-review/#trainee-maintainer) instead of the selected reviewer or a domain expert.
+
+| Category | Trainee Maintainer |
+| -------- | ------------------ |
+MARKDOWN
+
 UNKNOWN_FILES_MESSAGE = <<MARKDOWN
 
 These files couldn't be categorised, so Danger was unable to suggest a reviewer.
@@ -59,9 +67,12 @@ def note_for_spin_role(spin, role)
   spin.public_send(role)&.markdown_name(author: roulette.team_mr_author) # rubocop:disable GitlabSecurity/PublicSend
 end
 
-def markdown_row_for_spins(category, spins_array)
+def markdown_row_for_spins(category, spins_array, traintainers_only: false)
   reviewer_note = note_for_spins_role(spins_array, :reviewer)
+  traintainer_note = note_for_spins_role(spins_array, :traintainer)
   maintainer_note = note_for_spins_role(spins_array, :maintainer)
+
+  return "| #{helper.label_for_category(category)} | #{traintainer_note} |" if traintainers_only
 
   "| #{helper.label_for_category(category)} | #{reviewer_note} | #{maintainer_note} |"
 end
@@ -86,8 +97,14 @@ if changes.any?
     markdown_row_for_spins(spin.category, [spin])
   end
 
+  traintainer_rows = random_roulette_spins.map do |spin|
+    markdown_row_for_spins(spin.category, [spin], traintainers_only: true)
+  end
+
   markdown(MESSAGE)
+
   markdown(CATEGORY_TABLE_HEADER + rows.join("\n")) unless rows.empty?
+  markdown(TRAINEE_MAINTAINER_MESSAGE + traintainer_rows.join("\n")) unless traintainer_rows.empty?
 
   unknown = changes.fetch(:unknown, [])
   markdown(UNKNOWN_FILES_MESSAGE + helper.markdown_list(unknown)) unless unknown.empty?

@@ -13,7 +13,7 @@ module Gitlab
         database: false
       }.freeze
 
-      Spin = Struct.new(:category, :reviewer, :maintainer, :optional_role, :timezone_experiment)
+      Spin = Struct.new(:category, :reviewer, :traintainer, :maintainer, :optional_role, :timezone_experiment)
 
       def team_mr_author
         team.find { |person| person.username == mr_author_username }
@@ -149,13 +149,12 @@ module Gitlab
 
         # TODO: take CODEOWNERS into account?
         # https://gitlab.com/gitlab-org/gitlab/issues/26723
-
-        # Make traintainers have triple the chance to be picked as a reviewer
         random = new_random(mr_source_branch)
-        reviewer = spin_for_person(reviewers + traintainers + traintainers, random: random, timezone_experiment: timezone_experiment)
+        reviewer = spin_for_person(reviewers, random: random, timezone_experiment: timezone_experiment)
+        traintainer = spin_for_person(traintainers, random: random, timezone_experiment: timezone_experiment)
         maintainer = spin_for_person(maintainers, random: random, timezone_experiment: timezone_experiment)
 
-        Spin.new(category, reviewer, maintainer, false, timezone_experiment)
+        Spin.new(category, reviewer, traintainer, maintainer, false, timezone_experiment)
       end
     end
   end

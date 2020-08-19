@@ -33,8 +33,7 @@ module Gitlab
 
       # Traintainers also count as reviewers
       def reviewer?(project, category, labels)
-        has_capability?(project, category, :reviewer, labels) ||
-          traintainer?(project, category, labels)
+        has_capability?(project, category, :reviewer, labels)
       end
 
       def traintainer?(project, category, labels)

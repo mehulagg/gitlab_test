@@ -23,6 +23,30 @@ RSpec.describe Gitlab::Danger::Roulette do
     )
   end
 
+  let(:backend_trainee_available) { true }
+  let(:trainee_backend_maintainer) do
+    Gitlab::Danger::Teammate.new(
+      'username' => 'backend-trainee-maintainer',
+      'name' => 'Backend trainee maintainer',
+      'role' => 'Backend engineer',
+      'projects' => { 'gitlab' => 'trainee_maintainer backend' },
+      'available' => backend_trainee_available,
+      'tz_offset_hours' => backend_tz_offset_hours
+    )
+  end
+
+  let(:frontend_trainee_available) { true }
+  let(:trainee_frontend_maintainer) do
+    Gitlab::Danger::Teammate.new(
+      'username' => 'frontend-trainee-maintainer',
+      'name' => 'Frontend trainee maintainer',
+      'role' => 'Frontend engineer',
+      'projects' => { 'gitlab' => 'trainee_maintainer frontend' },
+      'available' => frontend_trainee_available,
+      'tz_offset_hours' => backend_tz_offset_hours
+    )
+  end
+
   let(:frontend_reviewer) do
     Gitlab::Danger::Teammate.new(
       'username' => 'frontend-reviewer',
@@ -72,6 +96,8 @@ RSpec.describe Gitlab::Danger::Roulette do
       backend_maintainer.to_h,
       frontend_maintainer.to_h,
       frontend_reviewer.to_h,
+      trainee_backend_maintainer.to_h,
+      trainee_frontend_maintainer.to_h,
       software_engineer_in_test.to_h,
       engineering_productivity_reviewer.to_h
     ].to_json
@@ -81,13 +107,13 @@ RSpec.describe Gitlab::Danger::Roulette do
 
   describe 'Spin#==' do
     it 'compares Spin attributes' do
-      spin1 = described_class::Spin.new(:backend, frontend_reviewer, frontend_maintainer, false, false)
-      spin2 = described_class::Spin.new(:backend, frontend_reviewer, frontend_maintainer, false, false)
-      spin3 = described_class::Spin.new(:backend, frontend_reviewer, frontend_maintainer, false, true)
-      spin4 = described_class::Spin.new(:backend, frontend_reviewer, frontend_maintainer, true, false)
-      spin5 = described_class::Spin.new(:backend, frontend_reviewer, backend_maintainer, false, false)
-      spin6 = described_class::Spin.new(:backend, backend_maintainer, frontend_maintainer, false, false)
-      spin7 = described_class::Spin.new(:frontend, frontend_reviewer, frontend_maintainer, false, false)
+      spin1 = described_class::Spin.new(:backend, frontend_reviewer, trainee_backend_maintainer, frontend_maintainer, false, false)
+      spin2 = described_class::Spin.new(:backend, frontend_reviewer, trainee_backend_maintainer, frontend_maintainer, false, false)
+      spin3 = described_class::Spin.new(:backend, frontend_reviewer, trainee_backend_maintainer, frontend_maintainer, false, true)
+      spin4 = described_class::Spin.new(:backend, frontend_reviewer, trainee_backend_maintainer, frontend_maintainer, true, false)
+      spin5 = described_class::Spin.new(:backend, frontend_reviewer, trainee_backend_maintainer, backend_maintainer, false, false)
+      spin6 = described_class::Spin.new(:backend, backend_maintainer, trainee_backend_maintainer, frontend_maintainer, false, false)
+      spin7 = described_class::Spin.new(:frontend, frontend_reviewer, trainee_backend_maintainer, frontend_maintainer, false, false)
 
       expect(spin1).to eq(spin2)
       expect(spin1).not_to eq(spin3)
@@ -126,14 +152,22 @@ RSpec.describe Gitlab::Danger::Roulette do
         it 'assigns backend reviewer and maintainer' do
           expect(spins[0].reviewer).to eq(engineering_productivity_reviewer)
           expect(spins[0].maintainer).to eq(backend_maintainer)
-          expect(spins).to eq([described_class::Spin.new(:backend, engineering_productivity_reviewer, backend_maintainer, false, false)])
+          expect(spins).to eq([described_class::Spin.new(:backend, engineering_productivity_reviewer, trainee_backend_maintainer, backend_maintainer, false, false)])
         end
 
         context 'when teammate is not available' do
           let(:backend_available) { false }
 
           it 'assigns backend reviewer and no maintainer' do
-            expect(spins).to eq([described_class::Spin.new(:backend, engineering_productivity_reviewer, nil, false, false)])
+            expect(spins).to eq([described_class::Spin.new(:backend, engineering_productivity_reviewer, trainee_backend_maintainer, nil, false, false)])
+          end
+        end
+
+        context 'when no trainee is available' do
+          let(:backend_trainee_available) { false }
+
+          it 'assigns backend reviewer and no trainee' do
+            expect(spins).to eq([described_class::Spin.new(:backend, engineering_productivity_reviewer, nil, backend_maintainer, false, false)])
           end
         end
       end
@@ -142,7 +176,7 @@ RSpec.describe Gitlab::Danger::Roulette do
         let(:categories) { [:frontend] }
 
         it 'assigns frontend reviewer and maintainer' do
-          expect(spins).to eq([described_class::Spin.new(:frontend, frontend_reviewer, frontend_maintainer, false, false)])
+          expect(spins).to eq([described_class::Spin.new(:frontend, frontend_reviewer, trainee_frontend_maintainer, frontend_maintainer, false, false)])
         end
       end
 
@@ -150,7 +184,7 @@ RSpec.describe Gitlab::Danger::Roulette do
         let(:categories) { [:qa] }
 
         it 'assigns QA reviewer' do
-          expect(spins).to eq([described_class::Spin.new(:qa, software_engineer_in_test, nil, false, false)])
+          expect(spins).to eq([described_class::Spin.new(:qa, software_engineer_in_test, nil, nil, false, false)])
         end
       end
 
@@ -158,7 +192,7 @@ RSpec.describe Gitlab::Danger::Roulette do
         let(:categories) { [:engineering_productivity] }
 
         it 'assigns Engineering Productivity reviewer and fallback to backend maintainer' do
-          expect(spins).to eq([described_class::Spin.new(:engineering_productivity, engineering_productivity_reviewer, backend_maintainer, false, false)])
+          expect(spins).to eq([described_class::Spin.new(:engineering_productivity, engineering_productivity_reviewer, nil, backend_maintainer, false, false)])
         end
       end
 
@@ -166,7 +200,7 @@ RSpec.describe Gitlab::Danger::Roulette do
         let(:categories) { [:test] }
 
         it 'assigns corresponding SET' do
-          expect(spins).to eq([described_class::Spin.new(:test, software_engineer_in_test, nil, :maintainer, false)])
+          expect(spins).to eq([described_class::Spin.new(:test, software_engineer_in_test, nil, nil, :maintainer, false)])
         end
       end
     end
@@ -178,14 +212,14 @@ RSpec.describe Gitlab::Danger::Roulette do
         let(:categories) { [:backend] }
 
         it 'assigns backend reviewer and maintainer' do
-          expect(spins).to eq([described_class::Spin.new(:backend, engineering_productivity_reviewer, backend_maintainer, false, true)])
+          expect(spins).to eq([described_class::Spin.new(:backend, engineering_productivity_reviewer, trainee_backend_maintainer, backend_maintainer, false, true)])
         end
 
         context 'when teammate is not in a good timezone' do
           let(:backend_tz_offset_hours) { 5.0 }
 
           it 'assigns backend reviewer and no maintainer' do
-            expect(spins).to eq([described_class::Spin.new(:backend, engineering_productivity_reviewer, nil, false, true)])
+            expect(spins).to eq([described_class::Spin.new(:backend, engineering_productivity_reviewer, nil, nil, false, true)])
           end
         end
       end
@@ -198,14 +232,14 @@ RSpec.describe Gitlab::Danger::Roulette do
         end
 
         it 'assigns backend reviewer and maintainer' do
-          expect(spins).to eq([described_class::Spin.new(:backend, engineering_productivity_reviewer, backend_maintainer, false, false)])
+          expect(spins).to eq([described_class::Spin.new(:backend, engineering_productivity_reviewer, trainee_backend_maintainer, backend_maintainer, false, false)])
         end
 
         context 'when teammate is not in a good timezone' do
           let(:backend_tz_offset_hours) { 5.0 }
 
           it 'assigns backend reviewer and maintainer' do
-            expect(spins).to eq([described_class::Spin.new(:backend, engineering_productivity_reviewer, backend_maintainer, false, false)])
+            expect(spins).to eq([described_class::Spin.new(:backend, engineering_productivity_reviewer, trainee_backend_maintainer, backend_maintainer, false, false)])
           end
         end
       end
