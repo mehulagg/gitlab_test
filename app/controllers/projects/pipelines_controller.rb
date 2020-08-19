@@ -74,7 +74,11 @@ class Projects::PipelinesController < Projects::ApplicationController
       format.json do
         if @pipeline.created_successfully?
           render json: PipelineSerializer
+<<<<<<< HEAD
                          .new(project: project, current_user: current_user)
+=======
+                         .new(project: @project, current_user: @current_user)
+>>>>>>> 04768b2b990... Implement JSON response for project/pipelines create
                          .represent(@pipeline),
                  status: :created
         else
