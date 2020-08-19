@@ -159,6 +159,7 @@ module API
       mount ::API::GroupBoards
       mount ::API::GroupClusters
       mount ::API::GroupExport
+      mount ::API::BulkGroupExport
       mount ::API::GroupImport
       mount ::API::GroupLabels
       mount ::API::GroupMilestones
