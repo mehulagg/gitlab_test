@@ -8,18 +8,20 @@ This document defines the standards for GitLab's documentation content and files
 
 For broader information about the documentation, see the [Documentation guidelines](index.md).
 
-For programmatic help adhering to the guidelines, see [Testing](index.md#testing).
+For guidelines specific to text in the GitLab interface, see the Pajamas [Content](https://design.gitlab.com/content/error-messages) section.
+
+For information on how we automate checks for style using GitLab CI/CD and how to do this in your local editor, see [Testing](index.md#testing).
 
 ## Using this guide
 
-When working on documentation, you can reference this guide for a variety of formatting and word usage rules.
+When working on documentation, you can reference this guide for standards on grammar, formatting, word usage, and more.
 
-You can also view [a list of recent style guide updates](https://gitlab.com/dashboard/merge_requests?scope=all&utf8=%E2%9C%93&state=merged&label_name[]=tw-style&not[label_name][]=docs%3A%3Afix).
+You can also view a list of [recent updates to this guide](https://gitlab.com/dashboard/merge_requests?scope=all&utf8=%E2%9C%93&state=merged&label_name[]=tw-style&not[label_name][]=docs%3A%3Afix).
 
 If you can't find what you need:
-* See the GitLab handbook for further [writing style guidelines](https://about.gitlab.com/handbook/communication/#writing-style-guidelines) that apply to all GitLab content, not just documentation.
-* Reference the [Microsoft Style Guide](https://docs.microsoft.com/en-us/style-guide/) and [Google Developer Documentation Style Guide](https://developers.google.com/style). Mention the result from each guide to the Technical Writing Style Committee. (See following bullet.)
-* Mention `@tw-style` in an issue or merge request, or if you have access to the GitLab Slack workspace, use `#docs-process`.
+- See the GitLab Handbook for further [writing style guidelines](https://about.gitlab.com/handbook/communication/#writing-style-guidelines) that apply to all GitLab content, not just documentation.
+- Reference the [Microsoft Style Guide](https://docs.microsoft.com/en-us/style-guide/) and [Google Developer Documentation Style Guide](https://developers.google.com/style). Mention the result from each guide to the Technical Writing Style Committee. (See following bullet.)
+- Mention `@tw-style` in an issue or merge request, or if you have access to the GitLab Slack workspace, use `#docs-process`.
 
 ## Documentation is the single source of truth (SSOT)
 
