@@ -155,7 +155,7 @@ For example, for a feature enabled by default, enabled on GitLab.com, cannot be 
 > - [Introduced](link-to-issue) in GitLab 12.0.
 > - It's deployed behind a feature flag, enabled by default.
 > - It's enabled on GitLab.com.
-> - It's not able to be enabled or disabled by project.
+> - It cannot be enabled by project.
 > - It's recommended for production use.
 > - For GitLab self-managed instances, GitLab administrators can opt to [disable it](#anchor-to-section). **(CORE ONLY)**
 
