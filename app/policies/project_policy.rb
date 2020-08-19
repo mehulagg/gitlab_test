@@ -386,7 +386,10 @@ class ProjectPolicy < BasePolicy
   end
 
   rule { (mirror_available & can?(:admin_project)) | admin }.enable :admin_remote_mirror
-  rule { can?(:push_code) }.enable :admin_tag
+  rule { can?(:push_code) }.policy do
+    enable :admin_tag
+    enable(*create_update_admin_destroy(:metrics_dashboard))
+  end
 
   rule { archived }.policy do
     prevent(*readonly_abilities)

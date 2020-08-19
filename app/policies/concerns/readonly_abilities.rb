@@ -36,6 +36,7 @@ module ReadonlyAbilities
     pages
     cluster
     release
+    metrics_dashboard
   ].freeze
 
   class_methods do

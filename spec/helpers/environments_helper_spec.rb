@@ -40,6 +40,7 @@ RSpec.describe EnvironmentsHelper do
         'custom-metrics-path' => project_prometheus_metrics_path(project),
         'validate-query-path' => validate_query_project_prometheus_metrics_path(project),
         'custom-metrics-available' => 'true',
+        'can_update_metrics_dashboard' => 'true',
         'alerts-endpoint' => project_prometheus_alerts_path(project, environment_id: environment.id, format: :json),
         'prometheus-alerts-available' => 'true',
         'custom-dashboard-base-path' => Gitlab::Metrics::Dashboard::RepoDashboardFinder::DASHBOARD_ROOT,

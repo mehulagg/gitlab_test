@@ -51,18 +51,19 @@ module EnvironmentsHelper
     return {} unless project
 
     {
-      'settings-path'               => edit_project_service_path(project, 'prometheus'),
-      'clusters-path'               => project_clusters_path(project),
-      'dashboards-endpoint'         => project_performance_monitoring_dashboards_path(project, format: :json),
-      'default-branch'              => project.default_branch,
-      'project-path'                => project_path(project),
-      'tags-path'                   => project_tags_path(project),
-      'external-dashboard-url'      => project.metrics_setting_external_dashboard_url,
-      'custom-metrics-path'         => project_prometheus_metrics_path(project),
-      'validate-query-path'         => validate_query_project_prometheus_metrics_path(project),
-      'custom-metrics-available'    => "#{custom_metrics_available?(project)}",
-      'prometheus-alerts-available' => "#{can?(current_user, :read_prometheus_alerts, project)}",
-      'dashboard-timezone'          => project.metrics_setting_dashboard_timezone.to_s.upcase
+      'settings-path'                => edit_project_service_path(project, 'prometheus'),
+      'clusters-path'                => project_clusters_path(project),
+      'dashboards-endpoint'          => project_performance_monitoring_dashboards_path(project, format: :json),
+      'default-branch'               => project.default_branch,
+      'project-path'                 => project_path(project),
+      'tags-path'                    => project_tags_path(project),
+      'external-dashboard-url'       => project.metrics_setting_external_dashboard_url,
+      'custom-metrics-path'          => project_prometheus_metrics_path(project),
+      'validate-query-path'          => validate_query_project_prometheus_metrics_path(project),
+      'custom-metrics-available'     => "#{custom_metrics_available?(project)}",
+      'can_update_metrics_dashboard' => "#{can?(current_user, :update_metrics_dashboard, project)}",
+      'prometheus-alerts-available'  => "#{can?(current_user, :read_prometheus_alerts, project)}",
+      'dashboard-timezone'           => project.metrics_setting_dashboard_timezone.to_s.upcase
     }
   end
 

@@ -95,4 +95,5 @@ export default () => ({
    * the project Settings -> Operations
    */
   canAccessOperationsSettings: false,
+  canUpdateMetricsDashboard: true,
 });
