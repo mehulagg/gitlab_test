@@ -1,9 +1,10 @@
-import $ from 'jquery';
-
 export default class AjaxLoadingSpinner {
   static init() {
-    const $elements = $('.js-ajax-loading-spinner');
-    $elements.on('ajax:beforeSend', AjaxLoadingSpinner.ajaxBeforeSend);
+    const elements = document.querySelectorAll('.js-ajax-loading-spinner');
+
+    elements.forEach(element => {
+      element.addEventListener('ajax:beforeSend', AjaxLoadingSpinner.ajaxBeforeSend);
+    });
   }
 
   static ajaxBeforeSend(e) {
@@ -19,13 +20,21 @@ export default class AjaxLoadingSpinner {
     button.classList.add('hidden');
     button.parentNode.insertBefore(newButton, button.nextSibling);
 
-    $(button).one('ajax:error', () => {
-      newButton.remove();
-      button.classList.remove('hidden');
-    });
+    button.addEventListener(
+      'ajax:error',
+      () => {
+        newButton.remove();
+        button.classList.remove('hidden');
+      },
+      { once: true },
+    );
 
-    $(button).one('ajax:success', () => {
-      $(button).off('ajax:beforeSend', AjaxLoadingSpinner.ajaxBeforeSend);
-    });
+    button.addEventListener(
+      'ajax:success',
+      () => {
+        button.removeEventListener('ajax:beforeSend', AjaxLoadingSpinner.ajaxBeforeSend);
+      },
+      { once: true },
+    );
   }
 }
