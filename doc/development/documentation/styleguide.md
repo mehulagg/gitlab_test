@@ -24,9 +24,7 @@ If you can't find what you need:
   - [Microsoft Style Guide](https://docs.microsoft.com/en-us/style-guide/).
   - [Google Developer Documentation Style Guide](https://developers.google.com/style).
 
-Please mention the result from each guide to the Technical Writing Style Committee (see the following bullet), including any questions you have.
-
-- Mention `@tw-style` in an issue or merge request, or, if you have access to the GitLab Slack workspace, use `#docs-process`.
+If you have questions about style, mention `@tw-style` in an issue or merge request, or, if you have access to the GitLab Slack workspace, use `#docs-process`.
 
 ## Documentation is the single source of truth (SSOT)
 
