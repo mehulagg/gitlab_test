@@ -36,7 +36,7 @@ describe('IDE pipelines list', () => {
 
   const createComponent = (state = {}) => {
     const { pipelines: pipelinesState, ...restOfState } = state;
-    const { defaultPipelines, ...defaultRestOfState } = defaultState;
+    const { defaultPipelines, pipelines, ...defaultRestOfState } = defaultState;
 
     const fakeStore = new Vuex.Store({
       getters: {
