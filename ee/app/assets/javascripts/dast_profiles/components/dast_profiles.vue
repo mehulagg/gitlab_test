@@ -6,6 +6,7 @@ import ProfilesList from './dast_profiles_list.vue';
 import dastSiteProfilesQuery from '../graphql/dast_site_profiles.query.graphql';
 import dastScannerProfilesQuery from '../graphql/dast_scanner_profiles.query.graphql';
 import dastSiteProfilesDelete from '../graphql/dast_site_profiles_delete.mutation.graphql';
+import dastScannerProfilesDelete from '../graphql/dast_scanner_profiles_delete.mutation.graphql';
 import * as cacheUtils from '../graphql/cache_utils';
 
 const profileTypes = {
@@ -29,7 +30,7 @@ const profileTypes = {
   },
   scannerProfiles: {
     query: dastScannerProfilesQuery,
-    deleteMutation: dastSiteProfilesDelete,
+    deleteMutation: dastScannerProfilesDelete,
     isEnabled: () => true || false, // feature flag?
     fields: ['profileName', 'scannerType'],
     i18n: {
@@ -67,16 +68,16 @@ export default {
   },
   data() {
     return {
-      profiles: {
-        siteProfiles: [],
-        scannerProfiles: [],
+      scannerProfiles: {
+        profiles: [],
+        pageInfo: {},
       },
-      siteProfiles: [],
-      siteProfilesPageInfo: {},
+      siteProfiles: {
+        profiles: [],
+        pageInfo: {},
+      },
       errorMessage: '',
       errorDetails: [],
-      scannerProfiles: [],
-      scannerProfilesPageInfo: {},
     };
   },
   created() {
@@ -95,9 +96,12 @@ export default {
     });
   },
   methods: {
+    getProfiles(profileType) {
+      return this[profileType].profiles;
+    },
     // TODO - check if we can move this to computed somehow
     hasMoreProfiles(profileType) {
-      return this[`${profileType}PageInfo`].hasNextPage;
+      return this[profileType].pageInfo.hasNextPage;
     },
     isLoadingProfiles(profileType) {
       return this.$apollo.queries[profileType].loading;
@@ -106,14 +110,15 @@ export default {
       return {
         query,
         variables,
-        manual: true,
-        result({ data, error }) {
-          if (!error) {
-            const profileEdges = data?.project?.[profileType]?.edges ?? [];
+        update({ project }) {
+          const profileEdges = project?.[profileType]?.edges ?? [];
+          const profiles = profileEdges.map(({ node }) => node);
+          const pageInfo = project?.[profileType].pageInfo;
 
-            this[`${profileType}PageInfo`] = data.project[profileType].pageInfo;
-            this.profiles[profileType] = profileEdges.map(({ node }) => node);
-          }
+          return {
+            profiles,
+            pageInfo,
+          };
         },
         error(error) {
           this.handleError({
@@ -135,15 +140,15 @@ export default {
     fetchMoreProfiles(profileType) {
       const {
         $apollo,
-        siteProfilesPageInfo,
         $options: { i18n },
       } = this;
+      const { pageInfo } = this[profileType];
 
       this.resetErrors();
 
       $apollo.queries[profileType]
         .fetchMore({
-          variables: { after: siteProfilesPageInfo.endCursor },
+          variables: { after: pageInfo.endCursor },
           updateQuery: cacheUtils.appendToPreviousResult(profileType),
         })
         .catch(error => {
@@ -173,14 +178,9 @@ export default {
             projectFullPath,
             profileId: profileToBeDeletedId,
           },
-          update(
-            store,
-            {
-              data: {
-                dastSiteProfileDelete: { errors = [] },
-              },
-            },
-          ) {
+          update(store, { data }) {
+            const errors = data?.[`${profileType}Delete`]?.errors ?? [];
+
             if (errors.length === 0) {
               cacheUtils.removeProfile({
                 profileType,
@@ -198,13 +198,12 @@ export default {
               });
             }
           },
-          // @TODO: make this dynamic
-          optimisticResponse: cacheUtils.dastSiteProfilesDeleteResponse(),
+          optimisticResponse: cacheUtils.dastProfilesDeleteResponse(profileType),
         })
         .catch(error => {
           this.handleError({
             exception: error,
-            message: i18n.errorMessages.deletionNetworkError,
+            message: $options.i18n.errorMessages.deletionNetworkError,
           });
         });
     },
@@ -261,7 +260,7 @@ export default {
           :has-more-profiles-to-load="hasMoreProfiles(profileType)"
           :is-loading="isLoadingProfiles(profileType)"
           :profiles-per-page="$options.profilesPerPage"
-          :profiles="profiles[profileType]"
+          :profiles="getProfiles(profileType)"
           :fields="profileOptions.fields"
           @loadMoreProfiles="fetchMoreProfiles(profileType)"
           @deleteProfile="deleteProfile(profileType, $event)"

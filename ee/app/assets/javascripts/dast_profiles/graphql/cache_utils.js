@@ -38,11 +38,14 @@ export const removeProfile = ({ profileType, store, queryBody, profileToBeDelete
  *
  * @returns {{__typename: string, dastSiteProfileDelete: {__typename: string, errors: []}}}
  */
-export const dastSiteProfilesDeleteResponse = () => ({
+export const dastProfilesDeleteResponse = profileType => ({
   // eslint-disable-next-line @gitlab/require-i18n-strings
   __typename: 'Mutation',
-  dastSiteProfileDelete: {
-    __typename: 'DastSiteProfileDeletePayload',
+  [`${profileType}Delete`]: {
+    __typename:
+      profileType === 'siteProfile'
+        ? 'DastSiteProfileDeletePayload'
+        : 'DastScannerProfileDeletePayload',
     errors: [],
   },
 });

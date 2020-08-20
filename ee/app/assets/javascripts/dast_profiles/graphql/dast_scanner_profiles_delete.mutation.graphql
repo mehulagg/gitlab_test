@@ -1,0 +1,5 @@
+mutation dastScannerProfileDelete($projectFullPath: ID!, $profileId: DastSiteProfileID!) {
+  scannerProfilesDelete: dastScannerProfileDelete(input: { fullPath: $projectFullPath, id: $profileId }) {
+    errors
+  }
+}
