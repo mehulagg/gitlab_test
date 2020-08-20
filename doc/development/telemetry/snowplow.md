@@ -268,7 +268,7 @@ describe('my component', () => {
 });
 ```
 
-## Implementing Snowplow Ruby (Backend) tracking
+## Implementing Snowplow Ruby (Backend) Tracking
 
 GitLab provides `Gitlab::Tracking`, an interface that wraps the [Snowplow Ruby Tracker](https://github.com/snowplow/snowplow/wiki/ruby-tracker) for tracking custom events.
 
