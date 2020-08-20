@@ -8,11 +8,10 @@ import dastScannerProfilesQuery from '../graphql/dast_scanner_profiles.query.gra
 import dastSiteProfilesDelete from '../graphql/dast_site_profiles_delete.mutation.graphql';
 import * as cacheUtils from '../graphql/cache_utils';
 
-const profileTypes = [
-  {
-    key: 'siteProfiles',
+const profileTypes = {
+  siteProfiles: {
     query: dastSiteProfilesQuery,
-    mutation: dastSiteProfilesDelete,
+    deleteMutation: dastSiteProfilesDelete,
     isEnabled: () => true || false, // feature flag?
     fields: ['profileName', 'targetUrl'],
     i18n: {
@@ -28,10 +27,9 @@ const profileTypes = [
       },
     },
   },
-  {
-    key: 'scannerProfiles',
+  scannerProfiles: {
     query: dastScannerProfilesQuery,
-    mutation: dastSiteProfilesDelete,
+    deleteMutation: dastSiteProfilesDelete,
     isEnabled: () => true || false, // feature flag?
     fields: ['profileName', 'scannerType'],
     i18n: {
@@ -47,7 +45,7 @@ const profileTypes = [
       },
     },
   },
-];
+};
 
 export default {
   profileTypes,
@@ -82,11 +80,11 @@ export default {
     };
   },
   created() {
-    this.$options.profileTypes.forEach(({ key, query }) => {
+    Object.entries(this.$options.profileTypes).forEach(([profileType, { query }]) => {
       this.$apollo.addSmartQuery(
-        key,
+        profileType,
         this.queryFactory({
-          key,
+          profileType,
           query,
           variables: {
             fullPath: this.projectFullPath,
@@ -98,23 +96,23 @@ export default {
   },
   methods: {
     // TODO - check if we can move this to computed somehow
-    hasMoreProfiles(key) {
-      return this[`${key}PageInfo`].hasNextPage;
+    hasMoreProfiles(profileType) {
+      return this[`${profileType}PageInfo`].hasNextPage;
     },
-    isLoadingProfiles(key) {
-      return this.$apollo.queries[key].loading;
+    isLoadingProfiles(profileType) {
+      return this.$apollo.queries[profileType].loading;
     },
-    queryFactory({ key, query, variables }) {
+    queryFactory({ profileType, query, variables }) {
       return {
         query,
         variables,
         manual: true,
         result({ data, error }) {
           if (!error) {
-            const profileEdges = data?.project?.[key]?.edges ?? [];
+            const profileEdges = data?.project?.[profileType]?.edges ?? [];
 
-            this[`${key}PageInfo`] = data.project[key].pageInfo;
-            this.profiles[key] = profileEdges.map(({ node }) => node);
+            this[`${profileType}PageInfo`] = data.project[profileType].pageInfo;
+            this.profiles[profileType] = profileEdges.map(({ node }) => node);
           }
         },
         error(error) {
@@ -134,7 +132,7 @@ export default {
       this.errorMessage = '';
       this.errorDetails = [];
     },
-    fetchMoreProfiles(key) {
+    fetchMoreProfiles(profileType) {
       const {
         $apollo,
         siteProfilesPageInfo,
@@ -143,32 +141,34 @@ export default {
 
       this.resetErrors();
 
-      $apollo.queries[key]
+      $apollo.queries[profileType]
         .fetchMore({
           variables: { after: siteProfilesPageInfo.endCursor },
-          updateQuery: cacheUtils.appendToPreviousResult(key),
+          updateQuery: cacheUtils.appendToPreviousResult(profileType),
         })
         .catch(error => {
           this.handleError({ exception: error, message: i18n.errorMessages.fetchNetworkError });
         });
     },
-    deleteProfile(key, profileToBeDeletedId) {
+    deleteProfile(profileType, profileToBeDeletedId) {
       const {
         projectFullPath,
         handleError,
-        $options: { i18n },
+        $options,
         $apollo: {
           queries: {
-            [key]: { options: queryOptions },
+            [profileType]: { options: queryOptions },
           },
         },
       } = this;
+
+      const { deleteMutation } = $options.profileTypes[profileType];
 
       this.resetErrors();
 
       this.$apollo
         .mutate({
-          mutation: dastSiteProfilesDelete,
+          mutation: deleteMutation,
           variables: {
             projectFullPath,
             profileId: profileToBeDeletedId,
@@ -183,7 +183,7 @@ export default {
           ) {
             if (errors.length === 0) {
               cacheUtils.removeProfile({
-                key,
+                profileType,
                 store,
                 queryBody: {
                   query: queryOptions.query,
@@ -193,7 +193,7 @@ export default {
               });
             } else {
               handleError({
-                message: i18n.errorMessages.deletionBackendError,
+                message: $options.i18n.errorMessages.deletionBackendError,
                 details: errors,
               });
             }
@@ -250,21 +250,21 @@ export default {
     </header>
 
     <gl-tabs>
-      <gl-tab v-for="profileType in $options.profileTypes" :key="profileType.key">
+      <gl-tab v-for="(profileOptions, profileType) in $options.profileTypes" :key="profileType.key">
         <template #title>
-          <span>{{ profileType.i18n.title }}</span>
+          <span>{{ profileOptions.i18n.title }}</span>
         </template>
 
         <profiles-list
           :error-message="errorMessage"
           :error-details="errorDetails"
-          :has-more-profiles-to-load="hasMoreProfiles(profileType.key)"
-          :is-loading="isLoadingProfiles(profileType.key)"
+          :has-more-profiles-to-load="hasMoreProfiles(profileType)"
+          :is-loading="isLoadingProfiles(profileType)"
           :profiles-per-page="$options.profilesPerPage"
-          :profiles="profiles[profileType.key]"
-          :fields="profileType.fields"
-          @loadMoreProfiles="fetchMoreProfiles(profileType.key)"
-          @deleteProfile="deleteProfile(profileType.key, $event)"
+          :profiles="profiles[profileType]"
+          :fields="profileOptions.fields"
+          @loadMoreProfiles="fetchMoreProfiles(profileType)"
+          @deleteProfile="deleteProfile(profileType, $event)"
         />
       </gl-tab>
     </gl-tabs>
