@@ -262,7 +262,7 @@ export default {
     {
       left: null,
       right: {
-        line_code: '1c497fbb3a46b78edf04cc2a2fa33f67e3ffbe2a_1_8',
+        line_code: '1c497fbb3a46b78edf04cc2a2fa33f67e3ffbe2a_1_9',
         type: 'new',
         old_line: null,
         new_line: 6,
