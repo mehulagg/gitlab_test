@@ -12,9 +12,7 @@ For guidelines specific to text in the GitLab interface, see the Pajamas [Conten
 
 For information on how we automate checks for style using GitLab CI/CD and how to do this in your local editor, see [Testing](index.md#testing).
 
-## Using this guide
-
-When working on documentation, you can reference this guide for standards on grammar, formatting, word usage, and more.
+Use this guide for standards on grammar, formatting, word usage, and more.
 
 You can also view a list of [recent updates to this guide](https://gitlab.com/dashboard/merge_requests?scope=all&utf8=%E2%9C%93&state=merged&label_name[]=tw-style&not[label_name][]=docs%3A%3Afix).
 
