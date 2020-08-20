@@ -15,8 +15,8 @@
 }
 
 .application-theme {
-  $ui-dark-bg: #2e2e2e;
-  $ui-light-bg: #dfdfdf;
+  $ui-grey-bg: #2e2e2e;
+  $ui-light-grey-bg: #dfdfdf;
   $ui-dark-mode-bg: #1f1f1f;
 
   .preview {
@@ -58,12 +58,12 @@
       background-color: $theme-light-red-700;
     }
 
-    &.ui-dark {
-      background-color: $ui-dark-bg;
+    &.ui-grey {
+      background-color: $ui-grey-bg;
       border: solid 1px $border-color;
     }
 
-    &.ui-light {
+    &.ui-light-grey {
       background-color: $ui-light-bg;
     }
 

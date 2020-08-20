@@ -8,7 +8,7 @@ RSpec.describe Gitlab::Themes, lib: true do
       css = described_class.body_classes
 
       expect(css).to include('ui-indigo')
-      expect(css).to include('ui-dark')
+      expect(css).to include('ui-grey')
       expect(css).to include('ui-blue')
     end
   end
