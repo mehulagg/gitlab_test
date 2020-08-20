@@ -15,9 +15,29 @@ module Gitlab::ImportExport::V2::Project::Extractors
                       }
                     }
                   }
+                  discussions {
+                    edges {
+                      node {
+                        id
+                        notes {
+                          edges {
+                            node {
+                              body
+                              system
+                              confidential
+                              author {
+                                email
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
                   author {
                     email
                   }
+                  createdAt
                   closedAt
                   confidential
                   createdAt

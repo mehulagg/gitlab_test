@@ -3,28 +3,31 @@
 module Gitlab::ImportExport::V2::Project::Transformers::Base
   class GraphqlCleanerTransformer
     def self.transform(data)
-      relation = data['data']['project'].keys.first
-      result = {}
+      data = data.deep_dup['data']['project']
 
-      result[relation] = clean_edges_and_nodes(data['data']['project'][relation])
+      clean_edges_and_nodes(data)
+    end
 
-      if result[relation].is_a?(Array)
-        result[relation] = result[relation].map do |relation_item|
-          relation_item.each_with_object({}) do |(key, value), result|
-            if value.is_a?(Hash) && value.has_key?('edges')
-              result[key] = clean_edges_and_nodes(value)
-            else
-              result[key] = value
-            end
+    def self.clean_edges_and_nodes(data)
+      if data.is_a?(Hash)
+        data.each do |key, value|
+          if data[key].is_a?(Array)
+            data[key].map(&method(:clean_edges_and_nodes))
+          elsif value.is_a?(Hash) && value.has_key?('edges')
+            data[key] = value['edges'].map { |i| i['node']}
+
+            clean_edges_and_nodes(data[key])
+          else
+            data[key] = value
           end
         end
       end
 
-      result
-    end
+      if data.is_a?(Array)
+        data.map(&method(:clean_edges_and_nodes))
+      end
 
-    def self.clean_edges_and_nodes(data)
-      data['edges'].map { |i| i['node'] }
+      data
     end
   end
 end

@@ -13,12 +13,22 @@ module Gitlab::ImportExport::V2::Project::Transformers::Base
     # {"author" => {"email": "test@gitlab.com"}} => {"author" => #<User id:1 @root>}
     # {"assignees" => [{"email": "test@gitlab.com"}, ...]} => {"assignees" => [#<User id:1 @root>, ...]}
     def self.transform(data)
-      data['issues'].each do |issue|
-        USER_REFERENCES.each do |reference|
-          if issue[reference] && issue[reference].is_a?(Array)
-            issue[reference].map!(&method(:update_user_reference))
-          elsif issue[reference]
-            issue[reference] = update_user_reference(issue[reference])
+      update_user_references(data)
+    end
+
+    def self.update_user_references(data)
+      data.each do |key, value|
+        if data[key].is_a?(Hash)
+          update_user_references(data[key])
+        elsif data[key].is_a?(Array)
+          data[key].map!(&method(:update_user_references))
+        end
+
+        if USER_REFERENCES.include?(key)
+          if value && value.is_a?(Array)
+            data[key].map!(&method(:update_user_reference))
+          elsif value
+            data[key] = update_user_reference(value)
           end
         end
       end

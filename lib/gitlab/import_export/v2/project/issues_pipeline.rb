@@ -12,6 +12,7 @@ module Gitlab::ImportExport::V2::Project
         .then { |data| Transformers::Base::UnderscorifyKeysTransformer.transform(data) }
         .then { |data| Transformers::Base::UserReferenceTransformer.transform(data) }
         .then { |data| Transformers::Issues::IssueTypeTransformer.transform(data) }
+        .then { |data| Transformers::Issues::IssueDiscussionsTransformer.transform(data, target) }
 
       # Load
       Loaders::IssueLoader.load(data, target)
