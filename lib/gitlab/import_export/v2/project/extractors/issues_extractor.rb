@@ -11,12 +11,11 @@ module Gitlab::ImportExport::V2::Project::Extractors
                 assignees {
                   edges {
                     node {
-                      name
+                      email
                     }
                   }
                 }
                 author {
-                  id
                   email
                 }
                 closedAt
@@ -34,23 +33,23 @@ module Gitlab::ImportExport::V2::Project::Extractors
                 downvotes
                 dueDate
                 epic {
-                  id
+                  title
+                  description
                 }
                 healthStatus
                 id
                 iid
-                iteration {
-                  id
-                }
                 labels {
                   edges {
                     node {
-                      id
+                      title
+                      description
                     }
                   }
                 }
                 milestone {
-                  id
+                  title
+                  description
                 }
                 notes {
                   edges {
