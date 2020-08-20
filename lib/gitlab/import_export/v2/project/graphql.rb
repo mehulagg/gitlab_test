@@ -5,7 +5,7 @@ require "graphql/client/http"
 
 module Gitlab::ImportExport::V2::Project
   module Graphql
-    HTTP = ::GraphQL::Client::HTTP.new('https://gitlab.com/api/graphql')
+    HTTP = ::GraphQL::Client::HTTP.new('http://localhost:3000/api/graphql')
 
     Schema = ::GraphQL::Client.load_schema(HTTP)
 

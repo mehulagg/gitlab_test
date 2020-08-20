@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Gitlab::ImportExport::V2::Project::Transformers
+module Gitlab::ImportExport::V2::Project::Transformers::Base
   class GraphqlCleanerTransformer
     def self.transform(data)
       relation = data['data']['project'].keys.first

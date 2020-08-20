@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module Gitlab::ImportExport::V2::Project::Transformers
-  class UnderscorifyKeysTransformer
+module Gitlab::ImportExport::V2::Project::Transformers::Issues
+  class IssuesTransformer
     def self.transform(data)
       data.deep_transform_keys do |key|
         key.underscore

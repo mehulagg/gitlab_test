@@ -8,8 +8,8 @@ module Gitlab::ImportExport::V2::Project
 
       # Transformer
       data = data
-        .then { |data| Transformers::GraphqlCleanerTransformer.transform(data) }
-        .then { |data| Transformers::UnderscorifyKeysTransformer.transform(data) }
+        .then { |data| Transformers::Base::GraphqlCleanerTransformer.transform(data) }
+        .then { |data| Transformers::Base::UnderscorifyKeysTransformer.transform(data) }
 
       # Load
       Loaders::IssueLoader.load(data, target)

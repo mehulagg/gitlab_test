@@ -17,13 +17,12 @@ module Gitlab::ImportExport::V2::Project::Extractors
                 }
                 author {
                   id
+                  email
                 }
-                blocked
                 closedAt
                 confidential
                 createdAt
                 description
-                descriptionHtml
                 discussionLocked
                 discussions {
                   edges {
@@ -74,14 +73,11 @@ module Gitlab::ImportExport::V2::Project::Extractors
                 subscribed
                 timeEstimate
                 title
-                titleHtml
                 totalTimeSpent
                 type
                 updatedAt
                 upvotes
                 userNotesCount
-                webPath
-                webUrl
                 weight
               }
             }
