@@ -41,7 +41,7 @@ therefore, it indicates that it cannot be done by regular users of GitLab.com.
 For features disabled by default, if they cannot be used yet due to lack of
 completeness, or if they're still under internal evaluation (for example, for
 performance implications) do **not document them**: add (or merge) the docs
-only when the feature is safe and ready to use and test by end users.
+only when the feature is safe and ready to use and test by end-users.
 
 For feature flags disabled by default, if they can be used by end users:
 
@@ -54,8 +54,8 @@ For feature flags disabled by default, if they can be used by end users:
 - Document how to enable and disable it.
 - Add a warning to the user saying that the feature is disabled.
 
-For example, for a feature disabled by default, disabled on GitLab.com, and
-not ready for production use:
+For example, for a feature disabled by default, disabled on GitLab.com, cannot
+be enabled for a single project, and is not ready for production use:
 
 ````markdown
 # Feature Name
@@ -165,8 +165,8 @@ For features enabled by default:
 - Document how to disable and enable it.
 - Add a warning to the user saying that the feature might be disabled.
 
-For example, for a feature enabled by default, enabled on GitLab.com,
-and is ready for production use:
+For example, for a feature enabled by default, enabled on GitLab.com, that
+cannot be enabled for a single project, and is ready for production use:
 
 ````markdown
 # Feature Name
@@ -235,7 +235,8 @@ Feature.disable(:<feature flag>)
 Feature.disable(:<feature flag>, Project.find(<project id>))
 ```
 
-For example, for a feature enabled by default, enabled on GitLab.com, that can be enabled by project, and is ready for production use:
+For example, for a feature enabled by default, enabled on GitLab.com, that can
+be enabled by project, and is ready for production use:
 
 ````markdown
 # Feature Name

@@ -36,8 +36,8 @@ GitLab.com. To see the full notes:
    ![Version history note with FF info](img/feature_flags_history_note_info_v13_2.png)
 
 If you are a user of a GitLab self-managed instance and you want to try a
-disabled feature, you can ask a [GitLab administrator to enable it](../administration/feature_flags.md), although, as mentioned on the linked
-document, changing their state isn't recommended.
+disabled feature, you can ask a [GitLab administrator to enable it](../administration/feature_flags.md), although changing their default state
+isn't recommended.
 
 If you are a user of GitLab.com and the feature is disabled, stay hopeful.
 In most cases, the GitLab Team is working on it. You might see the feature
