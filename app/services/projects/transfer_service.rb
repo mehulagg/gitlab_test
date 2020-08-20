@@ -83,14 +83,14 @@ module Projects
         # Move pages
         Gitlab::PagesTransfer.new.move_project(project.path, @old_namespace.full_path, @new_namespace.full_path)
 
+        Gitlab::PagesTransfer.new.update_config(project)
+
         project.old_path_with_namespace = @old_path
 
         update_repository_configuration(@new_path)
 
         execute_system_hooks
 
-        force = true
-        Projects::UpdatePagesConfigurationService.new(project).execute(force)
       end
     rescue Exception # rubocop:disable Lint/RescueException
       rollback_side_effects
