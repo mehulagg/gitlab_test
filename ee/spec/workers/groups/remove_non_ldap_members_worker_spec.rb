@@ -62,6 +62,23 @@ RSpec.describe Groups::RemoveNonLdapMembersWorker, type: :worker do
                   subject.perform(group.id, user.id)
                 end.to change { group.reload.users.count }.by(-1)
               end
+
+              context 'inderect user via project' do
+                let_it_be(:project) { create(:project, group: group) }
+                let_it_be(:project_member) { create(:project_member, project: project) }
+
+                it 'removes the project member' do
+                  expect do
+                    binding.pry
+                    subject.perform(group.id, user.id)
+                    binding.pry
+                  end.to change(project_member.reload, :persisted?)
+                end
+              end
+
+              context 'inderect user via subgroup' do
+                let_it_be(:subproject) 
+              end
             end
           end
 

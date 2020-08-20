@@ -16,13 +16,16 @@ module Groups
       return if group.unlock_membership_to_ldap
       return unless can?(owner, :admin_group_member, group)
 
-      owners = group.owners
+      owner_ids = group.owners.pluck_primary_key
 
-      group.users_with_descendants.non_ldap.find_each do |user|
-        next if owners.include? user
+      non_ldap_ids = group.users_with_descendants.non_ldap.pluck(:id)
 
-        member = GroupMembersFinder.new(group, user).execute.first
-        Members::DestroyService.new(owner).execute(member)
+      return if non_ldap_ids.empty?
+
+      group.members_with_descendants.find_each do |member|
+        next if owner_ids.include? member.user_id
+
+        Members::DestroyService.new(owner).execute(member)  if non_ldap_ids.include? member.user_id
       end
     end
   end
