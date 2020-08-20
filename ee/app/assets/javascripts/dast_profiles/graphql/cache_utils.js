@@ -23,11 +23,11 @@ export const appendToPreviousResult = key => (previousResult, { fetchMoreResult 
  * @param queryBody
  * @param profileToBeDeletedId
  */
-export const removeProfile = ({ profileType, store, queryBody, profileToBeDeletedId }) => {
+export const removeProfile = ({ profileId, profileType, store, queryBody }) => {
   const data = store.readQuery(queryBody);
 
   data.project[profileType].edges = data.project[profileType].edges.filter(({ node }) => {
-    return node.id !== profileToBeDeletedId;
+    return node.id !== profileId;
   });
 
   store.writeQuery({ ...queryBody, data });

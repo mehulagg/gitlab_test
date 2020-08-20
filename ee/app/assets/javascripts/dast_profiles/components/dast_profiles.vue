@@ -9,7 +9,7 @@ import dastSiteProfilesDelete from '../graphql/dast_site_profiles_delete.mutatio
 import dastScannerProfilesDelete from '../graphql/dast_scanner_profiles_delete.mutation.graphql';
 import * as cacheUtils from '../graphql/cache_utils';
 
-const profileTypes = {
+const configs = {
   siteProfiles: {
     query: dastSiteProfilesQuery,
     deleteMutation: dastSiteProfilesDelete,
@@ -49,7 +49,7 @@ const profileTypes = {
 };
 
 export default {
-  profileTypes,
+  configs,
   components: {
     GlButton,
     GlTab,
@@ -81,7 +81,7 @@ export default {
     };
   },
   created() {
-    Object.entries(this.$options.profileTypes).forEach(([profileType, { query }]) => {
+    Object.entries(this.$options.configs).forEach(([profileType, { query }]) => {
       this.$apollo.addSmartQuery(
         profileType,
         this.queryFactory({
@@ -99,7 +99,6 @@ export default {
     getProfiles(profileType) {
       return this[profileType].profiles;
     },
-    // TODO - check if we can move this to computed somehow
     hasMoreProfiles(profileType) {
       return this[profileType].pageInfo.hasNextPage;
     },
@@ -155,7 +154,7 @@ export default {
           this.handleError({ exception: error, message: i18n.errorMessages.fetchNetworkError });
         });
     },
-    deleteProfile(profileType, profileToBeDeletedId) {
+    deleteProfile(profileType, profileId) {
       const {
         projectFullPath,
         handleError,
@@ -167,7 +166,7 @@ export default {
         },
       } = this;
 
-      const { deleteMutation } = $options.profileTypes[profileType];
+      const { deleteMutation } = $options.configs[profileType];
 
       this.resetErrors();
 
@@ -176,20 +175,20 @@ export default {
           mutation: deleteMutation,
           variables: {
             projectFullPath,
-            profileId: profileToBeDeletedId,
+            profileId,
           },
           update(store, { data }) {
             const errors = data?.[`${profileType}Delete`]?.errors ?? [];
 
             if (errors.length === 0) {
               cacheUtils.removeProfile({
+                profileId,
                 profileType,
                 store,
                 queryBody: {
                   query: queryOptions.query,
                   variables: queryOptions.variables,
                 },
-                profileToBeDeletedId,
               });
             } else {
               handleError({
@@ -249,7 +248,7 @@ export default {
     </header>
 
     <gl-tabs>
-      <gl-tab v-for="(profileOptions, profileType) in $options.profileTypes" :key="profileType.key">
+      <gl-tab v-for="(profileOptions, profileType) in $options.configs" :key="profileType.key">
         <template #title>
           <span>{{ profileOptions.i18n.title }}</span>
         </template>
