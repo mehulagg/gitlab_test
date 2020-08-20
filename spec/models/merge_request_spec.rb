@@ -2444,6 +2444,31 @@ RSpec.describe MergeRequest, factory_default: :keep do
 
       expect(subject.mergeable?).to be_truthy
     end
+
+    context 'skip_ci_check' do
+      it 'overrides mergeable_ci_state?' do
+        allow(subject).to receive(:mergeable_ci_state?) { false }
+        allow(subject).to receive(:check_mergeability)
+        allow(subject).to receive(:can_be_merged?) { true }
+        allow(subject).to receive(:broken?) { false }
+
+        expect(subject.mergeable?(skip_ci_check: false)).to be_falsey
+        expect(subject.mergeable?(skip_ci_check: true)).to be_truthy
+      end
+    end
+
+    context 'skip_discussions_check' do
+      it 'overrides mergeable_discussions_state?' do
+        allow(subject).to receive(:mergeable_ci_state?) { true }
+        allow(subject).to receive(:check_mergeability)
+        allow(subject).to receive(:can_be_merged?) { true }
+        allow(subject).to receive(:broken?) { false }
+        allow(subject).to receive(:mergeable_discussions_state?) { false }
+
+        expect(subject.mergeable?(skip_discussions_check: false)).to be_falsey
+        expect(subject.mergeable?(skip_discussions_check: true)).to be_truthy
+      end
+    end
   end
 
   describe '#check_mergeability' do
@@ -2546,6 +2571,10 @@ RSpec.describe MergeRequest, factory_default: :keep do
 
         it 'returns false' do
           expect(subject.mergeable_state?).to be_falsey
+        end
+
+        it 'returns true when skipping ci check' do
+          expect(subject.mergeable_state?(skip_ci_check: true)).to be(true)
         end
       end
 
