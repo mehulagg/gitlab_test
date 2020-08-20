@@ -18,11 +18,15 @@ module Gitlab::ImportExport::V2::Project::Transformers::Issues
             note['note'] = note['body']
             note['project_id'] = project.id
             note['noteable_type'] = 'Issue'
+            note['type'] = 'DiscussionNote' if note['system'] == false
 
             note.delete('body')
             note.delete('noteable_id')
 
-            issue['notes'] << Note.new(note)
+            n = Note.new(note)
+            n.importing = true
+
+            issue['notes'] << n
           end
         end
 
