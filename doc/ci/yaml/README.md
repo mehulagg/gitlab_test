@@ -1426,6 +1426,8 @@ Other commonly used variables for `if` clauses:
   `CUSTOM_VARIABLE` does **not** match a regular expression.
 - `if: '$CUSTOM_VARIABLE == "value1"'`: If the custom variable `CUSTOM_VARIABLE` is
   exactly `value1`.
+- `if: $CI_MERGE_REQUEST_TITLE =~ /^(Draft:|\[Draft\]|\(Draft\))/`: If the merge request
+  is a [draft merge request](../../user/project/merge_requests/work_in_progress_merge_requests.md).
 
 #### `rules:changes`
 
