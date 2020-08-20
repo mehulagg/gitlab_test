@@ -111,7 +111,7 @@ export default {
       meta_data: null,
     },
     {
-      line_code: '1c497fbb3a46b78edf04cc2a2fa33f67e3ffbe2a_1_6',
+      line_code: '1c497fbb3a46b78edf04cc2a2fa33f67e3ffbe2a_1_7',
       type: 'new',
       old_line: null,
       new_line: 5,
@@ -121,7 +121,7 @@ export default {
       meta_data: null,
     },
     {
-      line_code: '1c497fbb3a46b78edf04cc2a2fa33f67e3ffbe2a_1_7',
+      line_code: '1c497fbb3a46b78edf04cc2a2fa33f67e3ffbe2a_1_9',
       type: 'new',
       old_line: null,
       new_line: 6,
@@ -249,7 +249,7 @@ export default {
         meta_data: null,
       },
       right: {
-        line_code: '1c497fbb3a46b78edf04cc2a2fa33f67e3ffbe2a_1_6',
+        line_code: '1c497fbb3a46b78edf04cc2a2fa33f67e3ffbe2a_1_7',
         type: 'new',
         old_line: null,
         new_line: 5,
@@ -262,7 +262,7 @@ export default {
     {
       left: null,
       right: {
-        line_code: '1c497fbb3a46b78edf04cc2a2fa33f67e3ffbe2a_1_7',
+        line_code: '1c497fbb3a46b78edf04cc2a2fa33f67e3ffbe2a_1_8',
         type: 'new',
         old_line: null,
         new_line: 6,

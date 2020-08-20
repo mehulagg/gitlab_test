@@ -25,8 +25,8 @@ describe('ParallelDiffView', () => {
   describe('assigned', () => {
     describe('diffLines', () => {
       it('should normalize lines for empty cells', () => {
-        expect(component.diffLines[0].left.type).toEqual(constants.EMPTY_CELL_TYPE);
-        expect(component.diffLines[1].left.type).toEqual(constants.EMPTY_CELL_TYPE);
+        expect(component.diffLines[0].left).toEqual(null);
+        expect(component.diffLines[1].left).toEqual(null);
       });
     });
   });
