@@ -31,7 +31,7 @@ describe('Approvals ProjectRules', () => {
   let store;
 
   const factory = (props = {}, options = {}) => {
-    wrapper = mount(localVue.extend(ProjectRules), {
+    wrapper = mount(ProjectRules, {
       propsData: props,
       store: new Vuex.Store(store),
       localVue,
@@ -96,8 +96,6 @@ describe('Approvals ProjectRules', () => {
     });
 
     it('should only display 1 rule', () => {
-      factory();
-
       expect(store.modules.approvals.state.rules.length).toBe(1);
     });
   });
