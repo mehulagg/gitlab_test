@@ -4,84 +4,39 @@ module Gitlab::ImportExport::V2::Project::Extractors
   class IssuesExtractor
     IssuesQuery = ::Gitlab::ImportExport::V2::Project::Graphql::Client.parse <<-'GRAPHQL'
       query($project: ID!) {
-        project(fullPath: $project) {
-          issues(first: 1) {
-            edges {
-              node {
-                assignees {
-                  edges {
-                    node {
-                      email
+        project(fullPath:$project) {
+            issues(first: 1) {
+              edges {
+                node {
+                  assignees {
+                    edges {
+                      node {
+                        email
+                      }
                     }
                   }
-                }
-                author {
-                  email
-                }
-                closedAt
-                confidential
-                createdAt
-                description
-                discussionLocked
-                discussions {
-                  edges {
-                    node {
-                      id
-                    }
+                  author {
+                    email
                   }
-                }
-                downvotes
-                dueDate
-                epic {
-                  title
+                  closedAt
+                  confidential
+                  createdAt
                   description
-                }
-                healthStatus
-                id
-                iid
-                labels {
-                  edges {
-                    node {
-                      title
-                      description
-                    }
-                  }
-                }
-                milestone {
+                  discussionLocked
+                  dueDate
+                  healthStatus
+                  relativePosition
+                  state
+                  statusPagePublishedIncident
+                  timeEstimate
                   title
-                  description
+                  type
+                  updatedAt
+                  weight
                 }
-                notes {
-                  edges {
-                    node {
-                      id
-                    }
-                  }
-                }
-                participants {
-                  edges {
-                    node {
-                      id
-                    }
-                  }
-                }
-                reference
-                relativePosition
-                state
-                statusPagePublishedIncident
-                subscribed
-                timeEstimate
-                title
-                totalTimeSpent
-                type
-                updatedAt
-                upvotes
-                userNotesCount
-                weight
               }
             }
           }
-        }
       }
     GRAPHQL
 

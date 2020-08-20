@@ -11,6 +11,7 @@ module Gitlab::ImportExport::V2::Project
         .then { |data| Transformers::Base::GraphqlCleanerTransformer.transform(data) }
         .then { |data| Transformers::Base::UnderscorifyKeysTransformer.transform(data) }
         .then { |data| Transformers::Base::UserReferenceTransformer.transform(data) }
+        .then { |data| Transformers::Issues::IssueTypeTransformer.transform(data) }
 
       # Load
       Loaders::IssueLoader.load(data, target)

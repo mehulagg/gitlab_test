@@ -81,12 +81,6 @@ module API
 
           present result, with: Grape::Presenters::Presenter
         end
-
-        get 'bundle' do
-
-        end
-
-        get ''
       end
     end
   end
