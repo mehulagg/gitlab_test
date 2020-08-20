@@ -109,14 +109,10 @@ describe('FilteredSearchBar', () => {
         { type: 'label', value: { data: 'my-label', operator: '=' } },
       ]);
 
-      expect(setFiltersMock).toHaveBeenCalledWith(
-        expect.anything(),
-        {
-          labelNames: [{ value: 'my-label', operator: '=' }],
-          milestoneTitle: { value: 'my-milestone', operator: '=' },
-        },
-        undefined,
-      );
+      expect(setFiltersMock).toHaveBeenCalledWith(expect.anything(), {
+        labelNames: [{ value: 'my-label', operator: '=' }],
+        milestoneTitle: { value: 'my-milestone', operator: '=' },
+      });
     });
 
     it('removes wrapping double quotes from the data and dispatches setFilters', () => {
@@ -124,14 +120,10 @@ describe('FilteredSearchBar', () => {
         { type: 'milestone', value: { data: '"milestone with spaces"', operator: '=' } },
       ]);
 
-      expect(setFiltersMock).toHaveBeenCalledWith(
-        expect.anything(),
-        {
-          labelNames: undefined,
-          milestoneTitle: { value: 'milestone with spaces', operator: '=' },
-        },
-        undefined,
-      );
+      expect(setFiltersMock).toHaveBeenCalledWith(expect.anything(), {
+        labelNames: undefined,
+        milestoneTitle: { value: 'milestone with spaces', operator: '=' },
+      });
     });
 
     it('removes wrapping single quotes from the data and dispatches setFilters', () => {
@@ -139,14 +131,10 @@ describe('FilteredSearchBar', () => {
         { type: 'milestone', value: { data: "'milestone with spaces'", operator: '=' } },
       ]);
 
-      expect(setFiltersMock).toHaveBeenCalledWith(
-        expect.anything(),
-        {
-          labelNames: undefined,
-          milestoneTitle: { value: 'milestone with spaces', operator: '=' },
-        },
-        undefined,
-      );
+      expect(setFiltersMock).toHaveBeenCalledWith(expect.anything(), {
+        labelNames: undefined,
+        milestoneTitle: { value: 'milestone with spaces', operator: '=' },
+      });
     });
 
     it('does not remove inner double quotes from the data and dispatches setFilters ', () => {
@@ -154,14 +142,10 @@ describe('FilteredSearchBar', () => {
         { type: 'milestone', value: { data: 'milestone "with" spaces', operator: '=' } },
       ]);
 
-      expect(setFiltersMock).toHaveBeenCalledWith(
-        expect.anything(),
-        {
-          labelNames: undefined,
-          milestoneTitle: { value: 'milestone "with" spaces', operator: '=' },
-        },
-        undefined,
-      );
+      expect(setFiltersMock).toHaveBeenCalledWith(expect.anything(), {
+        labelNames: undefined,
+        milestoneTitle: { value: 'milestone "with" spaces', operator: '=' },
+      });
     });
   });
 });
