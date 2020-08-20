@@ -3,8 +3,10 @@
 require 'spec_helper'
 
 RSpec.describe Gitlab::ContributionsCalendar do
-  let(:contributor) { create(:user) }
-  let(:user) { create(:user) }
+  let_it_be(:contributor) { create(:user) }
+  let_it_be(:user) { create(:user) }
+
+  let(:targets) { { private_project => {}, public_project => {}, feature_project => {} } }
 
   let(:private_project) do
     create(:project, :private) do |project|
@@ -42,14 +44,28 @@ RSpec.describe Gitlab::ContributionsCalendar do
     described_class.new(contributor, current_user)
   end
 
-  def create_event(project, day, hour = 0, action = :created, target_symbol = :issue)
-    @targets ||= {}
-    @targets[project] ||= create(target_symbol, project: project, author: contributor)
+  def target_attrs(target_symbol, project)
+    case target_symbol
+    when :merge_request
+      { author: contributor, target_project: project, source_project: project }
+    when :design
+      { project: project, issue: create_target(:issue, project) }
+    when :wiki_page_meta
+      { project: project }
+    else
+      { project: project, author: contributor }
+    end
+  end
 
+  def create_target(target_symbol, project)
+    targets[project][target_symbol] ||= create(target_symbol, **target_attrs(target_symbol, project))
+  end
+
+  def create_event(project, day, hour = 0, action = :created, target_symbol = :issue)
     Event.create!(
       project: project,
       action: action,
-      target: @targets[project],
+      target: create_target(target_symbol, project),
       author: contributor,
       created_at: DateTime.new(day.year, day.month, day.day, hour)
     )
@@ -82,11 +98,50 @@ RSpec.describe Gitlab::ContributionsCalendar do
       expect(calendar(contributor).activity_dates[today]).to eq(1)
     end
 
-    it "counts the discussions on merge requests and issues" do
+    it 'counts merge requests that have been created, closed or merged' do
+      create_event(public_project, last_week, 0, :created, :merge_request)
+      create_event(public_project, today, 0, :closed, :merge_request)
+      create_event(public_project, today, 1, :merged, :merge_request)
+
+      expect(calendar(contributor).activity_dates).to eq(last_week => 1, today => 2)
+    end
+
+    it 'counts issues that have been created or closed' do
+      create_event(public_project, last_week, 0, :created, :issue)
+      create_event(public_project, today, 0, :closed, :issue)
+
+      expect(calendar(contributor).activity_dates).to eq(last_week => 1, today => 1)
+    end
+
+    it "counts the discussions on merge requests and issues, different days" do
+      create_event(public_project, yesterday, 0, :commented, :discussion_note_on_merge_request)
+      create_event(public_project, today, 2, :commented, :discussion_note_on_issue)
+
+      expect(calendar(contributor).activity_dates).to eq(yesterday => 1, today => 1)
+    end
+
+    it "counts the discussions on merge requests and issues, same day" do
       create_event(public_project, today, 0, :commented, :discussion_note_on_merge_request)
       create_event(public_project, today, 2, :commented, :discussion_note_on_issue)
 
-      expect(calendar(contributor).activity_dates[today]).to eq(2)
+      expect(calendar(contributor).activity_dates).to eq(today => 2)
+    end
+
+    it 'counts events on designs' do
+      create_event(public_project, today, 0, :commented, :diff_note_on_design)
+      create_event(public_project, yesterday, 1, :created, :design)
+      create_event(public_project, today, 2, :updated, :design)
+
+      expect(calendar(contributor).activity_dates).to eq(yesterday => 1, today => 2)
+    end
+
+    it 'counts events on wiki pages' do
+      create_event(public_project, yesterday, 1, :created, :wiki_page_meta)
+      create_event(public_project, yesterday, 2, :updated, :wiki_page_meta)
+      create_event(public_project, today, 3, :updated, :wiki_page_meta)
+      create_event(public_project, today, 4, :destroyed, :wiki_page_meta)
+
+      expect(calendar(contributor).activity_dates).to eq(yesterday => 2, today => 1)
     end
 
     context "when events fall under different dates depending on the time zone" do
