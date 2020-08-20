@@ -11,7 +11,7 @@ WARNING: **Warning:** Please ensure you read these sections carefully before upd
 
 Updating Geo nodes involves performing:
 
-1. [Version-specific update steps](https://docs.gitlab.com/ee/administration/geo/replication/version_specific_updates.html), depending on the
+1. [Version-specific update steps](version_specific_updates.md), depending on the
    version being updated to or from.
 1. [General update steps](#general-update-steps), for all updates.
 
