@@ -21,7 +21,12 @@ You can also view a list of [recent updates to this guide](https://gitlab.com/da
 If you can't find what you need:
 
 - See the GitLab Handbook for further [writing style guidelines](https://about.gitlab.com/handbook/communication/#writing-style-guidelines) that apply to all GitLab content, not just documentation.
-- Reference the [Microsoft Style Guide](https://docs.microsoft.com/en-us/style-guide/) and [Google Developer Documentation Style Guide](https://developers.google.com/style). Please mention the result from each guide to the Technical Writing Style Committee (see the following bullet), including any questions you have, or if you're on the GitLab Team, add the info directly to [this sheet](https://docs.google.com/spreadsheets/d/1e8xXn-N838NxqnW17P-d9jjmzWrI6t3CAgvu0btwGtE/edit).
+- Reference one of the following:
+
+  - [Microsoft Style Guide](https://docs.microsoft.com/en-us/style-guide/).
+  - [Google Developer Documentation Style Guide](https://developers.google.com/style).
+
+Please mention the result from each guide to the Technical Writing Style Committee (see the following bullet), including any questions you have.
 - Mention `@tw-style` in an issue or merge request, or, if you have access to the GitLab Slack workspace, use `#docs-process`.
 
 ## Documentation is the single source of truth (SSOT)
