@@ -419,13 +419,13 @@ export function getHTTPProtocol(url) {
 }
 
 export function getURLOrigin(url) {
-  if(!url) {
+  if (!url) {
     return window.location.origin;
   }
 
   try {
     return new URL(url).origin;
-  } catch(e) {
+  } catch (e) {
     return null;
   }
-};
+}
