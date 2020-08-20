@@ -848,9 +848,9 @@
   resolved "https://registry.yarnpkg.com/@gitlab/svgs/-/svgs-1.158.0.tgz#300d416184a2b0e05f15a96547f726e1825b08a1"
   integrity sha512-5OJl+7TsXN9PJhY6/uwi+mTwmDZa9n/6119rf77orQ/joFYUypaYhBmy/1TcKVPsy5Zs6KCxE1kmGsfoXc1TYA==
 
-"@gitlab/ui@https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/685169537/artifacts/raw/gitlab-ui.refactor-decrease-button-styles-specificity.tgz":
-  version "19.0.0"
-  resolved "https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/685169537/artifacts/raw/gitlab-ui.refactor-decrease-button-styles-specificity.tgz#a4208fe747a50b5831726af3d084bc078804b206"
+"@gitlab/ui@https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/696336718/artifacts/raw/gitlab-ui.refactor-decrease-button-styles-specificity.tgz":
+  version "20.4.0"
+  resolved "https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/696336718/artifacts/raw/gitlab-ui.refactor-decrease-button-styles-specificity.tgz#8707f957e2075b924ad8e87ac52da102794509bb"
   dependencies:
     "@babel/standalone" "^7.0.0"
     "@gitlab/vue-toasted" "^1.3.0"
