@@ -252,7 +252,10 @@ export default {
     </header>
 
     <gl-tabs>
-      <gl-tab v-for="{ profileType, i18n } in getEnabledProfileConfigs()" :key="profileType">
+      <gl-tab
+        v-for="{ profileType, i18n, fields } in getEnabledProfileConfigs()"
+        :key="profileType"
+      >
         <template #title>
           <span>{{ i18n.title }}</span>
         </template>
@@ -264,7 +267,7 @@ export default {
           :is-loading="isLoadingProfiles(profileType)"
           :profiles-per-page="$options.profilesPerPage"
           :profiles="getProfiles(profileType)"
-          :fields="profileOptions.fields"
+          :fields="fields"
           @loadMoreProfiles="fetchMoreProfiles(profileType)"
           @deleteProfile="deleteProfile(profileType, $event)"
         />
