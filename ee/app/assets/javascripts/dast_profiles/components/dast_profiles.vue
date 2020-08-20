@@ -9,11 +9,12 @@ import dastSiteProfilesDelete from '../graphql/dast_site_profiles_delete.mutatio
 import dastScannerProfilesDelete from '../graphql/dast_scanner_profiles_delete.mutation.graphql';
 import * as cacheUtils from '../graphql/cache_utils';
 
-const configs = {
-  siteProfiles: {
+const configs = [
+  {
+    profileType: 'siteProfiles',
     query: dastSiteProfilesQuery,
     deleteMutation: dastSiteProfilesDelete,
-    isEnabled: () => true || false, // feature flag?
+    isEnabled: () => true, // feature flags can be passed in
     fields: ['profileName', 'targetUrl'],
     i18n: {
       title: s__('DastProfiles|Site Profiles'),
@@ -28,25 +29,26 @@ const configs = {
       },
     },
   },
-  scannerProfiles: {
+  {
+    profileType: 'scannerProfiles',
     query: dastScannerProfilesQuery,
     deleteMutation: dastScannerProfilesDelete,
-    isEnabled: () => true || false, // feature flag?
+    isEnabled: () => true, // feature flags can be passed in
     fields: ['profileName', 'scannerType'],
     i18n: {
       title: s__('DastProfiles|Scanner Profiles'),
       errorMessages: {
         fetchNetworkError: s__(
-          'DastProfiles|Could not fetch site profiles. Please refresh the page, or try again later.',
+          'DastProfiles|Could not fetch scanner profiles. Please refresh the page, or try again later.',
         ),
         deletionNetworkError: s__(
-          'DastProfiles|Could not delete site profile. Please refresh the page, or try again later.',
+          'DastProfiles|Could not delete scanner profile. Please refresh the page, or try again later.',
         ),
-        deletionBackendError: s__('DastProfiles|Could not delete site profiles:'),
+        deletionBackendError: s__('DastProfiles|Could not delete scanner profiles:'),
       },
     },
   },
-};
+];
 
 export default {
   configs,
@@ -68,44 +70,44 @@ export default {
   },
   data() {
     return {
-      scannerProfiles: {
-        profiles: [],
-        pageInfo: {},
-      },
-      siteProfiles: {
-        profiles: [],
-        pageInfo: {},
-      },
+      scannerProfiles: {},
+      siteProfiles: {},
       errorMessage: '',
       errorDetails: [],
     };
   },
   created() {
-    Object.entries(this.$options.configs).forEach(([profileType, { query }]) => {
-      this.$apollo.addSmartQuery(
-        profileType,
-        this.queryFactory({
-          profileType,
-          query,
-          variables: {
-            fullPath: this.projectFullPath,
-            first: this.$options.profilesPerPage,
-          },
-        }),
-      );
-    });
+    this.addSmartQueriesForEnabledProfileTypes();
   },
   methods: {
+    getEnabledProfileConfigs() {
+      return this.$options.configs.filter(({ isEnabled }) => isEnabled());
+    },
+    addSmartQueriesForEnabledProfileTypes() {
+      this.getEnabledProfileConfigs().forEach(({ profileType, query }) => {
+        this.$apollo.addSmartQuery(
+          profileType,
+          this.createQuery({
+            profileType,
+            query,
+            variables: {
+              fullPath: this.projectFullPath,
+              first: this.$options.profilesPerPage,
+            },
+          }),
+        );
+      });
+    },
     getProfiles(profileType) {
-      return this[profileType].profiles;
+      return this[profileType].profiles || [];
     },
     hasMoreProfiles(profileType) {
-      return this[profileType].pageInfo.hasNextPage;
+      return this[profileType].pageInfo?.hasNextPage;
     },
     isLoadingProfiles(profileType) {
       return this.$apollo.queries[profileType].loading;
     },
-    queryFactory({ profileType, query, variables }) {
+    createQuery({ profileType, query, variables }) {
       return {
         query,
         variables,
@@ -166,7 +168,9 @@ export default {
         },
       } = this;
 
-      const { deleteMutation } = $options.configs[profileType];
+      const { deleteMutation } = $options.configs.find(
+        config => config.profileType === profileType,
+      );
 
       this.resetErrors();
 
@@ -177,8 +181,8 @@ export default {
             projectFullPath,
             profileId,
           },
-          update(store, { data }) {
-            const errors = data?.[`${profileType}Delete`]?.errors ?? [];
+          update(store, { data = {} }) {
+            const errors = data[`${profileType}Delete`]?.errors ?? [];
 
             if (errors.length === 0) {
               cacheUtils.removeProfile({
@@ -248,9 +252,9 @@ export default {
     </header>
 
     <gl-tabs>
-      <gl-tab v-for="(profileOptions, profileType) in $options.configs" :key="profileType.key">
+      <gl-tab v-for="{ profileType, i18n } in getEnabledProfileConfigs()" :key="profileType">
         <template #title>
-          <span>{{ profileOptions.i18n.title }}</span>
+          <span>{{ i18n.title }}</span>
         </template>
 
         <profiles-list
