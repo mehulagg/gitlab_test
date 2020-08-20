@@ -73,9 +73,9 @@ const autoCompleteMap = {
       return this.members;
     },
     menuItemTemplate({ original }) {
-      const rectAvatarClass = original.type === 'Group' ? 'rect-avatar' : '';
+      const rectAvatarClass = original.type === 'Group' ? 'gl-rounded-small' : '';
 
-      const avatarClasses = `avatar avatar-inline center s26 ${rectAvatarClass}
+      const avatarClasses = `gl-avatar gl-avatar-circle gl-avatar-s24 ${rectAvatarClass}
         gl-display-inline-flex! gl-align-items-center gl-justify-content-center`;
 
       const avatarTag = original.avatar_url
@@ -85,7 +85,13 @@ const autoCompleteMap = {
             class="${avatarClasses}"/>`
         : `<div class="${avatarClasses}">${original.username.charAt(0).toUpperCase()}</div>`;
 
-      const name = escape(original.name);
+      const splitName = escape(original.name).split(' / ');
+
+      const name =
+        original.type === 'Group' ? splitName[splitName.length - 1] : escape(original.name);
+
+      const username =
+        original.type === 'Group' ? splitName[splitName.length - 2] : original.username;
 
       const count = original.count && !original.mentionsDisabled ? ` (${original.count})` : '';
 
@@ -93,10 +99,16 @@ const autoCompleteMap = {
         ? spriteIcon('notifications-off', 's16 gl-vertical-align-middle gl-ml-3')
         : '';
 
-      return `${avatarTag}
-        ${original.username}
-        <small class="gl-text-small gl-font-weight-normal gl-reset-color">${name}${count}</small>
-        ${icon}`;
+      return `
+<div class="gl-display-flex gl-align-items-center">
+${avatarTag}
+        <div class="gl-font-sm gl-line-height-normal gl-ml-3">
+        <p class="mb-0">${name}${count}</p>
+        <p class="gl-text-gray-700 mb-0">${username || ''}</p>
+</div>
+        ${icon}
+</div>
+`;
     },
   },
 };
