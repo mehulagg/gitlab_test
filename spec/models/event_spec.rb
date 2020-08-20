@@ -148,22 +148,34 @@ RSpec.describe Event do
         issue = create(:issue)
         mr = create(:merge_request)
         design = create(:design)
+        wiki_page = create(:wiki_page, container: project)
+        page_meta = create(:wiki_page_meta, :for_wiki_page, wiki_page: wiki_page)
 
         # Push events
         push_event = create_push_event(project, user)
 
-        # State changes on issues, mrs, designs
+        # State changes on issues, mrs, designs and wiki pages
         created_issue_event = create(:event, :created, target: issue)
         closed_issue_event = create(:event, :closed, target: issue)
         created_mr_event = create(:event, :created, target: mr)
         closed_mr_event = create(:event, :closed, target: mr)
         merged_mr_event = create(:event, :merged, target: mr)
-        issue_note_event = create(:event, :commented, target: create(:note, noteable: issue))
-        design_event = create(:design_event, target: design)
-        wiki_page_event = create(:wiki_page_event)
+        design_event = create(:design_event, :created, target: design)
+        updated_design_event = create(:design_event, :updated, target: design)
+        wiki_page_event = create(:event, :created, target: page_meta)
+        updated_wiki_page_event = create(:event, :updated, target: page_meta)
 
+        # Note events
+        issue_note_event = create(:event, :commented, target: create(:note, noteable: issue))
         mr_note_event = create(:event, :commented, target: create(:note, noteable: mr))
         design_note_event = create(:event, :commented, target: create(:note, noteable: design))
+
+        # Non-contributions:
+        reopened_issue_event = create(:event, :reopened, target: issue)
+        project_joined_event = create(:event, :joined)
+        destroyed_design_event = create(:event, :destroyed, target: design)
+        destroyed_wiki_event = create(:event, :destroyed, target: page_meta)
+        mr_approval = create(:event, :approved, target: mr)
 
         contributions = described_class.contributions
 
@@ -174,13 +186,21 @@ RSpec.describe Event do
           closed_mr_event,
           created_mr_event,
           merged_mr_event,
+          design_event,
+          updated_design_event,
+          wiki_page_event,
+          updated_wiki_page_event,
           issue_note_event,
           mr_note_event,
-          design_note_event,
-          design_event
+          design_note_event
         )
 
-        expect(contributions).not_to include(wiki_page_event)
+        expect(contributions).not_to include(
+          reopened_issue_event,
+          destroyed_design_event,
+          destroyed_wiki_event,
+          mr_approval,
+          project_joined_event)
       end
     end
   end

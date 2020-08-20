@@ -105,7 +105,7 @@ class Event < ApplicationRecord
     # Update Gitlab::ContributionsCalendar#activity_dates if this changes
     where("action = ? OR (target_type IN (?) AND action IN (?)) OR (target_type = ? AND action = ?)",
           actions[:pushed],
-          %w(MergeRequest Issue), [actions[:created], actions[:closed], actions[:merged]],
+          %w(MergeRequest Issue DesignManagement::Design WikiPage::Meta), [actions[:created], actions[:closed], actions[:merged], actions[:updated]],
           "Note", actions[:commented])
   end
 
