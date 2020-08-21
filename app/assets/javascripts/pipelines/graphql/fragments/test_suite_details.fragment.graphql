@@ -1,0 +1,13 @@
+fragment TestSuiteDetails on TestReports {
+  testSuite(buildIds: $buildIds) @client {
+    suiteError
+    testCases {
+      status
+      name
+      classname
+      executionTime
+      systemOutput
+      stackTrace
+    }
+  }
+}

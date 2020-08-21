@@ -1,0 +1,24 @@
+fragment TestReport on TestReports {
+  testReport @client {
+    total {
+      time
+      count
+      success
+      failed
+      skipped
+      error
+    }
+    testSuites {
+      name
+      total {
+        time
+        count
+        success
+        failed
+        skipped
+        error
+      }
+      build_ids
+    }
+  }
+}

@@ -1,0 +1,28 @@
+query getTestReportSummary($projectPath: ID!, $iid: ID!) {
+  project(fullPath: $projectPath) {
+    pipeline(iid: $iid) {
+      testReport @client {
+        total {
+          time
+          count
+          success
+          failed
+          skipped
+          error
+        }
+        testSuites {
+          name
+          total {
+            time
+            count
+            success
+            failed
+            skipped
+            error
+          }
+          build_ids
+        }
+      }
+    }
+  }
+}

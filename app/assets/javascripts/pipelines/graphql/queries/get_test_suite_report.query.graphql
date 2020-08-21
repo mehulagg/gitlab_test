@@ -1,0 +1,19 @@
+query getTestSuiteReport($projectPath: ID!, $iid: ID!, $buildIds: [ID]!) {
+  project(fullPath: $projectPath) {
+    pipeline(iid: $iid) {
+      testReport @client {
+        testSuite(buildIds: $buildIds) {
+          suiteError
+          testCases {
+            status
+            name
+            classname
+            executionTime
+            systemOutput
+            stackTrace
+          }
+        }
+      }
+    }
+  }
+}
