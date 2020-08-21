@@ -34,8 +34,8 @@ const resolvers = {
       return axios
         .post(`/${projectPath}/todos`, {
           issuable_id,
-          issuable_type: 'design',
-          target_design_id: targetDesignId,
+          issuable_type: 'issue',
+          // target_design_id: targetDesignId,
         })
         .then(data => {
           const todo = data; // TODO check if this is correct (probably isnt)
@@ -43,7 +43,7 @@ const resolvers = {
             fullPath: projectPath,
             iid: issuable_id,
             filenames: [targetDesignId], // TODO this might not be correct
-            atVersion: null,
+            // atVersion: null,
           });
         });
     },

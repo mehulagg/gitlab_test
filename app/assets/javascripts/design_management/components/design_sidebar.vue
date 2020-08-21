@@ -4,6 +4,7 @@ import { GlCollapse, GlButton, GlPopover } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import { parseBoolean } from '~/lib/utils/common_utils';
 import updateActiveDiscussionMutation from '../graphql/mutations/update_active_discussion.mutation.graphql';
+import createDesignTodoMutation from '../graphql/mutations/create_design_todo.mutation.graphql';
 import { extractDiscussions, extractParticipants } from '../utils/design_management_utils';
 import { ACTIVE_DISCUSSION_SOURCE_TYPES } from '../constants';
 import DesignDiscussion from './design_notes/design_discussion.vue';
@@ -38,6 +39,14 @@ export default {
       isResolvedCommentsPopoverHidden: parseBoolean(Cookies.get(this.$options.cookieKey)),
       discussionWithOpenForm: '',
     };
+  },
+  inject: {
+    projectPath: {
+      default: '',
+    },
+    issueIid: {
+      default: '',
+    },
   },
   computed: {
     discussions() {
@@ -87,6 +96,20 @@ export default {
     updateDiscussionWithOpenForm(id) {
       this.discussionWithOpenForm = id;
     },
+    toggleTodo() {
+      if (this.hasPendingTodo) {
+        // TODO delete the todo here
+      } else {
+        this.$apollo.mutate({
+          mutation: createDesignTodoMutation,
+          variables: {
+            project_path: this.projectPath,
+            issuable_id: this.issueIid,
+            target_design_id: this.design.id,
+          },
+        });
+      }
+    },
   },
   resolveCommentsToggleText: s__('DesignManagement|Resolved Comments'),
   cookieKey: 'hide_design_resolved_comments_popover',
@@ -99,7 +122,12 @@ export default {
       class="gl-display-flex gl-justify-content-space-between gl-border-b-1 gl-border-b-gray-100"
     >
       <span>{{ __('To-Do') }}</span>
-      <todo-button issuable-type="design" :issuable-id="design.iid" :is-todo="hasPendingTodo" />
+      <todo-button
+        issuable-type="design"
+        :issuable-id="design.iid"
+        :is-todo="hasPendingTodo"
+        @toggleTodo="toggleTodo"
+      />
     </div>
     <h2 class="gl-font-weight-bold gl-mt-0">
       {{ issue.title }}
