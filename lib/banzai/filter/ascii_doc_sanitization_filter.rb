@@ -77,7 +77,7 @@ module Banzai
             return unless (pattern = FOOTNOTE_LINK_ID_PATTERNS[node.name.to_sym])
             return unless node.has_attribute?('id')
 
-            return if node['id'] =~ pattern
+            return if pattern.match?(node['id'])
 
             node.remove_attribute('id')
           end
@@ -90,7 +90,7 @@ module Banzai
             return unless SECTION_HEADINGS.any?(node.name)
             return unless node.has_attribute?('id')
 
-            return if node['id'] =~ SECTION_LINK_REF_PATTERN
+            return if SECTION_LINK_REF_PATTERN.match?(node['id'])
 
             node.remove_attribute('id')
           end

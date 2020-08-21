@@ -128,7 +128,7 @@ module Banzai
       end
 
       def replace_text_when_pattern_matches(node, index, pattern)
-        return unless node.text =~ pattern
+        return unless pattern.match?(node.text)
 
         content = node.to_html
         html = yield content

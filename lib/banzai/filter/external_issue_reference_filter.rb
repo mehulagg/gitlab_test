@@ -42,7 +42,7 @@ module Banzai
 
           elsif element_node?(node)
             yield_valid_link(node) do |link, inner_html|
-              if link =~ ref_start_pattern
+              if ref_start_pattern.match?(link)
                 replace_link_node_with_href(node, index, link) do
                   issue_link_filter(link, link_content: inner_html)
                 end

@@ -62,7 +62,7 @@ module Banzai
       def call
         doc.search(".//text()").each do |node|
           next if has_ancestor?(node, IGNORED_ANCESTOR_TAGS)
-          next unless node.content =~ TAGS_PATTERN
+          next unless TAGS_PATTERN.match?(node.content)
 
           html = process_tag($1)
 
@@ -110,7 +110,7 @@ module Banzai
       end
 
       def image?(path)
-        path =~ ALLOWED_IMAGE_EXTENSIONS
+        ALLOWED_IMAGE_EXTENSIONS.match?(path)
       end
 
       def url?(path)

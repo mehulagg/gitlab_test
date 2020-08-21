@@ -154,7 +154,7 @@ module Banzai
 
           elsif element_node?(node)
             yield_valid_link(node) do |link, inner_html|
-              if ref_pattern && link =~ ref_pattern_anchor
+              if ref_pattern && ref_pattern_anchor.match?(link)
                 replace_link_node_with_href(node, index, link) do
                   object_link_filter(link, ref_pattern, link_content: inner_html)
                 end
@@ -164,7 +164,7 @@ module Banzai
 
               next unless link_pattern
 
-              if link == inner_html && inner_html =~ link_pattern_start
+              if link == inner_html && link_pattern_start.match?(inner_html)
                 replace_link_node_with_text(node, index) do
                   object_link_filter(inner_html, link_pattern, link_reference: true)
                 end
@@ -172,7 +172,7 @@ module Banzai
                 next
               end
 
-              if link =~ link_pattern_anchor
+              if link_pattern_anchor.match?(link)
                 replace_link_node_with_href(node, index, link) do
                   object_link_filter(link, link_pattern, link_content: inner_html, link_reference: true)
                 end
@@ -264,7 +264,7 @@ module Banzai
       def object_link_text_extras(object, matches)
         extras = []
 
-        if matches.names.include?("anchor") && matches[:anchor] && matches[:anchor] =~ /\A\#note_(\d+)\z/
+        if matches.names.include?("anchor") && /\A\#note_(\d+)\z/ =~ matches[:anchor]
           extras << "comment #{$1}"
         end
 
