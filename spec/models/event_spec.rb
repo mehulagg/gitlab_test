@@ -175,7 +175,6 @@ RSpec.describe Event do
         project_joined_event = create(:event, :joined)
         destroyed_design_event = create(:event, :destroyed, target: design)
         destroyed_wiki_event = create(:event, :destroyed, target: page_meta)
-        mr_approval = create(:event, :approved, target: mr)
 
         contributions = described_class.contributions
 
@@ -199,7 +198,6 @@ RSpec.describe Event do
           reopened_issue_event,
           destroyed_design_event,
           destroyed_wiki_event,
-          mr_approval,
           project_joined_event)
       end
     end
