@@ -101,6 +101,7 @@ gl.lazyLoader = new LazyLoader({
 
 // Put all initialisations here that can also wait after everything is rendered and ready
 function deferredInitialisation() {
+  console.error('deferredInitialisation: ' + (new Date()).getTime());
   const $body = $('body');
 
   initBreadcrumbs();
@@ -118,6 +119,7 @@ function deferredInitialisation() {
   addSelectOnFocusBehaviour('.js-select-on-focus');
 
   $('.remove-row').on('ajax:success', function removeRowAjaxSuccessCallback() {
+    console.error('Deferred success callback: ' + (new Date()).getTime());
     $(this)
       .tooltip('dispose')
       .closest('li')
@@ -160,6 +162,8 @@ function deferredInitialisation() {
   // Adding a helper class to activate animations only after all is rendered
   setTimeout(() => $body.addClass('page-initialised'), 1000);
 }
+
+console.error('main.js: ' + (new Date()).getTime());
 
 document.addEventListener('DOMContentLoaded', () => {
   const $body = $('body');
@@ -308,5 +312,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // initialize field errors
   $('.gl-show-field-errors').each((i, form) => new GlFieldErrors(form));
 
+  console.error('DOMContentLoaded: ' + (new Date()).getTime());
   requestIdleCallback(deferredInitialisation);
+});
+
+$('.remove-row').on('ajax:success', function removeRowAjaxSuccessCallback() {
+  console.error('Not deferred success callback: ' + (new Date()).getTime());
 });
