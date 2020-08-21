@@ -177,16 +177,25 @@ RSpec.describe Issue do
     let_it_be(:bad_positions) { positions.map { |pos| pos.nil? ? nil : pos + offset } }
 
     before_all do
+      # Other data in database
+      other_project = create(:project)
+      create_list(:issue, 1_000, project: other_project, author: other_project.creator, relative_position: Gitlab::Database::MAX_INT_VALUE)
+
       bad_positions.each do |pos|
         create(:issue, project: project, author: project.creator, relative_position: pos)
       end
+
+      # Assert that we have issues at the max position
+      expect(project.issues.maximum(:relative_position)).to eq(Gitlab::Database::MAX_INT_VALUE)
     end
 
     it 'can create issues at the end of the sequence' do
+      # Build an issue and move it to the end
       new_issue = build(:issue, project: project, author: project.creator)
       new_issue.move_to_end
       new_issue.save!
 
+      # Check that we moved it where we thought it would be.
       expect(project.issues.count).to eq(positions.count + 1)
       expect(project.issues.where.not(relative_position: nil).reorder(relative_position: :desc).first).to eq(new_issue)
     end
