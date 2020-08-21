@@ -7,8 +7,10 @@ import dastScannerProfilesDelete from '../graphql/dast_scanner_profiles_delete.m
 export default {
   siteProfiles: {
     profileType: 'siteProfiles',
-    query: dastSiteProfilesQuery,
-    deleteMutation: dastSiteProfilesDelete,
+    graphQL: {
+      query: dastSiteProfilesQuery,
+      deleteMutation: dastSiteProfilesDelete,
+    },
     isEnabled: () => true, // feature flags can be passed in
     fields: ['profileName', 'targetUrl'],
     i18n: {
@@ -26,8 +28,10 @@ export default {
   },
   scannerProfiles: {
     profileType: 'scannerProfiles',
-    query: dastScannerProfilesQuery,
-    deleteMutation: dastScannerProfilesDelete,
+    graphQL: {
+      query: dastScannerProfilesQuery,
+      deleteMutation: dastScannerProfilesDelete,
+    },
     isEnabled: () => true, // feature flags can be passed in
     fields: ['profileName', 'scannerType'],
     i18n: {

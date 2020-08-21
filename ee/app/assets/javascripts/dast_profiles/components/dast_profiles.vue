@@ -6,8 +6,10 @@ import ProfilesList from './dast_profiles_list.vue';
 import * as cacheUtils from '../graphql/cache_utils';
 import profileConfigs from '../constants/profile_configs';
 
+const getEnabledProfileConfigs = () =>
+  Object.fromEntries(Object.entries(profileConfigs).filter(([, { isEnabled }]) => isEnabled()));
+
 export default {
-  configs: profileConfigs,
   components: {
     GlButton,
     GlTab,
@@ -32,24 +34,13 @@ export default {
     };
   },
   created() {
-    this.enabledProfileTypes = this.getEnabledProfileTypes();
-    this.makeEnabledProfileTypeResultsReactive();
+    this.profileConfigs = getEnabledProfileConfigs();
     this.addSmartQueriesForEnabledProfileTypes();
   },
   methods: {
-    getEnabledProfileTypes() {
-      return Object.values(this.$options.configs).filter(({ isEnabled }) => isEnabled());
-    },
-    makeEnabledProfileTypeResultsReactive() {
-      this.enabledProfileTypes.forEach(({ profileType }) => {
-        this.$set(this.profileTypes, profileType, {
-          profiles: [],
-          pageInfo: {},
-        });
-      });
-    },
     addSmartQueriesForEnabledProfileTypes() {
-      this.enabledProfileTypes.forEach(({ profileType, query }) => {
+      Object.values(this.profileConfigs).forEach(({ profileType, graphQL: { query } }) => {
+        this.makeProfileTypeReactive(profileType);
         this.$apollo.addSmartQuery(
           profileType,
           this.createQuery({
@@ -61,6 +52,12 @@ export default {
             },
           }),
         );
+      });
+    },
+    makeProfileTypeReactive(profileType) {
+      this.$set(this.profileTypes, profileType, {
+        profiles: [],
+        pageInfo: {},
       });
     },
     getProfiles(profileType) {
@@ -129,14 +126,18 @@ export default {
       const {
         projectFullPath,
         handleError,
-        $options,
+        $options: { i18n },
+        profileConfigs: {
+          [profileType]: {
+            graphQL: { deleteMutation },
+          },
+        },
         $apollo: {
           queries: {
             [profileType]: { options: queryOptions },
           },
         },
       } = this;
-      const { deleteMutation } = $options.configs[profileType];
 
       this.resetErrors();
 
@@ -162,7 +163,7 @@ export default {
               });
             } else {
               handleError({
-                message: $options.i18n.errorMessages.deletionBackendError,
+                message: i18n.errorMessages.deletionBackendError,
                 details: errors,
               });
             }
@@ -172,7 +173,7 @@ export default {
         .catch(error => {
           this.handleError({
             exception: error,
-            message: $options.i18n.errorMessages.deletionNetworkError,
+            message: i18n.errorMessages.deletionNetworkError,
           });
         });
     },
@@ -220,7 +221,7 @@ export default {
     <gl-tabs>
       <gl-tab v-for="(data, profileType) in profileTypes" :key="profileType">
         <template #title>
-          <span>{{ $options.configs[profileType].i18n.title }}</span>
+          <span>{{ profileConfigs[profileType].i18n.title }}</span>
         </template>
 
         <profiles-list
@@ -230,7 +231,7 @@ export default {
           :is-loading="isLoadingProfiles(profileType)"
           :profiles-per-page="$options.profilesPerPage"
           :profiles="data.profiles"
-          :fields="$options.configs[profileType].fields"
+          :fields="profileConfigs[profileType].fields"
           @loadMoreProfiles="fetchMoreProfiles(profileType)"
           @deleteProfile="deleteProfile(profileType, $event)"
         />
