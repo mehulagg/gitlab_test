@@ -2448,7 +2448,7 @@ timed rollout 10%:
 ```
 
 You can stop the active timer of a delayed job by clicking the **{time-out}** (**Unschedule**) button.
-This job will never be executed in the future unless you execute the job manually.
+This job is never executed in the future unless you execute the job manually.
 
 To start a delayed job immediately, click the **Play** button.
 Soon GitLab Runner picks up and starts the job.
