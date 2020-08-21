@@ -1,5 +1,5 @@
-fragment TestReport on TestReports {
-  testReport @client {
+fragment TestReportSummary on TestReports {
+  testReport(endpoint: $endpoint) @client {
     total {
       time
       count

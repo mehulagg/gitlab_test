@@ -5,12 +5,11 @@ import { __ } from '~/locale';
 import { setUrlFragment, redirectTo } from '~/lib/utils/url_utility';
 import pipelineGraph from './components/graph/graph_component.vue';
 import createDagApp from './pipeline_details_dag';
+import createTestReportApp from './pipeline_details_test_report';
 import GraphBundleMixin from './mixins/graph_pipeline_bundle_mixin';
 import PipelinesMediator from './pipeline_details_mediator';
 import pipelineHeader from './components/header_component.vue';
 import eventHub from './event_hub';
-import TestReports from './components/test_reports/test_reports.vue';
-import createTestReportsStore from './stores/test_reports';
 
 Vue.use(Translate);
 
@@ -92,28 +91,6 @@ const createPipelineHeaderApp = mediator => {
   });
 };
 
-const createTestDetails = () => {
-  const el = document.querySelector('#js-pipeline-tests-detail');
-  const { summaryEndpoint, suiteEndpoint } = el?.dataset || {};
-
-  const testReportsStore = createTestReportsStore({
-    summaryEndpoint,
-    suiteEndpoint,
-  });
-
-  // eslint-disable-next-line no-new
-  new Vue({
-    el,
-    components: {
-      TestReports,
-    },
-    store: testReportsStore,
-    render(createElement) {
-      return createElement('test-reports');
-    },
-  });
-};
-
 export default () => {
   const { dataset } = document.querySelector('.js-pipeline-details-vue');
   const mediator = new PipelinesMediator({ endpoint: dataset.endpoint });
@@ -121,6 +98,6 @@ export default () => {
 
   createPipelinesDetailApp(mediator);
   createPipelineHeaderApp(mediator);
-  createTestDetails();
+  createTestReportApp();
   createDagApp();
 };

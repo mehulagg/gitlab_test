@@ -1,5 +1,4 @@
 <script>
-import { mapGetters } from 'vuex';
 import { GlIcon, GlTooltipDirective } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import SmartVirtualList from '~/vue_shared/components/smart_virtual_list.vue';
@@ -19,11 +18,14 @@ export default {
       required: false,
       default: s__('TestReports|Jobs'),
     },
+    testSuites: {
+      type: Array,
+      required: true,
+    },
   },
   computed: {
-    ...mapGetters(['getTestSuites']),
     hasSuites() {
-      return this.getTestSuites.length > 0;
+      return this.testSuites.length > 0;
     },
   },
   methods: {
@@ -70,12 +72,12 @@ export default {
       </div>
 
       <smart-virtual-list
-        :length="getTestSuites.length"
+        :length="testSuites.length"
         :remain="$options.maxShownRows"
         :size="$options.typicalRowHeight"
       >
         <div
-          v-for="(testSuite, index) in getTestSuites"
+          v-for="(testSuite, index) in testSuites"
           :key="index"
           role="row"
           class="gl-responsive-table-row test-reports-summary-row rounded js-suite-row"
@@ -114,35 +116,35 @@ export default {
             <div role="rowheader" class="table-mobile-header font-weight-bold">
               {{ __('Failed') }}
             </div>
-            <div class="table-mobile-content">{{ testSuite.failed_count }}</div>
+            <div class="table-mobile-content">{{ testSuite.total.failed }}</div>
           </div>
 
           <div class="table-section section-10 text-center">
             <div role="rowheader" class="table-mobile-header font-weight-bold">
               {{ __('Errors') }}
             </div>
-            <div class="table-mobile-content">{{ testSuite.error_count }}</div>
+            <div class="table-mobile-content">{{ testSuite.total.error }}</div>
           </div>
 
           <div class="table-section section-10 text-center">
             <div role="rowheader" class="table-mobile-header font-weight-bold">
               {{ __('Skipped') }}
             </div>
-            <div class="table-mobile-content">{{ testSuite.skipped_count }}</div>
+            <div class="table-mobile-content">{{ testSuite.total.skipped }}</div>
           </div>
 
           <div class="table-section section-10 text-center">
             <div role="rowheader" class="table-mobile-header font-weight-bold">
               {{ __('Passed') }}
             </div>
-            <div class="table-mobile-content">{{ testSuite.success_count }}</div>
+            <div class="table-mobile-content">{{ testSuite.total.success }}</div>
           </div>
 
           <div class="table-section section-10 text-right pr-md-3">
             <div role="rowheader" class="table-mobile-header font-weight-bold">
               {{ __('Total') }}
             </div>
-            <div class="table-mobile-content">{{ testSuite.total_count }}</div>
+            <div class="table-mobile-content">{{ testSuite.total.count }}</div>
           </div>
         </div>
       </smart-virtual-list>

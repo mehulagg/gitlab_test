@@ -1,7 +1,8 @@
-query getTestReportSummary($projectPath: ID!, $iid: ID!) {
+query getTestReportSummary($projectPath: ID!, $iid: ID!, $endpoint: String!) {
   project(fullPath: $projectPath) {
     pipeline(iid: $iid) {
-      testReport @client {
+      id,
+      testReport(endpoint: $endpoint) @client {
         total {
           time
           count

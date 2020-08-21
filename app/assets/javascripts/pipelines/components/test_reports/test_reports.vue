@@ -1,11 +1,11 @@
 <script>
 import { GlLoadingIcon } from '@gitlab/ui';
-import { fetchPolicies } from '~/lib/graphql';
 import getTestSummary from '../../graphql/queries/get_test_report_summary.query.graphql';
 import getTestSuiteReport from '../../graphql/queries/get_test_suite_report.query.graphql';
 import TestSuiteTable from './test_suite_table.vue';
 import TestSummary from './test_summary.vue';
 import TestSummaryTable from './test_summary_table.vue';
+import { addIconStatus, formattedTime, sortTestCases } from '../../stores/test_reports/utils';
 
 export default {
   name: 'TestReports',
@@ -31,15 +31,14 @@ export default {
   },
   apollo: {
     testReport: {
-      fetchPolicy: fetchPolicies.CACHE_AND_NETWORK,
       query: getTestSummary,
       variables() {
         return {
           projectPath: this.pipelineProjectPath,
           iid: this.pipelineIid,
+          endpoint: this.summaryEndpoint,
         };
       },
-      update: data => data.project.pipeline.testReport,
     },
   },
   data() {
@@ -53,7 +52,7 @@ export default {
       return this.selectedSuiteIndex !== null;
     },
     showTests() {
-      const { testSuites } = this.testReports;
+      const { testSuites = [] } = this.testReport;
       return testSuites.length > 0;
     },
     selectedSuite() {
@@ -61,10 +60,24 @@ export default {
         return {};
       }
       return this.testReport.testSuite[this.selectedSuiteIndex];
-    }
-  },
-  created() {
-    this.fetchSummary();
+    },
+    suiteTests() {
+      if (!this.showSuite) {
+        return [];
+      }
+
+      const { testCases } = this.selectedSuite;
+      return testCases.sort(sortTestCases).map(addIconStatus);
+    },
+    testSuites() {
+      if (!this.showTests) {
+        return [];
+      }
+      return this.testReport.testSuites.map(suite => ({
+        ...suite,
+        formattedTime: formattedTime(suite.total.time)
+      }))
+    },
   },
   methods: {
     summaryBackClick() {
@@ -74,23 +87,22 @@ export default {
     summaryTableRowClick(index) {
       // Set the selected test suite so that the view changes
       this.selectedSuiteIndex = index;
+      const testSuite = this.testReport.testSuites[index];
 
       // Fetch test suite when the user clicks to see more details
       // QUESTION: Does this cache and not refetch when clicked on again?
       this.$apollo.addSmartQuery('testSuiteReport', {
-        // QUESTION: What does this fetchPolicy do?
-        fetchPolicy: fetchPolicies.CACHE_AND_NETWORK,
         query: getTestSuiteReport,
         variables() {
           return {
             projectPath: this.pipelineProjectPath,
             iid: this.pipelineIid,
+            endpoint: this.suiteEndpoint,
+            suiteName: testSuite.name,
+            suiteIndex: index,
             buildIds: this.testReport.testSuites[index].buildIds,
           };
         },
-        // QUESTION: Am I doing this update function correctly? I want the data to all
-        // go in the this.testReport data object
-        update: data => data.project.pipeline.testReport.testSuites[index],
       });
     },
     beforeEnterTransition() {
@@ -121,13 +133,13 @@ export default {
       <div v-if="showSuite" key="detail" class="w-100 position-absolute slide-enter-to-element">
         <test-summary :report="selectedSuite" show-back @on-back-click="summaryBackClick" />
 
-        <test-suite-table />
+        <test-suite-table :suite-tests="suiteTests" />
       </div>
 
       <div v-else key="summary" class="w-100 position-absolute slide-enter-from-element">
-        <test-summary :report="testReports" />
+        <test-summary :report="testReport" />
 
-        <test-summary-table @row-click="summaryTableRowClick" />
+        <test-summary-table :test-suites="testSuites" @row-click="summaryTableRowClick" />
       </div>
     </transition>
   </div>

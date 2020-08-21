@@ -1,5 +1,4 @@
 <script>
-import { mapGetters } from 'vuex';
 import { GlTooltipDirective, GlFriendlyWrap, GlIcon } from '@gitlab/ui';
 import { __ } from '~/locale';
 import SmartVirtualList from '~/vue_shared/components/smart_virtual_list.vue';
@@ -20,11 +19,14 @@ export default {
       required: false,
       default: __('Tests'),
     },
+    suiteTests: {
+      type: Array,
+      required: true,
+    }
   },
   computed: {
-    ...mapGetters(['getSuiteTests']),
     hasSuites() {
-      return this.getSuiteTests.length > 0;
+      return this.suiteTests.length > 0;
     },
   },
   maxShownRows: 30,
@@ -61,12 +63,12 @@ export default {
       </div>
 
       <smart-virtual-list
-        :length="getSuiteTests.length"
+        :length="suiteTests.length"
         :remain="$options.maxShownRows"
         :size="$options.typicalRowHeight"
       >
         <div
-          v-for="(testCase, index) in getSuiteTests"
+          v-for="(testCase, index) in suiteTests"
           :key="index"
           class="gl-responsive-table-row rounded align-items-md-start mt-xs-3 js-case-row"
         >

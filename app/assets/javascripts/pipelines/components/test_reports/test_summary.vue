@@ -30,10 +30,10 @@ export default {
       // Otherwise returns a float to two decimal points
       // Do not include skipped tests as part of the total when doing success calculations.
 
-      const totalCompletedCount = this.report.total_count - this.report.skipped_count;
+      const totalCompletedCount = this.report.total.count - this.report.total.skipped;
 
       if (totalCompletedCount > 0) {
-        return Number(((this.report.success_count / totalCompletedCount) * 100 || 0).toFixed(2));
+        return Number(((this.report.total.succss / totalCompletedCount) * 100 || 0).toFixed(2));
       }
       return 0;
     },
@@ -84,19 +84,19 @@ export default {
     <div class="row mt-2">
       <div class="col-4 col-md">
         <span class="js-total-tests">{{
-          sprintf(s__('TestReports|%{count} tests'), { count: report.total_count })
+          sprintf(s__('TestReports|%{count} tests'), { count: report.total.count })
         }}</span>
       </div>
 
       <div class="col-4 col-md text-center text-md-center">
         <span class="js-failed-tests">{{
-          sprintf(s__('TestReports|%{count} failures'), { count: report.failed_count })
+          sprintf(s__('TestReports|%{count} failures'), { count: report.total.failed })
         }}</span>
       </div>
 
       <div class="col-4 col-md text-right text-md-center">
         <span class="js-errored-tests">{{
-          sprintf(s__('TestReports|%{count} errors'), { count: report.error_count })
+          sprintf(s__('TestReports|%{count} errors'), { count: report.total.error })
         }}</span>
       </div>
 

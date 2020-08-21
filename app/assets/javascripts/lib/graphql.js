@@ -73,5 +73,6 @@ export default (resolvers = {}, config = {}) => {
         fetchPolicy: config.fetchPolicy || fetchPolicies.CACHE_FIRST,
       },
     },
+    connectToDevTools: true,
   });
 };
