@@ -1,5 +1,5 @@
 ---
 title: update merge_request_draft regex to match documented behavior
-merge_request:
+merge_request: 40172
 author:
 type: fixed
