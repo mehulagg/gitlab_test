@@ -1,0 +1,7 @@
+mutation createDesignTodo($project_path: String, $issuable_id: String, $target_design_id: String) {
+  createDesignTodo(
+    project_path: $project_path
+    issuable_id: $issuable_id
+    target_design_id: $target_design_id
+  ) @client
+}
