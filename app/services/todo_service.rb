@@ -313,6 +313,8 @@ class TodoService
   def reject_users_without_access(users, parent, target)
     target = target.noteable if target.is_a?(Note)
 
+    # Check this: Many more objects will be responding to to_ability_name
+    # Check what can be a Todoable
     if target.respond_to?(:to_ability_name)
       select_users(users, :"read_#{target.to_ability_name}", target)
     else

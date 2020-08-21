@@ -132,17 +132,8 @@ class NotificationRecipient
     @read_ability =
       if @target.is_a?(Ci::Pipeline)
         :read_build # We have build trace in pipeline emails
-      elsif default_ability_for_target
-        :"read_#{default_ability_for_target}"
-      end
-  end
-
-  def default_ability_for_target
-    @default_ability_for_target ||=
-      if @target.respond_to?(:to_ability_name)
-        @target.to_ability_name
-      elsif @target.class.respond_to?(:model_name)
-        @target.class.model_name.name.underscore
+      elsif @target.respond_to?(:to_ability_name) # Check this more things will respond to the method now
+        :"read_#{@target.to_ability_name}"
       end
   end
 

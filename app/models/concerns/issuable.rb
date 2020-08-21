@@ -356,10 +356,6 @@ module Issuable
       end
     end
 
-    def to_ability_name
-      model_name.singular
-    end
-
     def parent_class
       ::Project
     end
@@ -450,16 +446,6 @@ module Issuable
 
   def label_names
     labels.order('title ASC').pluck(:title)
-  end
-
-  # Convert this Issuable class name to a format usable by Ability definitions
-  #
-  # Examples:
-  #
-  #   issuable.class           # => MergeRequest
-  #   issuable.to_ability_name # => "merge_request"
-  def to_ability_name
-    self.class.to_ability_name
   end
 
   # Returns a Hash of attributes to be used for Twitter card metadata

@@ -57,4 +57,20 @@ class ApplicationRecord < ActiveRecord::Base
   def self.underscore
     Gitlab::SafeRequestStore.fetch("model:#{self}:underscore") { self.to_s.underscore }
   end
+
+  # TODO Mention to override if needed.
+  # THOUGHT this isn't how models are currently overriding, so we'd
+  # need to change that too through the app.
+  #
+  # Examples:
+  #
+  #   issuable.class           # => MergeRequest
+  #   issuable.to_ability_name # => "merge_request"
+  def self.to_ability_name
+    model_name.singular
+  end
+
+  def to_ability_name
+    self.class.to_ability_name
+  end
 end

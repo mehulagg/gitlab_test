@@ -76,6 +76,7 @@ class SearchService
   end
 
   def visible_result?(object)
+    # check this
     return true unless object.respond_to?(:to_ability_name) && DeclarativePolicy.has_policy?(object)
 
     Ability.allowed?(current_user, :"read_#{object.to_ability_name}", object)

@@ -181,10 +181,6 @@ module Timebox
     group || project
   end
 
-  def to_ability_name
-    model_name.singular
-  end
-
   def merge_requests_enabled?
     if group_timebox?
       # Assume that groups have at least one project with merge requests enabled.

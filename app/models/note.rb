@@ -398,10 +398,6 @@ class Note < ApplicationRecord
     note =~ /\A#{Banzai::Filter::EmojiFilter.emoji_pattern}\s?\Z/
   end
 
-  def to_ability_name
-    model_name.singular
-  end
-
   def noteable_ability_name
     if for_snippet?
       'snippet'
