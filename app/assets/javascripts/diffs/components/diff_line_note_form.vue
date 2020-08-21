@@ -95,9 +95,11 @@ export default {
         return acc;
       };
       const side = this.line.type === 'new' ? 'right' : 'left';
-      const lines = this.diffFile.highlighted_diff_lines.length
+      const lines = this.diffFile.highlighted_diff_lines?.length
         ? this.diffFile.highlighted_diff_lines
-        : this.diffFile.parallel_diff_lines.reduce(combineSides, []);
+        : this.diffFile[
+            window.gon.features.unifiedDiffLines ? 'lines' : 'parallel_diff_lines'
+          ].reduce(combineSides, []);
       return commentLineOptions(lines, this.line, this.line.line_code, side);
     },
   },

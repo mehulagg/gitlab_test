@@ -104,12 +104,14 @@ export default {
 
     if (!diffFile) return;
 
-    if (diffFile.highlighted_diff_lines.length) {
+    if (diffFile.highlighted_diff_lines?.length) {
       diffFile.highlighted_diff_lines.find(l => l.line_code === lineCode).hasForm = hasForm;
     }
 
-    if (diffFile.parallel_diff_lines.length) {
-      const line = diffFile.parallel_diff_lines.find(l => {
+    const parallelLines =
+      diffFile[window.gon.features.unifiedDiffLines ? 'lines' : 'parallel_diff_lines'];
+    if (parallelLines.length) {
+      const line = parallelLines.find(l => {
         const { left, right } = l;
 
         return (left && left.line_code === lineCode) || (right && right.line_code === lineCode);
@@ -180,91 +182,126 @@ export default {
   },
 
   [types.SET_LINE_DISCUSSIONS_FOR_FILE](state, { discussion, diffPositionByLineCode, hash }) {
-    const { latestDiff } = state;
+    if (window.gon?.features?.unifiedDiffLines) {
+      const fileHash = discussion.diff_file.file_hash;
+      const lineCodes = discussion.line_codes;
+      const lineIndexes = lineCodes.map(lineCode => [
+        lineCode,
+        parseInt(lineCode.split('_').pop(), 10) - 1,
+      ]);
+      const file = state.diffFiles.find(f => f.file_hash === fileHash);
 
-    const discussionLineCodes = [discussion.line_code, ...(discussion.line_codes || [])];
-    const fileHash = discussion.diff_file.file_hash;
-    const lineCheck = line =>
-      discussionLineCodes.some(
-        discussionLineCode =>
-          line.line_code === discussionLineCode &&
-          isDiscussionApplicableToLine({
-            discussion,
-            diffPosition: diffPositionByLineCode[line.line_code],
-            latestDiff,
-          }),
-      );
-    const mapDiscussions = (line, extraCheck = () => true) => ({
-      ...line,
-      discussions: extraCheck()
-        ? line.discussions &&
-          line.discussions
-            .filter(() => !line.discussions.some(({ id }) => discussion.id === id))
-            .concat(lineCheck(line) ? discussion : line.discussions)
-        : [],
-    });
+      Object.assign(file, {
+        lines: file.lines.map((l, i) => {
+          const discussionLineCode = lineIndexes.find(([, lineIndex]) => lineIndex === i);
 
-    const setDiscussionsExpanded = line => {
-      const isLineNoteTargeted =
-        line.discussions &&
-        line.discussions.some(
-          disc => disc.notes && disc.notes.find(note => hash === `note_${note.id}`),
-        );
-
-      return {
-        ...line,
-        discussionsExpanded:
-          line.discussions && line.discussions.length
-            ? line.discussions.some(disc => !disc.resolved) || isLineNoteTargeted
-            : false,
-      };
-    };
-
-    state.diffFiles.forEach(file => {
-      if (file.file_hash === fileHash) {
-        if (file.highlighted_diff_lines.length) {
-          file.highlighted_diff_lines.forEach(line => {
-            Object.assign(
-              line,
-              setDiscussionsExpanded(lineCheck(line) ? mapDiscussions(line) : line),
-            );
-          });
-        }
-
-        if (file.parallel_diff_lines.length) {
-          file.parallel_diff_lines.forEach(line => {
-            const left = line.left && lineCheck(line.left);
-            const right = line.right && lineCheck(line.right);
-
-            if (left || right) {
-              Object.assign(line, {
-                left: line.left ? setDiscussionsExpanded(mapDiscussions(line.left)) : null,
-                right: line.right
-                  ? setDiscussionsExpanded(mapDiscussions(line.right, () => !left))
-                  : null,
-              });
+          if (discussionLineCode) {
+            const [lineCode] = discussionLineCode;
+            // TODO: Do some extra checks to see if discussion is applicable
+            if (lineCode === l.left.line_code) {
+              return {
+                ...l,
+                left: { ...l.left, discussions: l.left.discussions.concat(discussion) },
+              };
+            } else if (lineCode === l.right.line_code) {
+              return {
+                ...l,
+                right: { ...l.right, discussions: l.right.discussions.concat(discussion) },
+              };
             }
+          }
 
-            return line;
-          });
+          return l;
+        }),
+      });
+    } else {
+      const { latestDiff } = state;
+
+      const discussionLineCodes = [discussion.line_code, ...(discussion.line_codes || [])];
+      const fileHash = discussion.diff_file.file_hash;
+      const lineCheck = line =>
+        discussionLineCodes.some(
+          discussionLineCode =>
+            line.line_code === discussionLineCode &&
+            isDiscussionApplicableToLine({
+              discussion,
+              diffPosition: diffPositionByLineCode[line.line_code],
+              latestDiff,
+            }),
+        );
+      const mapDiscussions = (line, extraCheck = () => true) => ({
+        ...line,
+        discussions: extraCheck()
+          ? line.discussions &&
+            line.discussions
+              .filter(() => !line.discussions.some(({ id }) => discussion.id === id))
+              .concat(lineCheck(line) ? discussion : line.discussions)
+          : [],
+      });
+
+      const setDiscussionsExpanded = line => {
+        const isLineNoteTargeted =
+          line.discussions &&
+          line.discussions.some(
+            disc => disc.notes && disc.notes.find(note => hash === `note_${note.id}`),
+          );
+
+        return {
+          ...line,
+          discussionsExpanded:
+            line.discussions && line.discussions.length
+              ? line.discussions.some(disc => !disc.resolved) || isLineNoteTargeted
+              : false,
+        };
+      };
+
+      state.diffFiles.forEach(file => {
+        if (file.file_hash === fileHash) {
+          if (file.highlighted_diff_lines.length) {
+            file.highlighted_diff_lines.forEach(line => {
+              Object.assign(
+                line,
+                setDiscussionsExpanded(lineCheck(line) ? mapDiscussions(line) : line),
+              );
+            });
+          }
+
+          if (file.parallel_diff_lines.length) {
+            file.parallel_diff_lines.forEach(line => {
+              const left = line.left && lineCheck(line.left);
+              const right = line.right && lineCheck(line.right);
+
+              if (left || right) {
+                Object.assign(line, {
+                  left: line.left ? setDiscussionsExpanded(mapDiscussions(line.left)) : null,
+                  right: line.right
+                    ? setDiscussionsExpanded(mapDiscussions(line.right, () => !left))
+                    : null,
+                });
+              }
+
+              return line;
+            });
+          }
+
+          if (!file.parallel_diff_lines || !file.highlighted_diff_lines) {
+            const newDiscussions = (file.discussions || [])
+              .filter(d => d.id !== discussion.id)
+              .concat(discussion);
+
+            Object.assign(file, {
+              discussions: newDiscussions,
+            });
+          }
         }
-
-        if (!file.parallel_diff_lines || !file.highlighted_diff_lines) {
-          const newDiscussions = (file.discussions || [])
-            .filter(d => d.id !== discussion.id)
-            .concat(discussion);
-
-          Object.assign(file, {
-            discussions: newDiscussions,
-          });
-        }
-      }
-    });
+      });
+    }
   },
 
   [types.REMOVE_LINE_DISCUSSIONS_FOR_FILE](state, { fileHash, lineCode }) {
     const selectedFile = state.diffFiles.find(f => f.file_hash === fileHash);
-    if (selectedFile) {
+    if (window.gon.features.unifiedDiffLines && selectedFile) {
+    } else if (selectedFile) {
       updateLineInFile(selectedFile, lineCode, line =>
         Object.assign(line, {
           discussions: line.discussions.filter(discussion => discussion.notes.length),

@@ -186,7 +186,7 @@ export default {
       }
     },
     diffViewType() {
-      if (this.needsReload() || this.needsFirstLoad()) {
+      if (window.gon?.features?.unifiedDiffFiles && (this.needsReload() || this.needsFirstLoad())) {
         this.refetchDiffData();
       }
       this.adjustView();
@@ -314,7 +314,7 @@ export default {
             // Just watching the length of the discussions or the diff files
             // isn't enough, because with split diff loading, neither will
             // change when loading the other half of the diff files.
-            this.setDiscussions();
+            // this.setDiscussions();
           })
           .then(() => this.startDiffRendering())
           .catch(() => {

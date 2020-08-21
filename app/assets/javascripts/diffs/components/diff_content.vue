@@ -114,13 +114,13 @@ export default {
         <inline-diff-view
           v-if="isInlineView"
           :diff-file="diffFile"
-          :diff-lines="diffFile.highlighted_diff_lines || []"
+          :diff-lines="diffFile.lines || diffFile.highlighted_diff_lines || []"
           :help-page-path="helpPagePath"
         />
         <parallel-diff-view
           v-else-if="isParallelView"
           :diff-file="diffFile"
-          :diff-lines="diffFile.parallel_diff_lines || []"
+          :diff-lines="diffFile.lines || diffFile.parallel_diff_lines || []"
           :help-page-path="helpPagePath"
         />
         <gl-loading-icon v-if="diffFile.renderingLines" size="md" class="mt-3" />

@@ -61,7 +61,7 @@ module Gitlab
         # issues with submodules given the line only exists in diff content.
         if rich_line
           line_prefix = diff_line.text =~ /\A(.)/ ? $1 : ' '
-          "#{line_prefix}#{rich_line}".html_safe
+          "#{rich_line}".html_safe
         end
       end
 

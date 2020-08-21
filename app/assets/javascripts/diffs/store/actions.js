@@ -114,7 +114,7 @@ export const fetchDiffFilesBatch = ({ commit, state, dispatch }) => {
   };
 
   if (state.useSingleDiffStyle) {
-    urlParams.view = state.diffViewType;
+    urlParams.view = 'inline';
   }
 
   commit(types.SET_BATCH_LOADING, true);
@@ -240,10 +240,9 @@ export const assignDiscussionsToDiff = (
 ) => {
   const id = window?.location?.hash;
   const isNoteLink = id.indexOf('#note') === 0;
-  const diffPositionByLineCode = getDiffPositionByLineCode(
-    state.diffFiles,
-    state.useSingleDiffStyle,
-  );
+  const diffPositionByLineCode = window.gon.features.unifiedDiffLines
+    ? null
+    : getDiffPositionByLineCode(state.diffFiles, state.useSingleDiffStyle);
   const hash = getLocationHash();
 
   discussions
