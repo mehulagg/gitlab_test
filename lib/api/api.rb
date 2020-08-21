@@ -140,6 +140,7 @@ module API
       mount ::API::Boards
       mount ::API::Branches
       mount ::API::BroadcastMessages
+      mount ::API::BulkExport
       mount ::API::Ci::Pipelines
       mount ::API::Ci::PipelineSchedules
       mount ::API::Ci::Runner
@@ -159,7 +160,6 @@ module API
       mount ::API::GroupBoards
       mount ::API::GroupClusters
       mount ::API::GroupExport
-      mount ::API::BulkGroupExport
       mount ::API::GroupImport
       mount ::API::GroupLabels
       mount ::API::GroupMilestones
