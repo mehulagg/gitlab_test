@@ -9,8 +9,8 @@ import dastSiteProfilesDelete from '../graphql/dast_site_profiles_delete.mutatio
 import dastScannerProfilesDelete from '../graphql/dast_scanner_profiles_delete.mutation.graphql';
 import * as cacheUtils from '../graphql/cache_utils';
 
-const configs = [
-  {
+const configs = {
+  siteProfiles: {
     profileType: 'siteProfiles',
     query: dastSiteProfilesQuery,
     deleteMutation: dastSiteProfilesDelete,
@@ -29,7 +29,7 @@ const configs = [
       },
     },
   },
-  {
+  scannerProfiles: {
     profileType: 'scannerProfiles',
     query: dastScannerProfilesQuery,
     deleteMutation: dastScannerProfilesDelete,
@@ -48,7 +48,7 @@ const configs = [
       },
     },
   },
-];
+};
 
 export default {
   configs,
@@ -70,21 +70,30 @@ export default {
   },
   data() {
     return {
-      scannerProfiles: {},
-      siteProfiles: {},
+      profileTypes: {},
       errorMessage: '',
       errorDetails: [],
     };
   },
   created() {
+    this.enabledProfileTypes = this.getEnabledProfileTypes();
+    this.makeEnabledProfileTypeResultsReactive();
     this.addSmartQueriesForEnabledProfileTypes();
   },
   methods: {
-    getEnabledProfileConfigs() {
-      return this.$options.configs.filter(({ isEnabled }) => isEnabled());
+    getEnabledProfileTypes() {
+      return Object.values(this.$options.configs).filter(({ isEnabled }) => isEnabled());
+    },
+    makeEnabledProfileTypeResultsReactive() {
+      this.enabledProfileTypes.forEach(({ profileType }) => {
+        this.$set(this.profileTypes, profileType, {
+          profiles: [],
+          pageInfo: {},
+        });
+      });
     },
     addSmartQueriesForEnabledProfileTypes() {
-      this.getEnabledProfileConfigs().forEach(({ profileType, query }) => {
+      this.enabledProfileTypes.forEach(({ profileType, query }) => {
         this.$apollo.addSmartQuery(
           profileType,
           this.createQuery({
@@ -99,10 +108,10 @@ export default {
       });
     },
     getProfiles(profileType) {
-      return this[profileType].profiles || [];
+      return this.profileTypes[profileType]?.profiles || [];
     },
     hasMoreProfiles(profileType) {
-      return this[profileType].pageInfo?.hasNextPage;
+      return this.profileTypes[profileType]?.pageInfo?.hasNextPage;
     },
     isLoadingProfiles(profileType) {
       return this.$apollo.queries[profileType].loading;
@@ -111,15 +120,19 @@ export default {
       return {
         query,
         variables,
-        update({ project }) {
-          const profileEdges = project?.[profileType]?.edges ?? [];
-          const profiles = profileEdges.map(({ node }) => node);
-          const pageInfo = project?.[profileType].pageInfo;
+        manual: true,
+        result({ data, error }) {
+          if (!error) {
+            const { project } = data;
+            const profileEdges = project?.[profileType]?.edges ?? [];
+            const profiles = profileEdges.map(({ node }) => node);
+            const pageInfo = project?.[profileType].pageInfo;
 
-          return {
-            profiles,
-            pageInfo,
-          };
+            this.profileTypes[profileType] = {
+              profiles,
+              pageInfo,
+            };
+          }
         },
         error(error) {
           this.handleError({
@@ -143,7 +156,7 @@ export default {
         $apollo,
         $options: { i18n },
       } = this;
-      const { pageInfo } = this[profileType];
+      const { pageInfo } = this.profileTypes[profileType];
 
       this.resetErrors();
 
@@ -167,10 +180,7 @@ export default {
           },
         },
       } = this;
-
-      const { deleteMutation } = $options.configs.find(
-        config => config.profileType === profileType,
-      );
+      const { deleteMutation } = $options.configs[profileType];
 
       this.resetErrors();
 
@@ -252,12 +262,9 @@ export default {
     </header>
 
     <gl-tabs>
-      <gl-tab
-        v-for="{ profileType, i18n, fields } in getEnabledProfileConfigs()"
-        :key="profileType"
-      >
+      <gl-tab v-for="(data, profileType) in profileTypes" :key="profileType">
         <template #title>
-          <span>{{ i18n.title }}</span>
+          <span>{{ $options.configs[profileType].i18n.title }}</span>
         </template>
 
         <profiles-list
@@ -266,8 +273,8 @@ export default {
           :has-more-profiles-to-load="hasMoreProfiles(profileType)"
           :is-loading="isLoadingProfiles(profileType)"
           :profiles-per-page="$options.profilesPerPage"
-          :profiles="getProfiles(profileType)"
-          :fields="fields"
+          :profiles="data.profiles"
+          :fields="$options.configs[profileType].fields"
           @loadMoreProfiles="fetchMoreProfiles(profileType)"
           @deleteProfile="deleteProfile(profileType, $event)"
         />
