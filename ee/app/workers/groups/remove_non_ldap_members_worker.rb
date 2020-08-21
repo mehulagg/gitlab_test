@@ -25,9 +25,12 @@ module Groups
       Member.from_union([
                           ProjectMember
                             .joins(project: :group)
-                            .where(namespaces: { id: group.self_and_descendants.select(:id) }),
-                          group.members_with_descendants
-      ]).where(user_id: non_ldap_user_ids).find_each do |member|
+                            .where(namespaces: { id: group.self_and_descendants.select(:id) },
+                                   user_id: non_ldap_user_ids),
+                          group
+                            .members_with_descendants
+                            .where(user_id: non_ldap_user_ids)
+                        ]).find_each do |member|
         next if owner_ids.include? member.user_id
 
         Members::DestroyService.new(owner).execute(member)
