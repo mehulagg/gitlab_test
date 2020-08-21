@@ -47,15 +47,13 @@ const addNewVersionToStore = (store, query, version) => {
   });
 };
 
-export const addTodoToStore = (store, todo, query, queryVariables) => {
+export const addPendingTodoToStore = (store, pendingTodo, query, queryVariables) => {
   const data = store.readQuery({
     query,
     variables: queryVariables,
   });
 
   const design = extractDesign(data);
-  const pendingTodos = [...design.pendingTodos, todo];
-
   store.writeQuery({
     query,
     variables: queryVariables,
@@ -63,7 +61,7 @@ export const addTodoToStore = (store, todo, query, queryVariables) => {
       ...data,
       design: {
         ...design,
-        pendingTodos,
+        pendingTodo,
       },
     },
   });

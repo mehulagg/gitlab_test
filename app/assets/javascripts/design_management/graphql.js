@@ -7,7 +7,7 @@ import createDefaultClient from '~/lib/graphql';
 import activeDiscussionQuery from './graphql/queries/active_discussion.query.graphql';
 import getDesignQuery from './graphql/queries/get_design.query.graphql';
 import typeDefs from './graphql/typedefs.graphql';
-import { addTodoToStore } from './utils/cache_update';
+import { addPendingTodoToStore } from './utils/cache_update';
 
 Vue.use(VueApollo);
 
@@ -39,7 +39,7 @@ const resolvers = {
         })
         .then(data => {
           const todo = data; // TODO check if this is correct (probably isnt)
-          addTodoToStore(cache, todo, getDesignQuery, {
+          addPendingTodoToStore(cache, todo, getDesignQuery, {
             fullPath: projectPath,
             iid: issuable_id,
             filenames: [targetDesignId], // TODO this might not be correct
