@@ -13,6 +13,10 @@ module Types
       GitlabSchema.id_from_object(object)
     end
 
+    def self.authorized?(object, context)
+      Array.wrap(authorize).all? { |ability| Ability.allowed?(context[:current_user], ability, object) }
+    end
+
     def current_user
       context[:current_user]
     end

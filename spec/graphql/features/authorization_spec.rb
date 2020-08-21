@@ -22,6 +22,7 @@ RSpec.describe 'Gitlab::Graphql::Authorization' do
     end
 
     it 'returns nil when user is not authorized' do
+      ap result
       expect(subject).to be_nil
     end
   end
@@ -238,7 +239,7 @@ RSpec.describe 'Gitlab::Graphql::Authorization' do
       end
     end
 
-    subject { result['item'].first }
+    subject { result['item']&.first }
 
     include_examples 'authorization with a single permission'
   end

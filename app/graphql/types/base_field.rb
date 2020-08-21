@@ -110,5 +110,9 @@ module Types
       multiplier  = self.resolver&.try(:complexity_multiplier, args).to_f
       limit_value * multiplier
     end
+
+    def authorized?(object, args, context)
+      Array.wrap(authorize).all? { |ability| Ability.allowed?(context[:current_user], ability, object) }
+    end
   end
 end
