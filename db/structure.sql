@@ -9706,6 +9706,25 @@ CREATE SEQUENCE public.broadcast_messages_id_seq
 
 ALTER SEQUENCE public.broadcast_messages_id_seq OWNED BY public.broadcast_messages.id;
 
+CREATE TABLE public.bulk_imports (
+    id bigint NOT NULL,
+    group_id bigint,
+    user_id bigint,
+    source_host text NOT NULL,
+    private_token text NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+CREATE SEQUENCE public.bulk_imports_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.bulk_imports_id_seq OWNED BY public.bulk_imports.id;
+
 CREATE TABLE public.chat_names (
     id integer NOT NULL,
     user_id integer NOT NULL,
@@ -16794,6 +16813,8 @@ ALTER TABLE ONLY public.boards ALTER COLUMN id SET DEFAULT nextval('public.board
 
 ALTER TABLE ONLY public.broadcast_messages ALTER COLUMN id SET DEFAULT nextval('public.broadcast_messages_id_seq'::regclass);
 
+ALTER TABLE ONLY public.bulk_imports ALTER COLUMN id SET DEFAULT nextval('public.bulk_imports_id_seq'::regclass);
+
 ALTER TABLE ONLY public.chat_names ALTER COLUMN id SET DEFAULT nextval('public.chat_names_id_seq'::regclass);
 
 ALTER TABLE ONLY public.chat_teams ALTER COLUMN id SET DEFAULT nextval('public.chat_teams_id_seq'::regclass);
@@ -17720,6 +17741,9 @@ ALTER TABLE ONLY public.boards
 
 ALTER TABLE ONLY public.broadcast_messages
     ADD CONSTRAINT broadcast_messages_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.bulk_imports
+    ADD CONSTRAINT bulk_imports_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY public.chat_names
     ADD CONSTRAINT chat_names_pkey PRIMARY KEY (id);
@@ -19156,6 +19180,10 @@ CREATE INDEX index_boards_on_milestone_id ON public.boards USING btree (mileston
 CREATE INDEX index_boards_on_project_id ON public.boards USING btree (project_id);
 
 CREATE INDEX index_broadcast_message_on_ends_at_and_broadcast_type_and_id ON public.broadcast_messages USING btree (ends_at, broadcast_type, id);
+
+CREATE INDEX index_bulk_imports_on_group_id ON public.bulk_imports USING btree (group_id);
+
+CREATE INDEX index_bulk_imports_on_user_id ON public.bulk_imports USING btree (user_id);
 
 CREATE UNIQUE INDEX index_chat_names_on_service_id_and_team_id_and_chat_id ON public.chat_names USING btree (service_id, team_id, chat_id);
 

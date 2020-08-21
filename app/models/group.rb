@@ -59,6 +59,7 @@ class Group < Namespace
   has_many :todos
 
   has_one :import_export_upload
+  has_one :bulk_import
 
   has_many :import_failures, inverse_of: :group
 

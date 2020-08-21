@@ -6,16 +6,15 @@
 
 module ImportExport
   class BulkImportService
-    attr_reader :group_id, :user, :client, :destination_group_params
+    attr_reader :group_id, :user, :host, :access_token, :destination_group_params
 
     def initialize(group_id:, user:, host:, access_token:, destination_group_params:)
       @group_id = group_id
       @user = user
+      @host = host
+      @access_token = access_token
 
       @destination_group_params = destination_group_params
-
-      # TODO: is this the best way to authenticate?
-      @client = GitlabClient.new(host: host, access_token: access_token)
     end
 
     def execute
@@ -23,11 +22,20 @@ module ImportExport
       group = ::Groups::CreateService.new(user, params).execute
 
       if group.persisted?
-        client.start_export(source_group_id: group_id, destination_group_id: group.full_path).success?
+        group.create_bulk_import!(source_host: host, user: user, private_token: access_token)
+
+        client.start_export(
+          source_group_id: group_id,
+          destination_group_id: group.full_path
+        ).success?
       end
     end
 
     private
+
+    def client
+      @client ||= GitlabClient.new(host: host, access_token: access_token)
+    end
 
     def params
       {
