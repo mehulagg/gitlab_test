@@ -12,7 +12,6 @@ variables:
 
 
 .fuzz_base:
-  stage: fuzz
   allow_failure: true
   before_script:
     - export COVFUZZ_JOB_TOKEN=$CI_JOB_TOKEN
