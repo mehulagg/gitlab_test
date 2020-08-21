@@ -59,7 +59,7 @@ module Banzai
         doc.xpath(TEXT_QUERY).each do |node|
           content = node.to_html
 
-          next unless content.match(LINK_PATTERN)
+          next unless LINK_PATTERN.match?(content)
 
           html = autolink_filter(content)
 

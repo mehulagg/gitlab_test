@@ -30,7 +30,7 @@ module Banzai
         doc.xpath('descendant-or-self::text()').each do |node|
           content = node.to_html
 
-          next unless content.match(FILTER_REGEXP)
+          next unless FILTER_REGEXP.match?(content)
 
           html = trailer_filter(content)
 

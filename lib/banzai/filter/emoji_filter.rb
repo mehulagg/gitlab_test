@@ -14,7 +14,7 @@ module Banzai
           content = node.to_html
           next if has_ancestor?(node, IGNORED_ANCESTOR_TAGS)
 
-          next unless content.include?(':') || node.text.match(emoji_unicode_pattern)
+          next unless content.include?(':') || emoji_unicode_pattern.match?(node.text)
 
           html = emoji_unicode_element_unicode_filter(content)
           html = emoji_name_element_unicode_filter(html)

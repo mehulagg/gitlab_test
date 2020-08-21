@@ -48,7 +48,7 @@ module Banzai
         doc.xpath(TEXT_QUERY).each do |node|
           content = node.to_html
 
-          next unless content.match(LINK_OR_IMAGE_PATTERN)
+          next unless LINK_OR_IMAGE_PATTERN.match?(content)
 
           html = spaced_link_filter(content)
 
