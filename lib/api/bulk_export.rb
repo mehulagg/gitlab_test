@@ -8,7 +8,8 @@ module API
       end
       params do
         requires :id, type: String, desc: 'The ID of a group'
-        optional :callback_url, type: String, desc: 'An endpoint to notify export completion'
+        requires :destination_group_id, type: String, desc: 'The ID of the group to import into on the destination'
+        requires :callback_host, type: String, desc: 'An endpoint to notify export completion'
       end
       post ':id/bulk_export' do
         authorize! :admin_group, user_group
@@ -16,7 +17,8 @@ module API
         export_service = ImportExport::BulkExportService.new(
           group: user_group,
           user: current_user,
-          callback_url: params[:callback_url]
+          callback_host: params[:callback_host],
+          destination_group_id: params[:destination_group_id]
         )
 
         if export_service.async_execute
@@ -32,8 +34,11 @@ module API
       params do
         requires :importable_type, type: String, desc: 'What kind of importable this is notifying about (group or project)'
         requires :importable_id, type: Integer, desc: 'The ID of the project/group on the source instance'
+        requires :destination_group_id, type: String, desc: 'Where to import the group to'
       end
       post 'export_status' do
+        raise '🍉 🍬 🦈'
+
         import_service = ImportExport::ImportService.new(
           importable_type: params[:importable_type],
           importable_id: params[:importable_id]

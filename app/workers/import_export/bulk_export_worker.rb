@@ -8,10 +8,15 @@ class ImportExport::BulkExportWorker # rubocop:disable Scalability/IdempotentWor
   loggable_arguments 2
   sidekiq_options retry: false
 
-  def perform(user_id, group_id, callback_url)
+  def perform(user_id, group_id, callback_host, destination_group_id)
     user = User.find(user_id)
     group = Group.find(group_id)
 
-    ::Groups::ImportExport::BulkExportService.new(group: group, user: user, callback_url: callback_url).execute
+    ::ImportExport::BulkExportService.new(
+      group: group,
+      user: user,
+      callback_host: callback_host,
+      destination_group_id: destination_group_id
+    ).execute
   end
 end

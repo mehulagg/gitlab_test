@@ -6,18 +6,48 @@
 
 module ImportExport
   class BulkImportService
-    attr_reader :group_id, :user, :client
+    attr_reader :group_id, :user, :client, :destination_group_params
 
-    def initialize(group_id:, user:, host:, access_token:)
+    def initialize(group_id:, user:, host:, access_token:, destination_group_params:)
       @group_id = group_id
       @user = user
+
+      @destination_group_params = destination_group_params
 
       # TODO: is this the best way to authenticate?
       @client = GitlabClient.new(host: host, access_token: access_token)
     end
 
     def execute
-      client.start_export(group_id: group_id).success?
+      # TODO: validate that the URL is okay first?
+      group = ::Groups::CreateService.new(user, params).execute
+
+      if group.persisted?
+        client.start_export(source_group_id: group_id, destination_group_id: group.full_path).success?
+      end
+    end
+
+    private
+
+    def params
+      {
+        path: destination_group_params[:path],
+        name: destination_group_params[:name],
+        parent_id: destination_group_params[:parent_id],
+        visibility_level: closest_allowed_visibility_level
+      }
+    end
+
+    def closest_allowed_visibility_level
+      if parent_group
+        Gitlab::VisibilityLevel.closest_allowed_level(parent_group.visibility_level)
+      else
+        Gitlab::VisibilityLevel::PRIVATE
+      end
+    end
+
+    def parent_group
+      find_group!(destination_group_params[:parent_id]) if destination_group_params[:parent_id].present?
     end
   end
 end
