@@ -408,6 +408,25 @@ module EE
       minimal_access_role_allowed? ? ::Gitlab::Access::MINIMAL_ACCESS : ::Gitlab::Access::GUEST
     end
 
+    # Returns all members (including ProjectMember) of the group:
+    # 1. They belong to the group
+    # 2. They belong to a project that belongs to the group
+    # 3. They belong to a sub-group or project in such sub-group
+    def non_ldap_members_with_descendants
+      non_ldap_user_ids = direct_and_indirect_users.non_ldap.pluck(:id)
+
+      return ::Member.none if non_ldap_user_ids.empty?
+
+      ::Member.from_union([
+        ::ProjectMember
+          .joins(project: :group)
+          .where(namespaces: { id: self_and_descendants.select(:id) },
+                 user_id: non_ldap_user_ids),
+        members_with_descendants
+          .where(user_id: non_ldap_user_ids)
+      ])
+    end
+
     private
 
     def custom_project_templates_group_allowed

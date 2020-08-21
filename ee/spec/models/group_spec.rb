@@ -1112,4 +1112,59 @@ RSpec.describe Group do
 
     it { is_expected.to match([user.email]) }
   end
+
+  describe '#non_ldap_members_with_descendants' do
+    include LdapHelpers
+
+    let_it_be(:user) { create(:user) }
+    let_it_be(:group) { create(:group) }
+    let_it_be(:ldap_user) { create(:omniauth_user, provider: "ldapmain") }
+
+    before do
+      stub_ldap_setting(enabled: true)
+    end
+
+    subject { group.non_ldap_members_with_descendants }
+
+    context 'group member' do
+      let_it_be(:ldap_group_member) { create(:group_member, :developer, :ldap, group: group, user: ldap_user) }
+      let_it_be(:group_member) { create(:group_member, group: group) }
+
+      it { is_expected.to include(group_member) }
+      it { is_expected.not_to include(ldap_group_member) }
+    end
+
+    context 'project member' do
+      let_it_be(:project) { create(:project, namespace: group) }
+      let_it_be(:ldap_project_member) { create(:project_member, :developer, project: project, user: ldap_user) }
+      let_it_be(:project_member) { create(:project_member, :developer, project: project) }
+
+      it { is_expected.to include(project_member) }
+      it { is_expected.not_to include(ldap_project_member) }
+    end
+
+    context 'subgroup member' do
+      let_it_be(:subgroup) { create(:group, parent: group) }
+      let_it_be(:ldap_subgroup_member) { create(:group_member, :developer, :ldap, group: subgroup, user: ldap_user) }
+      let_it_be(:subgroup_member) { create(:group_member, group: subgroup) }
+
+      it { is_expected.to include(subgroup_member) }
+      it { is_expected.not_to include(ldap_subgroup_member) }
+
+      context 'project member' do
+        let_it_be(:project) { create(:project, namespace: subgroup) }
+        let_it_be(:ldap_project_subgroup_member) { create(:project_member, :developer, project: project, user: ldap_user) }
+        let_it_be(:project_subgroup_member) { create(:project_member, :developer, project: project) }
+
+        it { is_expected.to include(project_subgroup_member) }
+        it { is_expected.not_to include(ldap_project_subgroup_member) }
+      end
+    end
+
+    context 'all members are part of ldap' do
+      it { is_expected.not_to be_nil }
+      it { is_expected.to respond_to :find_each }
+      it { is_expected.to eq ::Member.none }
+    end
+  end
 end

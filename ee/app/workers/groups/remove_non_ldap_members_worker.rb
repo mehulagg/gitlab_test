@@ -18,19 +18,7 @@ module Groups
 
       owner_ids = group.owners.pluck_primary_key
 
-      non_ldap_user_ids = group.direct_and_indirect_users.non_ldap.pluck(:id)
-
-      return if non_ldap_user_ids.empty?
-
-      Member.from_union([
-                          ProjectMember
-                            .joins(project: :group)
-                            .where(namespaces: { id: group.self_and_descendants.select(:id) },
-                                   user_id: non_ldap_user_ids),
-                          group
-                            .members_with_descendants
-                            .where(user_id: non_ldap_user_ids)
-                        ]).find_each do |member|
+      group.non_ldap_members_with_descendants.find_each do |member|
         next if owner_ids.include? member.user_id
 
         Members::DestroyService.new(owner).execute(member)
