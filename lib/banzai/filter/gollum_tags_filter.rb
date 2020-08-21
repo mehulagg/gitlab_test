@@ -62,7 +62,7 @@ module Banzai
       def call
         doc.search(".//text()").each do |node|
           next if has_ancestor?(node, IGNORED_ANCESTOR_TAGS)
-          next unless TAGS_PATTERN.match?(node.content)
+          next unless TAGS_PATTERN.match(node.content)
 
           html = process_tag($1)
 
