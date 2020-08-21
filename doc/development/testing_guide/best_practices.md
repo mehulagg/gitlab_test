@@ -175,6 +175,9 @@ In this case, the `total time` and `top-level time` numbers match more closely:
        8           8        0.0477s            0.0477s             0.0477s          namespace
 ```
 
+Use this with caution - it involves some spooky action-at-a-distance. But it
+can radically cut down on factory calls.
+
 #### Identify slow tests
 
 Running a spec with profiling is a good way to start optimizing a spec. This can
