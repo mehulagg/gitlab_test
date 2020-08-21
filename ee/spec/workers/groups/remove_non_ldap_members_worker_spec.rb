@@ -69,15 +69,20 @@ RSpec.describe Groups::RemoveNonLdapMembersWorker, type: :worker do
 
                 it 'removes the project member' do
                   expect do
-                    binding.pry
                     subject.perform(group.id, user.id)
-                    binding.pry
-                  end.to change(project_member.reload, :persisted?)
+                  end.to change { Member.exists?(project_member.id) }.from(true).to(false)
                 end
               end
 
               context 'inderect user via subgroup' do
-                let_it_be(:subproject) 
+                let_it_be(:subgroup) { create(:group, parent: group) }
+                let_it_be(:subgroup_member) { create(:group_member, group: subgroup) }
+
+                it 'removes the subgroup member' do
+                  expect do
+                    subject.perform(group.id, user.id)
+                  end.to change { Member.exists?(subgroup_member.id) }.from(true).to(false)
+                end
               end
             end
           end
