@@ -57,6 +57,28 @@ const addNewVersionToStore = (store, query, version) => {
   });
 };
 
+export const addTodoToStore = (store, todo, query, queryVariables) => {
+  const data = store.readQuery({
+    query,
+    variables: queryVariables,
+  });
+
+  const design = extractDesign(data);
+  const pendingTodos = [...design.pendingTodos, todo];
+
+  store.writeQuery({
+    query,
+    variables: queryVariables,
+    data: {
+      ...data,
+      design: {
+        ...design,
+        pendingTodos,
+      },
+    },
+  });
+};
+
 const addDiscussionCommentToStore = (store, createNote, query, queryVariables, discussionId) => {
   const sourceData = store.readQuery({
     query,
