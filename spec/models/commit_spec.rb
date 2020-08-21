@@ -686,16 +686,16 @@ eos
       end
     end
 
-    it "detects WIP for a commit just saying 'wip'" do
+    it "does not detect WIP for a commit just saying 'wip'" do
       commit.message = "wip"
 
-      expect(commit).to be_work_in_progress
+      expect(commit).not_to be_work_in_progress
     end
 
-    it "detects WIP for a commit just saying 'draft'" do
+    it "does not detect WIP for a commit just saying 'draft'" do
       commit.message = "draft"
 
-      expect(commit).to be_work_in_progress
+      expect(commit).not_to be_work_in_progress
     end
 
     it "doesn't detect WIP for a commit that begins with 'FIXUP! '" do

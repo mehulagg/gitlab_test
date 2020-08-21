@@ -20,7 +20,7 @@ being merged, and it will stay disabled until the "Draft" flag has been removed.
 
 There are several ways to flag a merge request as a Draft:
 
-- Add `[Draft]`, `Draft:` or `(Draft)` to the start of the merge request's title. Clicking on
+- Add `[Draft]`, `Draft:`, `Draft -` or `(Draft)` to the start of the merge request's title. Clicking on
   **Start the title with Draft:**, under the title box, when editing the merge request's
   description will have the same effect.
 - **Deprecated** Add `[WIP]` or `WIP:` to the start of the merge request's title.
@@ -28,7 +28,7 @@ There are several ways to flag a merge request as a Draft:
 - Add the `/wip` [quick action](../quick_actions.md#quick-actions-for-issues-merge-requests-and-epics)
   in a comment in the merge request. This is a toggle, and can be repeated
   to change the status back. Note that any other text in the comment will be discarded.
-- Add `draft:` or `Draft:` to the start of a commit message targeting the merge request's
+- Add `[Draft]`, `Draft:`, `Draft -` or `(Draft)` to the start of a commit message targeting the merge request's
   source branch. This is not a toggle, and doing it again in another commit will have
   no effect.
 
@@ -37,7 +37,7 @@ There are several ways to flag a merge request as a Draft:
 Similar to above, when a Merge Request is ready to be merged, you can remove the
 `Draft` flag in several ways:
 
-- Remove `[Draft]`, `Draft:` or `(Draft)` from the start of the merge request's title. Clicking on
+- Remove `[Draft]`, `Draft:`, `Draft -` or `(Draft)` from the start of the merge request's title. Clicking on
   **Remove the Draft: prefix from the title**, under the title box, when editing the merge
   request's description, will have the same effect.
 - Add the `/wip` [quick action](../quick_actions.md#quick-actions-for-issues-merge-requests-and-epics)

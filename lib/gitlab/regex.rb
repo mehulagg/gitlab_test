@@ -279,11 +279,11 @@ module Gitlab
     end
 
     def merge_request_wip
-      /(?i)(\[WIP\]\s*|WIP:\s*|WIP$)/
+      /(?i)^\s*(\[WIP\]|WIP:)/
     end
 
     def merge_request_draft
-      /(?i)(\[draft\]|\(draft\)|draft:|draft\s\-\s|draft$)/
+      /(?i)^\s*(\[draft\]|\(draft\)|draft:|draft\s\-)/
     end
 
     def issue

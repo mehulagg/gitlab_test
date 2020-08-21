@@ -1110,8 +1110,9 @@ RSpec.describe MergeRequest do
     subject { build_stubbed(:merge_request) }
 
     [
-      'WIP:', 'WIP: ', '[WIP]', '[WIP] ', ' [WIP] WIP: [WIP] WIP:',
-      'draft:', 'Draft: ', '[Draft]', '[DRAFT] ', 'Draft - '
+      'WIP:', 'WIP: ', '[WIP]', '[WIP] ', '[WIP] WIP: [WIP] WIP:',
+      'draft:', 'Draft: ', '[Draft]', '[DRAFT] ', 'Draft - ', 'Draft -',
+      '(draft)', '(Draft) '
     ].each do |wip_prefix|
       it "detects the '#{wip_prefix}' prefix" do
         subject.title = "#{wip_prefix}#{subject.title}"
@@ -1120,16 +1121,16 @@ RSpec.describe MergeRequest do
       end
     end
 
-    it "detects merge request title just saying 'wip'" do
+    it "does not detect merge request title just saying 'wip'" do
       subject.title = "wip"
 
-      expect(subject.work_in_progress?).to eq true
+      expect(subject.work_in_progress?).to eq false
     end
 
-    it "detects merge request title just saying 'draft'" do
+    it "does not detect merge request title just saying 'draft'" do
       subject.title = "draft"
 
-      expect(subject.work_in_progress?).to eq true
+      expect(subject.work_in_progress?).to eq false
     end
 
     it 'does not detect WIP in the middle of the title' do
@@ -1140,6 +1141,12 @@ RSpec.describe MergeRequest do
 
     it 'does not detect Draft in the middle of the title' do
       subject.title = 'Something with Draft in the middle'
+
+      expect(subject.work_in_progress?).to eq false
+    end
+
+    it 'does not detect Draft at the end of the title' do
+      subject.title = 'Add important detail to project charter draft'
 
       expect(subject.work_in_progress?).to eq false
     end
@@ -1164,7 +1171,8 @@ RSpec.describe MergeRequest do
 
     [
       'WIP:', 'WIP: ', '[WIP]', '[WIP] ', '[WIP] WIP: [WIP] WIP:',
-      'draft:', 'Draft: ', '[Draft]', '[DRAFT] ', 'Draft - '
+      'draft:', 'Draft: ', '[Draft]', '[DRAFT] ', 'Draft - ', 'Draft -',
+      '(draft)', '(Draft) '
     ].each do |wip_prefix|
       it "removes the '#{wip_prefix}' prefix" do
         wipless_title = subject.title

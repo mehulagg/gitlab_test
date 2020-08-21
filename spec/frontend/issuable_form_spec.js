@@ -20,21 +20,21 @@ describe('IssuableForm', () => {
   describe('removeWip', () => {
     it.each`
       prefix
-      ${'wip '}
       ${'    wIP: '}
       ${'[WIp] '}
       ${'wIP:'}
       ${'   [WIp]'}
-      ${'drAft '}
       ${'draFT: '}
       ${'  [DRaft] '}
       ${'drAft:'}
       ${'[draFT]'}
+      ${'draft -'}
       ${' dRaFt - '}
       ${'dRaFt -      '}
       ${'(draft) '}
+      ${'(draft) '}
       ${' (DrafT)'}
-      ${'wip wip: [wip] draft draft - draft: [draft] (draft)'}
+      ${'wip: [wip] draft draft - draft: [draft] (draft)'}
     `('removes "$prefix" from the beginning of the title', ({ prefix }) => {
       instance.titleField.val(`${prefix}The Issuable's Title Value`);
 
