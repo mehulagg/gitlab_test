@@ -30,9 +30,9 @@ module Gitlab
 
       queries = [
         event_counts(date_from, :repository).having(action: :pushed),
-        event_counts(date_from, :issues).having(action: [:created, :closed], target_type: 'Issue'),
+        event_counts(date_from, :issues).having(action: %i[created closed], target_type: 'Issue'),
         event_counts(date_from, :wiki).having(action: %i[created updated], target_type: 'WikiPage::Meta'),
-        event_counts(date_from, :merge_requests).having(action: [:merged, :created, :closed], target_type: 'MergeRequest'),
+        event_counts(date_from, :merge_requests).having(action: %i[merged created closed], target_type: 'MergeRequest'),
         event_counts(date_from, :issues).having(action: %i[created updated], target_type: 'DesignManagement::Design'),
         event_counts(date_from, :merge_requests, 'notes.noteable_type')
           .joins(join_on_notes)
