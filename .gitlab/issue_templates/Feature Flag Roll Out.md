@@ -14,7 +14,7 @@ This feature uses the `:feature_name` feature flag!
 - Best individual to reach out to: NAME
 - PM: NAME
 
-## Stake Holders
+## Stakeholders
 
 <!-- 
 Are there any other stages or teams involved that need to be kept in the loop? 
@@ -30,7 +30,7 @@ Are there any other stages or teams involved that need to be kept in the loop?
 
 - [ ] Partial Rollout on GitLab.com with beta groups
 - [ ] Rollout on GitLab.com for a certain period (How long)
-- [ ] Percentage Rollougt on GitLab.com - XX%
+- [ ] Percentage Rollout on GitLab.com - XX%
 - [ ] Rollout Feature for everyone as soon as it's ready
 
 **Beta Groups/Projects:**
@@ -49,7 +49,7 @@ Are there any other stages or teams involved that need to be kept in the loop?
 
 ### What might happen if this goes wrong?
 
-<!-- Should the feature flag be turned off? Any MRs that need to be rolled back? Communication that needs to happen? -->
+<!-- Should the feature flag be turned off? Any MRs that need to be rolled back? Communication that needs to happen? What are some things you can think of that could go wrong - data loss or broken pages? -->
 
 ### What can we monitor to detect problems with this?
 
@@ -57,21 +57,21 @@ Are there any other stages or teams involved that need to be kept in the loop?
 
 ## Roll Out Steps
 
-<!-- Please check which steps are needed and remove unneeded-->
+<!-- Please check which steps are needed and remove those which don't apply -->
 
 **Initial Rollout**
 
 - [ ] Enable on staging
 - [ ] Test on staging
-- [ ] Ensure that documentation has been updated
+- [ ] Ensure that documentation has been updated ([More info](https://docs.gitlab.com/ee/development/documentation/feature_flags.html#features-that-became-enabled-by-default))
 - [ ] Enable on GitLab.com for individual groups/projects listed above and verify behaviour (See Beta Groups)
 
 
 **General Availability**
 <!-- The next two are probably only needed for high visibility and/or critical rollouts -->
 
-- [ ] Coordinate a time to enable the flag with `#production` and `#g_delivery` on slack. <!-- Remove if not relevant -->
-- [ ] Announce on the issue an estimated time this will be enabled on GitLab.com <!-- Remove if not relevant -->
+- [ ] Coordinate a time to enable the flag with `#production` and `#g_delivery` on slack.
+- [ ] Announce on the issue an estimated time this will be enabled on GitLab.com
 - [ ] Enable on GitLab.com by running chatops command in `#production`
 - [ ] Cross post chatops slack command to `#support_gitlab-com` ([more guidance when this is necessary in the dev docs](https://docs.gitlab.com/ee/development/feature_flags/controls.html#where-to-run-commands)) and in your team channel
 
