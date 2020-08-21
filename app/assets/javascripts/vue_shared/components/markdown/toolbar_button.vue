@@ -47,6 +47,16 @@ export default {
       required: false,
       default: 0,
     },
+    shortcuts: {
+      type: [String, Array],
+      required: false,
+      default: () => [],
+    },
+  },
+  computed: {
+    shortcutsString() {
+      return JSON.stringify(Array.isArray(this.shortcuts) ? this.shortcuts : [this.shortcuts]);
+    },
   },
 };
 </script>
@@ -60,6 +70,7 @@ export default {
     :data-md-block="tagBlock"
     :data-md-tag-content="tagContent"
     :data-md-prepend="prepend"
+    :data-md-shortcuts="shortcutsString"
     :title="buttonTitle"
     :aria-label="buttonTitle"
     type="button"

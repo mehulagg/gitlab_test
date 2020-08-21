@@ -1,5 +1,7 @@
 /* eslint-disable func-names, no-param-reassign, operator-assignment, consistent-return */
 import $ from 'jquery';
+import Mousetrap from 'mousetrap';
+import { flatten } from 'lodash';
 import { insertText } from '~/lib/utils/common_utils';
 
 const LINK_TAG_PATTERN = '[{text}](url)';
@@ -303,23 +305,61 @@ function updateText({ textArea, tag, cursorOffset, blockTag, wrap, select, tagCo
   });
 }
 
-export function addMarkdownListeners(form) {
-  return $('.js-md', form)
+export function addMarkdownListeners($form) {
+  const updateTextForToolbarButton = $toolbarBtn => {
+    return updateText({
+      textArea: $toolbarBtn.closest('.md-area').find('textarea'),
+      tag: $toolbarBtn.data('md-tag'),
+      cursorOffset: $toolbarBtn.data('mdCursorOffset'),
+      blockTag: $toolbarBtn.data('mdBlock'),
+      wrap: !$toolbarBtn.data('mdPrepend'),
+      select: $toolbarBtn.data('mdSelect'),
+      tagContent: $toolbarBtn.data('mdTagContent'),
+    });
+  };
+
+  const localMousetrap = Mousetrap($form[0]);
+
+  const $allToolbarBtns = $('.js-md', $form)
     .off('click')
     .on('click', function() {
-      const $this = $(this);
-      const tag = this.dataset.mdTag;
-
-      return updateText({
-        textArea: $this.closest('.md-area').find('textarea'),
-        tag,
-        cursorOffset: $this.data('mdCursorOffset'),
-        blockTag: $this.data('mdBlock'),
-        wrap: !$this.data('mdPrepend'),
-        select: $this.data('mdSelect'),
-        tagContent: $this.data('mdTagContent'),
-      });
+      updateTextForToolbarButton($(this));
     });
+
+  const allShortcuts = flatten(
+    $allToolbarBtns
+      .map(function() {
+        const $toolbarBtn = $(this);
+        const keyboardShortcuts = $toolbarBtn.data('md-shortcuts');
+
+        if (keyboardShortcuts?.length) {
+          localMousetrap.bind(keyboardShortcuts, e => {
+            e.preventDefault();
+
+            updateTextForToolbarButton($toolbarBtn);
+          });
+        }
+
+        return keyboardShortcuts;
+      })
+
+      // Convert jQuery object to regular Array
+      .get()
+
+      // Remove undefined entries
+      .filter(s => s),
+  );
+
+  const defaultStopCallback = localMousetrap.stopCallback;
+  localMousetrap.stopCallback = (e, element, combo) => {
+    if (allShortcuts.includes(combo)) {
+      return false;
+    }
+
+    return defaultStopCallback(e, element, combo);
+  };
+
+  return $allToolbarBtns;
 }
 
 export function addEditorMarkdownListeners(editor) {

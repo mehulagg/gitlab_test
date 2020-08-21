@@ -55,6 +55,12 @@ export default {
     mdSuggestion() {
       return ['```suggestion:-0+0', `{text}`, '```'].join('\n');
     },
+    isMac() {
+      return navigator.userAgent.match(/Macintosh/);
+    },
+    modifierKey() {
+      return this.isMac ? '⌘' : 'Ctrl';
+    },
   },
   mounted() {
     $(document).on('markdown-preview:show.vue', this.previewMarkdownTab);
@@ -129,8 +135,18 @@ export default {
       </li>
       <li :class="{ active: !previewMarkdown }" class="md-header-toolbar">
         <div class="d-inline-block">
-          <toolbar-button tag="**" :button-title="__('Add bold text')" icon="bold" />
-          <toolbar-button tag="*" :button-title="__('Add italic text')" icon="italic" />
+          <toolbar-button
+            tag="**"
+            :button-title="sprintf(__(`Add bold text (%{modifierKey}+B)`), { modifierKey })"
+            icon="bold"
+            :shortcuts="['command+b', 'ctrl+b']"
+          />
+          <toolbar-button
+            tag="*"
+            :button-title="sprintf(__(`Add italic text (%{modifierKey}+I)`), { modifierKey })"
+            icon="italic"
+            :shortcuts="['command+i', 'ctrl+i']"
+          />
           <toolbar-button
             :prepend="true"
             :tag="tag"
