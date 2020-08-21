@@ -3,9 +3,12 @@ import VueApollo from 'vue-apollo';
 import { uniqueId } from 'lodash';
 import produce from 'immer';
 import { defaultDataIdFromObject } from 'apollo-cache-inmemory';
+import axios from '~/lib/utils/axios_utils';
 import createDefaultClient from '~/lib/graphql';
 import activeDiscussionQuery from './graphql/queries/active_discussion.query.graphql';
+import getDesignQuery from './graphql/queries/get_design.query.graphql';
 import typeDefs from './graphql/typedefs.graphql';
+import { addTodoToStore } from './utils/cache_update';
 
 Vue.use(VueApollo);
 
@@ -24,6 +27,31 @@ const resolvers = {
       });
 
       cache.writeQuery({ query: activeDiscussionQuery, data });
+    },
+    createDesignTodo: (
+      _,
+      {
+        project_path: projectPath = null,
+        issuable_id = null,
+        target_design_id: targetDesignId = null,
+      },
+      { cache },
+    ) => {
+      return axios
+        .post(`/${projectPath}/todos`, {
+          issuable_id,
+          issuable_type: 'design',
+          target_design_id: targetDesignId,
+        })
+        .then(data => {
+          const todo = data; // TODO check if this is correct (probably isnt)
+          addTodoToStore(cache, todo, getDesignQuery, {
+            fullPath: projectPath,
+            iid: issuable_id,
+            filenames: [targetDesignId], // TODO this might not be correct
+            atVersion: null,
+          });
+        });
     },
   },
 };
