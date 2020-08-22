@@ -39,7 +39,7 @@ module Banzai
             return unless node.name == 'th' || node.name == 'td'
             return unless node.has_attribute?('style')
 
-            if node['style'] =~ TABLE_ALIGNMENT_PATTERN
+            if TABLE_ALIGNMENT_PATTERN =~ node['style']
               node['style'] = "text-align: #{$~[:alignment]}"
             else
               node.remove_attribute('style')
@@ -54,8 +54,8 @@ module Banzai
             return unless node.name == 'a' || node.name == 'li'
             return unless node.has_attribute?('id')
 
-            return if node.name == 'a' && node['id'] =~ Banzai::Filter::FootnoteFilter::FOOTNOTE_LINK_REFERENCE_PATTERN
-            return if node.name == 'li' && node['id'] =~ Banzai::Filter::FootnoteFilter::FOOTNOTE_LI_REFERENCE_PATTERN
+            return if node.name == 'a' && Banzai::Filter::FootnoteFilter::FOOTNOTE_LINK_REFERENCE_PATTERN.match?(node['id'])
+            return if node.name == 'li' && Banzai::Filter::FootnoteFilter::FOOTNOTE_LI_REFERENCE_PATTERN.match?(node['id'])
 
             node.remove_attribute('id')
           end
