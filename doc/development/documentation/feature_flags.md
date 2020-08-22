@@ -123,7 +123,7 @@ use:
 > - It was deployed [deployed behind a feature flag](<replace with path to>/user/feature_flags.md), disabled by default.
 > - [Became enabled by default](link-to-issue) on GitLab 12.1.
 > - It's enabled on GitLab.com.
-> - It's not able to be enabled or disabled by project.
+> - It cannot be enabled or disabled by project.
 > - It's recommended for production use.
 > - For GitLab self-managed instances, GitLab administrators can opt to [disable it](#anchor-to-section). **(CORE ONLY)**
 
