@@ -63,7 +63,7 @@ be enabled for a single project, and is not ready for production use:
 > - [Introduced](link-to-issue) in GitLab 12.0.
 > - It's [deployed behind a feature flag](<replace with path to>/user/feature_flags.md), disabled by default.
 > - It's disabled on GitLab.com.
-> - It's able to be enabled or disabled by project.
+> - It can be enabled or disabled by project.
 > - It's not recommended for production use.
 > - To use it in GitLab self-managed instances, ask a GitLab administrator to [enable it](#anchor-to-section). **(CORE ONLY)**
 
