@@ -65,6 +65,15 @@ module Gitlab
       gon.push({ features: { var_name => enabled } }, true)
     end
 
+    def push_frontend_path(name, path)
+      path_name = name.to_s.camelize(:lower)
+
+      # Here the `true` argument signals gon that the value should be merged
+      # into any existing ones, instead of overwriting them. This allows you to
+      # use this method to push multiple feature flags.
+      gon.push({ paths: { path_name => path } }, true)
+    end
+
     def default_avatar_url
       # We can't use ActionController::Base.helpers.image_url because it
       # doesn't return an actual URL because request is nil for some reason.
