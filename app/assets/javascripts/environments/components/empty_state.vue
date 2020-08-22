@@ -1,12 +1,9 @@
 <script>
+import glPathsMixin from '~/vue_shared/mixins/gl_paths_mixin';
+
 export default {
   name: 'EnvironmentsEmptyState',
-  props: {
-    helpPath: {
-      type: String,
-      required: true,
-    },
-  },
+  mixins: [glPathsMixin()],
 };
 </script>
 <template>
@@ -20,7 +17,7 @@ export default {
           s__(`Environments|Environments are places where
         code gets deployed, such as staging or production.`)
         }}
-        <a :href="helpPath"> {{ s__('Environments|More information') }} </a>
+        <a :href="glPaths.environmentsHelp"> {{ s__('Environments|More information') }} </a>
       </p>
     </div>
   </div>

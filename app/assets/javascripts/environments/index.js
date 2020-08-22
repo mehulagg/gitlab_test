@@ -19,7 +19,6 @@ export default () =>
       return {
         endpoint: environmentsData.environmentsDataEndpoint,
         newEnvironmentPath: environmentsData.newEnvironmentPath,
-        helpPagePath: environmentsData.helpPagePath,
         deployBoardsHelpPath: environmentsData.deployBoardsHelpPath,
         canCreateEnvironment: parseBoolean(environmentsData.canCreateEnvironment),
         canReadEnvironment: parseBoolean(environmentsData.canReadEnvironment),
@@ -30,7 +29,6 @@ export default () =>
         props: {
           endpoint: this.endpoint,
           newEnvironmentPath: this.newEnvironmentPath,
-          helpPagePath: this.helpPagePath,
           deployBoardsHelpPath: this.deployBoardsHelpPath,
           canCreateEnvironment: this.canCreateEnvironment,
           canReadEnvironment: this.canReadEnvironment,

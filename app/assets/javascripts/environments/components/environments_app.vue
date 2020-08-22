@@ -50,10 +50,6 @@ export default {
       required: false,
       default: '',
     },
-    helpPagePath: {
-      type: String,
-      required: true,
-    },
     deployBoardsHelpPath: {
       type: String,
       required: false,
@@ -159,7 +155,7 @@ export default {
       @onChangePage="onChangePage"
     >
       <template v-if="!isLoading && state.environments.length === 0" #emptyState>
-        <empty-state :help-path="helpPagePath" />
+        <empty-state />
       </template>
     </container>
   </div>
