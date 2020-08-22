@@ -25,6 +25,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
 
       it 'clears memoized values' do
         values = %i(issue_minimum_id issue_maximum_id
+                    project_minimum_id project_maximum_id
                     user_minimum_id user_maximum_id unique_visit_service
                     deployment_minimum_id deployment_maximum_id
                     approval_merge_request_rule_minimum_id
@@ -912,7 +913,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
     let(:time) { Time.zone.now }
 
     before do
-      counter = Gitlab::UsageDataCounters::TrackUniqueActions
+      counter = Gitlab::UsageDataCounters::TrackUniqueEvents
       project = Event::TARGET_TYPES[:project]
       wiki = Event::TARGET_TYPES[:wiki]
       design = Event::TARGET_TYPES[:design]

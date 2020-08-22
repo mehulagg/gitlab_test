@@ -14103,7 +14103,12 @@ CREATE TABLE public.plan_limits (
     ci_max_artifact_size_coverage_fuzzing integer DEFAULT 0 NOT NULL,
     ci_max_artifact_size_browser_performance integer DEFAULT 0 NOT NULL,
     ci_max_artifact_size_load_performance integer DEFAULT 0 NOT NULL,
-    ci_needs_size_limit integer DEFAULT 50 NOT NULL
+    ci_needs_size_limit integer DEFAULT 50 NOT NULL,
+    conan_max_file_size bigint DEFAULT 52428800 NOT NULL,
+    maven_max_file_size bigint DEFAULT 52428800 NOT NULL,
+    npm_max_file_size bigint DEFAULT 52428800 NOT NULL,
+    nuget_max_file_size bigint DEFAULT 52428800 NOT NULL,
+    pypi_max_file_size bigint DEFAULT 52428800 NOT NULL
 );
 
 CREATE SEQUENCE public.plan_limits_id_seq
@@ -14403,6 +14408,7 @@ CREATE TABLE public.project_incident_management_settings (
     pagerduty_active boolean DEFAULT false NOT NULL,
     encrypted_pagerduty_token bytea,
     encrypted_pagerduty_token_iv bytea,
+    auto_close_incident boolean DEFAULT true NOT NULL,
     CONSTRAINT pagerduty_token_iv_length_constraint CHECK ((octet_length(encrypted_pagerduty_token_iv) <= 12)),
     CONSTRAINT pagerduty_token_length_constraint CHECK ((octet_length(encrypted_pagerduty_token) <= 255))
 );
@@ -14556,7 +14562,8 @@ CREATE TABLE public.project_statistics (
     shared_runners_seconds_last_reset timestamp without time zone,
     packages_size bigint DEFAULT 0 NOT NULL,
     wiki_size bigint,
-    snippets_size bigint
+    snippets_size bigint,
+    pipeline_artifacts_size bigint DEFAULT 0 NOT NULL
 );
 
 CREATE SEQUENCE public.project_statistics_id_seq
@@ -15403,7 +15410,6 @@ CREATE TABLE public.services (
     tag_push_events boolean DEFAULT true,
     note_events boolean DEFAULT true NOT NULL,
     category character varying DEFAULT 'common'::character varying NOT NULL,
-    "default" boolean DEFAULT false,
     wiki_page_events boolean DEFAULT true,
     pipeline_events boolean DEFAULT false NOT NULL,
     confidential_issues_events boolean DEFAULT true NOT NULL,
@@ -19233,6 +19239,8 @@ CREATE UNIQUE INDEX index_ci_instance_variables_on_key ON public.ci_instance_var
 
 CREATE INDEX index_ci_job_artifacts_for_terraform_reports ON public.ci_job_artifacts USING btree (project_id, id) WHERE (file_type = 18);
 
+CREATE INDEX index_ci_job_artifacts_id_for_terraform_reports ON public.ci_job_artifacts USING btree (id) WHERE (file_type = 18);
+
 CREATE INDEX index_ci_job_artifacts_on_expire_at_and_job_id ON public.ci_job_artifacts USING btree (expire_at, job_id);
 
 CREATE INDEX index_ci_job_artifacts_on_file_store ON public.ci_job_artifacts USING btree (file_store);
@@ -19454,6 +19462,8 @@ CREATE INDEX index_container_repositories_on_project_id ON public.container_repo
 CREATE UNIQUE INDEX index_container_repositories_on_project_id_and_name ON public.container_repositories USING btree (project_id, name);
 
 CREATE INDEX index_container_repository_on_name_trigram ON public.container_repositories USING gin (name public.gin_trgm_ops);
+
+CREATE INDEX index_created_at_on_codeowner_approval_merge_request_rules ON public.approval_merge_request_rules USING btree (created_at) WHERE ((rule_type = 2) AND (section <> 'codeowners'::text));
 
 CREATE UNIQUE INDEX index_custom_emoji_on_namespace_id_and_name ON public.custom_emoji USING btree (namespace_id, name);
 

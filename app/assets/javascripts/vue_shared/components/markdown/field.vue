@@ -4,7 +4,7 @@ import '~/behaviors/markdown/render_gfm';
 import { unescape } from 'lodash';
 import { __, sprintf } from '~/locale';
 import { stripHtml } from '~/lib/utils/text_utility';
-import Flash from '~/flash';
+import { deprecatedCreateFlash as Flash } from '~/flash';
 import GLForm from '~/gl_form';
 import MarkdownHeader from './header.vue';
 import MarkdownToolbar from './toolbar.vue';
@@ -254,7 +254,7 @@ export default {
           href="#"
           :aria-label="__('Leave zen mode')"
         >
-          <icon :size="16" name="screen-normal" />
+          <icon :size="16" name="minimize" />
         </a>
         <markdown-toolbar
           :markdown-docs-path="markdownDocsPath"
