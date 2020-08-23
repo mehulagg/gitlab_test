@@ -200,7 +200,7 @@ deploy:
   script:
     - aws ecs register-task-definition ...
 ```
-### Deploy Amazon EKS
+### Deploy Amazon EKS 
 
 * [How to deploy your application to a GitLab-managed Amazon EKS cluster with Auto DevOps](https://about.gitlab.com/blog/2020/05/05/deploying-application-eks/)
 
