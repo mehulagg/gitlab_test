@@ -22,10 +22,4 @@ Actionable insights always have a follow-up action that needs to take place as a
 | Details: | (details go here) |
 | Action to take: | (action goes here) |
 
-
-
-
-
-
-
- ~"Actionable Insight" 
+ /label ~"Actionable Insight" 
