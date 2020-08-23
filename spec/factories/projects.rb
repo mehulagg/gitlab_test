@@ -66,8 +66,6 @@ FactoryBot.define do
         project.add_maintainer(project.owner)
       end
 
-      project.group&.refresh_members_authorized_projects
-
       # assign the delegated `#ci_cd_settings` attributes after create
       project.reload.group_runners_enabled = evaluator.group_runners_enabled unless evaluator.group_runners_enabled.nil?
 
