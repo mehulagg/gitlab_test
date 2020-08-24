@@ -85,7 +85,7 @@ class License < ApplicationRecord
     group_ip_restriction
     group_merge_request_analytics
     group_project_templates
-    group_repositories_analytics
+    group_repository_analytics
     group_saml
     issues_analytics
     jira_dev_panel_integration
