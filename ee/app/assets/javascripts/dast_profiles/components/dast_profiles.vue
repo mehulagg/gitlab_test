@@ -2,12 +2,22 @@
 import * as Sentry from '@sentry/browser';
 import { GlButton, GlTab, GlTabs } from '@gitlab/ui';
 import { s__ } from '~/locale';
+import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import ProfilesList from './dast_profiles_list.vue';
 import * as cacheUtils from '../graphql/cache_utils';
 import profileConfigs from '../constants/profile_configs';
 
-const getEnabledProfileConfigs = () =>
-  Object.fromEntries(Object.entries(profileConfigs).filter(([, { isEnabled }]) => isEnabled()));
+const getEnabledProfileConfigs = glFeatures =>
+  Object.fromEntries(
+    Object.entries(profileConfigs).filter(([, { isDisabled }]) => {
+      // a config has to be explicitly disabled
+      if (typeof isDisabled !== 'function') {
+        return true;
+      }
+
+      return !isDisabled(glFeatures);
+    }),
+  );
 
 export default {
   components: {
@@ -16,6 +26,7 @@ export default {
     GlTabs,
     ProfilesList,
   },
+  mixins: [glFeatureFlagsMixin()],
   props: {
     newDastSiteProfilePath: {
       type: String,
@@ -34,7 +45,7 @@ export default {
     };
   },
   created() {
-    this.profileConfigs = getEnabledProfileConfigs();
+    this.profileConfigs = getEnabledProfileConfigs(this.glFeatures);
     this.addSmartQueriesForEnabledProfileTypes();
   },
   methods: {
