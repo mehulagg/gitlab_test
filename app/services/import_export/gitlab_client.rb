@@ -1,5 +1,7 @@
 module ImportExport
   class GitlabClient
+    # TODO: split this file into separate source and destination clients (so that host is not confusing)
+
     attr_reader :host, :access_token
 
     def initialize(host:, access_token: nil)
@@ -29,6 +31,17 @@ module ImportExport
       )
     end
 
+    def download_export_file_url(group_id)
+      "#{host}/api/v4/groups/#{group_id}/export/download"
+    end
+
+    def headers
+      {
+        'Content-Type' => 'application/json',
+        'PRIVATE-TOKEN' => access_token
+      }
+    end
+
     private
 
     def callback_url
@@ -41,13 +54,6 @@ module ImportExport
 
     def start_export_url(group_id)
       "#{host}/api/v4/groups/#{group_id}/bulk_export"
-    end
-
-    def headers
-      {
-        'Content-Type' => 'application/json',
-        'PRIVATE-TOKEN' => access_token
-      }
     end
   end
 end

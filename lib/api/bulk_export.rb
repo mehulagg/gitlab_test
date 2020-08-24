@@ -37,11 +37,10 @@ module API
         requires :destination_group_id, type: String, desc: 'Where to import the group to'
       end
       post 'export_status' do
-        raise '🍉 🍬 🦈'
-
-        import_service = ImportExport::ImportService.new(
+        import_service = ImportExport::Callback::ImportService.new(
           importable_type: params[:importable_type],
-          importable_id: params[:importable_id]
+          importable_id: params[:importable_id],
+          destination_group_id: params[:destination_group_id]
         )
 
         if import_service.async_execute
