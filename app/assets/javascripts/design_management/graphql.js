@@ -5,9 +5,8 @@ import { defaultDataIdFromObject } from 'apollo-cache-inmemory';
 import axios from '~/lib/utils/axios_utils';
 import createDefaultClient from '~/lib/graphql';
 import activeDiscussionQuery from './graphql/queries/active_discussion.query.graphql';
-import getDesignQuery from './graphql/queries/get_design.query.graphql';
 import typeDefs from './graphql/typedefs.graphql';
-import { addPendingTodoToStore } from './utils/cache_update';
+import { parseTodoDeletePath, createPendingTodo } from './utils/design_management_utils';
 
 Vue.use(VueApollo);
 
@@ -24,27 +23,23 @@ const resolvers = {
     },
     createDesignTodo: (
       _,
-      {
-        project_path: projectPath = null,
-        issuable_id = null,
-        target_design_id: targetDesignId = null,
-      },
-      { cache },
+      { project_path: projectPath, issuable_id, target_design_id: targetDesignId },
     ) => {
       return axios
         .post(`/${projectPath}/todos`, {
           issuable_id,
-          issuable_type: 'issue',
-          // target_design_id: targetDesignId,
+          issuable_type: 'issue', // TODO update to design
+          target_design_id: targetDesignId,
         })
-        .then(data => {
-          const todo = data; // TODO check if this is correct (probably isnt)
-          addPendingTodoToStore(cache, todo, getDesignQuery, {
-            fullPath: projectPath,
-            iid: issuable_id,
-            filenames: [targetDesignId], // TODO this might not be correct
-            // atVersion: null,
-          });
+        .then(({ data }) => {
+          const { delete_path } = data;
+          const { id: todoId } = parseTodoDeletePath(delete_path);
+          if (!todoId) {
+            throw new Error('No todo created.');
+          }
+
+          const pendingTodo = createPendingTodo(todoId);
+          return pendingTodo;
         });
     },
   },

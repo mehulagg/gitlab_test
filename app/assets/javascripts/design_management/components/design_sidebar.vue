@@ -10,6 +10,9 @@ import { ACTIVE_DISCUSSION_SOURCE_TYPES } from '../constants';
 import DesignDiscussion from './design_notes/design_discussion.vue';
 import Participants from '~/sidebar/components/participants/participants.vue';
 import TodoButton from '~/vue_shared/components/todo_button.vue';
+import allVersionsMixin from '../mixins/all_versions';
+import { addPendingTodoToStore } from '../utils/cache_update';
+import getDesignQuery from '../graphql/queries/get_design.query.graphql';
 
 export default {
   components: {
@@ -20,6 +23,7 @@ export default {
     GlPopover,
     TodoButton,
   },
+  mixins: [allVersionsMixin],
   props: {
     design: {
       type: Object,
@@ -49,6 +53,14 @@ export default {
     },
   },
   computed: {
+    designVariables() {
+      return {
+        fullPath: this.projectPath,
+        iid: this.issueIid,
+        filenames: [this.$route.params.id],
+        atVersion: this.designsVersion,
+      };
+    },
     discussions() {
       return extractDiscussions(this.design.discussions);
     },
@@ -99,16 +111,26 @@ export default {
     toggleTodo() {
       if (this.hasPendingTodo) {
         // TODO delete the todo here
-      } else {
-        this.$apollo.mutate({
+      }
+
+      return this.$apollo
+        .mutate({
           mutation: createDesignTodoMutation,
           variables: {
             project_path: this.projectPath,
             issuable_id: this.issueIid,
             target_design_id: this.design.id,
           },
+        })
+        .then(({ data: { createDesignTodo } }) => {
+          const { pendingTodo } = createDesignTodo;
+          addPendingTodoToStore(
+            this.$apollo.getClient().cache,
+            pendingTodo,
+            getDesignQuery,
+            this.designVariables,
+          );
         });
-      }
     },
   },
   resolveCommentsToggleText: s__('DesignManagement|Resolved Comments'),

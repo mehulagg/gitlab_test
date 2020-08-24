@@ -1,4 +1,4 @@
-mutation createDesignTodo($project_path: String, $issuable_id: String, $target_design_id: String) {
+mutation createDesignTodo($project_path: String!, $issuable_id: String!, $target_design_id: String!) {
   createDesignTodo(
     project_path: $project_path
     issuable_id: $issuable_id

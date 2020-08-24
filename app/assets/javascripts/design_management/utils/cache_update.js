@@ -47,17 +47,11 @@ const addNewVersionToStore = (store, query, version) => {
   });
 };
 
-export const addPendingTodoToStore = (store, todoData, query, queryVariables) => {
+export const addPendingTodoToStore = (store, pendingTodo, query, queryVariables) => {
   const data = store.readQuery({
     query,
     variables: queryVariables,
-  }); // TODO currently broken
-
-  const pendingTodo = {
-    id: todoData.deletePath.split('/').reverse()[0], // TODO improve
-  };
-
-  console.log('here');
+  });
 
   const design = extractDesign(data);
   store.writeQuery({
@@ -67,7 +61,7 @@ export const addPendingTodoToStore = (store, todoData, query, queryVariables) =>
       ...data,
       design: {
         ...design,
-        // pendingTodo,
+        pendingTodo,
       },
     },
   });

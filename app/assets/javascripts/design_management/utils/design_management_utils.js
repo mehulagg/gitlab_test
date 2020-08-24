@@ -135,3 +135,19 @@ const normalizeAuthor = author => ({
 export const extractParticipants = users => users.map(node => normalizeAuthor(node));
 
 export const getPageLayoutElement = () => document.querySelector('.layout-page');
+
+export const parseTodoDeletePath = todoDeletePath => {
+  return {
+    id: todoDeletePath.split('/').reverse()[0],
+  };
+};
+
+const createTodoGid = todoId => {
+  return `gid://gitlab/Todo/${todoId}`;
+};
+
+export const createPendingTodo = todoId => {
+  return {
+    id: createTodoGid(todoId),
+  };
+};
