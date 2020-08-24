@@ -37,3 +37,5 @@ Need to verify that passing in `token`s ala FilteredSearch isn't a large memory 
 Look into using Vuex store for stored commands. This way we won't need to address a race-condition of mounting command_palette app and components registering actions in their mount: Would be cool to have a Jest spec that covers this.
 
 Might be worth putting mounting of the command palette behind a keyevent. It'll be slower to show up when invoked, but most people won't be invoking it, and even then it'll be on a sub-set of pages.
+
+Need to expose things like https://www.youtube.com/watch?v=OE9b0Qc6KaI from Ruby
