@@ -380,6 +380,7 @@ group :development, :test do
   gem 'simplecov', '~> 0.18.5', require: false
   gem 'simplecov-cobertura', '~> 1.3.1', require: false
   gem 'bundler-audit', '~> 0.6.1', require: false
+  gem "discover-unused-partials", "~> 0.3.5", require: false
 
   gem 'benchmark-ips', '~> 2.3.0', require: false
 

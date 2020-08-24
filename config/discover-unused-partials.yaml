@@ -1,0 +1,9 @@
+# List of files that are not reported
+keep:
+    # Our kaminari pagination config
+    - app/views/kaminari/gitlab/_gap.html.haml
+    - app/views/kaminari/gitlab/_next_page.html.haml
+    - app/views/kaminari/gitlab/_page.html.haml
+    - app/views/kaminari/gitlab/_paginator.html.haml
+    - app/views/kaminari/gitlab/_prev_page.html.haml
+    - app/views/kaminari/gitlab/_without_count.html.haml
