@@ -117,7 +117,7 @@ module Backup
               Please switch to the following version and try again:
               version: #{settings[:gitlab_version]}
               The type ("-ee", whereas no suffix means CE) needs to be the same as well, see:
-              https://docs.gitlab.com/ce/raketasks/backup_restore.html
+              Gitlab::Routing.url_helpers.help_page_path('raketasks/backup_restore')
           HEREDOC
           progress.puts
           progress.puts "Hint: git checkout v#{settings[:gitlab_version]}"
