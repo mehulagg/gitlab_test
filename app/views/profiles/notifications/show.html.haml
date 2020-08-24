@@ -38,16 +38,15 @@
           %span= _('Receive notifications about your own activity')
 
       %hr
-      %h5
-        = _('Groups (%{count})') % { count: @group_notifications.size }
-      %div
-        - @group_notifications.each do |setting|
-          = render 'group_settings', setting: setting, group: setting.source
-      %h5
-        = _('Projects (%{count})') % { count: @project_notifications.size }
-      %p.account-well
-        = _('To specify the notification level per project of a group you belong to, you need to visit project page and change notification level there.')
-      .gl-mb-3
-        %ul.bordered-list
-          - @project_notifications.each do |setting|
-            = render 'project_settings', setting: setting, project: setting.source
+      %ul.nav-links.nav.nav-tabs.notification_tabs
+        %li.active
+          = link_to _('Projects'), "#project_notifications", data: { toggle: "tab", target: "project_notifications", href: "#{profile_notifications_path}" }
+        %li
+          = link_to _('Groups'), "#group_notifications", data: { toggle: "tab", target: "group_notifications", href: "#{profile_notifications_path}" }
+
+      .tab-content
+        .tab-pane.active#project_notifications
+          = render 'project_settings'
+        .tab-pane#group_notifications
+          = render 'group_settings'
+

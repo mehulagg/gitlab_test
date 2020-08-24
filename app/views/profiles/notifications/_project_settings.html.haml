@@ -1,11 +1,7 @@
-- emails_disabled = project.emails_disabled?
-
-%li.notification-list-item
-  %span.notification.fa.fa-holder.gl-mr-2
-    = notification_icon(notification_icon_level(setting, emails_disabled))
-
-  %span.str-truncated
-    = link_to_project(project)
-
-  .float-right
-    = render 'shared/notifications/button', notification_setting: setting, emails_disabled: emails_disabled
+%p.account-well
+  = _('To specify the notification level per project of a group you belong to, you need to visit project page and change notification level there.')
+.gl-mb-3
+  %ul.bordered-list
+    - if @project_notifications
+      - @project_notifications.each do |setting|
+        = render 'project_setting', setting: setting, project: setting.source

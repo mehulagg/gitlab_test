@@ -4,16 +4,14 @@ class Profiles::NotificationsController < Profiles::ApplicationController
   # rubocop: disable CodeReuse/ActiveRecord
   def show
     @user = current_user
-    @group_notifications = current_user.notification_settings.preload_source_route.for_groups.order(:id)
-    @group_notifications += GroupsFinder.new(
-      current_user,
-      all_available: false,
-      exclude_group_ids: @group_notifications.select(:source_id)
-    ).execute.map { |group| current_user.notification_settings_for(group, inherit: true) }
-    @project_notifications = current_user.notification_settings.for_projects.order(:id)
-                             .preload_source_route
-                             .select { |notification| current_user.can?(:read_project, notification.source) }
+    @tab = params[:tab]
     @global_notification_setting = current_user.global_notification_setting
+
+    if @tab == "group_notifications"
+      @group_notifications = group_notifications
+    else
+      @project_notifications =  project_notifications
+    end
   end
   # rubocop: enable CodeReuse/ActiveRecord
 
@@ -31,5 +29,22 @@ class Profiles::NotificationsController < Profiles::ApplicationController
 
   def user_params
     params.require(:user).permit(:notification_email, :notified_of_own_activity)
+  end
+
+  private
+
+  def group_notifications
+    group_notifications = current_user.notification_settings.preload_source_route.for_groups.order(:id)
+    group_notifications + GroupsFinder.new(
+      current_user,
+      all_available: false,
+      exclude_group_ids: group_notifications.select(:source_id)
+    ).execute.map { |group| current_user.notification_settings_for(group, inherit: true) }
+  end
+
+  def project_notifications
+    current_user.notification_settings.for_projects.order(:id)
+      .preload_source_route
+      .select { |notification| current_user.can?(:read_project, notification.source) }
   end
 end
