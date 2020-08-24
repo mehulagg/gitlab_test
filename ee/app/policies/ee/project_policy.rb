@@ -234,6 +234,7 @@ module EE
         enable :update_approvers
         enable :admin_feature_flags_client
         enable :modify_approvers_rules
+        enable :modify_overriding_approvers_per_merge_request_setting
         enable :modify_auto_fix_setting
         enable :modify_merge_request_author_setting
         enable :modify_merge_request_committer_setting
@@ -300,6 +301,12 @@ module EE
           .default_project_deletion_protection
       end
 
+      condition(:cannot_modify_approvers_rules) do
+        regulated_merge_request_approval_settings? &&
+          ::Gitlab::CurrentSettings.current_application_settings
+            .disable_overriding_approvers_per_merge_request
+      end
+
       rule { needs_new_sso_session & ~admin }.policy do
         prevent :guest_access
         prevent :reporter_access
@@ -312,8 +319,12 @@ module EE
         prevent :read_project
       end
 
-      rule { regulated_merge_request_approval_settings }.policy do
+      rule { cannot_modify_approvers_rules }.policy do
         prevent :modify_approvers_rules
+      end
+
+      rule { regulated_merge_request_approval_settings }.policy do
+        prevent :modify_overriding_approvers_per_merge_request_setting
         prevent :modify_merge_request_author_setting
         prevent :modify_merge_request_committer_setting
       end

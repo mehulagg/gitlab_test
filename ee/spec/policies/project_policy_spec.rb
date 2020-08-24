@@ -1267,8 +1267,76 @@ RSpec.describe ProjectPolicy do
   end
 
   describe ':modify_approvers_rules' do
+    let(:setting_name) { :disable_overriding_approvers_per_merge_request }
+    let(:policy) { :modify_approvers_rules }
+    let(:project) { private_project }
+
+    using RSpec::Parameterized::TableSyntax
+
+    context 'with merge request approvers rules available in license' do
+      where(:role, :regulated_setting, :admin_mode, :instance_value, :allowed) do
+        :guest      | true  | nil    | true  | false
+        :reporter   | true  | nil    | true  | false
+        :developer  | true  | nil    | true  | false
+        :maintainer | false | nil    | true  | true
+        :maintainer | true  | nil    | true  | false
+        :owner      | false | nil    | true  | true
+        :owner      | true  | nil    | true  | false
+        :owner      | true  | nil    | false | true
+        :admin      | false | false  | true  | false
+        :admin      | false | true   | true  | true
+        :admin      | true  | false  | true  | false
+        :admin      | true  | false  | false | false
+        :admin      | true  | true   | true  | false
+        :admin      | true  | true   | false | true
+      end
+
+      with_them do
+        let(:current_user) { public_send(role) }
+
+        before do
+          stub_licensed_features(admin_merge_request_approvers_rules: true)
+          allow(project).to receive(:has_regulated_settings?).and_return(regulated_setting)
+          enable_admin_mode!(current_user) if admin_mode
+          stub_application_setting(setting_name => instance_value)
+        end
+
+        it { is_expected.to(allowed ? be_allowed(policy) : be_disallowed(policy)) }
+      end
+    end
+
+    context 'with merge request approvers not available in license' do
+      where(:role, :regulated_setting, :admin_mode, :allowed) do
+        :guest      | true  | nil    | false
+        :reporter   | true  | nil    | false
+        :developer  | true  | nil    | false
+        :maintainer | false | nil    | true
+        :maintainer | true  | nil    | true
+        :owner      | false | nil    | true
+        :owner      | true  | nil    | true
+        :admin      | false | false  | false
+        :admin      | false | true   | true
+        :admin      | true  | false  | false
+        :admin      | true  | true   | true
+      end
+
+      with_them do
+        let(:current_user) { public_send(role) }
+
+        before do
+          stub_licensed_features(admin_merge_request_approvers_rules: false)
+          allow(project).to receive(:has_regulated_settings?).and_return(regulated_setting)
+          enable_admin_mode!(current_user) if admin_mode
+        end
+
+        it { is_expected.to(allowed ? be_allowed(policy) : be_disallowed(policy)) }
+      end
+    end
+  end
+
+  describe ':modify_overriding_approvers_per_merge_request_setting' do
     it_behaves_like 'merge request rules' do
-      let(:policy) { :modify_approvers_rules }
+      let(:policy) { :modify_overriding_approvers_per_merge_request_setting }
     end
   end
 
