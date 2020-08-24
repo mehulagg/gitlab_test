@@ -18,10 +18,10 @@ export const appendToPreviousResult = key => (previousResult, { fetchMoreResult 
 /**
  * Removes profile with given id from the cache and writes the result to it
  *
- * @param key
+ * @param profileId
+ * @param profileType
  * @param store
  * @param queryBody
- * @param profileToBeDeletedId
  */
 export const removeProfile = ({ profileId, profileType, store, queryBody }) => {
   const data = store.readQuery(queryBody);
@@ -36,16 +36,15 @@ export const removeProfile = ({ profileId, profileType, store, queryBody }) => {
 /**
  * Returns an object representing a optimistic response for site-profile deletion
  *
- * @returns {{__typename: string, dastSiteProfileDelete: {__typename: string, errors: []}}}
+ * @param mutationName
+ * @param payloadTypeName
+ * @returns {{[p: string]: string, __typename: string}}
  */
-export const dastProfilesDeleteResponse = profileType => ({
+export const dastProfilesDeleteResponse = ({ mutationName, payloadTypeName }) => ({
   // eslint-disable-next-line @gitlab/require-i18n-strings
   __typename: 'Mutation',
-  [`${profileType}Delete`]: {
-    __typename:
-      profileType === 'siteProfile'
-        ? 'DastSiteProfileDeletePayload'
-        : 'DastScannerProfileDeletePayload',
+  [mutationName]: {
+    __typename: payloadTypeName,
     errors: [],
   },
 });

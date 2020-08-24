@@ -129,7 +129,7 @@ export default {
         $options: { i18n },
         profileConfigs: {
           [profileType]: {
-            graphQL: { deleteMutation },
+            graphQL: { deletion },
           },
         },
         $apollo: {
@@ -143,7 +143,7 @@ export default {
 
       this.$apollo
         .mutate({
-          mutation: deleteMutation,
+          mutation: deletion.mutation,
           variables: {
             projectFullPath,
             profileId,
@@ -168,7 +168,7 @@ export default {
               });
             }
           },
-          optimisticResponse: cacheUtils.dastProfilesDeleteResponse(profileType),
+          optimisticResponse: deletion.optimisticResponse,
         })
         .catch(error => {
           this.handleError({

@@ -1,15 +1,22 @@
+import dastSiteProfilesQuery from 'ee/dast_profiles/graphql/dast_site_profiles.query.graphql';
+import dastScannerProfilesQuery from 'ee/dast_profiles/graphql/dast_scanner_profiles.query.graphql';
+import dastSiteProfilesDelete from 'ee/dast_profiles/graphql/dast_site_profiles_delete.mutation.graphql';
+import dastScannerProfilesDelete from 'ee/dast_profiles/graphql/dast_scanner_profiles_delete.mutation.graphql';
+import { dastProfilesDeleteResponse } from 'ee/dast_profiles/graphql/cache_utils';
 import { s__ } from '~/locale';
-import dastSiteProfilesQuery from '../graphql/dast_site_profiles.query.graphql';
-import dastScannerProfilesQuery from '../graphql/dast_scanner_profiles.query.graphql';
-import dastSiteProfilesDelete from '../graphql/dast_site_profiles_delete.mutation.graphql';
-import dastScannerProfilesDelete from '../graphql/dast_scanner_profiles_delete.mutation.graphql';
 
 export default {
   siteProfiles: {
     profileType: 'siteProfiles',
     graphQL: {
       query: dastSiteProfilesQuery,
-      deleteMutation: dastSiteProfilesDelete,
+      deletion: {
+        mutation: dastSiteProfilesDelete,
+        optimisticResponse: dastProfilesDeleteResponse({
+          mutationName: 'siteProfilesDelete',
+          payloadTypeName: 'DastSiteProfileDeletePayload',
+        }),
+      },
     },
     isEnabled: () => true, // feature flags can be passed in
     fields: ['profileName', 'targetUrl'],
@@ -30,7 +37,13 @@ export default {
     profileType: 'scannerProfiles',
     graphQL: {
       query: dastScannerProfilesQuery,
-      deleteMutation: dastScannerProfilesDelete,
+      deletion: {
+        mutation: dastScannerProfilesDelete,
+        optimisticResponse: dastProfilesDeleteResponse({
+          mutationName: 'scannerProfilesDelete',
+          payloadTypeName: 'DastScannerProfileDeletePayload',
+        }),
+      },
     },
     isEnabled: () => true, // feature flags can be passed in
     fields: ['profileName', 'scannerType'],
