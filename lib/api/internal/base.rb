@@ -294,6 +294,39 @@ module API
             two_factor_enable: user.two_factor_enabled?
           }
         end
+
+        post '/two_factor_check' do
+          status 200
+
+          actor.update_last_used_at!
+          user = actor.user
+
+          if params[:key_id]
+            unless actor.key
+              break { success: false, message: 'Could not find the given key' }
+            end
+
+            if actor.key.is_a?(DeployKey)
+              break { success: false, message: 'Deploy keys cannot be used for Two Factor' }
+            end
+
+            unless user
+              break { success: false, message: 'Could not find a user for the given key' }
+            end
+          elsif params[:user_id] && user.nil?
+            break { success: false, message: 'Could not find the given user' }
+          end
+
+          unless user.two_factor_enabled?
+            break { success: false, message: 'Two-factor authentication is not enabled for this user' }
+          end
+
+          if user.validate_and_consume_otp!(params.fetch(:otp_attempt))
+            { success: true }
+          else
+            { success: false, message: 'Invalid OTP' }
+          end
+        end
       end
     end
   end
