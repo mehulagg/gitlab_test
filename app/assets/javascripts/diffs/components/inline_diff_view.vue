@@ -121,6 +121,13 @@ export default {
               :diff-file="diffFile"
               :line="right"
             />
+            <inline-draft-comment-row
+              v-if="shouldRenderDraftRow(diffFile.file_hash, right)"
+              :key="`draft_${index}`"
+              :draft="draftForLine(diffFile.file_hash, right)"
+              :diff-file="diffFile"
+              :line="right"
+            />
           </template>
         </template>
       </template>
