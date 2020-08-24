@@ -64,7 +64,8 @@ Are there any other stages or teams involved that need to be kept in the loop?
 - [ ] Enable on staging
 - [ ] Test on staging
 - [ ] Ensure that documentation has been updated ([More info](https://docs.gitlab.com/ee/development/documentation/feature_flags.html#features-that-became-enabled-by-default))
-- [ ] Enable on GitLab.com for individual groups/projects listed above and verify behaviour (See Beta Groups)
+- [ ] Enable on GitLab.com for individual groups/projects listed above
+- [ ] Verify behaviour (See Beta Groups) and add details with screenshots as a comment on this issue
 
 
 **General Availability** ([More Info](https://docs.gitlab.com/ee/development/feature_flags/controls.html#communicate-the-change))
