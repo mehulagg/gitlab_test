@@ -21,15 +21,31 @@ module ImportExport
 
       notify_destination! if callback_host.present?
 
-      # triggers jobs to export all descendant projects
-      Project.where(group: all_groups).find_each do |project|
-        ProjectExportWorker.perform_async(user.id, project.id)
-      end
+      schedule_project_exports!
 
       true
     end
 
     private
+
+    def schedule_project_exports!
+      Project.where(group: all_groups).find_each do |project|
+        ProjectExportWorker.perform_async(
+          user.id,
+          project.id,
+          after_export_strategy_params.merge(project_path: project.full_path),
+          {}
+        )
+      end
+    end
+
+    def after_export_strategy_params
+      @after_export_strategy_params ||= {
+        klass: Gitlab::ImportExport::AfterExportStrategies::ExportCallbackStrategy,
+        callback_host: callback_host,
+        destination_group_id: destination_group_id
+      }
+    end
 
     def all_groups
       @all_groups ||= Gitlab::ObjectHierarchy

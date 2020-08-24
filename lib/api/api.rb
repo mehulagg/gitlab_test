@@ -141,6 +141,7 @@ module API
       mount ::API::Branches
       mount ::API::BroadcastMessages
       mount ::API::BulkExport
+      mount ::API::BulkImport
       mount ::API::Ci::Pipelines
       mount ::API::Ci::PipelineSchedules
       mount ::API::Ci::Runner

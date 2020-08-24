@@ -16,7 +16,7 @@ module ImportExport::Callback
     end
 
     def async_execute
-      CallbackImportWorker.perform_async(source_type, source_id, destination_group_id)
+      ImportExport::Callback::ImportWorker.perform_async(source_type, source_id, destination_group_id)
     end
 
     def execute

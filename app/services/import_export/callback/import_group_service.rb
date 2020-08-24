@@ -12,7 +12,8 @@ module ImportExport::Callback
 
     def execute
       # associate the import file with the existing group
-      import_export_upload.update!(group: destination_group)
+      import_export_upload.group = destination_group
+      import_export_upload.save!
 
       # do the import
       ::Groups::ImportExport::ImportService.new(group: destination_group, user: user).execute
