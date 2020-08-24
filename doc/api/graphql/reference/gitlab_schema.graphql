@@ -8274,6 +8274,11 @@ enum IssueType {
   Issue issue type
   """
   ISSUE
+
+  """
+  Test Case issue type
+  """
+  TEST_CASE
 }
 
 """
