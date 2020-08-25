@@ -160,7 +160,7 @@ RSpec.describe Event do
         created_mr_event = create(:event, :created, target: mr)
         closed_mr_event = create(:event, :closed, target: mr)
         merged_mr_event = create(:event, :merged, target: mr)
-        design_event = create(:design_event, :created, target: design)
+        created_design_event = create(:design_event, :created, target: design)
         updated_design_event = create(:design_event, :updated, target: design)
         wiki_page_event = create(:event, :created, target: page_meta)
         updated_wiki_page_event = create(:event, :updated, target: page_meta)
@@ -185,7 +185,7 @@ RSpec.describe Event do
           closed_mr_event,
           created_mr_event,
           merged_mr_event,
-          design_event,
+          created_design_event,
           updated_design_event,
           wiki_page_event,
           updated_wiki_page_event,
