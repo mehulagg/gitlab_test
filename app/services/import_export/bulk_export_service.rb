@@ -33,7 +33,7 @@ module ImportExport
         ProjectExportWorker.perform_async(
           user.id,
           project.id,
-          after_export_strategy_params.merge(project_path: project.full_path),
+          after_export_strategy_params.merge('project_path' => project.full_path),
           {}
         )
       end
@@ -41,9 +41,9 @@ module ImportExport
 
     def after_export_strategy_params
       @after_export_strategy_params ||= {
-        klass: Gitlab::ImportExport::AfterExportStrategies::ExportCallbackStrategy,
-        callback_host: callback_host,
-        destination_group_id: destination_group_id
+        'klass' => 'Gitlab::ImportExport::AfterExportStrategies::ExportCallbackStrategy',
+        'callback_host' => callback_host,
+        'destination_group_id' => destination_group_id
       }
     end
 

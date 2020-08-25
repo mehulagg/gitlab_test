@@ -33,7 +33,7 @@ module API
       end
       params do
         requires :importable_type, type: String, desc: 'What kind of importable this is notifying about (group or project)'
-        requires :importable_id, type: Integer, desc: 'The ID of the project/group on the source instance'
+        requires :importable_id, type: String, desc: 'The ID of the project/group on the source instance'
         requires :destination_group_id, type: String, desc: 'Where to import the group to'
       end
       post 'export_status' do

@@ -1412,6 +1412,14 @@
   :weight: 1
   :idempotent:
   :tags: []
+- :name: import_export_callback_import
+  :feature_category: :importers
+  :has_external_dependencies:
+  :urgency: :low
+  :resource_boundary: :unknown
+  :weight: 1
+  :idempotent:
+  :tags: [ ]
 - :name: import_issues_csv
   :feature_category: :issue_tracking
   :has_external_dependencies:
