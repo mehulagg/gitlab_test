@@ -139,6 +139,15 @@ module Gitlab
         end
       end
 
+      ##
+      # This method ensures that all trace chunks are migrated into a permanent
+      # storage. We iterate through all of them to check a chunk store within
+      # an exclusive lease block.
+      #
+      def finalize!
+        job.trace_chunks.find_each { |chunk| chunk.persist_data! }
+      end
+
       private
 
       def unsafe_write!(mode, &blk)

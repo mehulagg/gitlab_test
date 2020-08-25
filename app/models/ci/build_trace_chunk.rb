@@ -7,7 +7,7 @@ module Ci
     include ::Checksummable
     include ::Gitlab::ExclusiveLeaseHelpers
 
-    belongs_to :build, class_name: "Ci::Build", foreign_key: :build_id
+    belongs_to :build, class_name: 'Ci::Build', foreign_key: :build_id
 
     default_value_for :data_store, :redis
 
@@ -25,6 +25,8 @@ module Ci
       database: 2,
       fog: 3
     }
+
+    scope :persisted, -> { not_redis }
 
     class << self
       def all_stores
@@ -118,10 +120,10 @@ module Ci
     def unsafe_persist_data!(new_store = self.class.persistable_store)
       return if data_store == new_store.to_s
 
-      current_data = data
+      current_data = get_data
       old_store_class = current_store
 
-      unless current_data&.bytesize.to_i == CHUNK_SIZE
+      if current_data.to_s.bytesize.to_i != CHUNK_SIZE && build.running?
         raise FailedToPersistDataError, 'Data is not fulfilled in a bucket'
       end
 
@@ -130,7 +132,7 @@ module Ci
       self.checksum = crc32(current_data)
 
       ##
-      # We need to so persist data then save a new store identifier before we
+      # We need to persist data and then save a new store identifier before we
       # remove data from the previous store to make this operation
       # trasnaction-safe. `unsafe_set_data! calls `save!` because of this
       # reason.

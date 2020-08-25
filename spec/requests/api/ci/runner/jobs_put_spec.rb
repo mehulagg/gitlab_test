@@ -181,6 +181,24 @@ RSpec.describe API::Ci::Runner, :clean_gitlab_redis_shared_state do
         end
       end
 
+      context 'when job has unpersisted live trace chunks in Redis' do
+        let(:data) { 'x' * (4 * (128 << 10)) } # 4 chunks, 128kb each
+
+        before do
+          job.trace.set(data + 'abc123')
+        end
+
+        it 'persists all the chunks synchronously including the last one' do
+          expect(job.trace_chunks.redis.count).to eq 5
+          expect(job.trace_chunks.last.data).to eq 'abc123'
+
+          update_job(state: 'success')
+
+          expect(job.trace_chunks.redis.count).to be_zero
+          expect(job.trace_chunks.persisted.count).to be 5
+        end
+      end
+
       def update_job(token = job.token, **params)
         new_params = params.merge(token: token)
         put api("/jobs/#{job.id}"), params: new_params

@@ -504,6 +504,12 @@ RSpec.describe Ci::BuildTraceChunk, :clean_gitlab_redis_shared_state do
             expect(Ci::BuildTraceChunks::Fog.new.data(build_trace_chunk)).to eq(data)
           end
 
+          it 'calculates CRC32 checksum' do
+            subject
+
+            expect(build_trace_chunk.reload.checksum).to eq '3398914352'
+          end
+
           it_behaves_like 'Atomic operation'
         end
 

@@ -88,4 +88,29 @@ RSpec.describe Gitlab::Ci::Trace, :clean_gitlab_redis_shared_state do
       end
     end
   end
+
+  describe '#finalize!' do
+    context 'when live traces feature is enabled' do
+      let(:data) { 'x' * (4 * (128 << 10)) } # 4 chunks, 128kb each
+
+      before do
+        stub_feature_flags(ci_enable_live_trace: true)
+
+        trace.set(data + 'abc123')
+      end
+
+      it 'persists all trace chunks' do
+        trace.finalize!
+
+        expect(build.trace_chunks.persisted.count).to eq 5
+      end
+
+      it 'calculates checksums for all of the chunks migrated' do
+        trace.finalize!
+
+        expect(build.trace_chunks.persisted)
+          .to all(have_attributes(checksum: be_present))
+      end
+    end
+  end
 end

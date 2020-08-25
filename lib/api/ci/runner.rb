@@ -171,9 +171,9 @@ module API
         put '/:id' do
           job = authenticate_job!
 
-          job.trace.set(params[:trace]) if params[:trace]
-
           Gitlab::Metrics.add_event(:update_build)
+
+          job.trace.set(params[:trace]) if params[:trace]
 
           case params[:state].to_s
           when 'running'
