@@ -203,6 +203,5 @@ deploy:
 
 ### Deploy Amazon EKS 
 
-* [How to deploy your application to a GitLab-managed Amazon EKS cluster with Auto DevOps](https://about.gitlab.com/blog/2020/05/05/deploying-application-eks/)
-
-* [Deploying with GitLab on Google Cloud](https://about.gitlab.com/solutions/google-cloud-platform/)
+- [How to deploy your application to a GitLab-managed Amazon EKS cluster with Auto DevOps](https://about.gitlab.com/blog/2020/05/05/deploying-application-eks/)
+- [Deploying with GitLab on Google Cloud](https://about.gitlab.com/solutions/google-cloud-platform/)
