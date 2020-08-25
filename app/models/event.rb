@@ -103,10 +103,27 @@ class Event < ApplicationRecord
 
   scope :contributions, -> do
     # Update Gitlab::ContributionsCalendar#activity_dates if this changes
-    where("action = ? OR (target_type IN (?) AND action IN (?)) OR (target_type = ? AND action = ?)",
-          actions[:pushed],
-          %w(MergeRequest Issue DesignManagement::Design WikiPage::Meta), [actions[:created], actions[:closed], actions[:merged], actions[:updated]],
-          "Note", actions[:commented])
+    params = {
+      any_type_action: actions[:pushed],
+      created_types: %w(MergeRequest Issue DesignManagement::Design WikiPage::Meta),
+      created_action: actions[:created],
+      closed_types: %w(MergeRequest Issue),
+      closed_action: actions[:closed],
+      merged_types: %w(MergeRequest),
+      merged_action: actions[:merged],
+      updated_types: %w(DesignManagement::Design WikiPage::Meta),
+      updated_action: actions[:updated],
+      commented_types: %w(Note),
+      commented_action: actions[:commented]
+    }
+    where(<<~SQL, params)
+      action = :any_type_action
+      OR (action = :created_action AND target_type IN (:created_types))
+      OR (action = :closed_action AND target_type IN (:closed_types))
+      OR (action = :merged_action AND target_type IN (:merged_types))
+      OR (action = :updated_action AND target_type IN (:updated_types))
+      OR (action = :commented_action AND target_type IN (:commented_types))
+    SQL
   end
 
   # Authors are required as they're used to display who pushed data.
