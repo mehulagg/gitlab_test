@@ -142,28 +142,13 @@ For more details, see the Git documentation for
    shared-component-b/
    ```
 
-1. **Create a new Git repository and fetch.** Support for `--filter=sparse:oid`
-   using the clone command is incomplete, so we will emulate the clone command
-   by hand, using `git init` and `git fetch`. Follow
-   [issue tracking support for `--filter=sparse:oid`](https://gitlab.com/gitlab-org/git/-/issues/4)
-   for updates.
+1. **Clone and filter by path.** Support for `--filter=sparse:oid` using the
+   clone command is not yet fully integrated with sparse checkout.
 
    ```shell
-   # Create a new directory for the Git repository
-   mkdir jumbo-repo && cd jumbo-repo
-
-   # Initialize a new Git repository
-   git init
-
-   # Add the remote
-   git remote add origin <url>
-
-   # Enable partial clone support for the remote
-   git config --local extensions.partialClone origin
-
-   # Fetch the filtered set of objects using the filterspec stored on the
-   # server. WARNING: this step is slow!
-   git fetch --filter=sparse:oid=master:shiny-app/.gitfilterspec origin
+   # Clone the filtered set of objects using the filterspec stored on the
+   # server. WARNING: this step may be very slow!
+   git clone --sparse --filter=sparse:oid=master:shiny-app/.gitfilterspec <url>
 
    # Optional: observe there are missing objects that we have not fetched
    git rev-list --all --quiet --objects --missing=print | wc -l
@@ -180,14 +165,8 @@ For more details, see the Git documentation for
    [issue proposing automating sparse checkouts](https://gitlab.com/gitlab-org/git/-/issues/5) for updates.
 
    ```shell
-   # Enable sparse checkout
-   git config --local core.sparsecheckout true
-
    # Configure sparse checkout
-   git show master:snazzy-app/.gitfilterspec >> .git/info/sparse-checkout
-
-   # Checkout master
-   git checkout master
+   git show master:snazzy-app/.gitfilterspec | git sparse-checkout set --stdin
    ```
 
 ## Remove partial clone filtering
