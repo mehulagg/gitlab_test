@@ -326,15 +326,9 @@ describe('DiffsStoreActions', () => {
                 right: {
                   line_code: 'ABC_1_1',
                   discussions: [],
+                  old_line: 5,
+                  new_line: null,
                 },
-              },
-            ],
-            highlighted_diff_lines: [
-              {
-                line_code: 'ABC_1_1',
-                discussions: [],
-                old_line: 5,
-                new_line: null,
               },
             ],
             diff_refs: {
@@ -438,12 +432,6 @@ describe('DiffsStoreActions', () => {
                   line_code: 'ABC_1_1',
                   discussions: [],
                 },
-              },
-            ],
-            highlighted_diff_lines: [
-              {
-                line_code: 'ABC_1_1',
-                discussions: [],
               },
             ],
           },
@@ -1245,10 +1233,6 @@ describe('DiffsStoreActions', () => {
         { diffViewType: 'inline' },
         [
           {
-            type: 'SET_HIDDEN_VIEW_DIFF_FILE_LINES',
-            payload: { filePath: 'path', lines: ['test'] },
-          },
-          {
             type: 'SET_CURRENT_VIEW_DIFF_FILE_LINES',
             payload: { filePath: 'path', lines: ['test'] },
           },
@@ -1267,10 +1251,6 @@ describe('DiffsStoreActions', () => {
         { file: { file_path: 'path' }, data: [] },
         { diffViewType: 'inline' },
         [
-          {
-            type: 'SET_HIDDEN_VIEW_DIFF_FILE_LINES',
-            payload: { filePath: 'path', lines },
-          },
           {
             type: 'SET_CURRENT_VIEW_DIFF_FILE_LINES',
             payload: { filePath: 'path', lines: lines.slice(0, 200) },

@@ -88,11 +88,11 @@ describe('DiffsStoreMutations', () => {
     });
   });
 
-  describe('SET_DIFFSET_DIFF_DATA_BATCH_DATA', () => {
+  describe('SET_DIFF_DATA_BATCH_DATA', () => {
     it('should set diff data batch type properly', () => {
       const state = { diffFiles: [] };
       const diffMock = {
-        diff_files: [diffFileMockData],
+        diff_files: [{ ...diffFileMockData }],
       };
 
       mutations[types.SET_DIFF_DATA_BATCH](state, diffMock);
@@ -100,7 +100,7 @@ describe('DiffsStoreMutations', () => {
       const firstLine = state.diffFiles[0].parallel_diff_lines[0];
 
       expect(firstLine.right.text).toBeUndefined();
-      expect(state.diffFiles[0].renderIt).toEqual(true);
+      expect(state.diffFiles[0].renderIt).toEqual(false);
       expect(state.diffFiles[0].collapsed).toEqual(false);
     });
   });
@@ -186,9 +186,7 @@ describe('DiffsStoreMutations', () => {
       );
 
       expect(utils.addContextLines).toHaveBeenCalledWith({
-        inlineLines: diffFile.highlighted_diff_lines,
         parallelLines: diffFile.parallel_diff_lines,
-        diffViewType: 'viewType',
         contextLines: options.contextLines,
         bottom: options.params.bottom,
         lineNumbers: options.lineNumbers,
@@ -252,12 +250,6 @@ describe('DiffsStoreMutations', () => {
                 },
               },
             ],
-            highlighted_diff_lines: [
-              {
-                line_code: 'ABC_1',
-                discussions: [],
-              },
-            ],
           },
         ],
       };
@@ -285,9 +277,6 @@ describe('DiffsStoreMutations', () => {
       expect(state.diffFiles[0].parallel_diff_lines[0].left.discussions.length).toEqual(1);
       expect(state.diffFiles[0].parallel_diff_lines[0].left.discussions[0].id).toEqual(1);
       expect(state.diffFiles[0].parallel_diff_lines[0].right.discussions).toEqual([]);
-
-      expect(state.diffFiles[0].highlighted_diff_lines[0].discussions.length).toEqual(1);
-      expect(state.diffFiles[0].highlighted_diff_lines[0].discussions[0].id).toEqual(1);
     });
 
     it('should not duplicate discussions on line', () => {
@@ -318,12 +307,6 @@ describe('DiffsStoreMutations', () => {
                 },
               },
             ],
-            highlighted_diff_lines: [
-              {
-                line_code: 'ABC_1',
-                discussions: [],
-              },
-            ],
           },
         ],
       };
@@ -352,9 +335,6 @@ describe('DiffsStoreMutations', () => {
       expect(state.diffFiles[0].parallel_diff_lines[0].left.discussions[0].id).toEqual(1);
       expect(state.diffFiles[0].parallel_diff_lines[0].right.discussions).toEqual([]);
 
-      expect(state.diffFiles[0].highlighted_diff_lines[0].discussions.length).toEqual(1);
-      expect(state.diffFiles[0].highlighted_diff_lines[0].discussions[0].id).toEqual(1);
-
       mutations[types.SET_LINE_DISCUSSIONS_FOR_FILE](state, {
         discussion,
         diffPositionByLineCode,
@@ -363,9 +343,6 @@ describe('DiffsStoreMutations', () => {
       expect(state.diffFiles[0].parallel_diff_lines[0].left.discussions.length).toEqual(1);
       expect(state.diffFiles[0].parallel_diff_lines[0].left.discussions[0].id).toEqual(1);
       expect(state.diffFiles[0].parallel_diff_lines[0].right.discussions).toEqual([]);
-
-      expect(state.diffFiles[0].highlighted_diff_lines[0].discussions.length).toEqual(1);
-      expect(state.diffFiles[0].highlighted_diff_lines[0].discussions[0].id).toEqual(1);
     });
 
     it('updates existing discussion', () => {
@@ -396,12 +373,6 @@ describe('DiffsStoreMutations', () => {
                 },
               },
             ],
-            highlighted_diff_lines: [
-              {
-                line_code: 'ABC_1',
-                discussions: [],
-              },
-            ],
           },
         ],
       };
@@ -430,9 +401,6 @@ describe('DiffsStoreMutations', () => {
       expect(state.diffFiles[0].parallel_diff_lines[0].left.discussions[0].id).toEqual(1);
       expect(state.diffFiles[0].parallel_diff_lines[0].right.discussions).toEqual([]);
 
-      expect(state.diffFiles[0].highlighted_diff_lines[0].discussions.length).toEqual(1);
-      expect(state.diffFiles[0].highlighted_diff_lines[0].discussions[0].id).toEqual(1);
-
       mutations[types.SET_LINE_DISCUSSIONS_FOR_FILE](state, {
         discussion: {
           ...discussion,
@@ -443,13 +411,11 @@ describe('DiffsStoreMutations', () => {
       });
 
       expect(state.diffFiles[0].parallel_diff_lines[0].left.discussions[0].notes.length).toBe(1);
-      expect(state.diffFiles[0].highlighted_diff_lines[0].discussions[0].notes.length).toBe(1);
 
       expect(state.diffFiles[0].parallel_diff_lines[0].left.discussions[0].resolved).toBe(true);
-      expect(state.diffFiles[0].highlighted_diff_lines[0].discussions[0].resolved).toBe(true);
     });
 
-    it('should not duplicate inline diff discussions', () => {
+    it('should not duplicate diff discussions', () => {
       const diffPosition = {
         base_sha: 'ed13df29948c41ba367caa757ab3ec4892509910',
         head_sha: 'b921914f9a834ac47e6fd9420f78db0f83559130',
@@ -465,29 +431,34 @@ describe('DiffsStoreMutations', () => {
         diffFiles: [
           {
             file_hash: 'ABC',
-            highlighted_diff_lines: [
+            parallel_diff_lines: [
               {
-                line_code: 'ABC_1',
-                discussions: [
-                  {
-                    id: 1,
-                    line_code: 'ABC_1',
-                    diff_discussion: true,
-                    resolvable: true,
-                    original_position: diffPosition,
-                    position: diffPosition,
-                    diff_file: {
-                      file_hash: 'ABC',
+                left: {
+                  line_code: 'ABC_1',
+                  discussions: [
+                    {
+                      id: 1,
+                      line_code: 'ABC_1',
+                      diff_discussion: true,
+                      resolvable: true,
+                      original_position: diffPosition,
+                      position: diffPosition,
+                      diff_file: {
+                        file_hash: 'ABC',
+                      },
                     },
-                  },
-                ],
+                  ],
+                },
+                right: null,
               },
               {
-                line_code: 'ABC_2',
-                discussions: [],
+                left: {
+                  line_code: 'ABC_2',
+                  discussions: [],
+                },
+                right: {},
               },
             ],
-            parallel_diff_lines: [],
           },
         ],
       };
@@ -512,7 +483,7 @@ describe('DiffsStoreMutations', () => {
         diffPositionByLineCode,
       });
 
-      expect(state.diffFiles[0].highlighted_diff_lines[0].discussions.length).toBe(1);
+      expect(state.diffFiles[0].parallel_diff_lines[0].left.discussions.length).toBe(1);
     });
 
     it('should add legacy discussions to the given line', () => {
@@ -544,12 +515,6 @@ describe('DiffsStoreMutations', () => {
                 },
               },
             ],
-            highlighted_diff_lines: [
-              {
-                line_code: 'ABC_1',
-                discussions: [],
-              },
-            ],
           },
         ],
       };
@@ -574,9 +539,6 @@ describe('DiffsStoreMutations', () => {
 
       expect(state.diffFiles[0].parallel_diff_lines[0].left.discussions.length).toEqual(1);
       expect(state.diffFiles[0].parallel_diff_lines[0].left.discussions[0].id).toEqual(1);
-
-      expect(state.diffFiles[0].highlighted_diff_lines[0].discussions.length).toEqual(1);
-      expect(state.diffFiles[0].highlighted_diff_lines[0].discussions[0].id).toEqual(1);
     });
 
     it('should add discussions by line_codes and positions attributes', () => {
@@ -607,12 +569,6 @@ describe('DiffsStoreMutations', () => {
                 },
               },
             ],
-            highlighted_diff_lines: [
-              {
-                line_code: 'ABC_1',
-                discussions: [],
-              },
-            ],
           },
         ],
       };
@@ -641,9 +597,6 @@ describe('DiffsStoreMutations', () => {
 
       expect(state.diffFiles[0].parallel_diff_lines[0].left.discussions).toHaveLength(1);
       expect(state.diffFiles[0].parallel_diff_lines[0].left.discussions[0].id).toBe(1);
-
-      expect(state.diffFiles[0].highlighted_diff_lines[0].discussions).toHaveLength(1);
-      expect(state.diffFiles[0].highlighted_diff_lines[0].discussions[0].id).toBe(1);
     });
   });
 
@@ -676,23 +629,6 @@ describe('DiffsStoreMutations', () => {
                 },
               },
             ],
-            highlighted_diff_lines: [
-              {
-                line_code: 'ABC_1',
-                discussions: [
-                  {
-                    id: 1,
-                    line_code: 'ABC_1',
-                    notes: [],
-                  },
-                  {
-                    id: 2,
-                    line_code: 'ABC_1',
-                    notes: [],
-                  },
-                ],
-              },
-            ],
           },
         ],
       };
@@ -703,7 +639,6 @@ describe('DiffsStoreMutations', () => {
       });
 
       expect(state.diffFiles[0].parallel_diff_lines[0].left.discussions.length).toEqual(0);
-      expect(state.diffFiles[0].highlighted_diff_lines[0].discussions.length).toEqual(0);
     });
   });
 
@@ -779,9 +714,6 @@ describe('DiffsStoreMutations', () => {
         hasForm: true,
         fileHash: 'hash',
       });
-
-      expect(file.highlighted_diff_lines[0].hasForm).toBe(true);
-      expect(file.highlighted_diff_lines[1].hasForm).toBe(false);
 
       expect(file.parallel_diff_lines[0].left.hasForm).toBe(true);
       expect(file.parallel_diff_lines[1].right.hasForm).toBe(false);
@@ -912,36 +844,10 @@ describe('DiffsStoreMutations', () => {
     });
   });
 
-  describe('SET_HIDDEN_VIEW_DIFF_FILE_LINES', () => {
-    [
-      { current: 'highlighted', hidden: 'parallel', diffViewType: 'inline' },
-      { current: 'parallel', hidden: 'highlighted', diffViewType: 'parallel' },
-    ].forEach(({ current, hidden, diffViewType }) => {
-      it(`sets the ${hidden} lines when diff view is ${diffViewType}`, () => {
-        const file = { file_path: 'test', parallel_diff_lines: [], highlighted_diff_lines: [] };
-        const state = {
-          diffFiles: [file],
-          diffViewType,
-        };
-
-        mutations[types.SET_HIDDEN_VIEW_DIFF_FILE_LINES](state, {
-          filePath: 'test',
-          lines: ['test'],
-        });
-
-        expect(file[`${current}_diff_lines`]).toEqual([]);
-        expect(file[`${hidden}_diff_lines`]).toEqual(['test']);
-      });
-    });
-  });
-
   describe('SET_CURRENT_VIEW_DIFF_FILE_LINES', () => {
-    [
-      { current: 'highlighted', hidden: 'parallel', diffViewType: 'inline' },
-      { current: 'parallel', hidden: 'highlighted', diffViewType: 'parallel' },
-    ].forEach(({ current, hidden, diffViewType }) => {
+    [{ current: 'parallel', diffViewType: 'parallel' }].forEach(({ current, diffViewType }) => {
       it(`sets the ${current} lines when diff view is ${diffViewType}`, () => {
-        const file = { file_path: 'test', parallel_diff_lines: [], highlighted_diff_lines: [] };
+        const file = { file_path: 'test', parallel_diff_lines: [] };
         const state = {
           diffFiles: [file],
           diffViewType,
@@ -953,18 +859,14 @@ describe('DiffsStoreMutations', () => {
         });
 
         expect(file[`${current}_diff_lines`]).toEqual(['test']);
-        expect(file[`${hidden}_diff_lines`]).toEqual([]);
       });
     });
   });
 
   describe('ADD_CURRENT_VIEW_DIFF_FILE_LINES', () => {
-    [
-      { current: 'highlighted', hidden: 'parallel', diffViewType: 'inline' },
-      { current: 'parallel', hidden: 'highlighted', diffViewType: 'parallel' },
-    ].forEach(({ current, hidden, diffViewType }) => {
+    [{ current: 'parallel', diffViewType: 'parallel' }].forEach(({ current, diffViewType }) => {
       it(`pushes to ${current} lines when diff view is ${diffViewType}`, () => {
-        const file = { file_path: 'test', parallel_diff_lines: [], highlighted_diff_lines: [] };
+        const file = { file_path: 'test', parallel_diff_lines: [] };
         const state = {
           diffFiles: [file],
           diffViewType,
@@ -976,7 +878,6 @@ describe('DiffsStoreMutations', () => {
         });
 
         expect(file[`${current}_diff_lines`]).toEqual(['test']);
-        expect(file[`${hidden}_diff_lines`]).toEqual([]);
 
         mutations[types.ADD_CURRENT_VIEW_DIFF_FILE_LINES](state, {
           filePath: 'test',
@@ -984,7 +885,6 @@ describe('DiffsStoreMutations', () => {
         });
 
         expect(file[`${current}_diff_lines`]).toEqual(['test', 'test2']);
-        expect(file[`${hidden}_diff_lines`]).toEqual([]);
       });
     });
   });

@@ -5,17 +5,15 @@ import { getByText } from '@testing-library/dom';
 import { createStore } from '~/mr_notes/stores';
 import DiffExpansionCell from '~/diffs/components/diff_expansion_cell.vue';
 import { getPreviousLineIndex } from '~/diffs/store/utils';
-import { INLINE_DIFF_VIEW_TYPE, PARALLEL_DIFF_VIEW_TYPE } from '~/diffs/constants';
+import { PARALLEL_DIFF_VIEW_TYPE } from '~/diffs/constants';
 import diffFileMockData from '../mock_data/diff_file';
 
 const EXPAND_UP_CLASS = '.js-unfold';
 const EXPAND_DOWN_CLASS = '.js-unfold-down';
 const lineSources = {
-  [INLINE_DIFF_VIEW_TYPE]: 'highlighted_diff_lines',
   [PARALLEL_DIFF_VIEW_TYPE]: 'parallel_diff_lines',
 };
 const lineHandlers = {
-  [INLINE_DIFF_VIEW_TYPE]: line => line,
   [PARALLEL_DIFF_VIEW_TYPE]: line => line.right || line.left,
 };
 
@@ -65,7 +63,7 @@ describe('DiffExpansionCell', () => {
 
   beforeEach(() => {
     mockFile = cloneDeep(diffFileMockData);
-    mockLine = getLine(mockFile, INLINE_DIFF_VIEW_TYPE, 8);
+    mockLine = getLine(mockFile, PARALLEL_DIFF_VIEW_TYPE, 7);
     store = createStore();
     store.state.diffs.diffFiles = [mockFile];
     jest.spyOn(store, 'dispatch').mockReturnValue(Promise.resolve());
@@ -125,7 +123,6 @@ describe('DiffExpansionCell', () => {
 
   describe('any row', () => {
     [
-      { diffViewType: INLINE_DIFF_VIEW_TYPE, lineIndex: 8, file: { parallel_diff_lines: [] } },
       { diffViewType: PARALLEL_DIFF_VIEW_TYPE, lineIndex: 7, file: { highlighted_diff_lines: [] } },
     ].forEach(({ diffViewType, file, lineIndex }) => {
       describe(`with diffViewType (${diffViewType})`, () => {
@@ -142,7 +139,7 @@ describe('DiffExpansionCell', () => {
         it('on expand all clicked, dispatch loadMoreLines', () => {
           const oldLineNumber = mockLine.meta_data.old_pos;
           const newLineNumber = mockLine.meta_data.new_pos;
-          const previousIndex = getPreviousLineIndex(diffViewType, mockFile, {
+          const previousIndex = getPreviousLineIndex(mockFile, {
             oldLineNumber,
             newLineNumber,
           });

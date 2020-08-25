@@ -1,5 +1,5 @@
 <script>
-import { MATCH_LINE_TYPE } from '../constants';
+import { MATCH_LINE_TYPE, LINE_POSITION_LEFT, LINE_POSITION_RIGHT } from '../constants';
 import DiffExpansionCell from './diff_expansion_cell.vue';
 
 export default {
@@ -32,12 +32,17 @@ export default {
   },
   computed: {
     isMatchLineLeft() {
-      return this.line.left && this.line.left.type === MATCH_LINE_TYPE;
+      return (
+        this.line[LINE_POSITION_LEFT] && this.line[LINE_POSITION_LEFT].type === MATCH_LINE_TYPE
+      );
     },
     isMatchLineRight() {
-      return this.line.right && this.line.right.type === MATCH_LINE_TYPE;
+      return (
+        this.line[LINE_POSITION_RIGHT] && this.line[LINE_POSITION_RIGHT].type === MATCH_LINE_TYPE
+      );
     },
   },
+  LINE_POSITION_LEFT,
 };
 </script>
 <template>
@@ -46,7 +51,7 @@ export default {
       <diff-expansion-cell
         :file-hash="fileHash"
         :context-lines-path="contextLinesPath"
-        :line="line.left"
+        :line="line[$options.LINE_POSITION_LEFT]"
         :is-top="isTop"
         :is-bottom="isBottom"
         :colspan="6"

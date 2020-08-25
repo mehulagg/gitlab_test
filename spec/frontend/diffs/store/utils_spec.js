@@ -25,7 +25,7 @@ function extractLinesFromFile(file) {
     .flatMap(({ left, right }) => [left, right])
     .filter(Boolean);
 
-  return [...file.highlighted_diff_lines, ...unpackedParallel];
+  return [...unpackedParallel];
 }
 
 describe('DiffsStoreUtils', () => {
@@ -51,12 +51,6 @@ describe('DiffsStoreUtils', () => {
       expect(method(invalidLines || lines, { oldLineNumber: 32, newLineNumber: 53 })).toEqual(-1);
     };
 
-    describe('findIndexInInlineLines', () => {
-      it('should return correct index for given line numbers', () => {
-        expectSet(utils.findIndexInInlineLines, getDiffFileMock().highlighted_diff_lines);
-      });
-    });
-
     describe('findIndexInParallelLines', () => {
       it('should return correct index for given line numbers', () => {
         expectSet(utils.findIndexInParallelLines, getDiffFileMock().parallel_diff_lines, []);
@@ -65,73 +59,56 @@ describe('DiffsStoreUtils', () => {
   });
 
   describe('getPreviousLineIndex', () => {
-    [
-      { diffViewType: INLINE_DIFF_VIEW_TYPE, file: { parallel_diff_lines: [] } },
-      { diffViewType: PARALLEL_DIFF_VIEW_TYPE, file: { highlighted_diff_lines: [] } },
-    ].forEach(({ diffViewType, file }) => {
-      describe(`with diffViewType (${diffViewType}) in split diffs`, () => {
-        let diffFile;
+    [{ diffViewType: INLINE_DIFF_VIEW_TYPE, file: { highlighted_diff_lines: [] } }].forEach(
+      ({ diffViewType, file }) => {
+        describe(`with diffViewType (${diffViewType}) in split diffs`, () => {
+          let diffFile;
 
-        beforeEach(() => {
-          diffFile = { ...clone(diffFileMockData), ...file };
+          beforeEach(() => {
+            diffFile = { ...clone(diffFileMockData), ...file };
+          });
+
+          it('should return the correct previous line number', () => {
+            expect(
+              utils.getPreviousLineIndex(diffFile, {
+                oldLineNumber: 3,
+                newLineNumber: 5,
+              }),
+            ).toBe(4);
+          });
         });
-
-        it('should return the correct previous line number', () => {
-          const emptyLines =
-            diffViewType === INLINE_DIFF_VIEW_TYPE
-              ? diffFile.parallel_diff_lines
-              : diffFile.highlighted_diff_lines;
-
-          // This expectation asserts that we cannot possibly be using the opposite view type lines in the next expectation
-          expect(emptyLines.length).toBe(0);
-          expect(
-            utils.getPreviousLineIndex(diffViewType, diffFile, {
-              oldLineNumber: 3,
-              newLineNumber: 5,
-            }),
-          ).toBe(4);
-        });
-      });
-    });
+      },
+    );
   });
 
   describe('removeMatchLine', () => {
     it('should remove match line properly by regarding the bottom parameter', () => {
       const diffFile = getDiffFileMock();
       const lineNumbers = { oldLineNumber: 3, newLineNumber: 5 };
-      const inlineIndex = utils.findIndexInInlineLines(
-        diffFile.highlighted_diff_lines,
-        lineNumbers,
-      );
       const parallelIndex = utils.findIndexInParallelLines(
         diffFile.parallel_diff_lines,
         lineNumbers,
       );
-      const atInlineIndex = diffFile.highlighted_diff_lines[inlineIndex];
       const atParallelIndex = diffFile.parallel_diff_lines[parallelIndex];
 
       utils.removeMatchLine(diffFile, lineNumbers, false);
 
-      expect(diffFile.highlighted_diff_lines[inlineIndex]).not.toEqual(atInlineIndex);
       expect(diffFile.parallel_diff_lines[parallelIndex]).not.toEqual(atParallelIndex);
 
       utils.removeMatchLine(diffFile, lineNumbers, true);
 
-      expect(diffFile.highlighted_diff_lines[inlineIndex + 1]).not.toEqual(atInlineIndex);
       expect(diffFile.parallel_diff_lines[parallelIndex + 1]).not.toEqual(atParallelIndex);
     });
   });
 
   describe('addContextLines', () => {
-    [INLINE_DIFF_VIEW_TYPE, PARALLEL_DIFF_VIEW_TYPE].forEach(diffViewType => {
+    [PARALLEL_DIFF_VIEW_TYPE].forEach(diffViewType => {
       it(`should add context lines for ${diffViewType}`, () => {
         const diffFile = getDiffFileMock();
-        const inlineLines = diffFile.highlighted_diff_lines;
         const parallelLines = diffFile.parallel_diff_lines;
         const lineNumbers = { oldLineNumber: 3, newLineNumber: 5 };
         const contextLines = [{ lineNumber: 42, line_code: '123' }];
-        const options = { inlineLines, parallelLines, contextLines, lineNumbers, diffViewType };
-        const inlineIndex = utils.findIndexInInlineLines(inlineLines, lineNumbers);
+        const options = { parallelLines, contextLines, lineNumbers, diffViewType };
         const parallelIndex = utils.findIndexInParallelLines(parallelLines, lineNumbers);
         const normalizedParallelLine = {
           left: options.contextLines[0],
@@ -141,21 +118,15 @@ describe('DiffsStoreUtils', () => {
 
         utils.addContextLines(options);
 
-        if (diffViewType === INLINE_DIFF_VIEW_TYPE) {
-          expect(inlineLines[inlineIndex]).toEqual(contextLines[0]);
-        } else {
-          expect(parallelLines[parallelIndex]).toEqual(normalizedParallelLine);
-        }
+        expect(parallelLines[parallelIndex]).toEqual(normalizedParallelLine);
       });
 
       it(`should add context lines properly with bottom parameter for ${diffViewType}`, () => {
         const diffFile = getDiffFileMock();
-        const inlineLines = diffFile.highlighted_diff_lines;
         const parallelLines = diffFile.parallel_diff_lines;
         const lineNumbers = { oldLineNumber: 3, newLineNumber: 5 };
         const contextLines = [{ lineNumber: 42, line_code: '123' }];
         const options = {
-          inlineLines,
           parallelLines,
           contextLines,
           lineNumbers,
@@ -170,11 +141,7 @@ describe('DiffsStoreUtils', () => {
 
         utils.addContextLines(options);
 
-        if (diffViewType === INLINE_DIFF_VIEW_TYPE) {
-          expect(inlineLines[inlineLines.length - 1]).toEqual(contextLines[0]);
-        } else {
-          expect(parallelLines[parallelLines.length - 1]).toEqual(normalizedParallelLine);
-        }
+        expect(parallelLines[parallelLines.length - 1]).toEqual(normalizedParallelLine);
       });
     });
   });
@@ -465,27 +432,17 @@ describe('DiffsStoreUtils', () => {
     describe('for regular diff files', () => {
       let mock;
       let preparedDiff;
-      let splitInlineDiff;
-      let splitParallelDiff;
       let completedDiff;
 
       beforeEach(() => {
-        mock = getDiffFileMock();
+        mock = { ...getDiffFileMock(), parallel_diff_lines: [] };
 
         preparedDiff = { diff_files: [mock] };
-        splitInlineDiff = {
-          diff_files: [{ ...mock, parallel_diff_lines: undefined }],
-        };
-        splitParallelDiff = {
-          diff_files: [{ ...mock, highlighted_diff_lines: undefined }],
-        };
         completedDiff = {
-          diff_files: [{ ...mock, highlighted_diff_lines: undefined }],
+          diff_files: [{ ...mock, parallel_diff_lines: [] }],
         };
 
         preparedDiff.diff_files = utils.prepareDiffData(preparedDiff);
-        splitInlineDiff.diff_files = utils.prepareDiffData(splitInlineDiff);
-        splitParallelDiff.diff_files = utils.prepareDiffData(splitParallelDiff);
         completedDiff.diff_files = utils.prepareDiffData(completedDiff, [mock]);
       });
 
@@ -502,17 +459,7 @@ describe('DiffsStoreUtils', () => {
         expect(firstParallelChar).not.toBe('+');
         expect(firstParallelChar).not.toBe('-');
 
-        const checkLine = preparedDiff.diff_files[0].highlighted_diff_lines[0];
-
-        expect(checkLine.discussions.length).toBe(0);
-        expect(checkLine).not.toHaveAttr('text');
-        const firstChar = checkLine.rich_text.charAt(0);
-
-        expect(firstChar).not.toBe(' ');
-        expect(firstChar).not.toBe('+');
-        expect(firstChar).not.toBe('-');
-
-        expect(preparedDiff.diff_files[0].renderIt).toBeTruthy();
+        expect(preparedDiff.diff_files[0].renderIt).toBeFalsy();
         expect(preparedDiff.diff_files[0].collapsed).toBeFalsy();
       });
 
@@ -528,17 +475,9 @@ describe('DiffsStoreUtils', () => {
         expect(firstLine.line_code).toEqual(firstLine.right.line_code);
       });
 
-      it('guarantees an empty array for both diff styles', () => {
-        expect(splitInlineDiff.diff_files[0].parallel_diff_lines.length).toEqual(0);
-        expect(splitInlineDiff.diff_files[0].highlighted_diff_lines.length).toBeGreaterThan(0);
-        expect(splitParallelDiff.diff_files[0].parallel_diff_lines.length).toBeGreaterThan(0);
-        expect(splitParallelDiff.diff_files[0].highlighted_diff_lines.length).toEqual(0);
-      });
-
       it('merges existing diff files with newly loaded diff files to ensure split diffs are eventually completed', () => {
         expect(completedDiff.diff_files.length).toEqual(1);
         expect(completedDiff.diff_files[0].parallel_diff_lines.length).toBeGreaterThan(0);
-        expect(completedDiff.diff_files[0].highlighted_diff_lines.length).toBeGreaterThan(0);
       });
 
       it('leaves files in the existing state', () => {
@@ -553,25 +492,6 @@ describe('DiffsStoreUtils', () => {
         expect(updatedFilesList).toEqual([mock, fakeNewFile]);
       });
 
-      it('completes an existing split diff without overwriting existing diffs', () => {
-        // The current state has a file that has only loaded inline lines
-        const priorFiles = [{ ...mock, parallel_diff_lines: [] }];
-        // The next (batch) load loads two files: the other half of that file, and a new file
-        const fakeBatch = [
-          { ...mock, highlighted_diff_lines: undefined },
-          { ...mock, highlighted_diff_lines: undefined, content_sha: 'ABC', file_hash: 'DEF' },
-        ];
-        const updatedFilesList = utils.prepareDiffData({ diff_files: fakeBatch }, priorFiles);
-
-        expect(updatedFilesList).toEqual([
-          mock,
-          expect.objectContaining({
-            content_sha: 'ABC',
-            file_hash: 'DEF',
-          }),
-        ]);
-      });
-
       it('adds the `.brokenSymlink` property to each diff file', () => {
         preparedDiff.diff_files.forEach(file => {
           expect(file).toEqual(expect.objectContaining({ brokenSymlink: false }));
@@ -579,12 +499,7 @@ describe('DiffsStoreUtils', () => {
       });
 
       it("copies the diff file's `.brokenSymlink` value to each of that file's child lines", () => {
-        const lines = [
-          ...preparedDiff.diff_files,
-          ...splitInlineDiff.diff_files,
-          ...splitParallelDiff.diff_files,
-          ...completedDiff.diff_files,
-        ].flatMap(file => extractLinesFromFile(file));
+        const lines = [...preparedDiff.diff_files].flatMap(file => extractLinesFromFile(file));
 
         lines.forEach(line => {
           expect(line.commentsDisabled).toBe(false);
@@ -603,7 +518,7 @@ describe('DiffsStoreUtils', () => {
       });
 
       it('sets the renderIt and collapsed attribute on files', () => {
-        expect(preparedDiffFiles[0].renderIt).toBeTruthy();
+        expect(preparedDiffFiles[0].renderIt).toBeFalsy();
         expect(preparedDiffFiles[0].collapsed).toBeFalsy();
       });
 

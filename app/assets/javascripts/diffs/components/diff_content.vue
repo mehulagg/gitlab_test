@@ -1,7 +1,6 @@
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex';
 import { GlLoadingIcon } from '@gitlab/ui';
-import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import diffLineNoteFormMixin from '~/notes/mixins/diff_line_note_form';
 import draftCommentsMixin from '~/diffs/mixins/draft_comments';
 import DiffViewer from '~/vue_shared/components/diff_viewer/diff_viewer.vue';
@@ -15,7 +14,7 @@ import NoteForm from '../../notes/components/note_form.vue';
 import ImageDiffOverlay from './image_diff_overlay.vue';
 import DiffDiscussions from './diff_discussions.vue';
 import eventHub from '../../notes/event_hub';
-import { IMAGE_DIFF_POSITION_TYPE } from '../constants';
+import { IMAGE_DIFF_POSITION_TYPE, PARALLEL_DIFF_LINES_KEY } from '../constants';
 import { getDiffMode } from '../store/utils';
 import { diffViewerModes } from '~/ide/constants';
 
@@ -33,7 +32,7 @@ export default {
     userAvatarLink,
     DiffFileDrafts,
   },
-  mixins: [diffLineNoteFormMixin, draftCommentsMixin, glFeatureFlagsMixin()],
+  mixins: [diffLineNoteFormMixin, draftCommentsMixin],
   props: {
     diffFile: {
       type: Object,
@@ -105,6 +104,7 @@ export default {
       });
     },
   },
+  PARALLEL_DIFF_LINES_KEY,
 };
 </script>
 
@@ -115,17 +115,13 @@ export default {
         <inline-diff-view
           v-if="isInlineView"
           :diff-file="diffFile"
-          :diff-lines="
-            glFeatures.unifiedDiffLines
-              ? diffFile.parallel_diff_lines
-              : diffFile.highlighted_diff_lines || []
-          "
+          :diff-lines="diffFile[$options.PARALLEL_DIFF_LINES_KEY] || []"
           :help-page-path="helpPagePath"
         />
         <parallel-diff-view
           v-else-if="isParallelView"
           :diff-file="diffFile"
-          :diff-lines="diffFile.parallel_diff_lines || []"
+          :diff-lines="diffFile[$options.PARALLEL_DIFF_LINES_KEY] || []"
           :help-page-path="helpPagePath"
         />
         <gl-loading-icon v-if="diffFile.renderingLines" size="md" class="mt-3" />

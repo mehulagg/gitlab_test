@@ -13,6 +13,8 @@ import {
   PARALLEL_DIFF_VIEW_TYPE,
   NEW_NO_NEW_LINE_TYPE,
   EMPTY_CELL_TYPE,
+  LINE_POSITION_LEFT,
+  LINE_POSITION_RIGHT,
 } from '../constants';
 
 export default {
@@ -60,14 +62,16 @@ export default {
         if (this.isCommented) return true;
 
         const lineCode =
-          (this.line.left && this.line.left.line_code) ||
-          (this.line.right && this.line.right.line_code);
+          (this.line[LINE_POSITION_LEFT] && this.line[LINE_POSITION_LEFT].line_code) ||
+          (this.line[LINE_POSITION_RIGHT] && this.line[LINE_POSITION_RIGHT].line_code);
 
         return lineCode ? lineCode === state.diffs.highlightedRow : false;
       },
     }),
     isContextLine() {
-      return this.line.left && this.line.left.type === CONTEXT_LINE_TYPE;
+      return (
+        this.line[LINE_POSITION_LEFT] && this.line[LINE_POSITION_LEFT].type === CONTEXT_LINE_TYPE
+      );
     },
     classNameMap() {
       return {
@@ -76,11 +80,16 @@ export default {
       };
     },
     parallelViewLeftLineType() {
-      if (this.line.right && this.line.right.type === NEW_NO_NEW_LINE_TYPE) {
+      if (
+        this.line[LINE_POSITION_RIGHT] &&
+        this.line[LINE_POSITION_RIGHT].type === NEW_NO_NEW_LINE_TYPE
+      ) {
         return OLD_NO_NEW_LINE_TYPE;
       }
 
-      const lineTypeClass = this.line.left ? this.line.left.type : EMPTY_CELL_TYPE;
+      const lineTypeClass = this.line[LINE_POSITION_LEFT]
+        ? this.line[LINE_POSITION_LEFT].type
+        : EMPTY_CELL_TYPE;
 
       return [
         lineTypeClass,
@@ -90,13 +99,17 @@ export default {
       ];
     },
     isMatchLineLeft() {
-      return this.line.left && this.line.left.type === MATCH_LINE_TYPE;
+      return (
+        this.line[LINE_POSITION_LEFT] && this.line[LINE_POSITION_LEFT].type === MATCH_LINE_TYPE
+      );
     },
     isMatchLineRight() {
-      return this.line.right && this.line.right.type === MATCH_LINE_TYPE;
+      return (
+        this.line[LINE_POSITION_RIGHT] && this.line[LINE_POSITION_RIGHT].type === MATCH_LINE_TYPE
+      );
     },
     coverageState() {
-      return this.fileLineCoverage(this.filePath, this.line.right.new_line);
+      return this.fileLineCoverage(this.filePath, this.line[LINE_POSITION_RIGHT].new_line);
     },
   },
   created() {
@@ -135,6 +148,8 @@ export default {
       }
     },
   },
+  LINE_POSITION_LEFT,
+  LINE_POSITION_RIGHT,
 };
 </script>
 
@@ -145,10 +160,10 @@ export default {
     @mouseover="handleMouseMove"
     @mouseout="handleMouseMove"
   >
-    <template v-if="line.left && !isMatchLineLeft">
+    <template v-if="line[$options.LINE_POSITION_LEFT] && !isMatchLineLeft">
       <diff-table-cell
         :file-hash="fileHash"
-        :line="line.left"
+        :line="line[$options.LINE_POSITION_LEFT]"
         :line-type="oldLineType"
         :is-bottom="isBottom"
         :is-hover="isLeftHover"
@@ -160,8 +175,8 @@ export default {
       />
       <td :class="parallelViewLeftLineType" class="line-coverage left-side"></td>
       <td
-        :id="line.left.line_code"
-        v-safe-html="line.left.rich_text"
+        :id="line[$options.LINE_POSITION_LEFT].line_code"
+        v-safe-html="line[$options.LINE_POSITION_LEFT].rich_text"
         :class="parallelViewLeftLineType"
         class="line_content with-coverage parallel left-side"
         @mousedown="handleParallelLineMouseDown"
@@ -172,10 +187,10 @@ export default {
       <td class="line-coverage left-side empty-cell"></td>
       <td class="line_content with-coverage parallel left-side empty-cell"></td>
     </template>
-    <template v-if="line.right && !isMatchLineRight">
+    <template v-if="line[$options.LINE_POSITION_RIGHT] && !isMatchLineRight">
       <diff-table-cell
         :file-hash="fileHash"
-        :line="line.right"
+        :line="line[$options.LINE_POSITION_RIGHT]"
         :line-type="newLineType"
         :is-bottom="isBottom"
         :is-hover="isRightHover"
@@ -188,14 +203,18 @@ export default {
       <td
         v-gl-tooltip.hover
         :title="coverageState.text"
-        :class="[line.right.type, coverageState.class, { hll: isHighlighted }]"
+        :class="[
+          line[$options.LINE_POSITION_RIGHT].type,
+          coverageState.class,
+          { hll: isHighlighted },
+        ]"
         class="line-coverage right-side"
       ></td>
       <td
-        :id="line.right.line_code"
-        v-safe-html="line.right.rich_text"
+        :id="line[$options.LINE_POSITION_RIGHT].line_code"
+        v-safe-html="line[$options.LINE_POSITION_RIGHT].rich_text"
         :class="[
-          line.right.type,
+          line[$options.LINE_POSITION_RIGHT].type,
           {
             hll: isHighlighted,
           },

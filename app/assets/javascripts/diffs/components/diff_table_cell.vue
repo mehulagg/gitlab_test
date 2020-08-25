@@ -6,12 +6,13 @@ import DiffGutterAvatars from './diff_gutter_avatars.vue';
 import { __ } from '~/locale';
 import {
   CONTEXT_LINE_TYPE,
-  LINE_POSITION_RIGHT,
   EMPTY_CELL_TYPE,
   OLD_NO_NEW_LINE_TYPE,
   OLD_LINE_TYPE,
   NEW_NO_NEW_LINE_TYPE,
   LINE_HOVER_CLASS_NAME,
+  LINE_POSITION_LEFT,
+  LINE_POSITION_RIGHT,
 } from '../constants';
 
 export default {
@@ -71,8 +72,8 @@ export default {
     lineCode() {
       return (
         this.line.line_code ||
-        (this.line.left && this.line.left.line_code) ||
-        (this.line.right && this.line.right.line_code)
+        (this.line[LINE_POSITION_LEFT] && this.line[LINE_POSITION_LEFT].line_code) ||
+        (this.line[LINE_POSITION_RIGHT] && this.line[LINE_POSITION_RIGHT].line_code)
       );
     },
     lineHref() {

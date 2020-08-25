@@ -4,7 +4,13 @@ import { GlIcon } from '@gitlab/ui';
 import { deprecatedCreateFlash as createFlash } from '~/flash';
 import { s__, sprintf } from '~/locale';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
-import { UNFOLD_COUNT, INLINE_DIFF_VIEW_TYPE, PARALLEL_DIFF_VIEW_TYPE } from '../constants';
+import {
+  UNFOLD_COUNT,
+  PARALLEL_DIFF_VIEW_TYPE,
+  PARALLEL_DIFF_LINES_KEY,
+  LINE_POSITION_LEFT,
+  LINE_POSITION_RIGHT,
+} from '../constants';
 import * as utils from '../store/utils';
 import tooltip from '../../vue_shared/directives/tooltip';
 
@@ -12,13 +18,11 @@ const EXPAND_ALL = 0;
 const EXPAND_UP = 1;
 const EXPAND_DOWN = 2;
 
-const lineNumberByViewType = (viewType, diffLine) => {
-  const numberGetters = {
-    [INLINE_DIFF_VIEW_TYPE]: line => line?.new_line,
-    [PARALLEL_DIFF_VIEW_TYPE]: line => (line?.right || line?.left)?.new_line,
-  };
-  const numberGetter = numberGetters[viewType];
-  return numberGetter && numberGetter(diffLine);
+const lineNumberByViewType = diffLine => {
+  const numberGetter = line =>
+    (line?.[LINE_POSITION_RIGHT] || line?.[LINE_POSITION_LEFT])?.new_line;
+
+  return numberGetter(diffLine);
 };
 
 const i18n = {
@@ -66,11 +70,6 @@ export default {
   },
   computed: {
     ...mapState({
-      diffViewType(state) {
-        return this.glFeatures.unifiedDiffLines
-          ? PARALLEL_DIFF_VIEW_TYPE
-          : state.diffs.diffViewType;
-      },
       diffFiles: state => state.diffs.diffFiles,
     }),
     canExpandUp() {
@@ -88,16 +87,12 @@ export default {
     ...mapActions('diffs', ['loadMoreLines']),
     getPrevLineNumber(oldLineNumber, newLineNumber) {
       const diffFile = utils.findDiffFile(this.diffFiles, this.fileHash);
-      const lines = {
-        [INLINE_DIFF_VIEW_TYPE]: diffFile.highlighted_diff_lines,
-        [PARALLEL_DIFF_VIEW_TYPE]: diffFile.parallel_diff_lines,
-      };
-      const index = utils.getPreviousLineIndex(this.diffViewType, diffFile, {
+      const index = utils.getPreviousLineIndex(diffFile, {
         oldLineNumber,
         newLineNumber,
       });
 
-      return lineNumberByViewType(this.diffViewType, lines[this.diffViewType][index - 2]) || 0;
+      return lineNumberByViewType(diffFile[PARALLEL_DIFF_LINES_KEY][index - 2]) || 0;
     },
     callLoadMoreLines(
       endpoint,
@@ -124,7 +119,7 @@ export default {
       this.isRequesting = true;
       const endpoint = this.contextLinesPath;
       const { fileHash } = this;
-      const view = this.diffViewType;
+      const view = PARALLEL_DIFF_VIEW_TYPE;
       const oldLineNumber = this.line.meta_data.old_pos || 0;
       const newLineNumber = this.line.meta_data.new_pos || 0;
       const offset = newLineNumber - oldLineNumber;

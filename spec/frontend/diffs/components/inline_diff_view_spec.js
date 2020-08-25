@@ -20,7 +20,7 @@ describe('InlineDiffView', () => {
     store.dispatch('diffs/setInlineDiffViewType');
     component = createComponentWithStore(Vue.extend(InlineDiffView), store, {
       diffFile,
-      diffLines: diffFile.highlighted_diff_lines,
+      diffLines: diffFile.parallel_diff_lines,
     }).$mount();
 
     Vue.nextTick(done);
@@ -38,8 +38,8 @@ describe('InlineDiffView', () => {
 
     it('should render discussions', done => {
       const el = component.$el;
-      component.diffLines[1].discussions = getDiscussionsMockData();
-      component.diffLines[1].discussionsExpanded = true;
+      component.diffLines[1].right.discussions = getDiscussionsMockData();
+      component.diffLines[1].right.discussionsExpanded = true;
 
       Vue.nextTick(() => {
         expect(el.querySelectorAll('.notes_holder').length).toEqual(1);

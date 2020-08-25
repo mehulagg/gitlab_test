@@ -34,12 +34,13 @@ import {
   MAX_RENDERING_BULK_ROWS,
   MIN_RENDERING_MS,
   START_RENDERING_INDEX,
-  INLINE_DIFF_LINES_KEY,
   PARALLEL_DIFF_LINES_KEY,
   DIFFS_PER_PAGE,
   DIFF_WHITESPACE_COOKIE_NAME,
   SHOW_WHITESPACE,
   NO_SHOW_WHITESPACE,
+  LINE_POSITION_LEFT,
+  LINE_POSITION_RIGHT,
 } from '../constants';
 import { diffViewerModes } from '~/ide/constants';
 
@@ -70,7 +71,7 @@ export const fetchDiffFilesBatch = ({ commit, state, dispatch }) => {
   const urlParams = {
     per_page: DIFFS_PER_PAGE,
     w: state.showWhitespace ? '0' : '1',
-    view: window.gon?.features?.unifiedDiffLines ? 'inline' : state.diffViewType,
+    view: 'inline',
   };
 
   commit(types.SET_BATCH_LOADING, true);
@@ -132,7 +133,7 @@ export const fetchDiffFilesBatch = ({ commit, state, dispatch }) => {
 export const fetchDiffFilesMeta = ({ commit, state }) => {
   const worker = new TreeWorker();
   const urlParams = {
-    view: window.gon?.features?.unifiedDiffLines ? 'inline' : state.diffViewType,
+    view: 'inline',
   };
 
   commit(types.SET_LOADING, true);
@@ -333,7 +334,8 @@ export const scrollToLineIfNeededParallel = (_, line) => {
 
   if (
     hash &&
-    ((line.left && line.left.line_code === hash) || (line.right && line.right.line_code === hash))
+    ((line[LINE_POSITION_LEFT] && line[LINE_POSITION_LEFT].line_code === hash) ||
+      (line[LINE_POSITION_RIGHT] && line[LINE_POSITION_RIGHT].line_code === hash))
   ) {
     handleLocationHash();
   }
@@ -388,10 +390,10 @@ export const toggleFileDiscussions = ({ getters, dispatch }, diff) => {
 export const toggleFileDiscussionWrappers = ({ commit }, diff) => {
   const discussionWrappersExpanded = allDiscussionWrappersExpanded(diff);
   const lineCodesWithDiscussions = new Set();
-  const { parallel_diff_lines: parallelLines, highlighted_diff_lines: inlineLines } = diff;
-  const allLines = inlineLines.concat(
-    parallelLines.map(line => line.left),
-    parallelLines.map(line => line.right),
+  const { [PARALLEL_DIFF_LINES_KEY]: parallelLines } = diff;
+  const allLines = [].concat(
+    parallelLines.map(line => line[LINE_POSITION_LEFT]),
+    parallelLines.map(line => line[LINE_POSITION_RIGHT]),
   );
   const lineHasDiscussion = line => Boolean(line?.discussions.length);
   const registerDiscussionLine = line => lineCodesWithDiscussions.add(line.line_code);
@@ -495,34 +497,21 @@ export const receiveFullDiffError = ({ commit }, filePath) => {
   createFlash(s__('MergeRequest|Error loading full diff. Please try again.'));
 };
 
-export const setExpandedDiffLines = ({ commit, state }, { file, data }) => {
+export const setExpandedDiffLines = ({ commit }, { file, data }) => {
   const expandedDiffLines = {
-    highlighted_diff_lines: convertExpandLines({
-      diffLines: file.highlighted_diff_lines,
-      typeKey: TYPE_KEY,
-      oldLineKey: OLD_LINE_KEY,
-      newLineKey: NEW_LINE_KEY,
-      data,
-      mapLine: ({ line, oldLine, newLine }) =>
-        Object.assign(line, {
-          old_line: oldLine,
-          new_line: newLine,
-          line_code: `${file.file_hash}_${oldLine}_${newLine}`,
-        }),
-    }),
     parallel_diff_lines: convertExpandLines({
-      diffLines: file.parallel_diff_lines,
+      diffLines: file[PARALLEL_DIFF_LINES_KEY],
       typeKey: [LEFT_LINE_KEY, TYPE_KEY],
       oldLineKey: [LEFT_LINE_KEY, OLD_LINE_KEY],
       newLineKey: [LEFT_LINE_KEY, NEW_LINE_KEY],
       data,
       mapLine: ({ line, oldLine, newLine }) => ({
-        left: {
+        [LINE_POSITION_LEFT]: {
           ...line,
           old_line: oldLine,
           line_code: `${file.file_hash}_${oldLine}_${newLine}`,
         },
-        right: {
+        [LINE_POSITION_RIGHT]: {
           ...line,
           new_line: newLine,
           line_code: `${file.file_hash}_${newLine}_${oldLine}`,
@@ -530,21 +519,12 @@ export const setExpandedDiffLines = ({ commit, state }, { file, data }) => {
       }),
     }),
   };
-  const currentDiffLinesKey =
-    state.diffViewType === INLINE_DIFF_VIEW_TYPE ? INLINE_DIFF_LINES_KEY : PARALLEL_DIFF_LINES_KEY;
-  const hiddenDiffLinesKey =
-    state.diffViewType === INLINE_DIFF_VIEW_TYPE ? PARALLEL_DIFF_LINES_KEY : INLINE_DIFF_LINES_KEY;
 
-  commit(types.SET_HIDDEN_VIEW_DIFF_FILE_LINES, {
-    filePath: file.file_path,
-    lines: expandedDiffLines[hiddenDiffLinesKey],
-  });
-
-  if (expandedDiffLines[currentDiffLinesKey].length > MAX_RENDERING_DIFF_LINES) {
+  if (expandedDiffLines[PARALLEL_DIFF_LINES_KEY].length > MAX_RENDERING_DIFF_LINES) {
     let index = START_RENDERING_INDEX;
     commit(types.SET_CURRENT_VIEW_DIFF_FILE_LINES, {
       filePath: file.file_path,
-      lines: expandedDiffLines[currentDiffLinesKey].slice(0, index),
+      lines: expandedDiffLines[PARALLEL_DIFF_LINES_KEY].slice(0, index),
     });
     commit(types.TOGGLE_DIFF_FILE_RENDERING_MORE, file.file_path);
 
@@ -553,10 +533,10 @@ export const setExpandedDiffLines = ({ commit, state }, { file, data }) => {
 
       while (
         t.timeRemaining() >= MIN_RENDERING_MS &&
-        index !== expandedDiffLines[currentDiffLinesKey].length &&
+        index !== expandedDiffLines[PARALLEL_DIFF_LINES_KEY].length &&
         index - startIndex !== MAX_RENDERING_BULK_ROWS
       ) {
-        const line = expandedDiffLines[currentDiffLinesKey][index];
+        const line = expandedDiffLines[PARALLEL_DIFF_LINES_KEY][index];
 
         if (line) {
           commit(types.ADD_CURRENT_VIEW_DIFF_FILE_LINES, { filePath: file.file_path, line });
@@ -564,7 +544,7 @@ export const setExpandedDiffLines = ({ commit, state }, { file, data }) => {
         }
       }
 
-      if (index !== expandedDiffLines[currentDiffLinesKey].length) {
+      if (index !== expandedDiffLines[PARALLEL_DIFF_LINES_KEY].length) {
         idleCallback(idleCb);
       } else {
         commit(types.TOGGLE_DIFF_FILE_RENDERING_MORE, file.file_path);
@@ -575,7 +555,7 @@ export const setExpandedDiffLines = ({ commit, state }, { file, data }) => {
   } else {
     commit(types.SET_CURRENT_VIEW_DIFF_FILE_LINES, {
       filePath: file.file_path,
-      lines: expandedDiffLines[currentDiffLinesKey],
+      lines: expandedDiffLines[PARALLEL_DIFF_LINES_KEY],
     });
   }
 };

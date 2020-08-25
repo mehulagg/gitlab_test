@@ -1,5 +1,6 @@
 <script>
 import { mapActions } from 'vuex';
+import { LINE_POSITION_LEFT, LINE_POSITION_RIGHT } from '../constants';
 import DiffDiscussions from './diff_discussions.vue';
 import DiffLineNoteForm from './diff_line_note_form.vue';
 import DiffDiscussionReply from './diff_discussion_reply.vue';
@@ -41,13 +42,13 @@ export default {
   },
   computed: {
     hasExpandedDiscussionOnLeft() {
-      return this.line.left && this.line.left.discussions.length
-        ? this.line.left.discussionsExpanded
+      return this.line[LINE_POSITION_LEFT] && this.line[LINE_POSITION_LEFT].discussions.length
+        ? this.line[LINE_POSITION_LEFT].discussionsExpanded
         : false;
     },
     hasExpandedDiscussionOnRight() {
-      return this.line.right && this.line.right.discussions.length
-        ? this.line.right.discussionsExpanded
+      return this.line[LINE_POSITION_RIGHT] && this.line[LINE_POSITION_RIGHT].discussions.length
+        ? this.line[LINE_POSITION_RIGHT].discussionsExpanded
         : false;
     },
     hasAnyExpandedDiscussion() {
@@ -55,38 +56,46 @@ export default {
     },
     shouldRenderDiscussionsOnLeft() {
       return (
-        this.line.left &&
-        this.line.left.discussions &&
-        this.line.left.discussions.length &&
+        this.line[LINE_POSITION_LEFT] &&
+        this.line[LINE_POSITION_LEFT].discussions &&
+        this.line[LINE_POSITION_LEFT].discussions.length &&
         this.hasExpandedDiscussionOnLeft
       );
     },
     shouldRenderDiscussionsOnRight() {
       return (
-        this.line.right &&
-        this.line.right.discussions &&
-        this.line.right.discussions.length &&
+        this.line[LINE_POSITION_RIGHT] &&
+        this.line[LINE_POSITION_RIGHT].discussions &&
+        this.line[LINE_POSITION_RIGHT].discussions.length &&
         this.hasExpandedDiscussionOnRight &&
-        this.line.right.type
+        this.line[LINE_POSITION_RIGHT].type
       );
     },
     showRightSideCommentForm() {
-      return this.line.right && this.line.right.type && this.line.right.hasForm;
+      return (
+        this.line[LINE_POSITION_RIGHT] &&
+        this.line[LINE_POSITION_RIGHT].type &&
+        this.line[LINE_POSITION_RIGHT].hasForm
+      );
     },
     showLeftSideCommentForm() {
-      return this.line.left && this.line.left.hasForm;
+      return this.line[LINE_POSITION_LEFT] && this.line[LINE_POSITION_LEFT].hasForm;
     },
     className() {
-      return (this.left && this.line.left.discussions.length > 0) ||
-        (this.right && this.line.right.discussions.length > 0)
+      return (this[LINE_POSITION_LEFT] && this.line[LINE_POSITION_LEFT].discussions.length > 0) ||
+        (this[LINE_POSITION_RIGHT] && this.line[LINE_POSITION_RIGHT].discussions.length > 0)
         ? ''
         : 'js-temp-notes-holder';
     },
     shouldRender() {
       const { line } = this;
       const hasDiscussion =
-        (line.left && line.left.discussions && line.left.discussions.length) ||
-        (line.right && line.right.discussions && line.right.discussions.length);
+        (line[LINE_POSITION_LEFT] &&
+          line[LINE_POSITION_LEFT].discussions &&
+          line[LINE_POSITION_LEFT].discussions.length) ||
+        (line[LINE_POSITION_RIGHT] &&
+          line[LINE_POSITION_RIGHT].discussions &&
+          line[LINE_POSITION_RIGHT].discussions.length);
 
       if (
         hasDiscussion &&
@@ -95,19 +104,23 @@ export default {
         return true;
       }
 
-      const hasCommentFormOnLeft = line.left && line.left.hasForm;
-      const hasCommentFormOnRight = line.right && line.right.hasForm;
+      const hasCommentFormOnLeft = line[LINE_POSITION_LEFT] && line[LINE_POSITION_LEFT].hasForm;
+      const hasCommentFormOnRight = line[LINE_POSITION_RIGHT] && line[LINE_POSITION_RIGHT].hasForm;
 
       return hasCommentFormOnLeft || hasCommentFormOnRight;
     },
     shouldRenderReplyPlaceholderOnLeft() {
       return Boolean(
-        this.line.left && this.line.left.discussions && this.line.left.discussions.length,
+        this.line[LINE_POSITION_LEFT] &&
+          this.line[LINE_POSITION_LEFT].discussions &&
+          this.line[LINE_POSITION_LEFT].discussions.length,
       );
     },
     shouldRenderReplyPlaceholderOnRight() {
       return Boolean(
-        this.line.right && this.line.right.discussions && this.line.right.discussions.length,
+        this.line[LINE_POSITION_RIGHT] &&
+          this.line[LINE_POSITION_RIGHT].discussions &&
+          this.line[LINE_POSITION_RIGHT].discussions.length,
       );
     },
   },
@@ -117,6 +130,8 @@ export default {
       this.showCommentForm({ lineCode: this.line.line_code, fileHash: this.diffFileHash });
     },
   },
+  LINE_POSITION_LEFT,
+  LINE_POSITION_RIGHT,
 };
 </script>
 
@@ -125,8 +140,8 @@ export default {
     <td class="notes-content parallel old" colspan="3">
       <div v-if="shouldRenderDiscussionsOnLeft" class="content">
         <diff-discussions
-          :discussions="line.left.discussions"
-          :line="line.left"
+          :discussions="line[$options.LINE_POSITION_LEFT].discussions"
+          :line="line[$options.LINE_POSITION_LEFT]"
           :help-page-path="helpPagePath"
         />
       </div>
@@ -139,8 +154,8 @@ export default {
         <template #form>
           <diff-line-note-form
             :diff-file-hash="diffFileHash"
-            :line="line.left"
-            :note-target-line="line.left"
+            :line="line[$options.LINE_POSITION_LEFT]"
+            :note-target-line="line[$options.LINE_POSITION_LEFT]"
             :help-page-path="helpPagePath"
             line-position="left"
           />
@@ -150,8 +165,8 @@ export default {
     <td class="notes-content parallel new" colspan="3">
       <div v-if="shouldRenderDiscussionsOnRight" class="content">
         <diff-discussions
-          :discussions="line.right.discussions"
-          :line="line.right"
+          :discussions="line[$options.LINE_POSITION_RIGHT].discussions"
+          :line="line[$options.LINE_POSITION_RIGHT]"
           :help-page-path="helpPagePath"
         />
       </div>
@@ -164,8 +179,8 @@ export default {
         <template #form>
           <diff-line-note-form
             :diff-file-hash="diffFileHash"
-            :line="line.right"
-            :note-target-line="line.right"
+            :line="line[$options.LINE_POSITION_RIGHT]"
+            :note-target-line="line[$options.LINE_POSITION_RIGHT]"
             line-position="right"
           />
         </template>
