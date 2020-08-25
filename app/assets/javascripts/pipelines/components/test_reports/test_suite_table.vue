@@ -2,6 +2,7 @@
 import { GlTooltipDirective, GlFriendlyWrap, GlIcon } from '@gitlab/ui';
 import { __ } from '~/locale';
 import SmartVirtualList from '~/vue_shared/components/smart_virtual_list.vue';
+import { formatTime, secondsToMilliseconds } from '~/lib/utils/datetime_utility';
 
 export default {
   name: 'TestsSuiteTable',
@@ -28,6 +29,11 @@ export default {
     hasSuites() {
       return this.suiteTests.length > 0;
     },
+  },
+  methods: {
+    formattedTime(time) {
+      formatTime(secondsToMilliseconds(time))
+    }
   },
   maxShownRows: 30,
   typicalRowHeight: 75,
@@ -106,9 +112,9 @@ export default {
             <div role="rowheader" class="table-mobile-header">{{ __('Trace'), }}</div>
             <div class="table-mobile-content">
               <pre
-                v-if="testCase.system_output"
+                v-if="testCase.systemOutput"
                 class="build-trace build-trace-rounded text-left"
-              ><code class="bash p-0">{{testCase.system_output}}</code></pre>
+              ><code class="bash p-0">{{testCase.systemOutput}}</code></pre>
             </div>
           </div>
 
@@ -117,7 +123,7 @@ export default {
               {{ __('Duration') }}
             </div>
             <div class="table-mobile-content text-right pr-sm-1">
-              {{ testCase.formattedTime }}
+              {{ formattedTime(testCase.executionTime) }}
             </div>
           </div>
         </div>

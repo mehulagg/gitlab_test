@@ -39,12 +39,16 @@ export default {
           endpoint: this.summaryEndpoint,
         };
       },
+      update(data) {
+        return data.testReport;
+      },
     },
   },
   data() {
     return {
       testReport: {},
       selectedSuiteIndex: null,
+      testSuite: {},
     };
   },
   computed: {
@@ -59,14 +63,16 @@ export default {
       if (this.selectedSuiteIndex === null) {
         return {};
       }
-      return this.testReport.testSuite[this.selectedSuiteIndex];
+      console.log(this.testReport);
+      console.log(this.testSuite);
+      return this.testSuite;
     },
     suiteTests() {
       if (!this.showSuite) {
         return [];
       }
 
-      const { testCases } = this.selectedSuite;
+      const { testCases = [] } = this.selectedSuite || {};
       return testCases.sort(sortTestCases).map(addIconStatus);
     },
     testSuites() {
@@ -86,12 +92,11 @@ export default {
     },
     summaryTableRowClick(index) {
       // Set the selected test suite so that the view changes
-      this.selectedSuiteIndex = index;
       const testSuite = this.testReport.testSuites[index];
 
       // Fetch test suite when the user clicks to see more details
       // QUESTION: Does this cache and not refetch when clicked on again?
-      this.$apollo.addSmartQuery('testSuiteReport', {
+      this.$apollo.addSmartQuery('testSuite', {
         query: getTestSuiteReport,
         variables() {
           return {
@@ -102,6 +107,10 @@ export default {
             suiteIndex: index,
             buildIds: this.testReport.testSuites[index].buildIds,
           };
+        },
+        update(data) {
+          this.selectedSuiteIndex = index;
+          return data.testSuites;
         },
       });
     },

@@ -1,5 +1,5 @@
-fragment TestReportSummary on TestReports {
-  testReport(endpoint: $endpoint) @client {
+query getTestReport {
+  testReport @client {
     total {
       time
       count
@@ -18,7 +18,16 @@ fragment TestReportSummary on TestReports {
         skipped
         error
       }
-      build_ids
+      buildIds
+      suiteError
+      testCases {
+        status
+        name
+        classname
+        executionTime
+        systemOutput
+        stackTrace
+      }
     }
   }
 }

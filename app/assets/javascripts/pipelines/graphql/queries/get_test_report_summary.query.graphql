@@ -1,29 +1,24 @@
-query getTestReportSummary($projectPath: ID!, $iid: ID!, $endpoint: String!) {
-  project(fullPath: $projectPath) {
-    pipeline(iid: $iid) {
-      id,
-      testReport(endpoint: $endpoint) @client {
-        total {
-          time
-          count
-          success
-          failed
-          skipped
-          error
-        }
-        testSuites {
-          name
-          total {
-            time
-            count
-            success
-            failed
-            skipped
-            error
-          }
-          build_ids
-        }
+query getTestReportSummary($endpoint: String!) {
+  testReport(endpoint: $endpoint) @client {
+    total {
+      time
+      count
+      success
+      failed
+      skipped
+      error
+    }
+    testSuites {
+      name
+      total {
+        time
+        count
+        success
+        failed
+        skipped
+        error
       }
+      buildIds
     }
   }
 }
