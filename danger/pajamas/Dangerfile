@@ -20,4 +20,14 @@ deprecated_components_in_mr = PATTERNS.select { |s| has_deprecated_components.jo
 
 return if deprecated_components_in_mr.empty?
 
-warn "This merge request contains the following deprecated components: #{deprecated_components_in_mr.join(", ")}. Please consider using Pajamas components instead."
+warn "This merge request contains deprecated components. Please consider using Pajamas components instead."
+
+markdown(<<~MARKDOWN)
+  ## Deprecated components
+
+  The following components are deprecated:
+
+  * #{deprecated_components_in_mr.join("\n* ")}
+
+  Please consider using [Pajamas components](https://design.gitlab.com/components/status/) instead.
+MARKDOWN
