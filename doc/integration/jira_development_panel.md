@@ -30,7 +30,7 @@ regular users won't impact your integration.
 
 ## Requirements
 
-- Make sure your **GitLab** instance is accessible from Jira (Server/Cloud).
+- Ensure your networking rules are configured so that the GitLab instance is accessible from Jira, whether a Jira Server instance or Jira Cloud.
 - If you are using **Jira Server**, make sure your instance is accessible however your network is set up. Especially, when you're trying to connect to **GitLab.com**.
 
 ## GitLab Configuration
