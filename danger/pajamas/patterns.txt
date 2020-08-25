@@ -2,3 +2,8 @@ createFlash
 gl-deprecated-button
 loading-button
 pagination-button
+gl-deprecated-dropdown
+gl-deprecated-dropdown-divider
+gl-deprecated-dropdown-header
+gl-deprecated-dropdown-item
+initDeprecatedJQueryDropdown
