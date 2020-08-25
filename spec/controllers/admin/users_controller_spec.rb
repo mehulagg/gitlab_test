@@ -298,33 +298,57 @@ RSpec.describe Admin::UsersController do
         post :update, params: params
       end
 
-      context 'when the admin changes their own password' do
-        it 'updates the password' do
-          expect { update_password(admin, 'AValidPassword1') }
-            .to change { admin.reload.encrypted_password }
-        end
+      context 'when admin changes their own password' do
+        context 'when password is valid' do
+          it 'updates the password' do
+            expect { update_password(admin, 'AValidPassword1') }
+              .to change { admin.reload.encrypted_password }
+          end
 
-        it 'does not set the new password to expire immediately' do
-          expect { update_password(admin, 'AValidPassword1') }
-            .not_to change { admin.reload.password_expires_at }
+          it 'does not set the new password to expire immediately' do
+            expect { update_password(admin, 'AValidPassword1') }
+              .not_to change { admin.reload.password_expires_at }
+          end
+
+          it 'does not enqueue the `admin changed your password` email' do
+            expect { update_password(admin, 'AValidPassword1') }
+              .not_to have_enqueued_mail(DeviseMailer, :password_change_by_admin)
+          end
+
+          it 'enqueues the `password changed` email' do
+            expect { update_password(admin, 'AValidPassword1') }
+              .to have_enqueued_mail(DeviseMailer, :password_change)
+          end
         end
       end
 
-      context 'when the new password is valid' do
-        it 'redirects to the user' do
-          update_password(user, 'AValidPassword1')
+      context 'when admin changes the password of another user' do
+        context 'when the new password is valid' do
+          it 'redirects to the user' do
+            update_password(user, 'AValidPassword1')
 
-          expect(response).to redirect_to(admin_user_path(user))
-        end
+            expect(response).to redirect_to(admin_user_path(user))
+          end
 
-        it 'updates the password' do
-          expect { update_password(user, 'AValidPassword1') }
-            .to change { user.reload.encrypted_password }
-        end
+          it 'updates the password' do
+            expect { update_password(user, 'AValidPassword1') }
+              .to change { user.reload.encrypted_password }
+          end
 
-        it 'sets the new password to expire immediately' do
-          expect { update_password(user, 'AValidPassword1') }
-            .to change { user.reload.password_expires_at }.to be_within(2.seconds).of(Time.current)
+          it 'sets the new password to expire immediately' do
+            expect { update_password(user, 'AValidPassword1') }
+              .to change { user.reload.password_expires_at }.to be_within(2.seconds).of(Time.current)
+          end
+
+          it 'enqueues the `admin changed your password` email' do
+            expect { update_password(user, 'AValidPassword1') }
+              .to have_enqueued_mail(DeviseMailer, :password_change_by_admin)
+          end
+
+          it 'does not enqueue the `password changed` email' do
+            expect { update_password(user, 'AValidPassword1') }
+              .not_to have_enqueued_mail(DeviseMailer, :password_change)
+          end
         end
       end
 
