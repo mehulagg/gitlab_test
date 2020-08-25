@@ -11,6 +11,7 @@ module QA
       @project.visit!
     end
 
+=begin
     it 'allows configuration of alerts', quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/233409', type: :flaky } do
       Page::Project::Menu.perform(&:go_to_operations_metrics)
 
@@ -22,8 +23,9 @@ module QA
         verify_delete_alert(on_dashboard)
       end
     end
+=end
 
-    it 'creates an incident template and opens an incident with template applied', quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/236203', type: :investigating } do
+    it 'creates an incident template and opens an incident with template applied' do
       create_incident_template
 
       Page::Project::Menu.perform(&:go_to_operations_settings)
