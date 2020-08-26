@@ -348,7 +348,9 @@ PUT /groups/:id/epics/:epic_iid
 | `title`             | string           | no         | The title of an epic |
 | `description`       | string           | no         | The description of an epic. Limited to 1,048,576 characters.  |
 | `confidential`      | boolean          | no         | Whether the epic should be confidential. Will be ignored if `confidential_epics` feature flag is disabled. |
-| `labels`            | string           | no         | The comma separated list of labels |
+| `labels`            | string           | no         | Comma-separated label names for an issue. Set to an empty string to unassign all labels. |
+| `add_labels`        | string           | no         | Comma-separated label names to add to an issue. |
+| `remove_labels`     | string           | no         | Comma-separated label names to remove from an issue. |
 | `start_date_is_fixed` | boolean        | no         | Whether start date should be sourced from `start_date_fixed` or from milestones (since 11.3) |
 | `start_date_fixed`  | string           | no         | The fixed start date of an epic (since 11.3) |
 | `due_date_is_fixed` | boolean          | no         | Whether due date should be sourced from `due_date_fixed` or from milestones (since 11.3) |
