@@ -27,11 +27,9 @@ RSpec.describe API::Helpers::Packages::DependencyProxyHelpers do
         expect(helper).to receive(:registry_url).once
         expect(helper).to receive(:redirect).once
         expect(helper).to receive(:fallback).never
-
-        it_behaves_like 'a gitlab tracking event', described_class.name, 'npm_request_forward'
-
-        subject
       end
+
+      it_behaves_like 'a gitlab tracking event', described_class.name, 'npm_request_forward'
     end
 
     context 'with npm packages' do
