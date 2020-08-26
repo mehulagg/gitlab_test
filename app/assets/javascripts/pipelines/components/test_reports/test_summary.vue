@@ -1,7 +1,7 @@
 <script>
 import { GlDeprecatedButton, GlProgressBar, GlIcon } from '@gitlab/ui';
 import { __ } from '~/locale';
-import { formattedTime } from '../../stores/test_reports/utils';
+import { formatTime } from './utils';
 
 export default {
   name: 'TestSummary',
@@ -38,7 +38,7 @@ export default {
       return 0;
     },
     formattedDuration() {
-      return formattedTime(this.report.total_time);
+      return formatTime(this.report.total_time);
     },
     progressBarVariant() {
       if (this.successPercentage < 33) {

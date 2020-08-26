@@ -5,7 +5,7 @@ import getTestSuiteReport from '../../graphql/queries/get_test_suite_report.quer
 import TestSuiteTable from './test_suite_table.vue';
 import TestSummary from './test_summary.vue';
 import TestSummaryTable from './test_summary_table.vue';
-import { addIconStatus, formattedTime, sortTestCases } from '../../stores/test_reports/utils';
+import { formatTime, iconForTestStatus } from './utils';
 
 export default {
   name: 'TestReports',
@@ -16,12 +16,6 @@ export default {
     TestSummaryTable,
   },
   inject: {
-    pipelineIid: {
-      default: '',
-    },
-    pipelineProjectPath: {
-      default: '',
-    },
     summaryEndpoint: {
       default: '',
     },
@@ -34,8 +28,6 @@ export default {
       query: getTestSummary,
       variables() {
         return {
-          projectPath: this.pipelineProjectPath,
-          iid: this.pipelineIid,
           endpoint: this.summaryEndpoint,
         };
       },
@@ -63,8 +55,6 @@ export default {
       if (this.selectedSuiteIndex === null) {
         return {};
       }
-      console.log(this.testReport);
-      console.log(this.testSuite);
       return this.testSuite;
     },
     suiteTests() {
@@ -73,7 +63,11 @@ export default {
       }
 
       const { testCases = [] } = this.selectedSuite || {};
-      return testCases.sort(sortTestCases).map(addIconStatus);
+      return testCases.map(testCase => ({
+        ...testCase,
+        icon: iconForTestStatus(testCase.status),
+        formattedTime: formatTime(testCase.executionTime),
+      }));
     },
     testSuites() {
       if (!this.showTests) {
@@ -81,7 +75,7 @@ export default {
       }
       return this.testReport.testSuites.map(suite => ({
         ...suite,
-        formattedTime: formattedTime(suite.total.time)
+        formattedTime: formatTime(suite.total.time)
       }))
     },
   },
@@ -100,8 +94,6 @@ export default {
         query: getTestSuiteReport,
         variables() {
           return {
-            projectPath: this.pipelineProjectPath,
-            iid: this.pipelineIid,
             endpoint: this.suiteEndpoint,
             suiteName: testSuite.name,
             suiteIndex: index,
