@@ -1,16 +1,20 @@
 # frozen_string_literal: true
 
 module Groups
-  class RemoveNonLdapMembersWorker # rubocop:disable Scalability/IdempotentWorker
+  class RemoveNonLdapMembersWorker
     include ApplicationWorker
     include Gitlab::Allowable
 
     queue_namespace :groups
     feature_category :authentication_and_authorization
 
+    idempotent!
+
     def perform(group_id, owner_id)
-      group = Group.find(group_id)
-      owner = User.find(owner_id)
+      group = Group.find_by_id(group_id)
+      owner = User.find_by_id(owner_id)
+
+      return if group.nil? || owner.nil?
 
       return unless Feature.enabled?(:ldap_settings_unlock_groups_by_owners)
       return if group.unlock_membership_to_ldap

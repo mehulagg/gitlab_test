@@ -6,20 +6,21 @@ RSpec.describe Groups::RemoveNonLdapMembersWorker, type: :worker do
   include LdapHelpers
 
   describe '#perform' do
+    let(:job_args) { [group.id, user.id] }
+
     let_it_be(:user) { create(:user) }
     let_it_be(:group) { create(:group) }
+    let_it_be(:ldap_user) { create(:omniauth_user, provider: "ldapmain") }
 
     before do
       create(:group_member, :developer, group: group)
-
-      ldap_user = create(:omniauth_user, provider: "ldapmain")
       create(:group_member, :developer, :ldap, group: group, user: ldap_user)
     end
 
     shared_examples 'an unlocked group' do
       it 'does not remove users' do
         expect do
-          subject.perform(group.id, user.id)
+          subject
         end.not_to change { group.reload.users.count }
       end
     end
@@ -59,7 +60,7 @@ RSpec.describe Groups::RemoveNonLdapMembersWorker, type: :worker do
 
               it 'removes users' do
                 expect do
-                  subject.perform(group.id, user.id)
+                  subject
                 end.to change { group.reload.users.count }.by(-1)
               end
 
@@ -69,7 +70,7 @@ RSpec.describe Groups::RemoveNonLdapMembersWorker, type: :worker do
 
                 it 'removes the project member' do
                   expect do
-                    subject.perform(group.id, user.id)
+                    subject
                   end.to change { Member.exists?(project_member.id) }.from(true).to(false)
                 end
               end
@@ -80,9 +81,23 @@ RSpec.describe Groups::RemoveNonLdapMembersWorker, type: :worker do
 
                 it 'removes the subgroup member' do
                   expect do
-                    subject.perform(group.id, user.id)
+                    subject
                   end.to change { Member.exists?(subgroup_member.id) }.from(true).to(false)
                 end
+              end
+            end
+
+            include_examples 'an idempotent worker' do
+              it 'does not remove the ldap user' do
+                subject
+
+                expect(User.exists?(ldap_user.id)).to be_truthy
+              end
+
+              it 'does not remove the owner' do
+                subject
+
+                expect(User.exists?(user.id)).to be_truthy
               end
             end
           end

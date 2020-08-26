@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Groups::RemoveNonLdapMembershipService do
+RSpec.describe Groups::ScheduleNonLdapMembershipRemovalService do
   describe '#execute', :clean_gitlab_redis_shared_state do
     include ExclusiveLeaseHelpers
 

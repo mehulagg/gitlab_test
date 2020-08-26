@@ -413,7 +413,7 @@ module EE
     # 2. They belong to a project that belongs to the group
     # 3. They belong to a sub-group or project in such sub-group
     def non_ldap_members_with_descendants
-      non_ldap_user_ids = direct_and_indirect_users.non_ldap.pluck(:id)
+      non_ldap_user_ids = direct_and_indirect_users.non_ldap.select(:id)
 
       return ::Member.none if non_ldap_user_ids.empty?
 

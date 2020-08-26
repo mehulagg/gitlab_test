@@ -489,7 +489,7 @@
   :urgency: :low
   :resource_boundary: :unknown
   :weight: 1
-  :idempotent:
+  :idempotent: true
   :tags: []
 - :name: personal_access_tokens:personal_access_tokens_groups_policy
   :feature_category: :authentication_and_authorization

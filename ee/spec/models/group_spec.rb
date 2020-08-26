@@ -1162,8 +1162,6 @@ RSpec.describe Group do
     end
 
     context 'all members are part of ldap' do
-      it { is_expected.not_to be_nil }
-      it { is_expected.to respond_to :find_each }
       it { is_expected.to eq ::Member.none }
     end
   end

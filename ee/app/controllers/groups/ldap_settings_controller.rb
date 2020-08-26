@@ -7,7 +7,7 @@ class Groups::LdapSettingsController < Groups::ApplicationController
   before_action :authorize_manage_ldap_settings!
 
   def update
-    service = Groups::RemoveNonLdapMembershipService.new(group, current_user, ldap_settings_params)
+    service = Groups::ScheduleNonLdapMembershipRemovalService.new(group, current_user, ldap_settings_params)
     if service.execute
       redirect_back_or_default(default: group_ldap_group_links_path(@group), options: { notice: _('LDAP settings updated') })
     else
