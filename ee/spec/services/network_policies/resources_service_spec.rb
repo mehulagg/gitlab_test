@@ -113,50 +113,5 @@ RSpec.describe NetworkPolicies::ResourcesService do
         end
       end
     end
-
-    context 'without environment_id' do
-      let(:environment_id) { nil }
-      let(:environment_2) { create(:environment, project: project) }
-      let(:policy_2) do
-        Gitlab::Kubernetes::NetworkPolicy.new(
-          name: 'policy_2',
-          namespace: 'another_2',
-          selector: { matchLabels: { role: 'db' } },
-          ingress: [{ from: [{ namespaceSelector: { matchLabels: { project: 'myproject' } } }] }]
-        )
-      end
-
-      before do
-        allow(platform).to receive_message_chain(:cluster, :kubernetes_namespace_for).with(environment_2).and_return('namespace_2')
-      end
-
-      it 'returns success response with policies from two deployment namespaces', :aggregate_failures do
-        expect(kubeclient).to receive(:get_network_policies).with(namespace: environment.deployment_namespace) { [policy.generate] }
-        expect(kubeclient).to receive(:get_network_policies).with(namespace: environment_2.deployment_namespace) { [policy_2.generate] }
-        expect(subject).to be_success
-        expect(subject.payload.count).to eq(2)
-        expect(subject.payload.map(&:as_json)).to include(policy.as_json, policy_2.as_json)
-      end
-
-      context 'with a partial successful response' do
-        let(:error_message) { 'system failure' }
-
-        before do
-          allow(kubeclient).to receive(:get_network_policies).with(namespace: environment.deployment_namespace).and_return([policy.generate])
-          allow(kubeclient).to receive(:get_network_policies).with(namespace: environment_2.deployment_namespace).and_raise(Kubeclient::HttpError.new(500, error_message, nil))
-        end
-
-        it 'returns error response for the platforms with failures' do
-          expect(subject).to be_error
-          expect(subject.message).to match(error_message)
-        end
-
-        it 'returns error response with the policies for all successful platforms' do
-          expect(subject).to be_error
-          expect(subject.payload.count).to eq(1)
-          expect(subject.payload.first.as_json).to eq(policy.as_json)
-        end
-      end
-    end
   end
 end
