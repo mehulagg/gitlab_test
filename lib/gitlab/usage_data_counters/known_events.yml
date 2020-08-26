@@ -104,3 +104,14 @@
   category: search
   redis_slot: search
   aggregation: weekly
+# Incident management
+- name: incident_management_alert_status_changed
+  redis_slot: incident_management
+  category: incident_management
+  expiry: 84 # expiration time in days, equivalent to 12 weeks
+  aggregation: weekly
+- name: incident_management_alert_assigned
+  redis_slot: incident_management
+  category: incident_management
+  expiry: 84 # expiration time in days, equivalent to 12 weeks
+  aggregation: weekly
