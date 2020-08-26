@@ -18,5 +18,13 @@
             = s_('ProtectedEnvironment|Select users to deploy and manage Feature Flag settings')
         = render partial: 'projects/protected_environments/deploy_access_levels_dropdown', locals: { f: f }
 
+      .form-group
+        = f.label :clusters_logs_access_levels, class: 'label-bold' do
+          = s_('ProtectedEnvironment|Allowed to read logs')
+        - if Feature.enabled?(:feature_flag_permissions, @project)
+          .text-muted.mb-2
+            = s_('ProtectedEnvironment|Select users to get access to environments logs')
+        = render partial: 'projects/protected_environments/deploy_access_levels_dropdown', locals: { f: f }
+
     .card-footer
       = f.submit s_('ProtectedEnvironment|Protect'), class: 'btn-success btn', disabled: true
