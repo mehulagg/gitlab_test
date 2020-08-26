@@ -2,6 +2,8 @@
 
 module Gitlab
   class ContributionsCalendar
+    include Gitlab::Utils::StrongMemoize
+
     attr_reader :contributor
     attr_reader :current_user
     attr_reader :projects
@@ -16,41 +18,13 @@ module Gitlab
                   end
     end
 
-    # rubocop: disable CodeReuse/ActiveRecord
     def activity_dates
-      return @activity_dates if @activity_dates.present?
+      strong_memoize(:activity_dates) do
+        counts = activity_dates_query.map { |count| { count.date => count.total_amount } }
 
-      # Can't use Event.contributions here because we need to check different
-      # project_features
-      date_from = 1.year.ago
-
-      join_on_notes = %q{
-        INNER JOIN notes ON target_type = 'Note' AND target_id = notes.id
-      }
-
-      queries = [
-        event_counts(date_from, :repository).having(action: :pushed),
-        event_counts(date_from, :issues).having(action: %i[created closed], target_type: 'Issue'),
-        event_counts(date_from, :wiki).having(action: %i[created updated], target_type: 'WikiPage::Meta'),
-        event_counts(date_from, :merge_requests).having(action: %i[merged created closed], target_type: 'MergeRequest'),
-        event_counts(date_from, :issues).having(action: %i[created updated], target_type: 'DesignManagement::Design'),
-        event_counts(date_from, :merge_requests, 'notes.noteable_type')
-          .joins(join_on_notes)
-          .having('action = ? AND notes.noteable_type = ?', Event.actions[:commented], 'MergeRequest'),
-        event_counts(date_from, nil, 'notes.noteable_type')
-          .joins(join_on_notes)
-          .having('action = ? AND notes.noteable_type != ?', Event.actions[:commented], 'MergeRequest')
-      ]
-
-      events = Event
-        .from_union(queries, remove_duplicates: false)
-        .map(&:attributes)
-
-      @activity_dates = events.each_with_object(Hash.new {|h, k| h[k] = 0 }) do |event, activities|
-        activities[event["date"]] += event["total_amount"]
+        {}.merge(*counts) { |_, a, b| a + b }
       end
     end
-    # rubocop: enable CodeReuse/ActiveRecord
 
     # rubocop: disable CodeReuse/ActiveRecord
     def events_by_date(date)
@@ -73,6 +47,34 @@ module Gitlab
 
     private
 
+    # rubocop: disable CodeReuse/ActiveRecord
+    def activity_dates_query
+      # Can't use Event.contributions here because we need to check different
+      # project_features
+      date_from = 1.year.ago
+
+      join_on_notes = %q{
+        INNER JOIN notes ON target_type = 'Note' AND target_id = notes.id
+      }
+
+      queries = [
+        event_counts(date_from, :repository).having(action: :pushed),
+        event_counts(date_from, :issues).having(action: %i[created closed], target_type: 'Issue'),
+        event_counts(date_from, :wiki).having(action: %i[created updated], target_type: 'WikiPage::Meta'),
+        event_counts(date_from, :merge_requests).having(action: %i[merged created closed], target_type: 'MergeRequest'),
+        event_counts(date_from, :issues).having(action: %i[created updated], target_type: 'DesignManagement::Design'),
+        event_counts(date_from, :merge_requests, 'notes.noteable_type')
+          .joins(join_on_notes)
+          .having('action = ? AND notes.noteable_type = ?', Event.actions[:commented], 'MergeRequest'),
+        event_counts(date_from, nil, 'notes.noteable_type')
+          .joins(join_on_notes)
+          .having('action = ? AND notes.noteable_type != ?', Event.actions[:commented], 'MergeRequest')
+      ]
+
+      Event.from_union(queries, remove_duplicates: false)
+    end
+
+    # rubocop: enable CodeReuse/ActiveRecord
     def can_read_cross_project?
       Ability.allowed?(current_user, :read_cross_project)
     end
