@@ -15,7 +15,7 @@ module Ci
         variables.concat(project.predefined_variables)
         variables.concat(pipeline.predefined_variables)
         variables.concat(runner.predefined_variables) if runnable? && runner
-        variables.concat(deployment_variables(environment: environment))
+        variables.concat(deployment_variables)
         variables.concat(yaml_variables)
         variables.concat(user_variables)
         variables.concat(dependency_variables) if dependencies
@@ -80,12 +80,14 @@ module Ci
       end
     end
 
-    def deployment_variables(environment:)
-      return [] unless environment
+    def deployment_variables
+      platform = deployment&.cluster&.platform_kubernetes
 
-      project.deployment_variables(
-        environment: environment,
-        kubernetes_namespace: expanded_kubernetes_namespace
+      return [] if platform.nil?
+
+      platform.predefined_variables(
+        project: project,
+        kubernetes_namespace: deployment.kubernetes_namespace
       )
     end
 

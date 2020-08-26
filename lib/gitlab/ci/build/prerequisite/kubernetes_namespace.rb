@@ -6,8 +6,8 @@ module Gitlab
       module Prerequisite
         class KubernetesNamespace < Base
           def unmet?
-            deployment_cluster.present? &&
-              deployment_cluster.managed? &&
+            cluster.present? &&
+              cluster.managed? &&
               missing_namespace?
           end
 
@@ -20,10 +20,10 @@ module Gitlab
           private
 
           def missing_namespace?
-            kubernetes_namespace.nil? || kubernetes_namespace.service_account_token.blank?
+            existing_kubernetes_namespace_record.nil? || existing_kubernetes_namespace_record.service_account_token.blank?
           end
 
-          def deployment_cluster
+          def cluster
             build.deployment&.cluster
           end
 
@@ -31,49 +31,28 @@ module Gitlab
             build.deployment.environment
           end
 
-          def kubernetes_namespace
-            strong_memoize(:kubernetes_namespace) do
-              ::Clusters::KubernetesNamespaceFinder.new(
-                deployment_cluster,
-                project: environment.project,
-                environment_name: environment.name,
-                allow_blank_token: true
-              ).execute
+          def existing_kubernetes_namespace_record
+            strong_memoize(:existing_kubernetes_namespace_record) do
+              cluster.kubernetes_namespace_by_name(requested_kubernetes_namespace_name)
             end
           end
 
+          def requested_kubernetes_namespace_name
+            build.deployment.kubernetes_namespace
+          end
+
           def create_namespace
-            namespace = kubernetes_namespace || build_namespace_record
-
-            return if conflicting_ci_namespace_requested?(namespace)
-
             ::Clusters::Kubernetes::CreateOrUpdateNamespaceService.new(
-              cluster: deployment_cluster,
-              kubernetes_namespace: namespace
+              cluster: cluster,
+              kubernetes_namespace: existing_kubernetes_namespace_record || build_kubernetes_namespace_record
             ).execute
           end
 
-          ##
-          # A namespace can only be specified via gitlab-ci.yml
-          # for unmanaged clusters, as we currently have no way
-          # of preventing a job requesting a namespace it
-          # shouldn't have access to.
-          #
-          # To make this clear, we fail the build instead of
-          # silently using a namespace other than the one
-          # explicitly specified.
-          #
-          # Support for managed clusters will be added in
-          # https://gitlab.com/gitlab-org/gitlab/issues/38054
-          def conflicting_ci_namespace_requested?(namespace_record)
-            build.expanded_kubernetes_namespace.present? &&
-              namespace_record.namespace != build.expanded_kubernetes_namespace
-          end
-
-          def build_namespace_record
+          def build_kubernetes_namespace_record
             ::Clusters::BuildKubernetesNamespaceService.new(
-              deployment_cluster,
-              environment: environment
+              cluster,
+              environment: environment,
+              namespace: requested_kubernetes_namespace_name
             ).execute
           end
         end

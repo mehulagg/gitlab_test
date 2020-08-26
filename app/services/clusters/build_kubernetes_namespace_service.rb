@@ -2,11 +2,12 @@
 
 module Clusters
   class BuildKubernetesNamespaceService
-    attr_reader :cluster, :environment
+    attr_reader :cluster, :environment, :namespace
 
-    def initialize(cluster, environment:)
+    def initialize(cluster, environment:, namespace:)
       @cluster = cluster
       @environment = environment
+      @namespace = namespace
     end
 
     def execute
@@ -26,10 +27,6 @@ module Clusters
       attributes[:environment] = environment if cluster.namespace_per_environment?
 
       attributes
-    end
-
-    def namespace
-      Gitlab::Kubernetes::DefaultNamespace.new(cluster, project: environment.project).from_environment_slug(environment.slug)
     end
   end
 end

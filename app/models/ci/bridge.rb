@@ -129,6 +129,9 @@ module Ci
     def expanded_environment_name
     end
 
+    def deployment
+    end
+
     def execute_hooks
       raise NotImplementedError
     end

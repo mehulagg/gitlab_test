@@ -312,9 +312,17 @@ module Clusters
         raise ArgumentError, 'environment.project_id must match deployable.project_id'
       end
 
-      managed_namespace(environment) ||
-        ci_configured_namespace(deployable) ||
+      ci_configured_namespace(deployable) ||
+        managed_namespace(environment) ||
         default_namespace(environment)
+    end
+
+    def kubernetes_namespace_by_name(namespace)
+      kubernetes_namespaces.find_by(namespace: namespace)
+    end
+
+    def initialized_kubernetes_namespace_by_name(namespace)
+      kubernetes_namespaces.has_service_account_token.find_by(namespace: namespace)
     end
 
     def allow_user_defined_namespace?
@@ -383,25 +391,39 @@ module Clusters
     end
 
     def managed_namespace(environment)
-      Clusters::KubernetesNamespaceFinder.new(
-        self,
-        project: environment.project,
-        environment_name: environment.name
-      ).execute&.namespace
+      kubernetes_namespaces
+        .has_service_account_token
+        .with_environment_name(environment.name)
+        .find_by_project_id(environment.project_id)
     end
 
     def ci_configured_namespace(deployable)
-      # YAML configuration of namespaces not supported for managed clusters
-      return if managed?
+      result = deployable&.expanded_kubernetes_namespace.clone
+      return unless result.present?
 
-      deployable&.expanded_kubernetes_namespace
+      if managed?
+        result.prepend(default_namespace_prefix(deployable.project), '-')
+      end
+
+      Gitlab::NamespaceSanitizer.sanitize(result)
     end
 
     def default_namespace(environment)
-      Gitlab::Kubernetes::DefaultNamespace.new(
-        self,
-        project: environment.project
-      ).from_environment_slug(environment.slug)
+      result = default_namespace_prefix(environment.project).clone
+
+      if (platform_kubernetes&.namespace.blank? || managed?) && namespace_per_environment?
+        result.concat('-', environment.slug)
+      end
+
+      Gitlab::NamespaceSanitizer.sanitize(result)
+    end
+
+    def default_namespace_prefix(project)
+      if (platform_namespace = platform_kubernetes&.namespace).present?
+        return platform_namespace
+      end
+
+      "#{project.path}-#{project.id}".downcase
     end
 
     def instance_domain
