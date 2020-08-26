@@ -36,6 +36,7 @@ module ResolvesMergeRequests
   def preloads
     {
       assignees: [:assignees],
+      current_user_todos: [:todos],
       labels: [:labels],
       author: [:author],
       merged_at: [:metrics],
