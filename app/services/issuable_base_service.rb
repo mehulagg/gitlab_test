@@ -35,6 +35,7 @@ class IssuableBaseService < BaseService
     end
 
     filter_assignee(issuable)
+    filter_reviewer(issuable)
     filter_milestone
     filter_labels
   end
@@ -46,7 +47,7 @@ class IssuableBaseService < BaseService
       params[:assignee_ids] = params[:assignee_ids].first(1)
     end
 
-    assignee_ids = params[:assignee_ids].select { |assignee_id| assignee_can_read?(issuable, assignee_id) }
+    assignee_ids = params[:assignee_ids].select { |assignee_id| user_can_read?(issuable, assignee_id) }
 
     if params[:assignee_ids].map(&:to_s) == [IssuableFinder::Params::NONE]
       params[:assignee_ids] = []
@@ -57,15 +58,20 @@ class IssuableBaseService < BaseService
     end
   end
 
-  def assignee_can_read?(issuable, assignee_id)
-    new_assignee = User.find_by_id(assignee_id)
+  def filter_reviewer(issuable)
+    # Reviewer is only available for EE
+    params.delete(:reviewer_ids)
+  end
 
-    return false unless new_assignee
+  def user_can_read?(issuable, user_id)
+    new_user = User.find_by_id(user_id)
+
+    return false unless new_user
 
     ability_name = :"read_#{issuable.to_ability_name}"
     resource     = issuable.persisted? ? issuable : project
 
-    can?(new_assignee, ability_name, resource)
+    can?(new_user, ability_name, resource)
   end
 
   def filter_milestone
