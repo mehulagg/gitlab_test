@@ -35,12 +35,17 @@ module API
         requires :importable_type, type: String, desc: 'What kind of importable this is notifying about (group or project)'
         requires :importable_id, type: String, desc: 'The ID of the project/group on the source instance'
         requires :destination_group_id, type: String, desc: 'Where to import the group to'
+        optional :importable_params, type: Hash do
+          optional :path, type: String, desc: 'Path of the new importable'
+          optional :name, type: String, desc: 'User friendly name'
+        end
       end
       post 'export_status' do
         import_service = ImportExport::Callback::ImportService.new(
           importable_type: params[:importable_type],
           importable_id: params[:importable_id],
-          destination_group_id: params[:destination_group_id]
+          destination_group_id: params[:destination_group_id],
+          params: params[:importable_params]
         )
 
         if import_service.async_execute

@@ -18,8 +18,12 @@ module Gitlab
 
           client.notify_export(
             importable_type: 'project',
-            importable_id: project_path,
-            destination_group_id: destination_group_id
+            importable_id: project.id,
+            destination_group_id: destination_group_id,
+            params: {
+              path: project_path,
+              name: project.name
+            }
           )
         end
       end

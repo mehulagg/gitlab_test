@@ -18,21 +18,22 @@ module ImportExport
       )
     end
 
-    def notify_export(importable_type:, importable_id:, destination_group_id:)
+    def notify_export(importable_type:, importable_id:, destination_group_id:, params: {})
       Gitlab::HTTP.post(
         callback_url,
         body: {
           importable_type: importable_type,
           importable_id: importable_id,
-          destination_group_id: destination_group_id
+          destination_group_id: destination_group_id,
+          importable_params: params
         }.to_json,
         allow_local_requests: true,
         headers: headers
       )
     end
 
-    def download_export_file_url(group_id)
-      "#{host}/api/v4/groups/#{group_id}/export/download"
+    def download_export_file_url(source_type, source_id)
+      "#{host}/api/v4/#{source_type.to_s.pluralize}/#{source_id}/export/download"
     end
 
     def headers
