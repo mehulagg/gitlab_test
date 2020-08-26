@@ -25,7 +25,7 @@ many organizations .
 
 The Google Cloud Platform (GCP) architectures were built and tested using the
 [Intel Xeon E5 v3 (Haswell)](https://cloud.google.com/compute/docs/cpu-platforms)
-CPU platform. On different hardware you may find that adjustments, either lower
+CPU platform. Costs using the Google Cloud Calculator are [here](https://cloud.google.com/products/calculator#id=09da8ea4-1c0f-48e8-baad-56493b240927). On different hardware you may find that adjustments, either lower
 or higher, are required for your CPU or node counts. For more information, see
 our [Sysbench](https://github.com/akopytov/sysbench)-based
 [CPU benchmark](https://gitlab.com/gitlab-org/quality/performance/-/wikis/Reference-Architectures/GCP-CPU-Benchmarks).
