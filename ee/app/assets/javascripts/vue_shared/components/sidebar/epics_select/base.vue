@@ -206,6 +206,7 @@ export default {
       <div ref="dropdown" class="dropdown">
         <dropdown-button
           ref="dropdownButton"
+          class="gl-w-full"
           :selected-epic-title="selectedEpic.title"
           :toggle-text-class="dropdownButtonTextClass"
         />

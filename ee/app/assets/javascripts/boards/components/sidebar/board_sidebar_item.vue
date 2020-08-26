@@ -37,6 +37,7 @@ export default {
 
       this.expanded = true;
       this.$emit('open');
+      this.$emit('changed', this.expanded);
     },
     collapse() {
       if (!this.expanded) {
@@ -45,7 +46,8 @@ export default {
 
       this.expanded = false;
       this.$emit('closed');
-    }
+      this.$emit('changed', this.expanded);
+    },
   },
 };
 </script>

@@ -28,7 +28,7 @@ export default {
   },
   methods: {
     isSelected(epic) {
-      return this.selectedEpic.id === epic.id;
+      return this.selectedEpic.id === `gid://gitlab/Epic/${epic.id}`;
     },
     handleItemClick(epic) {
       if (epic.id !== this.selectedEpic.id) {

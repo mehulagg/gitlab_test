@@ -1,0 +1,11 @@
+query searchGroupEpics($fullPath: ID!, $search: String = "") {
+  group(fullPath: $fullPath) {
+    epics(search: $search) {
+      nodes {
+        id
+        iid
+        title
+      }
+    }
+  }
+}
