@@ -1,0 +1,2 @@
+export const SET_ENDPOINT = 'SET_ENDPOINT';
+export const SET_SHOW_CALLOUT = 'SET_SHOW_CALLOUT';
