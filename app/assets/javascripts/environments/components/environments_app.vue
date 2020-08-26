@@ -1,5 +1,5 @@
 <script>
-import { GlDeprecatedButton } from '@gitlab/ui';
+import { GlButton } from '@gitlab/ui';
 import { deprecatedCreateFlash as Flash } from '~/flash';
 import { s__ } from '~/locale';
 import emptyState from './empty_state.vue';
@@ -16,7 +16,7 @@ export default {
     ConfirmRollbackModal,
     emptyState,
     EnableReviewAppButton,
-    GlDeprecatedButton,
+    GlButton,
     StopEnvironmentModal,
     DeleteEnvironmentModal,
   },
@@ -134,14 +134,14 @@ export default {
 
       <div class="nav-controls">
         <enable-review-app-button v-if="state.reviewAppDetails.can_setup_review_app" class="mr-2" />
-        <gl-deprecated-button
+        <gl-button
           v-if="canCreateEnvironment && !isLoading"
           :href="newEnvironmentPath"
-          category="primary"
           variant="success"
+          category="primary"
         >
           {{ s__('Environments|New environment') }}
-        </gl-deprecated-button>
+        </gl-button>
       </div>
     </div>
 
