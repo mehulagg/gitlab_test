@@ -38,5 +38,8 @@ export default {
         <p class="gl-mb-0">{{ getActiveIssue.referencePath }}</p>
       </div>
     </template>
+
+    <template>
+    </template>
   </gl-drawer>
 </template>
