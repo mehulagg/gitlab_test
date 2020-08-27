@@ -439,7 +439,7 @@ RSpec.describe MergeRequests::MergeService do
       context 'when not mergeable' do
         let!(:error_message) { 'Merge request is not mergeable' }
 
-        context 'failing CI' do
+        context 'with failing CI' do
           before do
             allow(merge_request).to receive(:mergeable_ci_state?) { false }
           end
@@ -451,7 +451,7 @@ RSpec.describe MergeRequests::MergeService do
           end
         end
 
-        context 'unresolved discussions' do
+        context 'with unresolved discussions' do
           before do
             allow(merge_request).to receive(:mergeable_discussions_state?) { false }
           end
@@ -463,7 +463,7 @@ RSpec.describe MergeRequests::MergeService do
           end
 
           context 'when passing `skip_discussions_check: true` as `options` parameter' do
-            it 'mergers the merge request' do
+            it 'merges the merge request' do
               service.execute(merge_request, skip_discussions_check: true)
 
               expect(merge_request).to be_valid

@@ -2445,28 +2445,54 @@ RSpec.describe MergeRequest, factory_default: :keep do
       expect(subject.mergeable?).to be_truthy
     end
 
-    context 'skip_ci_check' do
-      it 'overrides mergeable_ci_state?' do
-        allow(subject).to receive(:mergeable_ci_state?) { false }
+    context 'with skip_ci_check option' do
+      using RSpec::Parameterized::TableSyntax
+
+      before do
         allow(subject).to receive(:check_mergeability)
         allow(subject).to receive(:can_be_merged?) { true }
         allow(subject).to receive(:broken?) { false }
+      end
 
-        expect(subject.mergeable?(skip_ci_check: false)).to be_falsey
-        expect(subject.mergeable?(skip_ci_check: true)).to be_truthy
+      where(:mergeable_ci_state, :skip_ci_check, :expected_mergeable) do
+        false | false | false
+        false | true  | true
+        true  | false | true
+        true  | true  | true
+      end
+
+      with_them do
+        it 'overrides mergeable_ci_state?' do
+          allow(subject).to receive(:mergeable_ci_state?) { mergeable_ci_state }
+
+          expect(subject.mergeable?(skip_ci_check: skip_ci_check)).to eq(expected_mergeable)
+        end
       end
     end
 
-    context 'skip_discussions_check' do
-      it 'overrides mergeable_discussions_state?' do
+    context 'with skip_discussions_check option' do
+      using RSpec::Parameterized::TableSyntax
+
+      before do
         allow(subject).to receive(:mergeable_ci_state?) { true }
         allow(subject).to receive(:check_mergeability)
         allow(subject).to receive(:can_be_merged?) { true }
         allow(subject).to receive(:broken?) { false }
-        allow(subject).to receive(:mergeable_discussions_state?) { false }
+      end
 
-        expect(subject.mergeable?(skip_discussions_check: false)).to be_falsey
-        expect(subject.mergeable?(skip_discussions_check: true)).to be_truthy
+      where(:mergeable_discussions_state, :skip_discussions_check, :expected_mergeable) do
+        false | false | false
+        false | true  | true
+        true  | false | true
+        true  | true  | true
+      end
+
+      with_them do
+        it 'overrides mergeable_discussions_state?' do
+          allow(subject).to receive(:mergeable_discussions_state?) { mergeable_discussions_state }
+
+          expect(subject.mergeable?(skip_discussions_check: skip_discussions_check)).to eq(expected_mergeable)
+        end
       end
     end
   end
