@@ -194,6 +194,19 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
       )
     end
 
+    it 'includes group imports usage data' do
+      for_defined_days_back do
+        user = create(:user)
+        group = create(:group, owner: user)
+        create(:group_import_state, group: group)
+      end
+
+      expect(described_class.usage_activity_by_stage_manage({}))
+        .to include(groups_imported: 1)
+      expect(described_class.usage_activity_by_stage_manage(described_class.last_28_days_time_period))
+        .to include(groups_imported: 2)
+    end
+
     def omniauth_providers
       [
         OpenStruct.new(name: 'google_oauth2'),

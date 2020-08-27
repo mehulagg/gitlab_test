@@ -12315,6 +12315,7 @@ CREATE TABLE public.group_import_states (
     status smallint DEFAULT 0 NOT NULL,
     jid text,
     last_error text,
+    user_id bigint,
     CONSTRAINT check_87b58f6b30 CHECK ((char_length(last_error) <= 255)),
     CONSTRAINT check_96558fff96 CHECK ((char_length(jid) <= 100))
 );
@@ -19835,6 +19836,10 @@ CREATE INDEX index_group_group_links_on_shared_with_group_id ON public.group_gro
 
 CREATE INDEX index_group_import_states_on_group_id ON public.group_import_states USING btree (group_id);
 
+CREATE INDEX index_group_import_states_on_group_id_status_created_at ON public.group_import_states USING btree (group_id, status, created_at);
+
+CREATE INDEX index_group_import_states_on_user_id ON public.group_import_states USING btree (user_id);
+
 CREATE UNIQUE INDEX index_group_stages_on_group_id_group_value_stream_id_and_name ON public.analytics_cycle_analytics_group_stages USING btree (group_id, group_value_stream_id, name);
 
 CREATE UNIQUE INDEX index_group_wiki_repositories_on_disk_path ON public.group_wiki_repositories USING btree (disk_path);
@@ -19858,6 +19863,8 @@ CREATE INDEX index_import_failures_on_group_id_not_null ON public.import_failure
 CREATE INDEX index_import_failures_on_project_id_and_correlation_id_value ON public.import_failures USING btree (project_id, correlation_id_value) WHERE (retry_count = 0);
 
 CREATE INDEX index_import_failures_on_project_id_not_null ON public.import_failures USING btree (project_id) WHERE (project_id IS NOT NULL);
+
+CREATE INDEX index_imported_projects_on_import_type_creator_id_created_at ON public.projects USING btree (import_type, creator_id, created_at) WHERE (import_type IS NOT NULL);
 
 CREATE UNIQUE INDEX index_index_statuses_on_project_id ON public.index_statuses USING btree (project_id);
 
@@ -22642,6 +22649,9 @@ ALTER TABLE ONLY public.application_settings
 
 ALTER TABLE ONLY public.clusters_kubernetes_namespaces
     ADD CONSTRAINT fk_rails_7e7688ecaf FOREIGN KEY (cluster_id) REFERENCES public.clusters(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.group_import_states
+    ADD CONSTRAINT fk_rails_8053b3ebd6 FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 ALTER TABLE ONLY public.approval_merge_request_rules_users
     ADD CONSTRAINT fk_rails_80e6801803 FOREIGN KEY (approval_merge_request_rule_id) REFERENCES public.approval_merge_request_rules(id) ON DELETE CASCADE;

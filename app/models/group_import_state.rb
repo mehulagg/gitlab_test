@@ -4,6 +4,7 @@ class GroupImportState < ApplicationRecord
   self.primary_key = :group_id
 
   belongs_to :group, inverse_of: :import_state
+  belongs_to :user, class_name: 'User'
 
   validates :group, :status, presence: true
   validates :jid, presence: true, if: -> { started? || finished? }

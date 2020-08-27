@@ -511,7 +511,8 @@ module Gitlab
           events: distinct_count(::Event.where(time_period), :author_id),
           groups: distinct_count(::GroupMember.where(time_period), :user_id),
           users_created: count(::User.where(time_period), start: user_minimum_id, finish: user_maximum_id),
-          omniauth_providers: filtered_omniauth_provider_names.reject { |name| name == 'group_saml' }
+          omniauth_providers: filtered_omniauth_provider_names.reject { |name| name == 'group_saml' },
+          groups_imported: distinct_count(::GroupImportState.where(time_period), :user_id)
         }
       end
       # rubocop: enable CodeReuse/ActiveRecord
