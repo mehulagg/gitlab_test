@@ -39,9 +39,10 @@
     - enable_rule () { read all_rules; rule=$1; echo $all_rules | sed -r "s/(,)?$rule(,)?/\1-1\2/" ; }
     # Sort ids in DAST_RULES ascendingly, which is required when using DAST_RULES as argument to enable_rule
     - 'DAST_RULES=$(echo $DAST_RULES | tr "," "\n" | sort -n | paste -sd ",")'
-  needs:
-    - job: review-deploy
-      artifacts: true
+  # needs:
+  #   - job: review-deploy
+  #     artifacts: true
+  needs: ["review-deploy"]
   stage: sec-dast
   # Default job timeout set to 90m and dast rules needs 2h to so that it won't timeout.
   timeout: 2h
