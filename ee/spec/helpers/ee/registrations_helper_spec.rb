@@ -244,4 +244,24 @@ RSpec.describe EE::RegistrationsHelper do
       end
     end
   end
+
+  describe '#data_attributes_for_progress_bar' do
+    before do
+      allow(helper).to receive(:in_subscription_flow?).and_return(in_subscription_flow)
+      allow(helper).to receive(:onboarding_issues_experiment_enabled?).and_return(onboarding_issues_experiment_enabled)
+    end
+
+    subject { helper.tag(:div, data: helper.data_attributes_for_progress_bar) }
+
+    where(:in_subscription_flow, :onboarding_issues_experiment_enabled, :attr_values) do
+      true  | true  | 'true'
+      false | false | 'false'
+    end
+
+    with_them do
+      it 'includes both attributes with stringified boolean values' do
+        is_expected.to eq(%{<div data-is-in-subscription-flow="#{attr_values}" data-is-onboarding-issues-experiment-enabled="#{attr_values}" />})
+      end
+    end
+  end
 end
