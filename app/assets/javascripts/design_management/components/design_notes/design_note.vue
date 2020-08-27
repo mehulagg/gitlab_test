@@ -1,4 +1,5 @@
 <script>
+/* eslint-disable vue/no-v-html */
 import { ApolloMutation } from 'vue-apollo';
 import { GlTooltipDirective, GlIcon } from '@gitlab/ui';
 import updateNoteMutation from '../../graphql/mutations/update_note.mutation.graphql';
@@ -102,12 +103,12 @@ export default {
         </a>
         <span class="note-headline-light note-headline-meta">
           <span class="system-note-message"> <slot></slot> </span>
-          <template v-if="note.createdAt">
-            <span class="system-note-separator"></span>
-            <a class="note-timestamp system-note-separator" :href="`#note_${noteAnchorId}`">
-              <time-ago-tooltip :time="note.createdAt" tooltip-placement="bottom" />
-            </a>
-          </template>
+          <a
+            class="note-timestamp system-note-separator gl-display-block gl-mb-2"
+            :href="`#note_${noteAnchorId}`"
+          >
+            <time-ago-tooltip :time="note.createdAt" tooltip-placement="bottom" />
+          </a>
         </span>
       </div>
       <div class="gl-display-flex">

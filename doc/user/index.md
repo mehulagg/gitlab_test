@@ -57,7 +57,7 @@ With GitLab Enterprise Edition, you can also:
   - [Multiple Issue Boards](project/issue_board.md#multiple-issue-boards).
 - Create formal relationships between issues with [Related Issues](project/issues/related_issues.md).
 - Use [Burndown Charts](project/milestones/burndown_charts.md) to track progress during a sprint or while working on a new version of their software.
-- Leverage [Elasticsearch](../integration/elasticsearch.md) with [Advanced Global Search](search/advanced_global_search.md) and [Advanced Syntax Search](search/advanced_search_syntax.md) for faster, more advanced code search across your entire GitLab instance.
+- Leverage [Elasticsearch](../integration/elasticsearch.md) with [Advanced Search](search/advanced_global_search.md) and [Advanced Syntax Search](search/advanced_search_syntax.md) for faster, more advanced code search across your entire GitLab instance.
 - [Authenticate users with Kerberos](../integration/kerberos.md).
 - [Mirror a repository](project/repository/repository_mirroring.md) from elsewhere on your local server.
 - [Export issues as CSV](project/issues/csv_export.md).
@@ -151,6 +151,10 @@ requests you're assigned to.
 you have quick access to. You can also gather feedback on them through
 [Discussions](#discussions).
 
+## Features behind feature flags
+
+Understand what [features behind feature flags](feature_flags.md) mean.
+
 ## Keyboard shortcuts
 
 There are many [keyboard shortcuts](shortcuts.md) in GitLab to help you navigate between
@@ -175,9 +179,9 @@ Automate GitLab via [API](../api/README.md).
 
 Learn what is [Git](../topics/git/index.md) and its best practices.
 
-## Instance statistics
+## Instance-level analytics
 
-See [various statistics](instance_statistics/index.md) of your GitLab instance.
+See [various statistics](admin_area/analytics/index.md) of your GitLab instance.
 
 ## Operations Dashboard **(PREMIUM)**
 

@@ -1,8 +1,8 @@
 <script>
-import { s__ } from '~/locale';
 import Cookies from 'js-cookie';
-import { parseBoolean } from '~/lib/utils/common_utils';
 import { GlCollapse, GlButton, GlPopover } from '@gitlab/ui';
+import { s__ } from '~/locale';
+import { parseBoolean } from '~/lib/utils/common_utils';
 import updateActiveDiscussionMutation from '../graphql/mutations/update_active_discussion.mutation.graphql';
 import { extractDiscussions, extractParticipants } from '../utils/design_management_utils';
 import { ACTIVE_DISCUSSION_SOURCE_TYPES } from '../constants';
@@ -59,6 +59,18 @@ export default {
     resolvedCommentsToggleIcon() {
       return this.resolvedDiscussionsExpanded ? 'chevron-down' : 'chevron-right';
     },
+  },
+  watch: {
+    isResolvedCommentsPopoverHidden(newVal) {
+      if (!newVal) {
+        this.$refs.resolvedComments.scrollIntoView();
+      }
+    },
+  },
+  mounted() {
+    if (!this.isResolvedCommentsPopoverHidden && this.$refs.resolvedComments) {
+      this.$refs.resolvedComments.$el.scrollIntoView();
+    }
   },
   methods: {
     handleSidebarClick() {
@@ -129,6 +141,7 @@ export default {
     <template v-if="resolvedDiscussions.length > 0">
       <gl-button
         id="resolved-comments"
+        ref="resolvedComments"
         data-testid="resolved-comments"
         :icon="resolvedCommentsToggleIcon"
         variant="link"
@@ -151,9 +164,12 @@ export default {
             )
           }}
         </p>
-        <a href="#" rel="noopener noreferrer" target="_blank">{{
-          s__('DesignManagement|Learn more about resolving comments')
-        }}</a>
+        <a
+          href="https://docs.gitlab.com/ee/user/project/issues/design_management.html#resolve-design-threads"
+          rel="noopener noreferrer"
+          target="_blank"
+          >{{ s__('DesignManagement|Learn more about resolving comments') }}</a
+        >
       </gl-popover>
       <gl-collapse :visible="resolvedDiscussionsExpanded" class="gl-mt-3">
         <design-discussion

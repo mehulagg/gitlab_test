@@ -202,8 +202,7 @@ RSpec.describe EventCreateService do
       end
 
       it 'records the event in the event counter' do
-        stub_feature_flags(Gitlab::UsageDataCounters::TrackUniqueActions::FEATURE_FLAG => true)
-        counter_class = Gitlab::UsageDataCounters::TrackUniqueActions
+        counter_class = Gitlab::UsageDataCounters::TrackUniqueEvents
         tracking_params = { event_action: counter_class::WIKI_ACTION, date_from: Date.yesterday, date_to: Date.today }
 
         expect { create_event }
@@ -244,8 +243,7 @@ RSpec.describe EventCreateService do
     it_behaves_like 'service for creating a push event', PushEventPayloadService
 
     it 'records the event in the event counter' do
-      stub_feature_flags(Gitlab::UsageDataCounters::TrackUniqueActions::FEATURE_FLAG => true)
-      counter_class = Gitlab::UsageDataCounters::TrackUniqueActions
+      counter_class = Gitlab::UsageDataCounters::TrackUniqueEvents
       tracking_params = { event_action: counter_class::PUSH_ACTION, date_from: Date.yesterday, date_to: Date.today }
 
       expect { subject }
@@ -268,8 +266,7 @@ RSpec.describe EventCreateService do
     it_behaves_like 'service for creating a push event', BulkPushEventPayloadService
 
     it 'records the event in the event counter' do
-      stub_feature_flags(Gitlab::UsageDataCounters::TrackUniqueActions::FEATURE_FLAG => true)
-      counter_class = Gitlab::UsageDataCounters::TrackUniqueActions
+      counter_class = Gitlab::UsageDataCounters::TrackUniqueEvents
       tracking_params = { event_action: counter_class::PUSH_ACTION, date_from: Date.yesterday, date_to: Date.today }
 
       expect { subject }
@@ -323,8 +320,7 @@ RSpec.describe EventCreateService do
       end
 
       it 'records the event in the event counter' do
-        stub_feature_flags(Gitlab::UsageDataCounters::TrackUniqueActions::FEATURE_FLAG => true)
-        counter_class = Gitlab::UsageDataCounters::TrackUniqueActions
+        counter_class = Gitlab::UsageDataCounters::TrackUniqueEvents
         tracking_params = { event_action: counter_class::DESIGN_ACTION, date_from: Date.yesterday, date_to: Date.today }
 
         expect { result }
@@ -351,8 +347,7 @@ RSpec.describe EventCreateService do
       end
 
       it 'records the event in the event counter' do
-        stub_feature_flags(Gitlab::UsageDataCounters::TrackUniqueActions::FEATURE_FLAG => true)
-        counter_class = Gitlab::UsageDataCounters::TrackUniqueActions
+        counter_class = Gitlab::UsageDataCounters::TrackUniqueEvents
         tracking_params = { event_action: counter_class::DESIGN_ACTION, date_from: Date.yesterday, date_to: Date.today }
 
         expect { result }

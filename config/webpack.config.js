@@ -267,6 +267,8 @@ module.exports = {
     runtimeChunk: 'single',
     splitChunks: {
       maxInitialRequests: 20,
+      // In order to prevent firewalls tripping up: https://gitlab.com/gitlab-org/gitlab/-/issues/22648
+      automaticNameDelimiter: '-',
       cacheGroups: {
         default: false,
         common: () => ({
@@ -278,7 +280,7 @@ module.exports = {
         monaco: {
           priority: 15,
           name: 'monaco',
-          chunks: 'initial',
+          chunks: 'all',
           test: /[\\/]node_modules[\\/]monaco-editor[\\/]/,
           minChunks: 2,
           reuseExistingChunk: true,
@@ -325,6 +327,8 @@ module.exports = {
           chunks: false,
           modules: false,
           assets: true,
+          errors: !IS_PRODUCTION,
+          warnings: !IS_PRODUCTION,
         });
 
         // tell our rails helper where to find the DLL files

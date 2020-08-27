@@ -138,6 +138,8 @@
   - 2
 - - irker
   - 1
+- - issue_rebalancing
+  - 1
 - - jira_connect
   - 1
 - - jira_importer
@@ -177,6 +179,10 @@
 - - pages_domain_ssl_renewal
   - 1
 - - pages_domain_verification
+  - 1
+- - pages_remove
+  - 1
+- - pages_transfer
   - 1
 - - pages_update_configuration
   - 1

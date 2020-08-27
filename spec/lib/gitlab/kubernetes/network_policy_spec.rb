@@ -15,6 +15,13 @@ RSpec.describe Gitlab::Kubernetes::NetworkPolicy do
     )
   end
 
+  let(:resource) do
+    ::Kubeclient::Resource.new(
+      metadata: { name: name, namespace: namespace },
+      spec: { podSelector: pod_selector, policyTypes: %w(Ingress), ingress: ingress, egress: nil }
+    )
+  end
+
   let(:name) { 'example-name' }
   let(:namespace) { 'example-namespace' }
   let(:pod_selector) { { matchLabels: { role: 'db' } } }
@@ -50,6 +57,13 @@ RSpec.describe Gitlab::Kubernetes::NetworkPolicy do
     end
 
     let(:spec) { { podSelector: selector, policyTypes: ["Ingress"], ingress: ingress, egress: nil } }
+    let(:metadata) { { name: name, namespace: namespace } }
+  end
+
+  describe '#generate' do
+    subject { policy.generate }
+
+    it { is_expected.to eq(resource) }
   end
 
   describe '.from_yaml' do
@@ -60,8 +74,6 @@ RSpec.describe Gitlab::Kubernetes::NetworkPolicy do
         metadata:
           name: example-name
           namespace: example-namespace
-          labels:
-            app: foo
         spec:
           podSelector:
             matchLabels:
@@ -74,13 +86,6 @@ RSpec.describe Gitlab::Kubernetes::NetworkPolicy do
                 matchLabels:
                   project: myproject
       POLICY
-    end
-
-    let(:resource) do
-      ::Kubeclient::Resource.new(
-        metadata: { name: name, namespace: namespace, labels: { app: 'foo' } },
-        spec: { podSelector: pod_selector, policyTypes: %w(Ingress), ingress: ingress, egress: nil }
-      )
     end
 
     subject { Gitlab::Kubernetes::NetworkPolicy.from_yaml(manifest)&.generate }

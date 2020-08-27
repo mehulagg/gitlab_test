@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module QA
-  RSpec.describe 'Create', quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/217002', type: :investigating } do
-    describe 'Gitaly repository storage', :orchestrated, :repository_storage, :requires_admin do
+  RSpec.describe 'Create', :orchestrated, :repository_storage, :requires_admin, quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/217002', type: :investigating } do
+    describe 'Gitaly repository storage' do
       let(:user) { Resource::User.fabricate_or_use(Runtime::Env.gitlab_qa_username_1, Runtime::Env.gitlab_qa_password_1) }
       let(:parent_project) do
         Resource::Project.fabricate_via_api! do |project|
@@ -22,7 +22,7 @@ module QA
         parent_project.add_member(user)
       end
 
-      it 'creates a 2nd fork after moving the parent project' do
+      it 'creates a 2nd fork after moving the parent project', status_issue: 'https://gitlab.com/gitlab-org/quality/testcases/-/issues/713' do
         Flow::Login.sign_in(as: user)
 
         fork_project.visit!

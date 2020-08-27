@@ -18,6 +18,8 @@ If you follow our guidance to automate user provisioning using [SCIM](scim_setup
 User synchronization of SAML SSO groups is supported through [SCIM](scim_setup.md). SCIM supports adding and removing users from the GitLab group.
 For example, if you remove a user from the SCIM app, SCIM removes that same user from the GitLab group.
 
+SAML SSO is not supported at the subgroup level.
+
 ## Configuring your Identity Provider
 
 1. Navigate to the group and click **Settings > SAML SSO**.
@@ -162,7 +164,7 @@ For more information, see our [discussion on providers](#providers).
 
 Your identity provider may have relevant documentation. It may be generic SAML documentation, or specifically targeted for GitLab. Examples:
 
-- [Auth0](https://auth0.com/docs/protocols/saml/saml-idp-generic)
+- [Auth0](https://auth0.com/docs/protocols/saml-configuration-options/configure-auth0-as-saml-identity-provider)
 - [G Suite](https://support.google.com/a/answer/6087519?hl=en)
 - [JumpCloud](https://support.jumpcloud.com/support/s/article/single-sign-on-sso-with-gitlab-2019-08-21-10-36-47)
 - [PingOne by Ping Identity](https://docs.pingidentity.com/bundle/pingone/page/xsh1564020480660-1.html)
@@ -263,7 +265,7 @@ Group SAML SSO helps if you need to allow access via multiple SAML identity prov
 
 To proceed with configuring Group SAML SSO instead, you'll need to enable the `group_saml` OmniAuth provider. This can be done from:
 
-- `gitlab.rb` for GitLab [Omnibus installations](#omnibus-installations).
+- `gitlab.rb` for [Omnibus GitLab installations](#omnibus-installations).
 - `gitlab/config/gitlab.yml` for [source installations](#source-installations).
 
 ### Limitations
@@ -300,6 +302,10 @@ Group SAML on a self-managed instance is limited when compared to the recommende
         providers:
           - { name: 'group_saml' }
     ```
+
+## Passwords for users created via SAML SSO for Groups
+
+The [Generated passwords for users created through integrated authentication](../../../security/passwords_for_integrated_authentication_methods.md) guide provides an overview of how GitLab generates and sets passwords for users created via SAML SSO for Groups.
 
 ## Troubleshooting
 

@@ -1,7 +1,7 @@
 import Vue from 'vue';
-import { createStore } from '~/mr_notes/stores';
 import { createComponentWithStore } from 'helpers/vue_mount_component_helper';
 import { mockTracking, triggerEvent } from 'helpers/tracking_helper';
+import { createStore } from '~/mr_notes/stores';
 import DiffFileComponent from '~/diffs/components/diff_file.vue';
 import { diffViewerModes, diffViewerErrors } from '~/ide/constants';
 import diffFileMockDataReadable from '../mock_data/diff_file';
@@ -45,7 +45,7 @@ describe('DiffFile', () => {
 
       vm.$nextTick()
         .then(() => {
-          expect(el.querySelectorAll('.line_content').length).toBe(5);
+          expect(el.querySelectorAll('.line_content').length).toBe(8);
           expect(el.querySelectorAll('.js-line-expansion-content').length).toBe(1);
           triggerEvent('.btn-clipboard');
         })

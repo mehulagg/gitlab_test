@@ -6,7 +6,9 @@ module Projects::IncidentsHelper
       'project-path' => project.full_path,
       'new-issue-path' => new_project_issue_path(project),
       'incident-template-name' => 'incident',
-      'issue-path' => project_issues_path(project)
+      'incident-type' => 'incident',
+      'issue-path' => project_issues_path(project),
+      'empty-list-svg-path' => image_path('illustrations/incident-empty-state.svg')
     }
   end
 end

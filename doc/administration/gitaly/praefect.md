@@ -129,7 +129,7 @@ the Omnibus GitLab distribution is not yet supported. Follow this
 Prepare all your new nodes by [installing
 GitLab](https://about.gitlab.com/install/).
 
-- 1 Praefect node (minimal storage required)
+- At least 1 Praefect node (minimal storage required)
 - 3 Gitaly nodes (high CPU, high memory, fast storage)
 - 1 GitLab server
 
@@ -232,7 +232,7 @@ The database used by Praefect is now configured.
 
 #### PgBouncer
 
-To reduce PostgreSQL resource consumption, you should set up and configure
+To reduce PostgreSQL resource consumption, we recommend setting up and configuring
 [PgBouncer](https://www.pgbouncer.org/) in front of the PostgreSQL instance. To do
 this, replace value of the `POSTGRESQL_SERVER_ADDRESS` with corresponding IP or host
 address of the PgBouncer instance.
@@ -274,6 +274,9 @@ PostgreSQL instances. Otherwise you should change the configuration parameter
 `praefect['database_port']` for each Praefect instance to the correct value.
 
 ### Praefect
+
+NOTE: **Note:**
+If there are multiple Praefect nodes, complete these steps for **each** node.
 
 To complete this section you will need:
 
@@ -376,7 +379,7 @@ application server, or a Gitaly node.
    CAUTION: **Caution:**
    If you have data on an already existing storage called
    `default`, you should configure the virtual storage with another name and
-   [migrate the data to the Praefect storage](#migrating-existing-repositories-to-praefect)
+   [migrate the data to the Gitaly Cluster storage](#migrate-existing-repositories-to-gitaly-cluster)
    afterwards.
 
    Replace `PRAEFECT_INTERNAL_TOKEN` with a strong secret, which will be used by
@@ -426,7 +429,7 @@ application server, or a Gitaly node.
 
 1. To ensure that Praefect [has updated its Prometheus listen
    address](https://gitlab.com/gitlab-org/gitaly/-/issues/2734), [restart
-   Gitaly](../restart_gitlab.md#omnibus-gitlab-restart):
+   Praefect](../restart_gitlab.md#omnibus-gitlab-restart):
 
    ```shell
    gitlab-ctl restart praefect
@@ -444,7 +447,7 @@ application server, or a Gitaly node.
 
 **The steps above must be completed for each Praefect node!**
 
-## Enabling TLS support
+#### Enabling TLS support
 
 > [Introduced](https://gitlab.com/gitlab-org/gitaly/-/issues/1698) in GitLab 13.2.
 
@@ -677,7 +680,7 @@ documentation](index.md#configure-gitaly-servers).
 
    # Configure the gitlab-shell API callback URL. Without this, `git push` will
    # fail. This can be your front door GitLab URL or an internal load balancer.
-   # Examples: 'https://example.gitlab.com', 'http://1.2.3.4'
+   # Examples: 'https://gitlab.example.com', 'http://1.2.3.4'
    gitlab_rails['internal_api_url'] = 'http://GITLAB_HOST'
    ```
 
@@ -730,7 +733,7 @@ After all Gitaly nodes are configured, you can run the Praefect connection
 checker to verify Praefect can connect to all Gitaly servers in the Praefect
 config.
 
-1. SSH into the **Praefect** node and run the Praefect connection checker:
+1. SSH into each **Praefect** node and run the Praefect connection checker:
 
    ```shell
    sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml dial-nodes
@@ -774,9 +777,9 @@ application. This is done by updating the `git_data_dirs`.
 Particular attention should be shown to:
 
 - the storage name added to `git_data_dirs` in this section must match the
-  storage name under `praefect['virtual_storages']` on the Praefect node. This
+  storage name under `praefect['virtual_storages']` on the Praefect node(s). This
   was set in the [Praefect](#praefect) section of this guide. This document uses
-  `storage-1` as the Praefect storage name.
+  `default` as the Praefect storage name.
 
 1. SSH into the **GitLab** node and login as root:
 
@@ -799,7 +802,8 @@ Particular attention should be shown to:
 
    CAUTION: **Caution:**
    If you have existing data stored on the default Gitaly storage,
-   you should [migrate the data your Praefect storage first](#migrating-existing-repositories-to-praefect).
+   you should [migrate the data your Gitaly Cluster storage](#migrate-existing-repositories-to-gitaly-cluster)
+   first.
 
    ```ruby
    gitaly['enable'] = false
@@ -833,7 +837,8 @@ Particular attention should be shown to:
    gitlab_shell['secret_token'] = 'GITLAB_SHELL_SECRET_TOKEN'
    ```
 
-1. Add Prometheus monitoring settings by editing `/etc/gitlab/gitlab.rb`.
+1. Add Prometheus monitoring settings by editing `/etc/gitlab/gitlab.rb`. If Prometheus
+   is enabled on a different node, make edits on that node instead.
 
    You will need to replace:
 
@@ -871,7 +876,7 @@ Particular attention should be shown to:
    gitlab-ctl reconfigure
    ```
 
-1. Verify each `gitlab-shell` on each Gitaly instance can reach GitLab. On each Gitaly instance run:
+1. Verify each `gitlab-shell` on each Gitaly node can reach GitLab. On each Gitaly node run:
 
    ```shell
    /opt/gitlab/embedded/service/gitlab-shell/bin/check -config /opt/gitlab/embedded/service/gitlab-shell/config.yml
@@ -901,7 +906,7 @@ for detailed documentation.
 
 To get started quickly:
 
-1. SSH into the **GitLab** node and login as root:
+1. SSH into the **GitLab** node (or whichever node has Grafana enabled) and login as root:
 
    ```shell
    sudo -i
@@ -940,19 +945,17 @@ cluster.
 
 ## Distributed reads
 
-> Introduced in GitLab 13.1 in [beta](https://about.gitlab.com/handbook/product/gitlab-the-product/#alpha-beta-ga) with feature flag `gitaly_distributed_reads` set to disabled.
+> - Introduced in GitLab 13.1 in [beta](https://about.gitlab.com/handbook/product/gitlab-the-product/#alpha-beta-ga) with feature flag `gitaly_distributed_reads` set to disabled.
+> - [Made generally available](https://gitlab.com/gitlab-org/gitaly/-/issues/2951) in GitLab 13.3.
 
 Praefect supports distribution of read operations across Gitaly nodes that are
 configured for the virtual node.
 
-To allow for [performance testing](https://gitlab.com/gitlab-org/quality/performance/-/issues/231),
-distributed reads are currently in
-[beta](https://about.gitlab.com/handbook/product/gitlab-the-product/#alpha-beta-ga) and disabled by
-default. To enable distributed reads, the `gitaly_distributed_reads`
-[feature flag](../feature_flags.md) must be enabled in a Ruby console:
+The feature is enabled by default. To disable distributed reads, the `gitaly_distributed_reads`
+[feature flag](../feature_flags.md) must be disabled in a Ruby console:
 
 ```ruby
-Feature.enable(:gitaly_distributed_reads)
+Feature.disable(:gitaly_distributed_reads)
 ```
 
 If enabled, all RPCs marked with `ACCESSOR` option like
@@ -1009,8 +1012,19 @@ Feature.enable(:gitaly_reference_transactions)
 Feature.disable(:gitaly_reference_transactions_primary_wins)
 ```
 
-To monitor strong consistency, use the `gitaly_praefect_transactions_total` and
-`gitaly_praefect_transactions_delay_seconds` Prometheus counter metrics.
+To monitor strong consistency, you can use the following Prometheus metrics:
+
+- `gitaly_praefect_transactions_total`: Number of transactions created and
+  voted on.
+- `gitaly_praefect_subtransactions_per_transaction_total`: Number of times
+  nodes cast a vote for a single transaction. This can happen multiple times if
+  multiple references are getting updated in a single transaction.
+- `gitaly_praefect_voters_per_transaction_total`: Number of Gitaly nodes taking
+  part in a transaction.
+- `gitaly_praefect_transactions_delay_seconds`: Server-side delay introduced by
+  waiting for the transaction to be committed.
+- `gitaly_hook_transaction_voting_delay_seconds`: Client-side delay introduced
+  by waiting for the transaction to be committed.
 
 ## Automatic failover and leader election
 
@@ -1041,40 +1055,63 @@ strategy in the future.
 
 ## Primary Node Failure
 
-Praefect recovers from a failing primary Gitaly node by promoting a healthy secondary as the new primary. To minimize data loss, Praefect elects the secondary with the least unreplicated writes from the primary. There can still be some unreplicated writes, leading to data loss.
+Gitaly Cluster recovers from a failing primary Gitaly node by promoting a healthy secondary as the
+new primary.
+
+To minimize data loss, Gitaly Cluster:
+
+- Switches repositories that are outdated on the new primary to [read-only mode](#read-only-mode).
+- Elects the secondary with the least unreplicated writes from the primary to be the new primary.
+  Because there can still be some unreplicated writes, [data loss can occur](#check-for-data-loss).
 
 ### Read-only mode
 
-If the primary is not fully up to date, Praefect switches:
+> - Introduced in GitLab 13.0 as [generally available](https://about.gitlab.com/handbook/product/gitlab-the-product/#generally-available-ga).
+> - Between GitLab 13.0 and GitLab 13.2, read-only mode applied to the whole virtual storage and occurred whenever failover occurred.
+> - [In GitLab 13.3 and later](https://gitlab.com/gitlab-org/gitaly/-/issues/2862), read-only mode applies on a per-repository basis and only occurs if a new primary is out of date.
 
-- The virtual storage to read-only mode in GitLab 13.2 and earlier.
-- The affected repositories to read-only mode in
-  [GitLab 13.3](https://gitlab.com/gitlab-org/gitaly/-/issues/2862) and later.
+When Gitaly Cluster switches to a new primary, repositories enter read-only mode if they are out of
+date. This can happen after failing over to an outdated secondary. Read-only mode eases data
+recovery efforts by preventing writes that may conflict with the unreplicated writes on other nodes.
 
-This can happen after failing over to an outdated secondary. Read-only mode eases data
-recovery efforts by preventing writes that may conflict with the unreplicated writes.
+To enable writes again, an administrator can:
 
-To re-enable the repositories for writes, the administrator can attempt to
-[recover the missing data](#recover-missing-data) from an up-to-date replica. If
-recovering the data is not possible, the repository can be enabled for writes again by
-[accepting the data loss](#accept-data-loss).
+1. [Check](#check-for-data-loss) for data loss.
+1. Attempt to [recover](#recover-missing-data) missing data.
+1. Either [enable writes](#enable-writes-or-accept-data-loss) in the virtual storage or
+   [accept data loss](#enable-writes-or-accept-data-loss) if necessary, depending on the version of
+   GitLab.
 
-### Checking for data loss
+### Check for data loss
 
-The Praefect `dataloss` sub-command identifies replicas that are likely to be outdated. This is useful for identifying potential data loss after a failover.
+The Praefect `dataloss` sub-command identifies replicas that are likely to be outdated. This is
+useful for identifying potential data loss after a failover. The following parameters are
+available:
+
+- `-virtual-storage` that specifies which virtual storage to check. The default behavior is to
+  display outdated replicas of read-only repositories as they generally require administrator
+  action.
+- In GitLab 13.3 and later, `-partially-replicated` that specifies whether to display a list of
+  [outdated replicas of writable repositories](#outdated-replicas-of-writable-repositories).
+
+NOTE: **Note:**
+`dataloss` is still in beta and the output format is subject to change.
+
+To check for outdated replicas of read-only repositories, run:
 
 ```shell
-sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml dataloss [-virtual-storage <virtual-storage>] [-writable]
+sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml dataloss [-virtual-storage <virtual-storage>]
 ```
 
-- `-virtual-storage` specifies which virtual storage to check. Every configured virtual storage is checked if none is specified.
-- `-writable` specifies whether to report outdated replicas of writable repositories. Repository is writable if the primary has the latest changes. Secondaries might be temporarily outdated while they are waiting to replicate the latest changes. To reduce the noise, default behavior is to display outdated replicas of read-only repositories as they generally require administrator action.
+Every configured virtual storage is checked if none is specified:
 
 ```shell
 sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml dataloss
 ```
 
-The number of potentially unapplied changes to repositories are listed for each replica. Listed repositories might have the latest changes but it is not guaranteed. Only outdated replicas of read-only repositories are listed by default.
+The number of potentially unapplied changes to repositories is listed for each replica. Listed
+repositories might have the latest changes but it is not guaranteed. Only outdated replicas of
+read-only repositories are listed by default. For example:
 
 ```shell
 Virtual storage: default
@@ -1085,7 +1122,29 @@ Virtual storage: default
       gitaly-3 is behind by 2 changes or less
 ```
 
-Set the `-writable` flag also list the outdated replicas of writable repositories.
+A confirmation is printed out when every repository is writable. For example:
+
+```shell
+Virtual storage: default
+  Primary: gitaly-1
+  All repositories are writable!
+```
+
+#### Outdated replicas of writable repositories
+
+> [Introduced](https://gitlab.com/gitlab-org/gitaly/-/issues/3019) in GitLab 13.3.
+
+To also list information for outdated replicas of writable repositories, use the
+`-partially-replicated` parameter.
+
+A repository is writable if the primary has the latest changes. Secondaries might be temporarily
+outdated while they are waiting to replicate the latest changes.
+
+```shell
+sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml dataloss [-virtual-storage <virtual-storage>] [-partially-replicated]
+```
+
+Example output:
 
 ```shell
 Virtual storage: default
@@ -1098,15 +1157,8 @@ Virtual storage: default
       gitaly-2 is behind by 1 change or less
 ```
 
-A confirmation is printed out when every repository is writable.
-
-```shell
-Virtual storage: default
-  Primary: gitaly-1
-  All repositories are writable!
-```
-
-With the `-writable` flag set, a confirmation is printed out if every replica is fully up to date.
+With the `-partially-replicated` flag set, a confirmation is printed out if every replica is fully up to date.
+For example:
 
 ```shell
 Virtual storage: default
@@ -1114,57 +1166,56 @@ Virtual storage: default
   All repositories are up to date!
 ```
 
-NOTE: **Note:**
-`dataloss` is still in beta and the output format is subject to change.
-
-### Checking repository checksums
+### Check repository checksums
 
 To check a project's repository checksums across on all Gitaly nodes, run the
 [replicas Rake task](../raketasks/praefect.md#replica-checksums) on the main GitLab node.
 
 ### Recover missing data
 
-The Praefect `reconcile` sub-command can be used to recover unreplicated changes from another replica. The source must be on a later generation than the target storage.
+The Praefect `reconcile` sub-command can be used to recover unreplicated changes from another replica.
+The source must be on a later version than the target storage.
 
 ```shell
 sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml reconcile -virtual <virtual-storage> -reference <up-to-date-storage> -target <outdated-storage> -f
 ```
 
-Refer to [Backend Node Recovery](#backend-node-recovery) section for more details on the `reconcile` sub-command.
+Refer to [Gitaly node recovery](#gitaly-node-recovery) section for more details on the `reconcile` sub-command.
 
-### Accept data loss
+### Enable writes or accept data loss
 
 Praefect provides the following subcommands to re-enable writes:
 
-- In GitLab 13.2 and earlier, `enable-writes` to re-enable virtual storage for writes
-  after data recovery attempts.
+- In GitLab 13.2 and earlier, `enable-writes` to re-enable virtual storage for writes after data
+  recovery attempts.
 
    ```shell
    sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml enable-writes -virtual-storage <virtual-storage>
    ```
 
-- [In GitLab 13.3](https://gitlab.com/gitlab-org/gitaly/-/merge_requests/2415) and
-  later, `accept-dataloss` to accept data loss and re-enable writes for repositories
-  after data recovery attempts have failed. Accepting data loss causes current version
-  of the repository on the authoritative storage to be considered latest. Other storages
-  are brought up to date with the authoritative storage by scheduling replication jobs.
+- [In GitLab 13.3](https://gitlab.com/gitlab-org/gitaly/-/merge_requests/2415) and later,
+  `accept-dataloss` to accept data loss and re-enable writes for repositories after data recovery
+  attempts have failed. Accepting data loss causes current version of the repository on the
+  authoritative storage to be considered latest. Other storages are brought up to date with the
+  authoritative storage by scheduling replication jobs.
 
   ```shell
   sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml accept-dataloss -virtual-storage <virtual-storage> -repository <relative-path> -authoritative-storage <storage-name>
   ```
 
 CAUTION: **Caution:**
-`accept-dataloss` causes permanent data loss by overwriting other versions of the
-repository. Data recovery efforts must be performed before using it.
+`accept-dataloss` causes permanent data loss by overwriting other versions of the repository. Data
+[recovery efforts](#recover-missing-data) must be performed before using it.
 
-## Backend Node Recovery
+## Gitaly node recovery
 
-When a Praefect backend node fails and is no longer able to
-replicate changes, the backend node will start to drift from the primary. If
-that node eventually recovers, it will need to be reconciled with the current
-primary. The primary node is considered the single source of truth for the
-state of a shard. The Praefect `reconcile` sub-command allows for the manual
-reconciliation between a backend node and the current primary.
+When a secondary Gitaly node fails and is no longer able to replicate changes, it starts
+to drift from the primary Gitaly node. If the failed Gitaly node eventually recovers,
+it needs to be reconciled with the primary Gitaly node. The primary Gitaly node is considered
+the single source of truth for the state of a shard.
+
+The Praefect `reconcile` sub-command allows for the manual reconciliation between a secondary
+Gitaly node and the current primary Gitaly node.
 
 Run the following command on the Praefect server after all placeholders
 (`<virtual-storage>` and `<target-storage>`) have been replaced:
@@ -1173,24 +1224,37 @@ Run the following command on the Praefect server after all placeholders
 sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml reconcile -virtual <virtual-storage> -target <target-storage>
 ```
 
-- Replace the placeholder `<virtual-storage>` with the virtual storage containing the backend node storage to be checked.
-- Replace the placeholder `<target-storage>` with the backend storage name.
+- Replace the placeholder `<virtual-storage>` with the virtual storage containing the Gitaly node storage to be checked.
+- Replace the placeholder `<target-storage>` with the Gitaly storage name.
 
 The command will return a list of repositories that were found to be
 inconsistent against the current primary. Each of these inconsistencies will
 also be logged with an accompanying replication job ID.
 
-## Migrating existing repositories to Praefect
+## Migrate existing repositories to Gitaly Cluster
 
-If your GitLab instance already has repositories, these won't be migrated
-automatically.
+If your GitLab instance already has repositories on single Gitaly nodes, these aren't migrated to
+Gitaly Cluster automatically.
 
 Repositories may be moved from one storage location using the [Project repository storage moves API](../../api/project_repository_storage_moves.md):
 
-```shell
-curl --request POST --header "Private-Token: <your_access_token>" --header "Content-Type: application/json" \
---data '{"destination_storage_name":"praefect"}' "https://gitlab.example.com/api/v4/projects/123/repository_storage_moves"
-```
+To move repositories to Gitaly Cluster:
+
+1. [Schedule a move](../../api/project_repository_storage_moves.md#schedule-a-repository-storage-move-for-a-project)
+   for the first repository using the API. For example:
+
+   ```shell
+   curl --request POST --header "Private-Token: <your_access_token>" --header "Content-Type: application/json" \
+   --data '{"destination_storage_name":"praefect"}' "https://gitlab.example.com/api/v4/projects/123/repository_storage_moves"
+   ```
+
+1. Using the ID that is returned, [query the repository move](../../api/project_repository_storage_moves.md#get-a-single-repository-storage-move-for-a-project)
+   using the API. The query indicates either:
+   - The move has completed successfully. The `state` field is `finished`.
+   - The move is in progress. Re-query the repository move until it completes successfully.
+   - The move has failed. Most failures are temporary and are solved by rescheduling the move.
+
+1. Once the move is successful, repeat these steps for all repositories for your projects.
 
 ## Debugging Praefect
 

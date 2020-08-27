@@ -1,6 +1,6 @@
 <script>
 import { GlLoadingIcon, GlDeprecatedButton, GlAlert } from '@gitlab/ui';
-import createFlash from '~/flash';
+import { deprecatedCreateFlash as createFlash } from '~/flash';
 import { s__, sprintf } from '~/locale';
 import UploadButton from '../components/upload/button.vue';
 import DeleteButton from '../components/delete_button.vue';
@@ -168,7 +168,7 @@ export default {
 
       // if this upload resulted in a new version being created, redirect user to the latest version
       if (!this.isLatestVersion) {
-        this.$router.push({ name: DESIGNS_ROUTE_NAME });
+        this.$router.push({ name: DESIGNS_ROUTE_NAME }, () => {});
       }
       this.resetFilesToBeSaved();
     },

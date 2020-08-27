@@ -75,15 +75,15 @@ which means that the reported licenses might be incomplete or inaccurate.
 
 | Language   | Package managers                                                  | Scan Tool                                                |
 |------------|-------------------------------------------------------------------|----------------------------------------------------------|
-| JavaScript | [yarn](https://yarnpkg.com/)|[License Finder](https://github.com/pivotal/LicenseFinder)|
+| JavaScript | [Yarn](https://yarnpkg.com/)|[License Finder](https://github.com/pivotal/LicenseFinder)|
 | Go         | go get, gvt, glide, dep, trash, govendor |[License Finder](https://github.com/pivotal/LicenseFinder)|
-| Erlang     | [rebar](https://www.rebar3.org/) |[License Finder](https://github.com/pivotal/LicenseFinder)|
+| Erlang     | [Rebar](https://www.rebar3.org/) |[License Finder](https://github.com/pivotal/LicenseFinder)|
 | Objective-C, Swift | [CocoaPods](https://cocoapods.org/) v0.39 and below |[License Finder](https://github.com/pivotal/LicenseFinder)|
-| Elixir     | [mix](https://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html) |[License Finder](https://github.com/pivotal/LicenseFinder)|
-| C++/C      | [conan](https://conan.io/) |[License Finder](https://github.com/pivotal/LicenseFinder)|
+| Elixir     | [Mix](https://elixir-lang.org/getting-started/mix-otp/introduction-to-mix.html) |[License Finder](https://github.com/pivotal/LicenseFinder)|
+| C++/C      | [Conan](https://conan.io/) |[License Finder](https://github.com/pivotal/LicenseFinder)|
 | Scala      | [sbt](https://www.scala-sbt.org/) |[License Finder](https://github.com/pivotal/LicenseFinder)|
-| Rust       | [cargo](https://crates.io) |[License Finder](https://github.com/pivotal/LicenseFinder)|
-| PHP        | [composer](https://getcomposer.org/) |[License Finder](https://github.com/pivotal/LicenseFinder)|
+| Rust       | [Cargo](https://crates.io) |[License Finder](https://github.com/pivotal/LicenseFinder)|
+| PHP        | [Composer](https://getcomposer.org/) |[License Finder](https://github.com/pivotal/LicenseFinder)|
 
 ## Requirements
 
@@ -265,32 +265,6 @@ license_scanning:
 You can supply a custom root certificate to complete TLS verification by using the
 `ADDITIONAL_CA_CERT_BUNDLE` [environment variable](#available-variables).
 
-To bypass TLS verification, you can use a custom [`pip.conf`](https://pip.pypa.io/en/stable/user_guide/#config-file)
-file to configure trusted hosts.
-
-The following `gitlab-ci.yml` file uses a [`before_script`](../../../ci/yaml/README.md#before_script-and-after_script)
-to inject a custom [`pip.conf`](https://pip.pypa.io/en/stable/user_guide/#config-file):
-
-```yaml
-include:
-  - template: Security/License-Scanning.gitlab-ci.yml
-
-license_scanning:
-  variables:
-    PIP_INDEX_URL: 'https://pypi.example.com/simple/'
-  before_script:
-    - mkdir -p ~/.config/pip/
-    - cp pip.conf ~/.config/pip/pip.conf
-```
-
-The [`pip.conf`](https://pip.pypa.io/en/stable/reference/pip/) allows you to specify a list of
-[trusted hosts](https://pip.pypa.io/en/stable/reference/pip/#cmdoption-trusted-host):
-
-```plaintext
-[global]
-trusted-host = pypi.example.com
-```
-
 #### Using private Python repos
 
 If you have a private Python repository you can use the `PIP_INDEX_URL` [environment variable](#available-variables)
@@ -330,13 +304,13 @@ strict-ssl = false
 
 ### Configuring Yarn projects
 
-You can configure Yarn projects by using a [`.yarnrc.yml`](https://yarnpkg.com/configuration/yarnrc)
+You can configure Yarn projects by using a [`.yarnrc.yml`](https://yarnpkg.com/configuration/yarnrc/)
 file.
 
 #### Using private Yarn registries
 
 If you have a private Yarn registry you can use the
-[`npmRegistryServer`](https://yarnpkg.com/configuration/yarnrc#npmRegistryServer)
+[`npmRegistryServer`](https://yarnpkg.com/configuration/yarnrc/#npmRegistryServer)
 setting to specify its location.
 
 For example:
@@ -695,8 +669,15 @@ Additional configuration may be needed for connecting to
 [private Python repositories](#using-private-python-repos),
 and [private Yarn registries](#using-private-yarn-registries).
 
-Exact name matches are required for [project policies](#policies)
-when running in an offline environment ([see related issue](https://gitlab.com/gitlab-org/gitlab/-/issues/212388)).
+### SPDX license list name matching
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/212388) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 13.3.
+
+Prior to GitLab 13.3, offline environments required an exact name match for [project policies](#policies).
+In GitLab 13.3 and later, GitLab matches the name of [project policies](#policies)
+with identifiers from the [SPDX license list](https://spdx.org/licenses/).
+A local copy of the SPDX license list is distributed with the GitLab instance. If needed, the GitLab
+instance's administrator can manually update it with a [Rake task](../../../raketasks/spdx.md).
 
 ## License list
 

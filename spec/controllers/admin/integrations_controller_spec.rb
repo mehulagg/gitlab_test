@@ -10,16 +10,6 @@ RSpec.describe Admin::IntegrationsController do
   end
 
   describe '#edit' do
-    context 'when instance_level_integrations not enabled' do
-      it 'returns not_found' do
-        stub_feature_flags(instance_level_integrations: false)
-
-        get :edit, params: { id: Service.available_services_names.sample }
-
-        expect(response).to have_gitlab_http_status(:not_found)
-      end
-    end
-
     Service.available_services_names.each do |integration_name|
       context "#{integration_name}" do
         it 'successfully displays the template' do
@@ -38,7 +28,7 @@ RSpec.describe Admin::IntegrationsController do
     before do
       allow(PropagateIntegrationWorker).to receive(:perform_async)
 
-      put :update, params: { id: integration.class.to_param, overwrite: true, service: { url: url } }
+      put :update, params: { id: integration.class.to_param, service: { url: url } }
     end
 
     context 'valid params' do
@@ -50,7 +40,7 @@ RSpec.describe Admin::IntegrationsController do
       end
 
       it 'calls to PropagateIntegrationWorker' do
-        expect(PropagateIntegrationWorker).to have_received(:perform_async).with(integration.id, true)
+        expect(PropagateIntegrationWorker).to have_received(:perform_async).with(integration.id, false)
       end
     end
 

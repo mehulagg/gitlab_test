@@ -1,8 +1,8 @@
 <script>
-import { s__, n__ } from '~/locale';
 import { GlButton, GlFormSelect } from '@gitlab/ui';
+import { s__, n__ } from '~/locale';
 import toast from '~/vue_shared/plugins/global_toast';
-import createFlash from '~/flash';
+import { deprecatedCreateFlash as createFlash } from '~/flash';
 import dismissVulnerability from '../graphql/dismissVulnerability.graphql';
 
 const REASON_NONE = s__('SecurityReports|[No reason]');

@@ -37,6 +37,20 @@ module Gitlab
             yield if healthy_shard_for?(event)
           end
 
+          def replicable_project?(project_id)
+            strong_memoize(:"replicable_project_#{project_id}") do
+              # If a registry exists, then it *should* be replicated. The
+              # registry will be removed by the delete event or
+              # RegistryConsistencyWorker if it should no longer be replicated.
+              #
+              # This early exit helps keep event processing efficient especially
+              # for repository updates which are a large proportion of events.
+              next true if registry.persisted?
+
+              Gitlab::Geo.current_node.projects_include?(project_id)
+            end
+          end
+
           def log_event(message, params = {})
             logger.event_info(
               created_at,

@@ -1,7 +1,6 @@
 <script>
 import { GlIcon, GlSearchBoxByType, GlDeprecatedDropdown, GlDeprecatedButton } from '@gitlab/ui';
 import { mapActions, mapState } from 'vuex';
-import { debounce } from 'lodash';
 import { __, n__ } from '~/locale';
 import { SELECTIVE_SYNC_NAMESPACES } from '../constants';
 
@@ -19,11 +18,6 @@ export default {
       required: true,
     },
   },
-  data() {
-    return {
-      namespaceSearch: '',
-    };
-  },
   computed: {
     ...mapState(['synchronizationNamespaces']),
     dropdownTitle() {
@@ -35,11 +29,6 @@ export default {
     noSyncNamespaces() {
       return this.synchronizationNamespaces.length === 0;
     },
-  },
-  watch: {
-    namespaceSearch: debounce(function debounceSearch() {
-      this.fetchSyncNamespaces(this.namespaceSearch);
-    }, 500),
   },
   methods: {
     ...mapActions(['fetchSyncNamespaces']),
@@ -59,8 +48,8 @@ export default {
 </script>
 
 <template>
-  <gl-deprecated-dropdown :text="dropdownTitle" @show="fetchSyncNamespaces(namespaceSearch)">
-    <gl-search-box-by-type v-model="namespaceSearch" class="m-2" />
+  <gl-deprecated-dropdown :text="dropdownTitle" @show="fetchSyncNamespaces('')">
+    <gl-search-box-by-type class="gl-m-3" :debounce="500" @input="fetchSyncNamespaces" />
     <li v-for="namespace in synchronizationNamespaces" :key="namespace.id">
       <gl-deprecated-button class="d-flex align-items-center" @click="toggleNamespace(namespace)">
         <gl-icon :class="[{ invisible: !isSelected(namespace) }]" name="mobile-issue-close" />

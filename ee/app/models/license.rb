@@ -10,6 +10,7 @@ class License < ApplicationRecord
 
   EES_FEATURES = %i[
     audit_events
+    blocked_issues
     burndown_charts
     code_owners
     code_review_analytics
@@ -27,13 +28,13 @@ class License < ApplicationRecord
     ldap_group_sync
     member_lock
     merge_request_approvers
+    milestone_charts
     multiple_issue_assignees
     multiple_ldap_servers
     multiple_merge_request_assignees
     project_merge_request_analytics
     protected_refs_for_users
     push_rules
-    related_issues
     repository_mirrors
     repository_size_limit
     seat_link
@@ -53,6 +54,7 @@ class License < ApplicationRecord
     board_milestone_lists
     ci_cd_projects
     ci_secrets_management
+    cluster_agents
     cluster_deployments
     code_owner_approval_required
     commit_committer_check
@@ -495,7 +497,7 @@ class License < ApplicationRecord
     starts_at > Date.current
   end
 
-  def auto_renew?
+  def auto_renew
     false
   end
 

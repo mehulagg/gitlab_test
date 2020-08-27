@@ -16,12 +16,12 @@
 
         &:not(:first-child) {
           &::before {
-            color: $gray-700;
+            color: $gray-500;
             font-weight: normal !important;
           }
 
           div {
-            color: $gray-700;
+            color: $gray-500;
           }
         }
 
@@ -35,7 +35,7 @@
   }
 
   @include media-breakpoint-down(xs) {
-    .alert-details-issue-button {
+    .alert-details-incident-button {
       width: 100%;
     }
   }
@@ -65,6 +65,10 @@
         }
       }
     }
+  }
+
+  .main-notes-list::before {
+    left: 15px !important;
   }
 
   .note-header-info {

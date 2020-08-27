@@ -13,7 +13,7 @@ import groupIterationsQuery from '../queries/group_iterations.query.graphql';
 import currentIterationQuery from '../queries/issue_iteration.query.graphql';
 import setIssueIterationMutation from '../queries/set_iteration_on_issue.mutation.graphql';
 import { iterationSelectTextMap } from '../constants';
-import createFlash from '~/flash';
+import { deprecatedCreateFlash as createFlash } from '~/flash';
 
 export default {
   noIteration: iterationSelectTextMap.noIteration,
@@ -171,7 +171,7 @@ export default {
       <gl-button
         v-if="canEdit"
         variant="link"
-        class="js-sidebar-dropdown-toggle edit-link gl-shadow-none float-right"
+        class="js-sidebar-dropdown-toggle edit-link gl-shadow-none float-right gl-reset-color! btn-link-hover"
         data-testid="iteration-edit-link"
         data-track-label="right_sidebar"
         data-track-property="iteration"

@@ -9,7 +9,7 @@ module API
             authorize!(:read_package, project)
 
             presenter = ::Packages::Conan::PackagePresenter.new(
-              recipe,
+              package,
               current_user,
               project,
               conan_package_reference: params[:conan_package_reference]
@@ -28,20 +28,28 @@ module API
             present_download_urls(::API::Entities::ConanPackage::ConanRecipeManifest, &:recipe_urls)
           end
 
-          def recipe_upload_urls(file_names)
+          def recipe_upload_urls
             { upload_urls: Hash[
-              file_names.collect do |file_name|
+              file_names.select(&method(:recipe_file?)).map do |file_name|
                 [file_name, recipe_file_upload_url(file_name)]
               end
             ] }
           end
 
-          def package_upload_urls(file_names)
+          def package_upload_urls
             { upload_urls: Hash[
-              file_names.collect do |file_name|
+              file_names.select(&method(:package_file?)).map do |file_name|
                 [file_name, package_file_upload_url(file_name)]
               end
             ] }
+          end
+
+          def recipe_file?(file_name)
+            file_name.in?(::Packages::Conan::FileMetadatum::RECIPE_FILES)
+          end
+
+          def package_file?(file_name)
+            file_name.in?(::Packages::Conan::FileMetadatum::PACKAGE_FILES)
           end
 
           def package_file_upload_url(file_name)
@@ -86,6 +94,7 @@ module API
           def package
             strong_memoize(:package) do
               project.packages
+                .conan
                 .with_name(params[:package_name])
                 .with_version(params[:package_version])
                 .with_conan_channel(params[:package_channel])
@@ -130,6 +139,14 @@ module API
             end
           end
 
+          def file_names
+            json_payload = Gitlab::Json.parse(request.body.string)
+
+            bad_request!(nil) unless json_payload.is_a?(Hash)
+
+            json_payload.keys
+          end
+
           def create_package_file_with_type(file_type, current_package)
             unless params['file.size'] == 0
               # conan sends two upload requests, the first has no file, so we skip record creation if file.size == 0
@@ -139,6 +156,7 @@ module API
 
           def upload_package_file(file_type)
             authorize_upload!(project)
+            bad_request!('File is too large') if project.actual_limits.exceeded?(:conan_max_file_size, params['file.size'].to_i)
 
             current_package = find_or_create_package
 

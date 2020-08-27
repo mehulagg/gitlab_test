@@ -98,6 +98,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           scope :profiles do
             root 'dast_profiles#index', as: 'profiles'
             resources :dast_site_profiles, only: [:new, :edit]
+            resources :dast_scanner_profiles, only: [:new]
           end
         end
 
@@ -107,7 +108,11 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           end
         end
 
-        resources :iterations, only: [:index, :show], constraints: { id: /\d+/ }
+        resources :iterations, only: [:index]
+
+        namespace :iterations do
+          resources :inherited, only: [:show], constraints: { id: /\d+/ }
+        end
       end
       # End of the /-/ scope.
 

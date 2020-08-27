@@ -8,10 +8,10 @@ import {
   GlSearchBoxByType,
   GlIcon,
 } from '@gitlab/ui';
+import { intersection, debounce } from 'lodash';
 import { __, sprintf } from '~/locale';
 import Api from '~/api';
-import createFlash from '~/flash';
-import { intersection, debounce } from 'lodash';
+import { deprecatedCreateFlash as createFlash } from '~/flash';
 
 export default {
   components: {
@@ -184,7 +184,7 @@ export default {
 
     <gl-search-box-by-type
       v-model.trim="searchQuery"
-      class="m-2"
+      class="gl-m-3"
       :placeholder="this.$options.translations.searchMilestones"
       @input="searchMilestones"
     />

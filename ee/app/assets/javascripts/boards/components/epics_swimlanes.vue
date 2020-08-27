@@ -1,8 +1,8 @@
 <script>
-import { mapActions, mapState } from 'vuex';
-import { n__ } from '~/locale';
+import { mapActions, mapGetters, mapState } from 'vuex';
 import { GlIcon, GlTooltipDirective } from '@gitlab/ui';
 import BoardListHeader from 'ee_else_ce/boards/components/board_list_header.vue';
+import { n__ } from '~/locale';
 import EpicLane from './epic_lane.vue';
 import IssuesLaneList from './issues_lane_list.vue';
 
@@ -45,9 +45,10 @@ export default {
     },
   },
   computed: {
-    ...mapState(['epics', 'issuesByListId', 'isLoadingIssues']),
+    ...mapState(['epics', 'isLoadingIssues']),
+    ...mapGetters(['unassignedIssues']),
     unassignedIssuesCount() {
-      return this.lists.reduce((total, list) => total + this.unassignedIssues(list).length, 0);
+      return this.lists.reduce((total, list) => total + this.unassignedIssues(list.id).length, 0);
     },
     unassignedIssuesCountTooltipText() {
       return n__(`%d unassigned issue`, `%d unassigned issues`, this.unassignedIssuesCount);
@@ -58,12 +59,6 @@ export default {
   },
   methods: {
     ...mapActions(['fetchIssuesForAllLists']),
-    unassignedIssues(list) {
-      if (this.issuesByListId[list.id]) {
-        return this.issuesByListId[list.id].filter(i => i.epic === null);
-      }
-      return [];
-    },
   },
 };
 </script>
@@ -99,7 +94,6 @@ export default {
         :key="epic.id"
         :epic="epic"
         :lists="lists"
-        :issues="issuesByListId"
         :is-loading-issues="isLoadingIssues"
         :disabled="disabled"
         :root-path="rootPath"
@@ -114,7 +108,7 @@ export default {
           <span
             v-gl-tooltip.hover
             :title="unassignedIssuesCountTooltipText"
-            class="gl-display-flex gl-align-items-center gl-text-gray-700"
+            class="gl-display-flex gl-align-items-center gl-text-gray-500"
             tabindex="0"
             :aria-label="unassignedIssuesCountTooltipText"
             data-testid="issues-lane-issue-count"
@@ -129,7 +123,7 @@ export default {
           v-for="list in lists"
           :key="`${list.id}-issues`"
           :list="list"
-          :issues="unassignedIssues(list)"
+          :issues="unassignedIssues(list.id)"
           :group-id="groupId"
           :is-unassigned-issues-lane="true"
           :is-loading="isLoadingIssues"

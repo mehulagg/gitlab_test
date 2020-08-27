@@ -14,21 +14,9 @@ The whitepaper ["A Seismic Shift in Application Security"](https://about.gitlab.
 explains how **4 of the top 6 attacks were application based**. Download it
 to learn how to protect your organization.
 
-## Overview
-
 If you're using [GitLab CI/CD](../../../ci/README.md), you can analyze your source code for known
-vulnerabilities using Static Application Security Testing (SAST).
-
-You can take advantage of SAST by doing one of the following:
-
-- [Including the SAST template](#configuration) in your existing `.gitlab-ci.yml` file.
-- Implicitly using [Auto SAST](../../../topics/autodevops/stages.md#auto-sast-ultimate) provided by
-  [Auto DevOps](../../../topics/autodevops/index.md).
-- Using the [SAST Configuration tool](#configure-sast-in-the-ui) to create the necessary
-  `.gitlab-ci.yml` file for you.
-
-GitLab checks the SAST report, compares the found vulnerabilities between the
-source and target branches.
+vulnerabilities using Static Application Security Testing (SAST). GitLab checks the SAST report and
+compares the found vulnerabilities between the source and target branches.
 
 Details of the vulnerabilities found are included in the merge request. **(ULTIMATE)**
 
@@ -44,7 +32,7 @@ The results are sorted by the priority of the vulnerability:
 1. Everything else
 
 NOTE: **Note:**
-A pipeline consists of multiple jobs, including SAST and DAST scanning. If any job fails to finish for any reason, the security dashboard won't show SAST scanner output. For example, if the SAST job finishes but the DAST job fails, the security dashboard won't show SAST results. The analyzer will output an [exit code](../../../development/integrations/secure.md#exit-code) on failure.
+A pipeline consists of multiple jobs, including SAST and DAST scanning. If any job fails to finish for any reason, the security dashboard doesn't show SAST scanner output. For example, if the SAST job finishes but the DAST job fails, the security dashboard doesn't show SAST results. The analyzer outputs an [exit code](../../../development/integrations/secure.md#exit-code) on failure.
 
 ## Use cases
 
@@ -63,7 +51,7 @@ If you're using the shared Runners on GitLab.com, this is enabled by default.
 Beginning with GitLab 13.0, Docker privileged mode is necessary only if you've [enabled Docker-in-Docker for SAST](#enabling-docker-in-docker-ultimate).
 
 CAUTION: **Caution:**
-Our SAST jobs currently expect a Linux container type. Windows containers are not yet supported.
+Our SAST jobs require a Linux container type. Windows containers are not yet supported.
 
 CAUTION: **Caution:**
 If you use your own Runners, make sure the Docker version installed
@@ -77,7 +65,6 @@ The following table shows which languages, package managers and frameworks are s
 |--------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | .NET Core                                                                                                                                        | [Security Code Scan](https://security-code-scan.github.io)                                                    | 11.0, [moved](https://gitlab.com/groups/gitlab-org/-/epics/2098) to [GitLab Core](https://about.gitlab.com/pricing/) in 13.3                                          |
 | .NET Framework                                                                                                                                   | [Security Code Scan](https://security-code-scan.github.io)                                                    | 13.0, [moved](https://gitlab.com/groups/gitlab-org/-/epics/2098) to [GitLab Core](https://about.gitlab.com/pricing/) in 13.3                                          |
-| Any                                                                                                                                              | [Gitleaks](https://github.com/zricethezav/gitleaks) and [TruffleHog](https://github.com/dxa4481/truffleHog)   | 11., [moved](https://gitlab.com/groups/gitlab-org/-/epics/2098) to [GitLab Core](https://about.gitlab.com/pricing/) in 13.3                                           |
 | Apex (Salesforce)                                                                                                                                | [PMD](https://pmd.github.io/pmd/index.html)                                                                   | 12.1, [moved](https://gitlab.com/groups/gitlab-org/-/epics/2098) to [GitLab Core](https://about.gitlab.com/pricing/) in 13.3                                          |
 | C/C++                                                                                                                                            | [Flawfinder](https://github.com/david-a-wheeler/flawfinder)                                                   | 10.7, [moved](https://gitlab.com/groups/gitlab-org/-/epics/2098) to [GitLab Core](https://about.gitlab.com/pricing/) in 13.3                                          |
 | Elixir (Phoenix)                                                                                                                                 | [Sobelow](https://github.com/nccgroup/sobelow)                                                                | 11.10, [moved](https://gitlab.com/groups/gitlab-org/-/epics/2098) to [GitLab Core](https://about.gitlab.com/pricing/) in 13.3                                         |
@@ -129,9 +116,14 @@ The [Security Scanner Integration](../../../development/integrations/secure.md) 
 
 ## Configuration
 
-NOTE: **Note:**
-You don't have to configure SAST manually as shown in this section if you're using [Auto SAST](../../../topics/autodevops/stages.md#auto-sast-ultimate)
-provided by [Auto DevOps](../../../topics/autodevops/index.md).
+To configure SAST for a project you can:
+
+- Use [Auto SAST](../../../topics/autodevops/stages.md#auto-sast-ultimate) provided by
+  [Auto DevOps](../../../topics/autodevops/index.md).
+- [Configure SAST manually](#configure-sast-manually).
+- [Configure SAST using the UI](#configure-sast-in-the-ui) (introduced in GitLab 13.3).
+
+### Configure SAST manually
 
 For GitLab 11.9 and later, to enable SAST you must [include](../../../ci/yaml/README.md#includetemplate)
 the [`SAST.gitlab-ci.yml` template](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Security/SAST.gitlab-ci.yml)
@@ -142,13 +134,13 @@ Add the following to your `.gitlab-ci.yml` file:
 
 ```yaml
 include:
-  - template: SAST.gitlab-ci.yml
+  - template: Security/SAST.gitlab-ci.yml
 ```
 
-The included template will create SAST jobs in your CI/CD pipeline and scan
+The included template creates SAST jobs in your CI/CD pipeline and scans
 your project's source code for possible vulnerabilities.
 
-The results will be saved as a
+The results are saved as a
 [SAST report artifact](../../../ci/pipelines/job_artifacts.md#artifactsreportssast-ultimate)
 that you can later download and analyze. Due to implementation limitations, we
 always take the latest SAST artifact available.
@@ -157,14 +149,16 @@ always take the latest SAST artifact available.
 
 > [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/3659) in GitLab Ultimate 13.3.
 
-For projects that do not already have a `.gitlab-ci.yml` file, the above
-configuration can also be achieved by using the **SAST Configuration** tool.
+For a project that does not have a `.gitlab-ci.yml` file, you can enable SAST with a basic
+configuration using the **SAST Configuration** page:
 
-1. Navigate to **Security & Compliance > Configuration**.
-1. Click **Enable** on the Static Application Security Testing (SAST)
-row.
-
-A merge request is created, containing the necessary changes for you to review and merge.
+1. From the project's home page, go to **Security & Compliance** > **Configuration** in the
+   left sidebar.
+1. Click **Enable via Merge Request** on the Static Application Security Testing (SAST) row.
+1. Enter the appropriate SAST details into the fields on the page. See [Available variables](#available-variables)
+   for a description of these variables.
+1. Click **Create Merge Request**.
+1. Review and merge the merge request.
 
 ### Customizing the SAST settings
 
@@ -345,11 +339,7 @@ Some analyzers make it possible to filter out vulnerabilities under a given thre
 | `SAST_BANDIT_EXCLUDED_PATHS`  |                          | Comma-separated list of paths to exclude from scan. Uses Python's [`fnmatch` syntax](https://docs.python.org/2/library/fnmatch.html); For example: `'*/tests/*, */venv/*'`                                                  |
 | `SAST_BRAKEMAN_LEVEL`         | 1                        | Ignore Brakeman vulnerabilities under given confidence level. Integer, 1=Low 3=High.                                                                                                                                        |
 | `SAST_FLAWFINDER_LEVEL`       | 1                        | Ignore Flawfinder vulnerabilities under given risk level. Integer, 0=No risk, 5=High risk.                                                                                                                                  |
-| `SAST_GITLEAKS_ENTROPY_LEVEL` | 8.0                      | Minimum entropy for secret detection. Float, 0.0 = low, 8.0 = high.                                                                                                                                                         |
 | `SAST_GOSEC_LEVEL`            | 0                        | Ignore Gosec vulnerabilities under given confidence level. Integer, 0=Undefined, 1=Low, 2=Medium, 3=High.                                                                                                                   |
-| `SAST_GITLEAKS_COMMIT_FROM`   |                          | The commit a Gitleaks scan starts at.                                                                                                                                                                                       |
-| `SAST_GITLEAKS_COMMIT_TO`     |                          | The commit a Gitleaks scan ends at.                                                                                                                                                                                         |
-| `SAST_GITLEAKS_HISTORIC_SCAN` | `false`                  | Flag to enable a historic Gitleaks scan.                                                                                                                                                                                    |
 
 #### Docker-in-Docker orchestrator
 
@@ -548,7 +538,6 @@ registry.gitlab.com/gitlab-org/security-products/analyzers/kubesec:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/nodejs-scan:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/phpcs-security-audit:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/pmd-apex:2
-registry.gitlab.com/gitlab-org/security-products/analyzers/secrets:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/security-code-scan:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/sobelow:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/spotbugs:2

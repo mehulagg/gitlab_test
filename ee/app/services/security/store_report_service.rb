@@ -31,7 +31,7 @@ module Security
     end
 
     def create_all_vulnerabilities!
-      @report.findings.map { |finding| create_vulnerability_finding(finding).id }.uniq
+      @report.findings.map { |finding| create_vulnerability_finding(finding)&.id }.compact.uniq
     end
 
     def mark_as_resolved_except(vulnerability_ids)
@@ -42,6 +42,8 @@ module Security
     end
 
     def create_vulnerability_finding(finding)
+      return if finding.scanner.blank?
+
       vulnerability_params = finding.to_hash.except(:compare_key, :identifiers, :location, :scanner)
       vulnerability_finding = create_or_find_vulnerability_finding(finding, vulnerability_params)
 
@@ -60,8 +62,6 @@ module Security
 
     # rubocop: disable CodeReuse/ActiveRecord
     def create_or_find_vulnerability_finding(finding, create_params)
-      return if finding.scanner.blank?
-
       find_params = {
         scanner: scanners_objects[finding.scanner.key],
         primary_identifier: identifiers_objects[finding.primary_identifier.key],
@@ -69,10 +69,14 @@ module Security
       }
 
       begin
-        project
-          .vulnerability_findings
-          .create_with(create_params)
-          .find_or_create_by!(find_params)
+        if finding.location.respond_to?(:new_fingerprint)
+          create_or_update_vulnerability_finding(finding, create_params, find_params)
+        else
+          project
+            .vulnerability_findings
+            .create_with(create_params)
+            .find_or_create_by!(find_params)
+        end
       rescue ActiveRecord::RecordNotUnique
         project.vulnerability_findings.find_by!(find_params)
       rescue ActiveRecord::RecordInvalid => e
@@ -80,9 +84,26 @@ module Security
       end
     end
 
-    def update_vulnerability_scanner(finding)
-      return if finding.scanner.blank?
+    # temporary, once existing data has updated it will be removed
+    # https://gitlab.com/gitlab-org/gitlab/-/issues/229594
+    def create_or_update_vulnerability_finding(finding, create_params, find_params)
+      existing_findings = project.vulnerability_findings
+      new_fingerprint = finding.location.new_fingerprint
 
+      new_find_params = find_params.merge(location_fingerprint: new_fingerprint)
+      finding = existing_findings.where(find_params)
+                                 .or(existing_findings.where(new_find_params)).first
+
+      if !finding.blank? && finding.location_fingerprint != new_fingerprint
+        finding.update_column(:location_fingerprint, new_fingerprint)
+      elsif finding.nil?
+        finding = existing_findings.create!(create_params.merge(new_find_params))
+      end
+
+      finding
+    end
+
+    def update_vulnerability_scanner(finding)
       scanner = scanners_objects[finding.scanner.key]
       scanner.update!(finding.scanner.to_hash)
     end

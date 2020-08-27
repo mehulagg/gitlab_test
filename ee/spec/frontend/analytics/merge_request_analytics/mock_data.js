@@ -33,13 +33,13 @@ export const expectedMonthData = [
 
 export const throughputChartQuery = `query ($fullPath: ID!) {
   throughputChartData: project(fullPath: $fullPath) {
-    May_2020: mergeRequests(mergedBefore: "2020-06-01", mergedAfter: "2020-05-01") {
+    May_2020: mergeRequests(first: 0, mergedBefore: "2020-06-01", mergedAfter: "2020-05-01") {
       count
     }
-    Jun_2020: mergeRequests(mergedBefore: "2020-07-01", mergedAfter: "2020-06-01") {
+    Jun_2020: mergeRequests(first: 0, mergedBefore: "2020-07-01", mergedAfter: "2020-06-01") {
       count
     }
-    Jul_2020: mergeRequests(mergedBefore: "2020-08-01", mergedAfter: "2020-07-01") {
+    Jul_2020: mergeRequests(first: 0, mergedBefore: "2020-08-01", mergedAfter: "2020-07-01") {
       count
     }
   }
@@ -51,6 +51,7 @@ export const throughputTableHeaders = [
   'Date Merged',
   'Time to merge',
   'Milestone',
+  'Commits',
   'Pipelines',
   'Line changes',
   'Assignees',
@@ -63,7 +64,7 @@ export const throughputTableData = [
     createdAt: '2020-08-06T16:53:50Z',
     mergedAt: '2020-08-06T16:57:53Z',
     webUrl: 'http://127.0.0.1:3001/gitlab-org/gitlab-shell/-/merge_requests/11',
-    milestone: { title: 'v1.0' },
+    milestone: null,
     assignees: {
       nodes: [
         {
@@ -81,5 +82,6 @@ export const throughputTableData = [
     pipelines: {
       nodes: [],
     },
+    commitCount: 1,
   },
 ];

@@ -8,6 +8,7 @@ class ApplicationSetting < ApplicationRecord
   include IgnorableColumns
 
   ignore_column :namespace_storage_size_limit, remove_with: '13.5', remove_after: '2020-09-22'
+  ignore_column :instance_statistics_visibility_private, remove_with: '13.6', remove_after: '2020-10-22'
 
   GRAFANA_URL_ERROR_MESSAGE = 'Please check your Grafana URL setting in ' \
     'Admin Area > Settings > Metrics and profiling > Metrics - Grafana'
@@ -275,7 +276,7 @@ class ApplicationSetting < ApplicationRecord
             numericality: { greater_than_or_equal_to: 0 }
 
   validates :snippet_size_limit, numericality: { only_integer: true, greater_than: 0 }
-  validates :wiki_page_max_content_bytes, numericality: { only_integer: true, greater_than: 0 }
+  validates :wiki_page_max_content_bytes, numericality: { only_integer: true, greater_than_or_equal_to: 1.kilobytes }
 
   validates :email_restrictions, untrusted_regexp: true
 

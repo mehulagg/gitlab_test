@@ -77,7 +77,6 @@ export default {
       const vars = {
         fullPath: this.fullPath,
         isGroup: this.namespaceType === Namespace.Group,
-        isProject: this.namespaceType === Namespace.Project,
         state: this.state,
       };
 
@@ -153,7 +152,7 @@ export default {
         </gl-alert>
       </div>
       <div v-else>
-        <iterations-list :iterations="iterations" />
+        <iterations-list :iterations="iterations" :namespace-type="namespaceType" />
         <gl-pagination
           v-if="prevPage || nextPage"
           :value="pagination.currentPage"

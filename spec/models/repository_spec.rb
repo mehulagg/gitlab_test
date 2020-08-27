@@ -1263,6 +1263,7 @@ RSpec.describe Repository do
       %w(a b c/z) | %w(c d) | true
       %w(a/b/z) | %w(a/b) | false # we only consider refs ambiguous before the first slash
       %w(a/b/z) | %w(a/b a) | true
+      %w(ab) | %w(abc/d a b) | false
     end
 
     with_them do
@@ -2103,7 +2104,7 @@ RSpec.describe Repository do
   describe '#expire_branches_cache' do
     it 'expires the cache' do
       expect(repository).to receive(:expire_method_caches)
-        .with(%i(branch_names merged_branch_names branch_count has_visible_content?))
+        .with(%i(branch_names merged_branch_names branch_count has_visible_content? has_ambiguous_refs?))
         .and_call_original
 
       repository.expire_branches_cache
@@ -2113,7 +2114,7 @@ RSpec.describe Repository do
   describe '#expire_tags_cache' do
     it 'expires the cache' do
       expect(repository).to receive(:expire_method_caches)
-        .with(%i(tag_names tag_count))
+        .with(%i(tag_names tag_count has_ambiguous_refs?))
         .and_call_original
 
       repository.expire_tags_cache

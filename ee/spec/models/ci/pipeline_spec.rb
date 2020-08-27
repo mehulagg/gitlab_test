@@ -146,12 +146,9 @@ RSpec.describe Ci::Pipeline do
       let!(:cs1_artifact) { create(:ee_ci_job_artifact, :container_scanning, job: build_cs_1, project: project) }
       let!(:cs2_artifact) { create(:ee_ci_job_artifact, :container_scanning, job: build_cs_2, project: project) }
 
-      before do
-      end
-
-      it 'assigns pipeline commit_sha to the reports' do
-        expect(subject.commit_sha).to eq(pipeline.sha)
-        expect(subject.reports.values.map(&:commit_sha).uniq).to contain_exactly(pipeline.sha)
+      it 'assigns pipeline to the reports' do
+        expect(subject.pipeline).to eq(pipeline)
+        expect(subject.reports.values.map(&:pipeline).uniq).to contain_exactly(pipeline)
       end
 
       it 'returns security reports with collected data grouped as expected' do
@@ -170,6 +167,14 @@ RSpec.describe Ci::Pipeline do
           expect(subject.get_report('sast', sast1_artifact).findings.size).to eq(33)
           expect(subject.get_report('dependency_scanning', ds1_artifact).findings.size).to eq(4)
           expect(subject.get_report('container_scanning', cs1_artifact).findings.size).to eq(8)
+        end
+      end
+
+      context 'when the `report_types` parameter is provided' do
+        subject(:filtered_report_types) { pipeline.security_reports(report_types: %w(sast)).reports.values.map(&:type).uniq }
+
+        it 'returns only the reports which are requested' do
+          expect(filtered_report_types).to eq(%w(sast))
         end
       end
     end

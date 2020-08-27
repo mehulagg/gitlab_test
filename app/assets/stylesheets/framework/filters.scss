@@ -134,20 +134,20 @@
     padding-left: 8px;
     padding-right: 0;
 
-    .fa-close {
+    .close-icon {
       color: $gl-text-color-secondary;
     }
 
-    &:hover .fa-close {
+    &:hover .close-icon {
       color: $gl-text-color;
     }
 
     &.inverted {
-      .fa-close {
+      .close-icon {
         color: $gl-text-color-secondary-inverted;
       }
 
-      &:hover .fa-close {
+      &:hover .close-icon {
         color: $gl-text-color-inverted;
       }
     }
@@ -306,23 +306,6 @@
   &:focus {
     color: $gl-text-color;
     border-color: $border-color;
-  }
-
-  svg {
-    height: 14px;
-    width: 14px;
-    vertical-align: middle;
-    margin-bottom: 4px;
-  }
-
-  .dropdown-toggle-text {
-    display: inline-block;
-    color: inherit;
-
-    .fa {
-      vertical-align: middle;
-      color: inherit;
-    }
   }
 }
 

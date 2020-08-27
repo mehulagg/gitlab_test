@@ -31,8 +31,12 @@
     border-radius: 50%;
 
     &.resolved {
-      background-color: $gray-700;
+      background-color: $gray-500;
     }
+  }
+
+  .design-detail-overlay-add-comment {
+    cursor: crosshair;
   }
 }
 

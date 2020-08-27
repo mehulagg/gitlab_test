@@ -680,6 +680,12 @@ RSpec.describe Project do
           end
         end
       end
+
+      context 'when argument is a user' do
+        it 'returns full path to the project' do
+          expect(project.to_reference_base(owner)).to eq 'sample-namespace/sample-project'
+        end
+      end
     end
 
     describe '#to_human_reference' do
@@ -1081,6 +1087,30 @@ RSpec.describe Project do
       expect(wiki_enabled_project).to have_wiki
       expect(external_wiki_project).to have_wiki
       expect(no_wiki_project).not_to have_wiki
+    end
+  end
+
+  describe '#default_owner' do
+    let_it_be(:owner)     { create(:user) }
+    let_it_be(:namespace) { create(:namespace, owner: owner) }
+
+    context 'the project does not have a group' do
+      let(:project) { build(:project, namespace: namespace) }
+
+      it 'is the namespace owner' do
+        expect(project.default_owner).to eq(owner)
+      end
+    end
+
+    context 'the project is in a group' do
+      let(:group)   { build(:group) }
+      let(:project) { build(:project, group: group, namespace: namespace) }
+
+      it 'is the group owner' do
+        allow(group).to receive(:default_owner).and_return(Object.new)
+
+        expect(project.default_owner).to eq(group.default_owner)
+      end
     end
   end
 

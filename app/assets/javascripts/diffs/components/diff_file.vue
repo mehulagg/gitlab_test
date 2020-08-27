@@ -1,10 +1,11 @@
 <script>
+/* eslint-disable vue/no-v-html */
 import { mapActions, mapGetters, mapState } from 'vuex';
 import { escape } from 'lodash';
 import { GlLoadingIcon } from '@gitlab/ui';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { __, sprintf } from '~/locale';
-import createFlash from '~/flash';
+import { deprecatedCreateFlash as createFlash } from '~/flash';
 import { hasDiff } from '~/helpers/diffs_helper';
 import eventHub from '../../notes/event_hub';
 import DiffFileHeader from './diff_file_header.vue';
@@ -167,6 +168,7 @@ export default {
     :id="file.file_hash"
     :class="{
       'is-active': currentDiffFileId === file.file_hash,
+      'comments-disabled': Boolean(file.brokenSymlink),
     }"
     :data-path="file.new_path"
     class="diff-file file-holder"

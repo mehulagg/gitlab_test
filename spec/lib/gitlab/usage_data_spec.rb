@@ -25,6 +25,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
 
       it 'clears memoized values' do
         values = %i(issue_minimum_id issue_maximum_id
+                    project_minimum_id project_maximum_id
                     user_minimum_id user_maximum_id unique_visit_service
                     deployment_minimum_id deployment_maximum_id
                     approval_merge_request_rule_minimum_id
@@ -53,6 +54,21 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
       expect(described_class).to receive(:recorded_at).and_raise(Exception.new('Stopped calculating recorded_at'))
 
       expect { described_class.uncached_data }.to raise_error('Stopped calculating recorded_at')
+    end
+  end
+
+  describe 'usage_activity_by_stage_package' do
+    it 'includes accurate usage_activity_by_stage data' do
+      for_defined_days_back do
+        create(:project, packages: [create(:package)] )
+      end
+
+      expect(described_class.usage_activity_by_stage_package({})).to eq(
+        projects_with_packages: 2
+      )
+      expect(described_class.usage_activity_by_stage_package(described_class.last_28_days_time_period)).to eq(
+        projects_with_packages: 1
+      )
     end
   end
 
@@ -399,6 +415,8 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
       expect(count_data[:snippets]).to eq(6)
       expect(count_data[:personal_snippets]).to eq(2)
       expect(count_data[:project_snippets]).to eq(4)
+
+      expect(count_data[:projects_with_packages]).to eq(2)
     end
 
     it 'gathers object store usage correctly' do
@@ -912,45 +930,29 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
     let(:time) { Time.zone.now }
 
     before do
-      stub_feature_flags(Gitlab::UsageDataCounters::TrackUniqueActions::FEATURE_FLAG => feature_flag)
+      counter = Gitlab::UsageDataCounters::TrackUniqueEvents
+      project = Event::TARGET_TYPES[:project]
+      wiki = Event::TARGET_TYPES[:wiki]
+      design = Event::TARGET_TYPES[:design]
+
+      counter.track_event(event_action: :pushed, event_target: project, author_id: 1)
+      counter.track_event(event_action: :pushed, event_target: project, author_id: 1)
+      counter.track_event(event_action: :pushed, event_target: project, author_id: 2)
+      counter.track_event(event_action: :pushed, event_target: project, author_id: 3)
+      counter.track_event(event_action: :pushed, event_target: project, author_id: 4, time: time - 3.days)
+      counter.track_event(event_action: :created, event_target: project, author_id: 5, time: time - 3.days)
+      counter.track_event(event_action: :created, event_target: wiki, author_id: 3)
+      counter.track_event(event_action: :created, event_target: design, author_id: 3)
     end
 
-    context 'when the feature flag is enabled' do
-      let(:feature_flag) { true }
-
-      before do
-        counter = Gitlab::UsageDataCounters::TrackUniqueActions
-        project = Event::TARGET_TYPES[:project]
-        wiki = Event::TARGET_TYPES[:wiki]
-        design = Event::TARGET_TYPES[:design]
-
-        counter.track_action(event_action: :pushed, event_target: project, author_id: 1)
-        counter.track_action(event_action: :pushed, event_target: project, author_id: 1)
-        counter.track_action(event_action: :pushed, event_target: project, author_id: 2)
-        counter.track_action(event_action: :pushed, event_target: project, author_id: 3)
-        counter.track_action(event_action: :pushed, event_target: project, author_id: 4, time: time - 3.days)
-        counter.track_action(event_action: :created, event_target: project, author_id: 5, time: time - 3.days)
-        counter.track_action(event_action: :created, event_target: wiki, author_id: 3)
-        counter.track_action(event_action: :created, event_target: design, author_id: 3)
-      end
-
-      it 'returns the distinct count of user actions within the specified time period' do
-        expect(described_class.action_monthly_active_users(time_period)).to eq(
-          {
-            action_monthly_active_users_design_management: 1,
-            action_monthly_active_users_project_repo: 3,
-            action_monthly_active_users_wiki_repo: 1
-          }
-        )
-      end
-    end
-
-    context 'when the feature flag is disabled' do
-      let(:feature_flag) { false }
-
-      it 'returns an empty hash' do
-        expect(described_class.action_monthly_active_users(time_period)).to eq({})
-      end
+    it 'returns the distinct count of user actions within the specified time period' do
+      expect(described_class.action_monthly_active_users(time_period)).to eq(
+        {
+          action_monthly_active_users_design_management: 1,
+          action_monthly_active_users_project_repo: 3,
+          action_monthly_active_users_wiki_repo: 1
+        }
+      )
     end
   end
 
@@ -958,12 +960,12 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
     subject { described_class.analytics_unique_visits_data }
 
     it 'returns the number of unique visits to pages with analytics features' do
-      ::Gitlab::Analytics::UniqueVisits::ANALYTICS_IDS.each do |target_id|
-        expect_any_instance_of(::Gitlab::Analytics::UniqueVisits).to receive(:unique_visits_for).with(targets: target_id).and_return(123)
+      ::Gitlab::Analytics::UniqueVisits.analytics_events.each do |target|
+        expect_any_instance_of(::Gitlab::Analytics::UniqueVisits).to receive(:unique_visits_for).with(targets: target).and_return(123)
       end
 
       expect_any_instance_of(::Gitlab::Analytics::UniqueVisits).to receive(:unique_visits_for).with(targets: :analytics).and_return(543)
-      expect_any_instance_of(::Gitlab::Analytics::UniqueVisits).to receive(:unique_visits_for).with(targets: :analytics, weeks: 4).and_return(987)
+      expect_any_instance_of(::Gitlab::Analytics::UniqueVisits).to receive(:unique_visits_for).with(targets: :analytics, start_date: 4.weeks.ago.to_date, end_date: Date.current).and_return(987)
 
       expect(subject).to eq({
         analytics_unique_visits: {
@@ -994,13 +996,13 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
       described_class.clear_memoization(:unique_visit_service)
 
       allow_next_instance_of(::Gitlab::Analytics::UniqueVisits) do |instance|
-        ::Gitlab::Analytics::UniqueVisits::COMPLIANCE_IDS.each do |target_id|
-          allow(instance).to receive(:unique_visits_for).with(targets: target_id).and_return(123)
+        ::Gitlab::Analytics::UniqueVisits.compliance_events.each do |target|
+          allow(instance).to receive(:unique_visits_for).with(targets: target).and_return(123)
         end
 
         allow(instance).to receive(:unique_visits_for).with(targets: :compliance).and_return(543)
 
-        allow(instance).to receive(:unique_visits_for).with(targets: :compliance, weeks: 4).and_return(987)
+        allow(instance).to receive(:unique_visits_for).with(targets: :compliance, start_date: 4.weeks.ago.to_date, end_date: Date.current).and_return(987)
       end
     end
 

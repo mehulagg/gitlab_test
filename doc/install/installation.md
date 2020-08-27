@@ -401,10 +401,11 @@ Starting from GitLab 12.1, only PostgreSQL is supported. Since GitLab 13.0, we r
 
 ## 7. Redis
 
-GitLab requires at least Redis 5.0.
+NOTE: **Note:**
+See the [requirements page](requirements.md#redis-versions) for the minimum
+Redis requirements.
 
-If you are using Debian 10 or Ubuntu 20.04 and up, you can install
-Redis 5.0 with:
+Install Redis with:
 
 ```shell
 sudo apt-get install redis-server
@@ -462,7 +463,7 @@ Clone Enterprise Edition:
 
 ```shell
 # Clone GitLab repository
-sudo -u git -H git clone https://gitlab.com/gitlab-org/gitlab-ee.git -b X-Y-stable gitlab
+sudo -u git -H git clone https://gitlab.com/gitlab-org/gitlab.git -b X-Y-stable gitlab
 ```
 
 Make sure to replace `X-Y-stable` with the stable branch that matches the
@@ -521,9 +522,6 @@ sudo -u git -H cp config/puma.rb.example config/puma.rb
 # You should scale Puma workers and threads based on the number of CPU
 # cores you have available. You can get that number via the `nproc` command.
 sudo -u git -H editor config/puma.rb
-
-# Copy the example Rack attack config
-sudo -u git -H cp config/initializers/rack_attack.rb.example config/initializers/rack_attack.rb
 
 # Configure Git global settings for git user
 # 'autocrlf' is needed for the web editor

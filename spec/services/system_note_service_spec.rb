@@ -86,6 +86,40 @@ RSpec.describe SystemNoteService do
     end
   end
 
+  describe '.relate_issue' do
+    let(:noteable_ref) { double }
+    let(:noteable) { double }
+
+    before do
+      allow(noteable).to receive(:project).and_return(double)
+    end
+
+    it 'calls IssuableService' do
+      expect_next_instance_of(::SystemNotes::IssuablesService) do |service|
+        expect(service).to receive(:relate_issue).with(noteable_ref)
+      end
+
+      described_class.relate_issue(noteable, noteable_ref, double)
+    end
+  end
+
+  describe '.unrelate_issue' do
+    let(:noteable_ref) { double }
+    let(:noteable) { double }
+
+    before do
+      allow(noteable).to receive(:project).and_return(double)
+    end
+
+    it 'calls IssuableService' do
+      expect_next_instance_of(::SystemNotes::IssuablesService) do |service|
+        expect(service).to receive(:unrelate_issue).with(noteable_ref)
+      end
+
+      described_class.unrelate_issue(noteable, noteable_ref, double)
+    end
+  end
+
   describe '.change_due_date' do
     let(:due_date) { double }
 
@@ -703,6 +737,19 @@ RSpec.describe SystemNoteService do
       end
 
       described_class.new_alert_issue(alert, alert.issue, author)
+    end
+  end
+
+  describe '.create_new_alert' do
+    let(:alert) { build(:alert_management_alert) }
+    let(:monitoring_tool) { 'Prometheus' }
+
+    it 'calls AlertManagementService' do
+      expect_next_instance_of(SystemNotes::AlertManagementService) do |service|
+        expect(service).to receive(:create_new_alert).with(monitoring_tool)
+      end
+
+      described_class.create_new_alert(alert, monitoring_tool)
     end
   end
 end

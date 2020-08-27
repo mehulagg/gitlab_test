@@ -70,6 +70,12 @@ export default {
       thAttr: TH_TEST_ID,
     },
     {
+      key: 'commits',
+      label: s__('Commits'),
+      tdClass: 'merge-request-analytics-td',
+      thAttr: TH_TEST_ID,
+    },
+    {
       key: 'pipelines',
       label: s__('MergeRequestAnalytics|Pipelines'),
       tdClass: 'merge-request-analytics-td',
@@ -118,6 +124,9 @@ export default {
       update: data => data.project.mergeRequests.nodes,
       error() {
         this.hasError = true;
+      },
+      context: {
+        isSingleRequest: true,
       },
     },
   },
@@ -220,7 +229,13 @@ export default {
     </template>
 
     <template #cell(milestone)="{ item }">
-      <div :data-testid="$options.testIds.MILESTONE">{{ item.milestone.title }}</div>
+      <div v-if="item.milestone" :data-testid="$options.testIds.MILESTONE">
+        {{ item.milestone.title }}
+      </div>
+    </template>
+
+    <template #cell(commits)="{ item }">
+      <div :data-testid="$options.testIds.COMMITS">{{ item.commitCount }}</div>
     </template>
 
     <template #cell(pipelines)="{ item }">

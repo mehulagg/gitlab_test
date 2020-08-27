@@ -1,4 +1,5 @@
 <script>
+/* eslint-disable vue/no-v-html */
 import {
   GlFormGroup,
   GlFormInput,
@@ -7,10 +8,10 @@ import {
   GlLoadingIcon,
   GlSprintf,
   GlLink,
+  GlIcon,
 } from '@gitlab/ui';
 import { s__, __, sprintf } from '~/locale';
 import ModalCopyButton from '~/vue_shared/components/modal_copy_button.vue';
-import Icon from '~/vue_shared/components/icon.vue';
 import Callout from '~/vue_shared/components/callout.vue';
 
 export default {
@@ -30,7 +31,7 @@ export default {
     GlFormInput,
     GlModal,
     ModalCopyButton,
-    Icon,
+    GlIcon,
     Callout,
     GlLoadingIcon,
     GlSprintf,
@@ -217,7 +218,7 @@ export default {
       v-if="hasRotateError"
       class="text-danger d-flex align-items-center font-weight-normal mb-2"
     >
-      <icon name="warning" class="mr-1" />
+      <gl-icon name="warning" class="mr-1" />
       <span>{{ $options.instanceIdRegenerateError }}</span>
     </div>
     <callout

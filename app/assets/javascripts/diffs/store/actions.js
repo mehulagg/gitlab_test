@@ -3,7 +3,7 @@ import Cookies from 'js-cookie';
 import Poll from '~/lib/utils/poll';
 import axios from '~/lib/utils/axios_utils';
 import httpStatusCodes from '~/lib/utils/http_status';
-import createFlash from '~/flash';
+import { deprecatedCreateFlash as createFlash } from '~/flash';
 import { __, s__ } from '~/locale';
 import { handleLocationHash, historyPushState, scrollToElement } from '~/lib/utils/common_utils';
 import { mergeUrlParams, getLocationHash } from '~/lib/utils/url_utility';
@@ -74,7 +74,7 @@ export const fetchDiffFiles = ({ state, commit }) => {
   let returnData;
 
   if (state.useSingleDiffStyle) {
-    urlParams.view = state.diffViewType;
+    urlParams.view = window.gon?.features?.unifiedDiffLines ? 'inline' : state.diffViewType;
   }
 
   commit(types.SET_LOADING, true);
@@ -114,7 +114,7 @@ export const fetchDiffFilesBatch = ({ commit, state, dispatch }) => {
   };
 
   if (state.useSingleDiffStyle) {
-    urlParams.view = state.diffViewType;
+    urlParams.view = window.gon?.features?.unifiedDiffLines ? 'inline' : state.diffViewType;
   }
 
   commit(types.SET_BATCH_LOADING, true);
@@ -178,7 +178,7 @@ export const fetchDiffFilesMeta = ({ commit, state }) => {
   const urlParams = {};
 
   if (state.useSingleDiffStyle) {
-    urlParams.view = state.diffViewType;
+    urlParams.view = window.gon?.features?.unifiedDiffLines ? 'inline' : state.diffViewType;
   }
 
   commit(types.SET_LOADING, true);

@@ -43,7 +43,7 @@ module Issues
       if issue.assignees != old_assignees
         create_assignee_note(issue, old_assignees)
         notification_service.async.reassigned_issue(issue, current_user, old_assignees)
-        todo_service.reassigned_issuable(issue, current_user, old_assignees)
+        todo_service.reassigned_assignable(issue, current_user, old_assignees)
       end
 
       if issue.previous_changes.include?('confidential')
@@ -83,6 +83,7 @@ module Issues
       raise ActiveRecord::RecordNotFound unless issue_before || issue_after
 
       issue.move_between(issue_before, issue_after)
+      rebalance_if_needed(issue)
     end
 
     # rubocop: disable CodeReuse/ActiveRecord

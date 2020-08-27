@@ -131,7 +131,7 @@ There are four types of counters which are all found in `usage_data.rb`:
 - **Ordinary Batch Counters:** Simple count of a given ActiveRecord_Relation
 - **Distinct Batch Counters:** Distinct count of a given ActiveRecord_Relation on given column
 - **Alternative Counters:** Used for settings and configurations
-- **Redis Counters:** Used for in-memory counts. This method is being deprecated due to data inaccuracies and will be replaced with a persistent method.
+- **Redis Counters:** Used for in-memory counts.
 
 NOTE: **Note:**
 Only use the provided counter methods. Each counter method contains a built in fail safe to isolate each counter to avoid breaking the entire Usage Ping.
@@ -222,41 +222,110 @@ Examples of implementation:
 
 #### Redis HLL Counters
 
-With `Gitlab::Redis::HLL` we have available data structures used to count unique values.
+With `Gitlab::UsageDataCounters::HLLRedisCounter` we have available data structures used to count unique values.
 
 Implemented using Redis methods [PFADD](https://redis.io/commands/pfadd) and [PFCOUNT](https://redis.io/commands/pfcount).
 
+##### Adding new events
+
+1. Define events in [`known_events.yml`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/usage_data_counters/known_events.yml).
+
+   Example event:
+
+   ```yaml
+   - name: i_compliance_credential_inventory
+     category: compliance
+     redis_slot: compliance
+     expiry: 42 # 6 weeks
+     aggregation: weekly
+   ```
+
+   Keys:
+
+   - `name`: unique event name.
+   - `category`: event category. Used for getting total counts for events in a category, for easier
+     access to a group of events.
+   - `redis_slot`: optional Redis slot; default value: event name. Used if needed to calculate totals
+     for a group of metrics. Ensure keys are in the same slot. For example:
+     `i_compliance_credential_inventory` with `redis_slot: 'compliance'` will build Redis key
+     `i_{compliance}_credential_inventory-2020-34`. If `redis_slot` is not defined the Redis key will
+     be `{i_compliance_credential_inventory}-2020-34`.
+   - `expiry`: expiry time in days. Default: 29 days for daily aggregation and 6 weeks for weekly
+     aggregation.
+   - `aggregation`: aggregation `:daily` or `:weekly`. The argument defines how we build the Redis
+     keys for data storage. For `daily` we keep a key for metric per day of the year, for `weekly` we
+     keep a key for metric per week of the year.
+
+1. Track event in controller using `RedisTracking` module with `track_redis_hll_event(*controller_actions, name:, feature:)`.
+
+   Arguments:
+
+   - `controller_actions`: controller actions we want to track.
+   - `name`: event name.
+   - `feature`: feature name, all metrics we track should be under feature flag.
+
+   Example usage:
+
+   ```ruby
+   # controller
+   class ProjectsController < Projects::ApplicationController
+     include RedisTracking
+
+     skip_before_action :authenticate_user!, only: :show
+     track_redis_hll_event :index, :show, name: 'i_analytics_dev_ops_score', feature: :g_compliance_dashboard_feature
+
+     def index
+       render html: 'index'
+     end
+
+    def new
+      render html: 'new'
+    end
+
+    def show
+      render html: 'show'
+    end
+   end
+   ```
+
+1. Track event using base module `Gitlab::UsageDataCounters::HLLRedisCounter.track_event(entity_id, event_name)`.
+
+   Arguments:
+
+   - `entity_id`: value we count. For example: user_id, visitor_id.
+   - `event_name`: event name.
+
+1. Get event data using `Gitlab::UsageDataCounters::HLLRedisCounter.unique_events(event_names:, start_date:, end_date)`.
+
+   Arguments:
+
+   - `event_names`: the list of event names.
+   - `start_date`: start date of the period for which we want to get event data.
+   - `end_date`: end date of the period for which we want to get event data.
+
 Recommendations:
 
-- Key should expire in 29 days.
-- If possible, data granularity should be a week. For example a key could be composed from the metric's name and week of the year, `2020-33-{metric_name}`.
-- Use a [feature flag](../../operations/feature_flags.md) in order to have a control over the impact when adding new metrics.
-- If possible, data granularity should be week, for example a key could be composed from metric name and week of the year, 2020-33-{metric_name}
-- Use a [feature flag](../../operations/feature_flags.md) in order to have a control over the impact when adding new metrics
+- Key should expire in 29 days for daily and 42 days for weekly.
+- If possible, data granularity should be a week. For example a key could be composed from the
+  metric's name and week of the year, `2020-33-{metric_name}`.
+- Use a [feature flag](../../operations/feature_flags.md) to have a control over the impact when
+  adding new metrics.
 
-Examples of implementation:
-
-- [`Gitlab::UsageDataCounters::TrackUniqueActions`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/usage_data_counters/track_unique_actions.rb)
-- [`Gitlab::Analytics::UniqueVisits`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/analytics/unique_visits.rb)
-
-Example of usage:
+Example usage:
 
 ```ruby
 # Redis Counters
 redis_usage_data(Gitlab::UsageDataCounters::WikiPageCounter)
 redis_usage_data { ::Gitlab::UsageCounters::PodLogs.usage_totals[:total] }
 
-# Redis HLL counter
-counter = Gitlab::UsageDataCounters::TrackUniqueActions
-redis_usage_data do
-          counter.count_unique_events(
-            event_action: Gitlab::UsageDataCounters::TrackUniqueActions::PUSH_ACTION,
-            date_from: time_period[:created_at].first,
-            date_to: time_period[:created_at].last
-          )
-```
+# Define events in known_events.yml https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/usage_data_counters/known_events.yml
 
-Note that Redis counters are in the [process of being deprecated](https://gitlab.com/gitlab-org/gitlab/-/issues/216330) and you should instead try to use Snowplow events instead. We're in the process of building [self-managed event tracking](https://gitlab.com/gitlab-org/telemetry/-/issues/373) and once this is available, we will convert all Redis counters into Snowplow events.
+# Tracking events
+Gitlab::UsageDataCounters::HLLRedisCounter.track_event(visitor_id, 'expand_vulnerabilities')
+
+# Get unique events for metric
+redis_usage_data { Gitlab::UsageDataCounters::HLLRedisCounter.unique_events(event_names: 'expand_vulnerabilities', start_date: 28.days.ago, end_date: Date.current) }
+```
 
 ### Alternative Counters
 
@@ -359,7 +428,7 @@ We also use `#database-lab` and [explain.depesz.com](https://explain.depesz.com/
 
 ### 4. Add the metric definition
 
-When adding, changing, or updating metrics, please update the [Event dictionary Usage Ping table](event_dictionary.md#usage-ping).
+When adding, changing, or updating metrics, please update the [Event Dictionary's **Usage Ping** table](event_dictionary.md).
 
 ### 5. Add new metric to Versions Application
 

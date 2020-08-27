@@ -17,10 +17,17 @@ module EE
             null: true,
             description: 'The DAST scanner profiles associated with the project',
             resolve: -> (project, _args, _ctx) do
-              return DastScannerProfile.none unless ::Feature.enabled?(:security_on_demand_scans_feature_flag, project)
+              return DastScannerProfile.none unless ::Feature.enabled?(:security_on_demand_scans_feature_flag, project, default_enabled: true)
 
               project.dast_scanner_profiles
             end
+
+        field :sast_ci_configuration, ::Types::CiConfiguration::Sast::Type, null: true,
+          calls_gitaly: true,
+          description: 'SAST CI configuration for the project',
+          resolve: -> (project, args, ctx) do
+            sast_ci_configuration(project)
+          end
 
         field :vulnerabilities,
               ::Types::VulnerabilityType.connection_type,
@@ -78,6 +85,12 @@ module EE
 
         def self.requirements_available?(project, user)
           ::Feature.enabled?(:requirements_management, project, default_enabled: true) && Ability.allowed?(user, :read_requirement, project)
+        end
+
+        def self.sast_ci_configuration(project)
+          ::Security::CiConfiguration::SastParserService.new(project).configuration
+        rescue ::Gitlab::Ci::YamlProcessor::ValidationError => ex
+          raise ::GraphQL::ExecutionError, ex.message
         end
       end
     end

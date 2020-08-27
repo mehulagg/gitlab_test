@@ -1,14 +1,15 @@
 <script>
+/* eslint-disable vue/no-v-html */
 import $ from 'jquery';
 import '~/behaviors/markdown/render_gfm';
 import { unescape } from 'lodash';
+import { GlIcon } from '@gitlab/ui';
 import { __, sprintf } from '~/locale';
 import { stripHtml } from '~/lib/utils/text_utility';
-import Flash from '~/flash';
+import { deprecatedCreateFlash as Flash } from '~/flash';
 import GLForm from '~/gl_form';
 import MarkdownHeader from './header.vue';
 import MarkdownToolbar from './toolbar.vue';
-import Icon from '../icon.vue';
 import GlMentions from '~/vue_shared/components/gl_mentions.vue';
 import Suggestions from '~/vue_shared/components/markdown/suggestions.vue';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
@@ -19,7 +20,7 @@ export default {
     GlMentions,
     MarkdownHeader,
     MarkdownToolbar,
-    Icon,
+    GlIcon,
     Suggestions,
   },
   mixins: [glFeatureFlagsMixin()],
@@ -167,7 +168,7 @@ export default {
     return new GLForm($(this.$refs['gl-form']), {
       emojis: this.enableAutocomplete,
       members: this.enableAutocomplete && !this.glFeatures.tributeAutocomplete,
-      issues: this.enableAutocomplete,
+      issues: this.enableAutocomplete && !this.glFeatures.tributeAutocomplete,
       mergeRequests: this.enableAutocomplete,
       epics: this.enableAutocomplete,
       milestones: this.enableAutocomplete,
@@ -250,11 +251,11 @@ export default {
         </gl-mentions>
         <slot v-else name="textarea"></slot>
         <a
-          class="zen-control zen-control-leave js-zen-leave gl-text-gray-700"
+          class="zen-control zen-control-leave js-zen-leave gl-text-gray-500"
           href="#"
           :aria-label="__('Leave zen mode')"
         >
-          <icon :size="16" name="screen-normal" />
+          <gl-icon :size="16" name="minimize" />
         </a>
         <markdown-toolbar
           :markdown-docs-path="markdownDocsPath"

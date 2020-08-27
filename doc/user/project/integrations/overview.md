@@ -18,7 +18,7 @@ You can find the available integrations under your project's
 There are more than 20 integrations to integrate with. Click on the one that you
 want to configure.
 
-![Integrations list](img/project_services.png)
+![Integrations list](img/project_integrations_v13_3.png)
 
 ## Integrations listing
 
@@ -39,7 +39,7 @@ Click on the service links to see further configuration instructions and details
 | [Emails on push](emails_on_push.md) | Email the commits and diff of each push to a list of recipients | No |
 | External Wiki | Replaces the link to the internal wiki with a link to an external wiki | No |
 | Flowdock | Flowdock is a collaboration web app for technical teams | No |
-| [Generic alerts](generic_alerts.md) **(ULTIMATE)** | Receive alerts on GitLab from any source | No |
+| [Generic alerts](../../../operations/incident_management/generic_alerts.md) **(ULTIMATE)** | Receive alerts on GitLab from any source | No |
 | [GitHub](github.md) **(PREMIUM)** | Sends pipeline notifications to GitHub | No |
 | [Hangouts Chat](hangouts_chat.md) | Receive events notifications in Google Hangouts Chat | No |
 | [HipChat](hipchat.md) | Private group chat and IM | No |
@@ -75,10 +75,18 @@ The number of branches or tags supported can be changed via
 
 ## Service templates
 
-Service templates are a way to set predefined values for an integration across
+Service templates are a way to set predefined values for a project integration across
 all new projects on the instance.
 
-Read more about [Service templates in this document](services_templates.md).
+Read more about [Service templates](services_templates.md).
+
+## Project integration management
+
+Project integration management lets you control integration settings across all projects
+of an instance. On the project level, administrators you can choose whether to inherit the
+instance configuration or provide custom settings.
+
+Read more about [Project integration management](../../admin_area/settings/project_integration_management.md).
 
 ## Troubleshooting integrations
 

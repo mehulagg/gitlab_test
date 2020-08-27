@@ -15,6 +15,7 @@ require 'rspec/retry'
 require 'rspec-parameterized'
 require 'shoulda/matchers'
 require 'test_prof/recipes/rspec/let_it_be'
+require 'test_prof/factory_default'
 
 rspec_profiling_is_configured =
   ENV['RSPEC_PROFILING_POSTGRES_URL'].present? ||
@@ -193,6 +194,10 @@ RSpec.configure do |config|
       stub_feature_flags(vue_issuable_sidebar: false)
       stub_feature_flags(vue_issuable_epic_sidebar: false)
 
+      # The following can be removed once we are confident the
+      # unified diff lines works as expected
+      stub_feature_flags(unified_diff_lines: false)
+
       enable_rugged = example.metadata[:enable_rugged].present?
 
       # Disable Rugged features by default
@@ -261,6 +266,7 @@ RSpec.configure do |config|
       ./spec/support/protected_tags
       ./spec/support/shared_examples/features
       ./spec/support/shared_examples/requests
+      ./spec/support/shared_examples/lib/gitlab
       ./spec/views
       ./spec/workers
     )
@@ -359,3 +365,6 @@ Rugged::Settings['search_path_global'] = Rails.root.join('tmp/tests').to_s
 
 # Disable timestamp checks for invisible_captcha
 InvisibleCaptcha.timestamp_enabled = false
+
+# Initialize FactoryDefault to use create_default helper
+TestProf::FactoryDefault.init

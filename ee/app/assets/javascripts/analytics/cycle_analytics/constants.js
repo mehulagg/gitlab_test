@@ -1,6 +1,6 @@
+import { gray10 } from '@gitlab/ui/scss_to_js/scss_variables';
 import { __ } from '~/locale';
 import { capitalizeFirstCharacter } from '~/lib/utils/text_utility';
-import { gray10 } from '@gitlab/ui/scss_to_js/scss_variables';
 
 export const PROJECTS_PER_PAGE = 50;
 
@@ -78,3 +78,8 @@ export const CAPITALIZED_STAGE_NAME = Object.keys(STAGE_NAME).reduce((acc, stage
 export const PATH_HOME_ICON = 'home';
 
 export const DEFAULT_VALUE_STREAM_ID = 'default';
+
+export const OVERVIEW_METRICS = {
+  TIME_SUMMARY: 'TIME_SUMMARY',
+  RECENT_ACTIVITY: 'RECENT_ACTIVITY',
+};

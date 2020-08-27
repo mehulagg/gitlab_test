@@ -93,12 +93,12 @@ class Projects::IssuesController < Projects::ApplicationController
     params[:issue] ||= ActionController::Parameters.new(
       assignee_ids: ""
     )
-    build_params = issue_params.merge(
+    build_params = issue_create_params.merge(
       merge_request_to_resolve_discussions_of: params[:merge_request_to_resolve_discussions_of],
       discussion_to_resolve: params[:discussion_to_resolve],
       confidential: !!Gitlab::Utils.to_boolean(params[:issue][:confidential])
     )
-    service = Issues::BuildService.new(project, current_user, build_params)
+    service = ::Issues::BuildService.new(project, current_user, build_params)
 
     @issue = @noteable = service.execute
 
@@ -113,12 +113,12 @@ class Projects::IssuesController < Projects::ApplicationController
   end
 
   def create
-    create_params = issue_params.merge(spammable_params).merge(
+    create_params = issue_create_params.merge(spammable_params).merge(
       merge_request_to_resolve_discussions_of: params[:merge_request_to_resolve_discussions_of],
       discussion_to_resolve: params[:discussion_to_resolve]
     )
 
-    service = Issues::CreateService.new(project, current_user, create_params)
+    service = ::Issues::CreateService.new(project, current_user, create_params)
     @issue = service.execute
 
     if service.discussions_to_resolve.count(&:resolved?) > 0
@@ -146,7 +146,7 @@ class Projects::IssuesController < Projects::ApplicationController
       new_project = Project.find(params[:move_to_project_id])
       return render_404 unless issue.can_move?(current_user, new_project)
 
-      @issue = Issues::UpdateService.new(project, current_user, target_project: new_project).execute(issue)
+      @issue = ::Issues::UpdateService.new(project, current_user, target_project: new_project).execute(issue)
     end
 
     respond_to do |format|
@@ -160,7 +160,7 @@ class Projects::IssuesController < Projects::ApplicationController
   end
 
   def reorder
-    service = Issues::ReorderService.new(project, current_user, reorder_params)
+    service = ::Issues::ReorderService.new(project, current_user, reorder_params)
 
     if service.execute(issue)
       head :ok
@@ -170,7 +170,7 @@ class Projects::IssuesController < Projects::ApplicationController
   end
 
   def related_branches
-    @related_branches = Issues::RelatedBranchesService
+    @related_branches = ::Issues::RelatedBranchesService
       .new(project, current_user)
       .execute(issue)
       .map { |branch| branch.merge(link: branch_link(branch)) }
@@ -296,6 +296,16 @@ class Projects::IssuesController < Projects::ApplicationController
     ] + [{ label_ids: [], assignee_ids: [], update_task: [:index, :checked, :line_number, :line_source] }]
   end
 
+  def issue_create_params
+    create_params = %i[
+      issue_type
+    ]
+
+    params.require(:issue).permit(
+      *create_params
+    ).merge(issue_params)
+  end
+
   def reorder_params
     params.permit(:move_before_id, :move_after_id, :group_full_path)
   end
@@ -312,7 +322,7 @@ class Projects::IssuesController < Projects::ApplicationController
 
   def update_service
     update_params = issue_params.merge(spammable_params)
-    Issues::UpdateService.new(project, current_user, update_params)
+    ::Issues::UpdateService.new(project, current_user, update_params)
   end
 
   def finder_type

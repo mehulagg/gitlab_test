@@ -4,15 +4,16 @@
 
 import $ from 'jquery';
 import { escape, template, uniqBy } from 'lodash';
-import axios from '../lib/utils/axios_utils';
-import { s__, __, sprintf } from '../locale';
-import ModalStore from '../boards/stores/modal_store';
-import { parseBoolean } from '../lib/utils/common_utils';
 import {
   AJAX_USERS_SELECT_OPTIONS_MAP,
   AJAX_USERS_SELECT_PARAMS_MAP,
 } from 'ee_else_ce/users_select/constants';
+import axios from '../lib/utils/axios_utils';
+import { s__, __, sprintf } from '../locale';
+import ModalStore from '../boards/stores/modal_store';
+import { parseBoolean, spriteIcon } from '../lib/utils/common_utils';
 import { getAjaxUsersSelectOptions, getAjaxUsersSelectParams } from './utils';
+import initDeprecatedJQueryDropdown from '~/deprecated_jquery_dropdown';
 
 // TODO: remove eventHub hack after code splitting refactor
 window.emitSidebarEvent = window.emitSidebarEvent || $.noop;
@@ -224,7 +225,9 @@ function UsersSelect(currentUser, els, options = {}) {
       });
     };
     collapsedAssigneeTemplate = template(
-      '<% if( avatar ) { %> <a class="author-link" href="/<%- username %>"> <img width="24" class="avatar avatar-inline s24" alt="" src="<%- avatar %>"> </a> <% } else { %> <i class="fa fa-user"></i> <% } %>',
+      `<% if( avatar ) { %> <a class="author-link" href="/<%- username %>"> <img width="24" class="avatar avatar-inline s24" alt="" src="<%- avatar %>"> </a> <% } else { %> ${spriteIcon(
+        'user',
+      )} <% } %>`,
     );
     assigneeTemplate = template(
       `<% if (username) { %> <a class="author-link bold" href="/<%- username %>"> <% if( avatar ) { %> <img width="32" class="avatar avatar-inline s32" alt="" src="<%- avatar %>"> <% } %> <span class="author"><%- name %></span> <span class="username"> @<%- username %> </span> </a> <% } else { %> <span class="no-value assign-yourself">
@@ -233,14 +236,14 @@ function UsersSelect(currentUser, els, options = {}) {
         closingTag: '</a>',
       })}</span> <% } %>`,
     );
-    return $dropdown.glDropdown({
+    return initDeprecatedJQueryDropdown($dropdown, {
       showMenuAbove,
       data(term, callback) {
         return userSelect.users(term, options, users => {
           // GitLabDropdownFilter returns this.instance
           // GitLabDropdownRemote returns this.options.instance
-          const glDropdown = this.instance || this.options.instance;
-          glDropdown.options.processData(term, users, callback);
+          const deprecatedJQueryDropdown = this.instance || this.options.instance;
+          deprecatedJQueryDropdown.options.processData(term, users, callback);
         });
       },
       processData(term, data, callback) {
@@ -349,7 +352,7 @@ function UsersSelect(currentUser, els, options = {}) {
 
         callback(users);
         if (showMenuAbove) {
-          $dropdown.data('glDropdown').positionMenuAbove();
+          $dropdown.data('deprecatedJQueryDropdown').positionMenuAbove();
         }
       },
       filterable: true,
@@ -359,13 +362,13 @@ function UsersSelect(currentUser, els, options = {}) {
       },
       selectable: true,
       fieldName: $dropdown.data('fieldName'),
-      toggleLabel(selected, el, glDropdown) {
-        const inputValue = glDropdown.filterInput.val();
+      toggleLabel(selected, el, deprecatedJQueryDropdown) {
+        const inputValue = deprecatedJQueryDropdown.filterInput.val();
 
         if (this.multiSelect && inputValue === '') {
           // Remove non-users from the fullData array
-          const users = glDropdown.filteredFullData();
-          const callback = glDropdown.parseData.bind(glDropdown);
+          const users = deprecatedJQueryDropdown.filteredFullData();
+          const callback = deprecatedJQueryDropdown.parseData.bind(deprecatedJQueryDropdown);
 
           // Update the data model
           this.processData(inputValue, users, callback);

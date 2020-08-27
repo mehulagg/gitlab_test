@@ -4,7 +4,7 @@ import testAction from 'helpers/vuex_action_helper';
 import * as getters from 'ee/analytics/cycle_analytics/store/getters';
 import * as actions from 'ee/analytics/cycle_analytics/store/actions';
 import * as types from 'ee/analytics/cycle_analytics/store/mutation_types';
-import createFlash from '~/flash';
+import { deprecatedCreateFlash as createFlash } from '~/flash';
 import httpStatusCodes from '~/lib/utils/http_status';
 import {
   selectedGroup,
@@ -15,6 +15,10 @@ import {
   endpoints,
   valueStreams,
 } from '../mock_data';
+
+const groupPath = 'fake_group_path';
+const milestonesPath = 'fake_milestones_path';
+const labelsPath = 'fake_labels_path';
 
 const stageData = { events: [] };
 const error = new Error(`Request failed with status code ${httpStatusCodes.NOT_FOUND}`);
@@ -99,6 +103,48 @@ describe('Cycle analytics actions', () => {
         [{ type: types.SET_SELECTED_VALUE_STREAM, payload: vs }],
         [{ type: 'fetchValueStreamData' }],
       );
+    });
+  });
+
+  describe('setPaths', () => {
+    describe('with endpoint paths provided', () => {
+      it('dispatches the filters/setEndpoints action', () => {
+        return testAction(
+          actions.setPaths,
+          { groupPath, milestonesPath, labelsPath },
+          state,
+          [],
+          [
+            {
+              type: 'filters/setEndpoints',
+              payload: {
+                labelsEndpoint: 'fake_labels_path.json',
+                milestonesEndpoint: 'fake_milestones_path.json',
+              },
+            },
+          ],
+        );
+      });
+    });
+
+    describe('without endpoint paths provided', () => {
+      it('dispatches the filters/setEndpoints action', () => {
+        return testAction(
+          actions.setPaths,
+          { groupPath },
+          state,
+          [],
+          [
+            {
+              type: 'filters/setEndpoints',
+              payload: {
+                labelsEndpoint: '/groups/fake_group_path/-/labels.json',
+                milestonesEndpoint: '/groups/fake_group_path/-/milestones.json',
+              },
+            },
+          ],
+        );
+      });
     });
   });
 
@@ -1045,6 +1091,12 @@ describe('Cycle analytics actions', () => {
           { type: 'durationChart/fetchDurationData' },
         ],
       );
+    });
+  });
+
+  describe('setFilters', () => {
+    it('dispatches the fetchCycleAnalyticsData action', () => {
+      return testAction(actions.setFilters, null, state, [], [{ type: 'fetchCycleAnalyticsData' }]);
     });
   });
 });

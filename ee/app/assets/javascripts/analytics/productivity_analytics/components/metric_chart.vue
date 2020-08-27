@@ -1,8 +1,13 @@
 <script>
 import { isEmpty } from 'lodash';
-import { GlDeprecatedDropdown, GlDeprecatedDropdownItem, GlLoadingIcon } from '@gitlab/ui';
+import {
+  GlDeprecatedDropdown,
+  GlDeprecatedDropdownItem,
+  GlLoadingIcon,
+  GlAlert,
+  GlIcon,
+} from '@gitlab/ui';
 import { s__ } from '~/locale';
-import Icon from '~/vue_shared/components/icon.vue';
 import httpStatusCodes from '~/lib/utils/http_status';
 
 export default {
@@ -11,7 +16,8 @@ export default {
     GlDeprecatedDropdown,
     GlDeprecatedDropdownItem,
     GlLoadingIcon,
-    Icon,
+    GlAlert,
+    GlIcon,
   },
   props: {
     title: {
@@ -88,9 +94,7 @@ export default {
     <h5 v-if="title">{{ title }}</h5>
     <gl-loading-icon v-if="isLoading" size="md" class="my-4 py-4" />
     <template v-else>
-      <div v-if="infoMessage" data-testid="infoMessage" class="bs-callout bs-callout-info">
-        {{ infoMessage }}
-      </div>
+      <gl-alert v-if="infoMessage" :dismissible="false">{{ infoMessage }}</gl-alert>
       <template v-else>
         <gl-deprecated-dropdown
           v-if="hasMetricTypes"
@@ -107,7 +111,7 @@ export default {
             @click="$emit('metricTypeChange', metric.key)"
           >
             <span class="d-flex">
-              <icon
+              <gl-icon
                 :title="s__('MetricChart|Selected')"
                 class="flex-shrink-0 gl-mr-2"
                 :class="{

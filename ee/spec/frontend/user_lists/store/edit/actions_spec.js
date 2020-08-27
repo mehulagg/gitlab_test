@@ -1,9 +1,9 @@
 import Api from 'ee/api';
-import { redirectTo } from '~/lib/utils/url_utility';
 import createState from 'ee/user_lists/store/edit/state';
 import * as types from 'ee/user_lists/store/edit/mutation_types';
 import * as actions from 'ee/user_lists/store/edit/actions';
 import testAction from 'helpers/vuex_action_helper';
+import { redirectTo } from '~/lib/utils/url_utility';
 import { userList } from '../../../feature_flags/mock_data';
 
 jest.mock('ee/api');
@@ -87,6 +87,7 @@ describe('User Lists Edit Actions', () => {
         return testAction(actions.updateUserList, updatedList, state, [], [], () => {
           expect(Api.updateFeatureFlagUserList).toHaveBeenCalledWith('1', {
             name: updatedList.name,
+            iid: updatedList.iid,
           });
           expect(redirectTo).toHaveBeenCalledWith(userList.path);
         });
@@ -111,6 +112,7 @@ describe('User Lists Edit Actions', () => {
           () =>
             expect(Api.updateFeatureFlagUserList).toHaveBeenCalledWith('1', {
               name: updatedList.name,
+              iid: updatedList.iid,
             }),
         );
       });

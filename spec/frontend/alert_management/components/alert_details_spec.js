@@ -63,9 +63,9 @@ describe('AlertDetails', () => {
     mock.restore();
   });
 
-  const findCreateIssueBtn = () => wrapper.find('[data-testid="createIssueBtn"]');
-  const findViewIssueBtn = () => wrapper.find('[data-testid="viewIssueBtn"]');
-  const findIssueCreationAlert = () => wrapper.find('[data-testid="issueCreationError"]');
+  const findCreateIncidentBtn = () => wrapper.find('[data-testid="createIncidentBtn"]');
+  const findViewIncidentBtn = () => wrapper.find('[data-testid="viewIncidentBtn"]');
+  const findIncidentCreationAlert = () => wrapper.find('[data-testid="incidentCreationError"]');
 
   describe('Alert details', () => {
     describe('when alert is null', () => {
@@ -87,8 +87,8 @@ describe('AlertDetails', () => {
         expect(wrapper.find('[data-testid="overview"]').exists()).toBe(true);
       });
 
-      it('renders a tab with full alert information', () => {
-        expect(wrapper.find('[data-testid="fullDetails"]').exists()).toBe(true);
+      it('renders a tab with an activity feed', () => {
+        expect(wrapper.find('[data-testid="activity"]').exists()).toBe(true);
       });
 
       it('renders severity', () => {
@@ -118,6 +118,8 @@ describe('AlertDetails', () => {
         ${'monitoringTool'} | ${undefined}    | ${false}
         ${'service'}        | ${'Prometheus'} | ${true}
         ${'service'}        | ${undefined}    | ${false}
+        ${'runbook'}        | ${undefined}    | ${false}
+        ${'runbook'}        | ${'run.com'}    | ${true}
       `(`$desc`, ({ field, data, isShown }) => {
         beforeEach(() => {
           mountComponent({ data: { alert: { ...mockAlert, [field]: data } } });
@@ -133,18 +135,20 @@ describe('AlertDetails', () => {
       });
     });
 
-    describe('Create issue from alert', () => {
-      it('should display "View issue" button that links the issue page when issue exists', () => {
+    describe('Create incident from alert', () => {
+      it('should display "View incident" button that links the incident page when incident exists', () => {
         const issueIid = '3';
         mountComponent({
           data: { alert: { ...mockAlert, issueIid }, sidebarStatus: false },
         });
-        expect(findViewIssueBtn().exists()).toBe(true);
-        expect(findViewIssueBtn().attributes('href')).toBe(joinPaths(projectIssuesPath, issueIid));
-        expect(findCreateIssueBtn().exists()).toBe(false);
+        expect(findViewIncidentBtn().exists()).toBe(true);
+        expect(findViewIncidentBtn().attributes('href')).toBe(
+          joinPaths(projectIssuesPath, issueIid),
+        );
+        expect(findCreateIncidentBtn().exists()).toBe(false);
       });
 
-      it('should display "Create issue" button when issue doesn\'t exist yet', () => {
+      it('should display "Create incident" button when incident doesn\'t exist yet', () => {
         const issueIid = null;
         mountComponent({
           mountMethod: mount,
@@ -152,8 +156,8 @@ describe('AlertDetails', () => {
         });
 
         return wrapper.vm.$nextTick().then(() => {
-          expect(findViewIssueBtn().exists()).toBe(false);
-          expect(findCreateIssueBtn().exists()).toBe(true);
+          expect(findViewIncidentBtn().exists()).toBe(false);
+          expect(findCreateIncidentBtn().exists()).toBe(true);
         });
       });
 
@@ -163,7 +167,7 @@ describe('AlertDetails', () => {
           .spyOn(wrapper.vm.$apollo, 'mutate')
           .mockResolvedValue({ data: { createAlertIssue: { issue: { iid: issueIid } } } });
 
-        findCreateIssueBtn().trigger('click');
+        findCreateIncidentBtn().trigger('click');
         expect(wrapper.vm.$apollo.mutate).toHaveBeenCalledWith({
           mutation: createIssueMutation,
           variables: {
@@ -173,7 +177,7 @@ describe('AlertDetails', () => {
         });
       });
 
-      it('shows error alert when issue creation fails ', () => {
+      it('shows error alert when incident creation fails ', () => {
         const errorMsg = 'Something went wrong';
         mountComponent({
           mountMethod: mount,
@@ -181,10 +185,10 @@ describe('AlertDetails', () => {
         });
 
         jest.spyOn(wrapper.vm.$apollo, 'mutate').mockRejectedValue(errorMsg);
-        findCreateIssueBtn().trigger('click');
+        findCreateIncidentBtn().trigger('click');
 
         setImmediate(() => {
-          expect(findIssueCreationAlert().text()).toBe(errorMsg);
+          expect(findIncidentCreationAlert().text()).toBe(errorMsg);
         });
       });
     });
@@ -194,7 +198,6 @@ describe('AlertDetails', () => {
         mountComponent({ data: { alert: mockAlert } });
       });
       it('should display a table of raw alert details data', () => {
-        wrapper.find('[data-testid="fullDetails"]').trigger('click');
         expect(findDetailsTable().exists()).toBe(true);
       });
     });
@@ -264,8 +267,8 @@ describe('AlertDetails', () => {
       it.each`
         index | tabId
         ${0}  | ${'overview'}
-        ${1}  | ${'fullDetails'}
-        ${2}  | ${'metrics'}
+        ${1}  | ${'metrics'}
+        ${2}  | ${'activity'}
       `('will navigate to the correct tab via $tabId', ({ index, tabId }) => {
         wrapper.setData({ currentTabIndex: index });
         expect($router.replace).toHaveBeenCalledWith({ name: 'tab', params: { tabId } });

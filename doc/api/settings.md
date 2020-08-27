@@ -61,7 +61,6 @@ Example response:
    "enforce_terms": true,
    "terms": "Hello world!",
    "performance_bar_allowed_group_id": 42,
-   "instance_statistics_visibility_private": false,
    "user_show_add_ssh_key_message": true,
    "local_markdown_version": 0,
    "allow_local_requests_from_hooks_and_services": true,
@@ -151,7 +150,6 @@ Example response:
   "enforce_terms": true,
   "terms": "Hello world!",
   "performance_bar_allowed_group_id": 42,
-  "instance_statistics_visibility_private": false,
   "user_show_add_ssh_key_message": true,
   "file_template_project_id": 1,
   "local_markdown_version": 0,
@@ -285,7 +283,6 @@ are listed in the descriptions of the relevant settings.
 | `housekeeping_incremental_repack_period` | integer          | required by: `housekeeping_enabled`  | Number of Git pushes after which an incremental `git repack` is run. |
 | `html_emails_enabled`                    | boolean          | no                                   | Enable HTML emails. |
 | `import_sources`                         | array of strings | no                                   | Sources to allow project import from, possible values: `github`, `bitbucket`, `bitbucket_server`, `gitlab`, `google_code`, `fogbugz`, `git`, `gitlab_project`, `gitea`, `manifest`, and `phabricator`. |
-| `instance_statistics_visibility_private` | boolean          | no                                   | When set to `true` Instance statistics will only be available to admins. |
 | `issues_create_limit`                    | integer          | no                                   | Max number of issue creation requests per minute per user. Disabled by default.|
 | `local_markdown_version`                 | integer          | no                                   | Increase this value when any cached Markdown should be invalidated. |
 | `maintenance_mode_message`               | string           | no                                   | **(PREMIUM)** Message displayed when instance is in maintenance mode |
@@ -332,7 +329,7 @@ are listed in the descriptions of the relevant settings.
 | `send_user_confirmation_email`           | boolean          | no                                   | Send confirmation email on sign-up. |
 | `session_expire_delay`                   | integer          | no                                   | Session duration in minutes. GitLab restart is required to apply changes |
 | `shared_runners_enabled`                 | boolean          | no                                   | (**If enabled, requires:** `shared_runners_text` and `shared_runners_minutes`) Enable shared runners for new projects. |
-| `shared_runners_minutes`                 | integer          | required by: `shared_runners_enabled` | **(PREMIUM)** Set the maximum number of pipeline minutes that a group can use on shared Runners per month. |
+| `shared_runners_minutes`                 | integer          | required by: `shared_runners_enabled` | **(PREMIUM)** Set the maximum number of pipeline minutes that a group can use on shared runners per month. |
 | `shared_runners_text`                    | string           | required by: `shared_runners_enabled` | Shared runners text. |
 | `sign_in_text`                           | string           | no                                   | Text on the login page. |
 | `signin_enabled`                         | string           | no                                   | (Deprecated: Use `password_authentication_enabled_for_web` instead) Flag indicating if password authentication is enabled for the web interface. |
@@ -375,4 +372,4 @@ are listed in the descriptions of the relevant settings.
 | `user_show_add_ssh_key_message`          | boolean          | no                                   | When set to `false` disable the "You won't be able to pull or push project code via SSH" warning shown to users with no uploaded SSH key. |
 | `version_check_enabled`                  | boolean          | no                                   | Let GitLab inform you when an update is available. |
 | `web_ide_clientside_preview_enabled`     | boolean          | no                                   | Live Preview (allow live previews of JavaScript projects in the Web IDE using CodeSandbox Live Preview). |
-| `wiki_page_max_content_bytes`            | integer          | no                                   | Max wiki page content size in **bytes**. Default: 52428800 Bytes (50MB).|
+| `wiki_page_max_content_bytes`            | integer          | no                                   | Maximum wiki page content size in **bytes**. Default: 52428800 Bytes (50 MB). The minimum value is 1024 bytes. |

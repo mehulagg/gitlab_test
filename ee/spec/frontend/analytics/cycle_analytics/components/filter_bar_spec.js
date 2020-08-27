@@ -1,9 +1,15 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import { GlFilteredSearch } from '@gitlab/ui';
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
+import storeConfig from 'ee/analytics/cycle_analytics/store';
 import FilterBar, { prepareTokens } from 'ee/analytics/cycle_analytics/components/filter_bar.vue';
 import initialFiltersState from 'ee/analytics/cycle_analytics/store/modules/filters/state';
+import FilteredSearchBar from '~/vue_shared/components/filtered_search_bar/filtered_search_bar_root.vue';
+import UrlSync from '~/vue_shared/components/url_sync.vue';
 import { filterMilestones, filterLabels } from '../mock_data';
+import * as commonUtils from '~/lib/utils/common_utils';
+import * as urlUtils from '~/lib/utils/url_utility';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -13,9 +19,32 @@ const labelsTokenType = 'labels';
 const authorTokenType = 'author';
 const assigneesTokenType = 'assignees';
 
+const initialFilterBarState = {
+  selectedMilestone: null,
+  selectedAuthor: null,
+  selectedAssignees: null,
+  selectedLabels: null,
+};
+
+const defaultParams = {
+  milestone_title: null,
+  author_username: null,
+  assignee_username: null,
+  label_name: null,
+};
+
+async function shouldMergeUrlParams(wrapper, result) {
+  await wrapper.vm.$nextTick();
+  expect(urlUtils.mergeUrlParams).toHaveBeenCalledWith(result, window.location.href, {
+    spreadArrays: true,
+  });
+  expect(commonUtils.historyPushState).toHaveBeenCalled();
+}
+
 describe('Filter bar', () => {
   let wrapper;
   let store;
+  let mock;
 
   let setFiltersMock;
 
@@ -38,24 +67,36 @@ describe('Filter bar', () => {
     });
   };
 
-  const createComponent = initialStore =>
-    shallowMount(FilterBar, {
+  const createComponent = initialStore => {
+    return shallowMount(FilterBar, {
       localVue,
       store: initialStore,
+      propsData: {
+        groupPath: 'foo',
+      },
+      stubs: {
+        UrlSync,
+      },
     });
+  };
+
+  beforeEach(() => {
+    mock = new MockAdapter(axios);
+  });
 
   afterEach(() => {
     wrapper.destroy();
+    mock.restore();
   });
 
   const selectedMilestone = [filterMilestones[0]];
-  const selectedLabel = [filterLabels[0]];
+  const selectedLabels = [filterLabels[0]];
 
-  const findFilteredSearch = () => wrapper.find(GlFilteredSearch);
+  const findFilteredSearch = () => wrapper.find(FilteredSearchBar);
   const getSearchToken = type =>
     findFilteredSearch()
-      .props('availableTokens')
-      .filter(token => token.type === type)[0];
+      .props('tokens')
+      .find(token => token.type === type);
 
   describe('default', () => {
     beforeEach(() => {
@@ -63,7 +104,7 @@ describe('Filter bar', () => {
       wrapper = createComponent(store);
     });
 
-    it('renders GlFilteredSearch component', () => {
+    it('renders FilteredSearchBar component', () => {
       expect(findFilteredSearch().exists()).toBe(true);
     });
   });
@@ -72,7 +113,7 @@ describe('Filter bar', () => {
     beforeEach(() => {
       store = createStore({
         milestones: { data: selectedMilestone },
-        labels: { data: selectedLabel },
+        labels: { data: selectedLabels },
         authors: { data: [] },
         assignees: { data: [] },
       });
@@ -80,7 +121,7 @@ describe('Filter bar', () => {
     });
 
     it('displays the milestone and label token', () => {
-      const tokens = findFilteredSearch().props('availableTokens');
+      const tokens = findFilteredSearch().props('tokens');
 
       expect(tokens).toHaveLength(4);
       expect(tokens[0].type).toBe(milestoneTokenType);
@@ -89,16 +130,16 @@ describe('Filter bar', () => {
       expect(tokens[3].type).toBe(assigneesTokenType);
     });
 
-    it('displays options in the milestone token', () => {
-      const { milestones: milestoneToken } = getSearchToken(milestoneTokenType);
+    it('provides the initial milestone token', () => {
+      const { initialMilestones: milestoneToken } = getSearchToken(milestoneTokenType);
 
       expect(milestoneToken).toHaveLength(selectedMilestone.length);
     });
 
-    it('displays options in the label token', () => {
-      const { labels: labelToken } = getSearchToken(labelsTokenType);
+    it('provides the initial label token', () => {
+      const { initialLabels: labelToken } = getSearchToken(labelsTokenType);
 
-      expect(labelToken).toHaveLength(selectedLabel.length);
+      expect(labelToken).toHaveLength(selectedLabels.length);
     });
   });
 
@@ -112,15 +153,15 @@ describe('Filter bar', () => {
     });
 
     it('clicks on the search button, setFilters is dispatched', () => {
-      findFilteredSearch().vm.$emit('submit', [
+      findFilteredSearch().vm.$emit('onFilter', [
         { type: 'milestone', value: { data: selectedMilestone[0].title, operator: '=' } },
-        { type: 'labels', value: { data: selectedLabel[0].title, operator: '=' } },
+        { type: 'labels', value: { data: selectedLabels[0].title, operator: '=' } },
       ]);
 
       expect(setFiltersMock).toHaveBeenCalledWith(
         expect.anything(),
         {
-          selectedLabels: [selectedLabel[0].title],
+          selectedLabels: [selectedLabels[0].title],
           selectedMilestone: selectedMilestone[0].title,
           selectedAssignees: [],
           selectedAuthor: null,
@@ -130,7 +171,7 @@ describe('Filter bar', () => {
     });
 
     it('removes wrapping double quotes from the data and dispatches setFilters', () => {
-      findFilteredSearch().vm.$emit('submit', [
+      findFilteredSearch().vm.$emit('onFilter', [
         { type: 'milestone', value: { data: '"milestone with spaces"', operator: '=' } },
       ]);
 
@@ -147,7 +188,7 @@ describe('Filter bar', () => {
     });
 
     it('removes wrapping single quotes from the data and dispatches setFilters', () => {
-      findFilteredSearch().vm.$emit('submit', [
+      findFilteredSearch().vm.$emit('onFilter', [
         { type: 'milestone', value: { data: "'milestone with spaces'", operator: '=' } },
       ]);
 
@@ -164,7 +205,7 @@ describe('Filter bar', () => {
     });
 
     it('does not remove inner double quotes from the data and dispatches setFilters ', () => {
-      findFilteredSearch().vm.$emit('submit', [
+      findFilteredSearch().vm.$emit('onFilter', [
         { type: 'milestone', value: { data: 'milestone "with" spaces', operator: '=' } },
       ]);
 
@@ -201,6 +242,33 @@ describe('Filter bar', () => {
     `('with $token=$value sets the $token key', ({ token, value, result }) => {
       const res = prepareTokens({ [token]: value });
       expect(res).toEqual(result);
+    });
+  });
+
+  describe.each`
+    stateKey               | payload                          | paramKey
+    ${'selectedMilestone'} | ${'12.0'}                        | ${'milestone_title'}
+    ${'selectedAuthor'}    | ${'rootUser'}                    | ${'author_username'}
+    ${'selectedLabels'}    | ${['Afternix', 'Brouceforge']}   | ${'label_name'}
+    ${'selectedAssignees'} | ${['rootUser', 'secondaryUser']} | ${'assignee_username'}
+  `('with a $stateKey updates the $paramKey url parameter', ({ stateKey, payload, paramKey }) => {
+    beforeEach(() => {
+      commonUtils.historyPushState = jest.fn();
+      urlUtils.mergeUrlParams = jest.fn();
+
+      mock = new MockAdapter(axios);
+      wrapper = createComponent(storeConfig);
+
+      wrapper.vm.$store.dispatch('filters/setFilters', {
+        ...initialFilterBarState,
+        [stateKey]: payload,
+      });
+    });
+    it(`sets the ${paramKey} url parameter`, () => {
+      return shouldMergeUrlParams(wrapper, {
+        ...defaultParams,
+        [paramKey]: payload,
+      });
     });
   });
 });

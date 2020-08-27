@@ -22,7 +22,7 @@ gem 'rugged', '~> 0.28'
 gem 'grape-path-helpers', '~> 1.3'
 
 gem 'faraday', '~> 0.12'
-gem 'marginalia', '~> 1.8.0'
+gem 'marginalia', '~> 1.9.0'
 
 # Authentication libraries
 gem 'devise', '~> 4.6'
@@ -119,6 +119,7 @@ gem 'fog-local', '~> 0.6'
 gem 'fog-openstack', '~> 1.0'
 gem 'fog-rackspace', '~> 0.1.1'
 gem 'fog-aliyun', '~> 0.3'
+gem 'gitlab-fog-azure-rm', '~> 0.7', require: false
 
 # for Google storage
 gem 'google-api-client', '~> 0.33'
@@ -259,7 +260,7 @@ gem 'ruby-fogbugz', '~> 0.2.1'
 gem 'kubeclient', '~> 4.6.0'
 
 # Sanitize user input
-gem 'sanitize', '~> 4.6'
+gem 'sanitize', '~> 5.2.1'
 gem 'babosa', '~> 1.0.2'
 
 # Sanitizes SVG input
@@ -315,7 +316,7 @@ gem 'ruby_parser', '~> 3.8', require: false
 gem 'rails-i18n', '~> 6.0'
 gem 'gettext_i18n_rails', '~> 1.8.0'
 gem 'gettext_i18n_rails_js', '~> 1.3'
-gem 'gettext', '~> 3.2.2', require: false, group: :development
+gem 'gettext', '~> 3.3', require: false, group: :development
 
 gem 'batch-loader', '~> 1.4.0'
 
@@ -327,7 +328,7 @@ gem 'snowplow-tracker', '~> 0.6.1'
 
 # Metrics
 group :metrics do
-  gem 'method_source', '~> 0.8', require: false
+  gem 'method_source', '~> 1.0', require: false
 
   # Prometheus
   gem 'prometheus-client-mmap', '~> 0.11.0'
@@ -349,8 +350,8 @@ group :development do
 end
 
 group :development, :test do
-  gem 'bullet', '~> 6.0.2'
-  gem 'pry-byebug', '~> 3.5.1', platform: :mri
+  gem 'bullet', '~> 6.1.0'
+  gem 'pry-byebug', '~> 3.9.0', platform: :mri
   gem 'pry-rails', '~> 0.3.9'
 
   gem 'awesome_print', require: false
@@ -406,7 +407,7 @@ group :test do
   gem 'rspec_profiling', '~> 0.0.5'
   gem 'rspec-parameterized', require: false
 
-  gem 'capybara', '~> 3.22.0'
+  gem 'capybara', '~> 3.33.0'
   gem 'capybara-screenshot', '~> 1.0.22'
   gem 'selenium-webdriver', '~> 3.142'
 
@@ -415,7 +416,7 @@ group :test do
   gem 'webmock', '~> 3.5.1'
   gem 'rails-controller-testing'
   gem 'concurrent-ruby', '~> 1.1'
-  gem 'test-prof', '~> 0.10.0'
+  gem 'test-prof', '~> 0.12.0'
   gem 'rspec_junit_formatter'
   gem 'guard-rspec'
 

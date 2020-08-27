@@ -12,7 +12,7 @@ import {
   EXISTING_DESIGN_DROP_MANY_FILES_MESSAGE,
   EXISTING_DESIGN_DROP_INVALID_FILENAME_MESSAGE,
 } from '~/design_management_legacy/utils/error_messages';
-import createFlash from '~/flash';
+import { deprecatedCreateFlash as createFlash } from '~/flash';
 import createRouter from '~/design_management_legacy/router';
 import * as utils from '~/design_management_legacy/utils/design_management_utils';
 import { DESIGN_DETAIL_LAYOUT_CLASSLIST } from '~/design_management_legacy/constants';
@@ -450,16 +450,15 @@ describe('Design management index page', () => {
   describe('on non-latest version', () => {
     beforeEach(() => {
       createComponent({ designs: mockDesigns, allVersions: [mockVersion] });
+    });
 
-      router.replace({
+    it('does not render design checkboxes', async () => {
+      await router.replace({
         name: DESIGNS_ROUTE_NAME,
         query: {
           version: '2',
         },
       });
-    });
-
-    it('does not render design checkboxes', () => {
       expect(findDesignCheckboxes()).toHaveLength(0);
     });
 
@@ -482,16 +481,9 @@ describe('Design management index page', () => {
       });
 
       event = new Event('paste');
-
-      router.replace({
-        name: DESIGNS_ROUTE_NAME,
-        query: {
-          version: '2',
-        },
-      });
     });
 
-    it('calls onUploadDesign with valid paste', () => {
+    it('calls onUploadDesign with valid paste', async () => {
       event.clipboardData = {
         files: [{ name: 'image.png', type: 'image/png' }],
         getData: () => 'test.png',
@@ -532,11 +524,12 @@ describe('Design management index page', () => {
   });
 
   describe('when navigating', () => {
-    it('ensures fullscreen layout is not applied', () => {
+    it('ensures fullscreen layout is not applied', async () => {
       createComponent(true);
 
-      wrapper.vm.$router.push('/designs');
-      expect(mockPageEl.classList.remove).toHaveBeenCalledTimes(1);
+      await wrapper.vm.$router.replace('/');
+      await wrapper.vm.$router.replace('/designs');
+      expect(mockPageEl.classList.remove).toHaveBeenCalledTimes(2);
       expect(mockPageEl.classList.remove).toHaveBeenCalledWith(...DESIGN_DETAIL_LAYOUT_CLASSLIST);
     });
   });

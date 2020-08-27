@@ -1,9 +1,9 @@
 import { mount } from '@vue/test-utils';
-import axios from '~/lib/utils/axios_utils';
 import MockAdapter from 'axios-mock-adapter';
+import waitForPromises from 'helpers/wait_for_promises';
+import axios from '~/lib/utils/axios_utils';
 import IssueSystemNote from '~/vue_shared/components/notes/system_note.vue';
 import createStore from '~/notes/stores';
-import waitForPromises from 'helpers/wait_for_promises';
 
 describe('system note component', () => {
   let wrapper;
@@ -90,7 +90,9 @@ describe('system note component', () => {
         expect(findDescriptionVersion().html()).toContain(diffData);
         expect(
           wrapper
-            .find('.description-version button.delete-description-history svg.ic-remove')
+            .find(
+              '.description-version button.delete-description-history svg[data-testid="remove-icon"]',
+            )
             .exists(),
         ).toBe(true);
         done();

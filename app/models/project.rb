@@ -1395,6 +1395,16 @@ class Project < ApplicationRecord
     group || namespace.try(:owner)
   end
 
+  def default_owner
+    obj = owner
+
+    if obj.respond_to?(:default_owner)
+      obj.default_owner
+    else
+      obj
+    end
+  end
+
   def to_ability_name
     model_name.singular
   end
@@ -2508,6 +2518,14 @@ class Project < ApplicationRecord
       .exists?
   end
 
+  def default_branch_or_master
+    default_branch || 'master'
+  end
+
+  def ci_config_path_or_default
+    ci_config_path.presence || Ci::Pipeline::DEFAULT_CONFIG_PATH
+  end
+
   private
 
   def find_service(services, name)
@@ -2523,11 +2541,11 @@ class Project < ApplicationRecord
   end
 
   def services_templates
-    @services_templates ||= Service.templates
+    @services_templates ||= Service.for_template
   end
 
   def services_instances
-    @services_instances ||= Service.instances
+    @services_instances ||= Service.for_instance
   end
 
   def closest_namespace_setting(name)
@@ -2596,6 +2614,8 @@ class Project < ApplicationRecord
       namespace != from.namespace
     when Namespace
       namespace != from
+    when User
+      true
     end
   end
 

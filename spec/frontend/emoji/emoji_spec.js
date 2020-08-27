@@ -1,4 +1,5 @@
 import MockAdapter from 'axios-mock-adapter';
+import { trimText } from 'helpers/text_helper';
 import axios from '~/lib/utils/axios_utils';
 import { initEmojiMap, glEmojiTag, EMOJI_VERSION } from '~/emoji';
 import isEmojiUnicodeSupported, {
@@ -9,7 +10,6 @@ import isEmojiUnicodeSupported, {
   isHorceRacingSkinToneComboEmoji,
   isPersonZwjEmoji,
 } from '~/emoji/support/is_emoji_unicode_supported';
-import { trimText } from 'helpers/text_helper';
 
 const emptySupportMap = {
   personZwj: false,
@@ -55,11 +55,10 @@ const emojiFixtureMap = {
 
 describe('gl_emoji', () => {
   let mock;
-  const emojiData = getJSONFixture('emojis/emojis.json');
 
   beforeEach(() => {
     mock = new MockAdapter(axios);
-    mock.onGet(`/-/emojis/${EMOJI_VERSION}/emojis.json`).reply(200, emojiData);
+    mock.onGet(`/-/emojis/${EMOJI_VERSION}/emojis.json`).reply(200);
 
     return initEmojiMap().catch(() => {});
   });

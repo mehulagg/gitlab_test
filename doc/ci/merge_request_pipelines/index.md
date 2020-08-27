@@ -13,7 +13,7 @@ last_update: 2019-07-03
 In a [basic configuration](../pipelines/pipeline_architectures.md#basic-pipelines), GitLab runs a pipeline each time
 changes are pushed to a branch.
 
-If you want the pipeline to run jobs **only** when merge requests are created or updated,
+If you want the pipeline to run jobs **only** on commits to a branch that is associated with a merge request,
 you can use *pipelines for merge requests*.
 
 In the UI, these pipelines are labeled as `detached`. Otherwise, these pipelines appear the same
@@ -208,7 +208,7 @@ The variable names begin with the `CI_MERGE_REQUEST_` prefix.
 ### Two pipelines created when pushing to a merge request
 
 If you are experiencing duplicated pipelines when using `rules`, take a look at
-the [important differences between `rules` and `only`/`except`](../yaml/README.md#differences-between-rules-and-onlyexcept),
+the [important differences between `rules` and `only`/`except`](../yaml/README.md#prevent-duplicate-pipelines),
 which will help you get your starting configuration correct.
 
 If you are seeing two pipelines when using `only/except`, please see the caveats

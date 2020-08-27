@@ -1,14 +1,14 @@
 <script>
 import Visibility from 'visibilityjs';
-import axios from '~/lib/utils/axios_utils';
-import Poll from '~/lib/utils/poll';
-import createFlash from '~/flash';
-import { s__, __ } from '~/locale';
 import IssueNote from 'ee/vue_shared/security_reports/components/issue_note.vue';
 import SolutionCard from 'ee/vue_shared/security_reports/components/solution_card.vue';
 import MergeRequestNote from 'ee/vue_shared/security_reports/components/merge_request_note.vue';
-import RelatedIssues from './related_issues.vue';
 import Api from 'ee/api';
+import axios from '~/lib/utils/axios_utils';
+import Poll from '~/lib/utils/poll';
+import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { s__, __ } from '~/locale';
+import RelatedIssues from './related_issues.vue';
 import HistoryEntry from './history_entry.vue';
 import VulnerabilitiesEventBus from './vulnerabilities_event_bus';
 import initUserPopovers from '~/user_popovers';
@@ -116,7 +116,8 @@ export default {
           if (!this.poll) this.createNotesPoll();
 
           if (!Visibility.hidden()) {
-            this.poll.makeRequest();
+            // delays the initial request by 6 seconds
+            this.poll.makeDelayedRequest(6 * 1000);
           }
 
           Visibility.change(() => {

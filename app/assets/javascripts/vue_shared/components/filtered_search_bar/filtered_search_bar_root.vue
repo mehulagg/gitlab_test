@@ -8,12 +8,12 @@ import {
   GlTooltipDirective,
 } from '@gitlab/ui';
 
+import RecentSearchesStorageKeys from 'ee_else_ce/filtered_search/recent_searches_storage_keys';
 import { __ } from '~/locale';
-import createFlash from '~/flash';
+import { deprecatedCreateFlash as createFlash } from '~/flash';
 
 import RecentSearchesStore from '~/filtered_search/stores/recent_searches_store';
 import RecentSearchesService from '~/filtered_search/services/recent_searches_service';
-import RecentSearchesStorageKeys from 'ee_else_ce/filtered_search/recent_searches_storage_keys';
 
 import { stripQuotes } from './filtered_search_utils';
 import { SortDirection } from './constants';
@@ -121,7 +121,9 @@ export default {
         : __('Sort direction: Descending');
     },
     filteredRecentSearches() {
-      return this.recentSearches.filter(item => typeof item !== 'string');
+      return this.recentSearchesStorageKey
+        ? this.recentSearches.filter(item => typeof item !== 'string')
+        : undefined;
     },
   },
   watch: {
@@ -280,7 +282,7 @@ export default {
       <template #history-item="{ historyItem }">
         <template v-for="(token, index) in historyItem">
           <span v-if="typeof token === 'string'" :key="index" class="gl-px-1">"{{ token }}"</span>
-          <span v-else :key="`${token.type}-${token.value.data}`" class="gl-px-1">
+          <span v-else :key="`${index}-${token.type}-${token.value.data}`" class="gl-px-1">
             <span v-if="tokenTitles[token.type]"
               >{{ tokenTitles[token.type] }} :{{ token.value.operator }}</span
             >

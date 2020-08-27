@@ -3,12 +3,13 @@ import { createMockClient } from 'mock-apollo-client';
 import VueApollo from 'vue-apollo';
 import VueRouter from 'vue-router';
 import VueDraggable from 'vuedraggable';
+import { InMemoryCache } from 'apollo-cache-inmemory';
 import Design from '~/design_management/components/list/item.vue';
 import createRouter from '~/design_management/router';
 import getDesignListQuery from '~/design_management/graphql/queries/get_design_list.query.graphql';
 import permissionsQuery from '~/design_management/graphql/queries/design_permissions.query.graphql';
 import moveDesignMutation from '~/design_management/graphql/mutations/move_design.mutation.graphql';
-import createFlash from '~/flash';
+import { deprecatedCreateFlash as createFlash } from '~/flash';
 import Index from '~/design_management/pages/index.vue';
 import {
   designListQueryResponse,
@@ -17,9 +18,8 @@ import {
   reorderedDesigns,
   moveDesignMutationResponseWithErrors,
 } from '../mock_data/apollo_mock';
-import { InMemoryCache } from 'apollo-cache-inmemory';
 
-jest.mock('~/flash.js');
+jest.mock('~/flash');
 
 const localVue = createLocalVue();
 localVue.use(VueApollo);

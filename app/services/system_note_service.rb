@@ -45,6 +45,14 @@ module SystemNoteService
     ::SystemNotes::IssuablesService.new(noteable: noteable, project: project, author: author).change_milestone(milestone)
   end
 
+  def relate_issue(noteable, noteable_ref, user)
+    ::SystemNotes::IssuablesService.new(noteable: noteable, project: noteable.project, author: user).relate_issue(noteable_ref)
+  end
+
+  def unrelate_issue(noteable, noteable_ref, user)
+    ::SystemNotes::IssuablesService.new(noteable: noteable, project: noteable.project, author: user).unrelate_issue(noteable_ref)
+  end
+
   # Called when the due_date of a Noteable is changed
   #
   # noteable  - Noteable object
@@ -298,6 +306,10 @@ module SystemNoteService
 
   def new_alert_issue(alert, issue, author)
     ::SystemNotes::AlertManagementService.new(noteable: alert, project: alert.project, author: author).new_alert_issue(issue)
+  end
+
+  def create_new_alert(alert, monitoring_tool)
+    ::SystemNotes::AlertManagementService.new(noteable: alert, project: alert.project).create_new_alert(monitoring_tool)
   end
 
   private

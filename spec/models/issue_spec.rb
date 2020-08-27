@@ -6,6 +6,7 @@ RSpec.describe Issue do
   include ExternalAuthorizationServiceHelpers
 
   let_it_be(:user) { create(:user) }
+  let_it_be(:reusable_project) { create(:project) }
 
   describe "Associations" do
     it { is_expected.to belong_to(:milestone) }
@@ -145,13 +146,13 @@ RSpec.describe Issue do
   end
 
   describe '#order_by_position_and_priority' do
-    let(:project) { create :project }
+    let(:project) { reusable_project }
     let(:p1) { create(:label, title: 'P1', project: project, priority: 1) }
     let(:p2) { create(:label, title: 'P2', project: project, priority: 2) }
     let!(:issue1) { create(:labeled_issue, project: project, labels: [p1]) }
     let!(:issue2) { create(:labeled_issue, project: project, labels: [p2]) }
-    let!(:issue3) { create(:issue, project: project, relative_position: 100) }
-    let!(:issue4) { create(:issue, project: project, relative_position: 200) }
+    let!(:issue3) { create(:issue, project: project, relative_position: -200) }
+    let!(:issue4) { create(:issue, project: project, relative_position: -100) }
 
     it 'returns ordered list' do
       expect(project.issues.order_by_position_and_priority)
@@ -160,10 +161,10 @@ RSpec.describe Issue do
   end
 
   describe '#sort' do
-    let(:project) { create(:project) }
+    let(:project) { reusable_project }
 
     context "by relative_position" do
-      let!(:issue)  { create(:issue, project: project) }
+      let!(:issue)  { create(:issue, project: project, relative_position: nil) }
       let!(:issue2) { create(:issue, project: project, relative_position: 2) }
       let!(:issue3) { create(:issue, project: project, relative_position: 1) }
 
@@ -307,6 +308,50 @@ RSpec.describe Issue do
 
     it 'returns false for a user that is not the assignee or author' do
       expect(issue.assignee_or_author?(user)).to be_falsey
+    end
+  end
+
+  describe '#related_issues' do
+    let(:user) { create(:user) }
+    let(:authorized_project) { create(:project) }
+    let(:authorized_project2) { create(:project) }
+    let(:unauthorized_project) { create(:project) }
+
+    let(:authorized_issue_a) { create(:issue, project: authorized_project) }
+    let(:authorized_issue_b) { create(:issue, project: authorized_project) }
+    let(:authorized_issue_c) { create(:issue, project: authorized_project2) }
+
+    let(:unauthorized_issue) { create(:issue, project: unauthorized_project) }
+
+    let!(:issue_link_a) { create(:issue_link, source: authorized_issue_a, target: authorized_issue_b) }
+    let!(:issue_link_b) { create(:issue_link, source: authorized_issue_a, target: unauthorized_issue) }
+    let!(:issue_link_c) { create(:issue_link, source: authorized_issue_a, target: authorized_issue_c) }
+
+    before do
+      authorized_project.add_developer(user)
+      authorized_project2.add_developer(user)
+    end
+
+    it 'returns only authorized related issues for given user' do
+      expect(authorized_issue_a.related_issues(user))
+        .to contain_exactly(authorized_issue_b, authorized_issue_c)
+    end
+
+    it 'returns issues with valid issue_link_type' do
+      link_types = authorized_issue_a.related_issues(user).map(&:issue_link_type)
+
+      expect(link_types).not_to be_empty
+      expect(link_types).not_to include(nil)
+    end
+
+    describe 'when a user cannot read cross project' do
+      it 'only returns issues within the same project' do
+        expect(Ability).to receive(:allowed?).with(user, :read_all_resources, :global).at_least(:once).and_call_original
+        expect(Ability).to receive(:allowed?).with(user, :read_cross_project).and_return(false)
+
+        expect(authorized_issue_a.related_issues(user))
+          .to contain_exactly(authorized_issue_b)
+      end
     end
   end
 
@@ -1027,7 +1072,7 @@ RSpec.describe Issue do
 
   context "relative positioning" do
     it_behaves_like "a class that supports relative positioning" do
-      let(:project) { create(:project) }
+      let_it_be(:project) { create(:project) }
       let(:factory) { :issue }
       let(:default_params) { { project: project } }
     end
@@ -1136,6 +1181,34 @@ RSpec.describe Issue do
 
     it 'sets the label_url_method in the context' do
       expect(context[:label_url_method]).to eq(:project_issues_url)
+    end
+  end
+
+  describe 'scheduling rebalancing' do
+    before do
+      allow(issue).to receive(:find_next_gap) { raise ActiveRecord::QueryCanceled }
+    end
+
+    let(:project) { build(:project_empty_repo) }
+    let(:issue) { build_stubbed(:issue, relative_position: 100, project: project) }
+
+    describe '#find_next_gap_before' do
+      it 'schedules rebalancing if we time-out when finding a gap' do
+        lhs = build_stubbed(:issue, relative_position: 99, project: project)
+        to_move = build(:issue, project: project)
+        expect(IssueRebalancingWorker).to receive(:perform_async).with(issue.id)
+
+        expect { to_move.move_between(lhs, issue) }.to raise_error(ActiveRecord::QueryCanceled)
+      end
+    end
+
+    describe '#find_next_gap_after' do
+      it 'schedules rebalancing if we time-out when finding a gap' do
+        allow(issue).to receive(:find_next_gap) { raise ActiveRecord::QueryCanceled }
+        expect(IssueRebalancingWorker).to receive(:perform_async).with(issue.id)
+
+        expect { issue.move_sequence_after }.to raise_error(ActiveRecord::QueryCanceled)
+      end
     end
   end
 end

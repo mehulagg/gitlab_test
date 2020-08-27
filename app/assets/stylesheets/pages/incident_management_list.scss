@@ -5,7 +5,7 @@
 
   // these styles need to be deleted once GlTable component looks in GitLab same as in @gitlab/ui
   table {
-    @include gl-text-gray-700;
+    @include gl-text-gray-500;
 
     tr {
       &:focus {
@@ -108,7 +108,7 @@
     border-bottom-width: 0;
 
     .gl-tab-nav-item {
-      color: $gl-gray-600;
+      color: $gray-500;
 
       > .gl-tab-counter-badge {
         color: inherit;

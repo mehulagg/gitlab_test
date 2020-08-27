@@ -9,8 +9,9 @@ import {
   GlTab,
   GlTabs,
   GlBadge,
+  GlEmptyState,
 } from '@gitlab/ui';
-import { visitUrl, joinPaths } from '~/lib/utils/url_utility';
+import { visitUrl, joinPaths, mergeUrlParams } from '~/lib/utils/url_utility';
 import IncidentsList from '~/incidents/components/incidents_list.vue';
 import TimeAgoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
 import { I18N, INCIDENT_STATUS_TABS } from '~/incidents/constants';
@@ -25,11 +26,13 @@ jest.mock('~/lib/utils/url_utility', () => ({
 describe('Incidents List', () => {
   let wrapper;
   const newIssuePath = 'namespace/project/-/issues/new';
+  const emptyListSvgPath = '/assets/empty.svg';
   const incidentTemplateName = 'incident';
+  const incidentType = 'incident';
   const incidentsCount = {
-    opened: 14,
-    closed: 1,
-    all: 16,
+    opened: 24,
+    closed: 10,
+    all: 26,
   };
 
   const findTable = () => wrapper.find(GlTable);
@@ -47,6 +50,7 @@ describe('Incidents List', () => {
   const findStatusFilterTabs = () => wrapper.findAll(GlTab);
   const findStatusFilterBadge = () => wrapper.findAll(GlBadge);
   const findStatusTabs = () => wrapper.find(GlTabs);
+  const findEmptyState = () => wrapper.find(GlEmptyState);
 
   function mountComponent({ data = { incidents: [], incidentsCount: {} }, loading = false }) {
     wrapper = mount(IncidentsList, {
@@ -66,8 +70,10 @@ describe('Incidents List', () => {
         projectPath: '/project/path',
         newIssuePath,
         incidentTemplateName,
+        incidentType,
         issuePath: '/project/isssues',
         publishedAvailable: true,
+        emptyListSvgPath,
       },
       stubs: {
         GlButton: true,
@@ -95,7 +101,7 @@ describe('Incidents List', () => {
       data: { incidents: { list: [] }, incidentsCount: {} },
       loading: false,
     });
-    expect(findTable().text()).toContain(I18N.noIncidents);
+    expect(findEmptyState().exists()).toBe(true);
   });
 
   it('shows error state', () => {
@@ -162,13 +168,18 @@ describe('Incidents List', () => {
   describe('Create Incident', () => {
     beforeEach(() => {
       mountComponent({
-        data: { incidents: { list: [] }, incidentsCount: {} },
+        data: { incidents: { list: mockIncidents }, incidentsCount: {} },
         loading: false,
       });
     });
 
-    it('shows the button linking to new incidents page with prefilled incident template', () => {
+    it('shows the button linking to new incidents page with prefilled incident template when clicked', () => {
       expect(findCreateIncidentBtn().exists()).toBe(true);
+      findCreateIncidentBtn().trigger('click');
+      expect(mergeUrlParams).toHaveBeenCalledWith(
+        { issuable_template: incidentTemplateName, 'issue[issue_type]': incidentType },
+        newIssuePath,
+      );
     });
 
     it('sets button loading on click', () => {

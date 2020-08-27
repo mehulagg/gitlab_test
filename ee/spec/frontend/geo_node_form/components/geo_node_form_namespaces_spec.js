@@ -56,8 +56,26 @@ describe('GeoNodeFormNamespaces', () => {
       expect(findGlDropdown().exists()).toBe(true);
     });
 
-    it('renders findGlDropdownSearch', () => {
-      expect(findGlDropdownSearch().exists()).toBe(true);
+    describe('findGlDropdownSearch', () => {
+      it('renders always', () => {
+        expect(findGlDropdownSearch().exists()).toBe(true);
+      });
+
+      it('has debounce prop', () => {
+        expect(findGlDropdownSearch().attributes('debounce')).toBe('500');
+      });
+
+      describe('onSearch', () => {
+        const namespaceSearch = 'test search';
+
+        beforeEach(() => {
+          findGlDropdownSearch().vm.$emit('input', namespaceSearch);
+        });
+
+        it('calls fetchSyncNamespaces when input event is fired from GlSearchBoxByType', () => {
+          expect(actionSpies.fetchSyncNamespaces).toHaveBeenCalledWith(namespaceSearch);
+        });
+      });
     });
 
     describe('findDropdownItems', () => {
@@ -75,41 +93,6 @@ describe('GeoNodeFormNamespaces', () => {
 
       it('hides GlIcon if namespace not in selectedNamespaces', () => {
         expect(findGlIcons().wrappers.every(w => w.classes('invisible'))).toBe(true);
-      });
-    });
-  });
-
-  // TODO: These specs should fixed once we have a proper mock for debounce
-  // https://gitlab.com/gitlab-org/gitlab/-/issues/213925
-  // eslint-disable-next-line jest/no-disabled-tests
-  describe.skip('watchers', () => {
-    describe('namespaceSearch', () => {
-      const namespaceSearch = 'test search';
-
-      beforeEach(() => {
-        createComponent();
-        wrapper.setData({
-          namespaceSearch,
-        });
-      });
-
-      it('should wait 500ms before calling fetchSyncNamespaces', () => {
-        expect(actionSpies.fetchSyncNamespaces).not.toHaveBeenCalledWith(namespaceSearch);
-
-        jest.advanceTimersByTime(500); // Debounce
-        expect(actionSpies.fetchSyncNamespaces).toHaveBeenCalledWith(namespaceSearch);
-        expect(actionSpies.fetchSyncNamespaces).toHaveBeenCalledTimes(1);
-      });
-
-      it('should call fetchSyncNamespaces once with the latest search term', () => {
-        expect(actionSpies.fetchSyncNamespaces).not.toHaveBeenCalledWith(namespaceSearch);
-        wrapper.setData({
-          namespaceSearch: 'test search2',
-        });
-
-        jest.advanceTimersByTime(500); // Debounce
-        expect(actionSpies.fetchSyncNamespaces).toHaveBeenCalledWith('test search2');
-        expect(actionSpies.fetchSyncNamespaces).toHaveBeenCalledTimes(1);
       });
     });
   });

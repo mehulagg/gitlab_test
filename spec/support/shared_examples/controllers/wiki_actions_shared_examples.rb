@@ -355,6 +355,91 @@ RSpec.shared_examples 'wiki controller actions' do
     end
   end
 
+  describe 'POST #create' do
+    let(:new_title) { 'New title' }
+    let(:new_content) { 'New content' }
+
+    subject do
+      post(:create,
+            params: routing_params.merge(
+              wiki: { title: new_title, content: new_content }
+            ))
+    end
+
+    context 'when page is valid' do
+      it 'creates the page' do
+        expect do
+          subject
+        end.to change { wiki.list_pages.size }.by 1
+
+        wiki_page = wiki.find_page(new_title)
+
+        expect(wiki_page.title).to eq new_title
+        expect(wiki_page.content).to eq new_content
+      end
+    end
+
+    context 'when page is not valid' do
+      let(:new_title) { '' }
+
+      it 'renders the edit state' do
+        expect do
+          subject
+        end.not_to change { wiki.list_pages.size }
+
+        expect(response).to render_template('shared/wikis/edit')
+      end
+    end
+  end
+
+  describe 'DELETE #destroy' do
+    let(:id_param) { wiki_title }
+
+    subject do
+      delete(:destroy,
+            params: routing_params.merge(
+              id: id_param
+            ))
+    end
+
+    context 'when page exists' do
+      it 'deletes the page' do
+        expect do
+          subject
+        end.to change { wiki.list_pages.size }.by(-1)
+      end
+
+      context 'but page cannot be deleted' do
+        before do
+          allow_next_instance_of(WikiPage) do |page|
+            allow(page).to receive(:delete).and_return(false)
+          end
+        end
+
+        it 'renders the edit state' do
+          expect do
+            subject
+          end.not_to change { wiki.list_pages.size }
+
+          expect(response).to render_template('shared/wikis/edit')
+          expect(assigns(:error).message).to eq('Could not delete wiki page')
+        end
+      end
+    end
+
+    context 'when page does not exist' do
+      let(:id_param) { 'nil' }
+
+      it 'renders 404' do
+        expect do
+          subject
+        end.not_to change { wiki.list_pages.size }
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+    end
+  end
+
   def redirect_to_wiki(wiki, page)
     redirect_to(controller.wiki_page_path(wiki, page))
   end

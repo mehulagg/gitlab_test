@@ -6,7 +6,7 @@
 
   // Toolbar buttons
   .tui-editor-defaultUI-toolbar .toolbar-button {
-    color: $gl-gray-600;
+    color: $gray-500;
     border: 0;
 
     &:hover,
@@ -28,7 +28,7 @@
     }
 
     button {
-      @include gl-text-gray-800;
+      @include gl-text-gray-700;
     }
   }
 

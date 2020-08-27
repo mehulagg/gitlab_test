@@ -1,10 +1,10 @@
 <script>
 import $ from 'jquery';
 import { GlLoadingIcon } from '@gitlab/ui';
-import { __, sprintf } from '../../../locale';
-import Flash from '~/flash';
-import eventHub from '../../event_hub';
 import { mapActions } from 'vuex';
+import { __, sprintf } from '../../../locale';
+import { deprecatedCreateFlash as Flash } from '~/flash';
+import eventHub from '../../event_hub';
 
 export default {
   components: {

@@ -13,5 +13,26 @@ FactoryBot.define do
       artifact.file = fixture_file_upload(
         Rails.root.join('spec/fixtures/pipeline_artifacts/code_coverage.json'), 'application/json')
     end
+
+    trait :with_multibyte_characters do
+      size { { "utf8" => "✓" }.to_json.size }
+      after(:build) do |artifact, _evaluator|
+        artifact.file = CarrierWaveStringFile.new_file(
+          file_content: { "utf8" => "✓" }.to_json,
+          filename: 'filename',
+          content_type: 'application/json'
+        )
+      end
+    end
+
+    trait :with_code_coverage_with_multiple_files do
+      after(:build) do |artifact, _evaluator|
+        artifact.file = fixture_file_upload(
+          Rails.root.join('spec/fixtures/pipeline_artifacts/code_coverage_with_multiple_files.json'), 'application/json'
+        )
+      end
+
+      size { file.size }
+    end
   end
 end

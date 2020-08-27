@@ -12,7 +12,6 @@ class Projects::PipelinesController < Projects::ApplicationController
   before_action :authorize_create_pipeline!, only: [:new, :create]
   before_action :authorize_update_pipeline!, only: [:retry, :cancel]
   before_action do
-    push_frontend_feature_flag(:junit_pipeline_view, project)
     push_frontend_feature_flag(:filter_pipelines_search, project, default_enabled: true)
     push_frontend_feature_flag(:dag_pipeline_tab, project, default_enabled: true)
     push_frontend_feature_flag(:pipelines_security_report_summary, project)
@@ -64,10 +63,24 @@ class Projects::PipelinesController < Projects::ApplicationController
       .new(project, current_user, create_params)
       .execute(:web, ignore_skip_ci: true, save_on_errors: false)
 
-    if @pipeline.created_successfully?
-      redirect_to project_pipeline_path(project, @pipeline)
-    else
-      render 'new', status: :bad_request
+    respond_to do |format|
+      format.html do
+        if @pipeline.created_successfully?
+          redirect_to project_pipeline_path(project, @pipeline)
+        else
+          render 'new', status: :bad_request
+        end
+      end
+      format.json do
+        if @pipeline.created_successfully?
+          render json: PipelineSerializer
+                         .new(project: project, current_user: current_user)
+                         .represent(@pipeline),
+                 status: :created
+        else
+          render json: @pipeline.errors, status: :bad_request
+        end
+      end
     end
   end
 
@@ -177,8 +190,6 @@ class Projects::PipelinesController < Projects::ApplicationController
   end
 
   def test_report
-    return unless Feature.enabled?(:junit_pipeline_view, project)
-
     respond_to do |format|
       format.html do
         render 'show'

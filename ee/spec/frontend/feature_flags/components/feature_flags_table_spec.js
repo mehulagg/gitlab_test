@@ -11,6 +11,7 @@ import {
   LEGACY_FLAG,
   DEFAULT_PERCENT_ROLLOUT,
 } from 'ee/feature_flags/constants';
+import { mockTracking } from 'helpers/tracking_helper';
 
 const getDefaultProps = () => ({
   featureFlags: [
@@ -79,8 +80,10 @@ describe('Feature flag table', () => {
     });
 
     it('Should render a status column', () => {
-      expect(wrapper.find('.js-feature-flag-status').exists()).toBe(true);
-      expect(trimText(wrapper.find('.js-feature-flag-status').text())).toEqual('Active');
+      const badge = wrapper.find('[data-testid="feature-flag-status-badge"]');
+
+      expect(badge.exists()).toBe(true);
+      expect(trimText(badge.text())).toEqual('Active');
     });
 
     it('Should render a feature flag column', () => {
@@ -115,11 +118,13 @@ describe('Feature flag table', () => {
 
   describe('when active and with an update toggle', () => {
     let toggle;
+    let spy;
 
     beforeEach(() => {
       props.featureFlags[0].update_path = props.featureFlags[0].destroy_path;
       createWrapper(props);
       toggle = wrapper.find(GlToggle);
+      spy = mockTracking('_category_', toggle.element, jest.spyOn);
     });
 
     it('should have a toggle', () => {
@@ -133,6 +138,15 @@ describe('Feature flag table', () => {
 
       return wrapper.vm.$nextTick().then(() => {
         expect(wrapper.emitted('toggle-flag')).toEqual([[flag]]);
+      });
+    });
+
+    it('should track a click', () => {
+      toggle.trigger('click');
+
+      expect(spy).toHaveBeenCalledWith('_category_', 'click_button', {
+        context: 'feature_flag_activity',
+        label: 'feature_flag_toggle',
       });
     });
   });

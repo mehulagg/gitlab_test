@@ -4,14 +4,17 @@ exports[`MetricChart component template when isLoading is false and chart data i
 <div>
   <!---->
    
-  <div
-    class="bs-callout bs-callout-info"
-    data-testid="infoMessage"
+  <gl-alert-stub
+    dismisslabel="Dismiss"
+    primarybuttonlink=""
+    primarybuttontext=""
+    secondarybuttonlink=""
+    secondarybuttontext=""
+    title=""
+    variant="info"
   >
-    
-      There is no data available. Please change your selection.
-    
-  </div>
+    There is no data available. Please change your selection.
+  </gl-alert-stub>
 </div>
 `;
 
@@ -32,7 +35,7 @@ exports[`MetricChart component template when isLoading is false and chartData is
       <span
         class="d-flex"
       >
-        <icon-stub
+        <gl-icon-stub
           aria-label="Selected"
           class="flex-shrink-0 gl-mr-2 invisible"
           name="mobile-issue-close"
@@ -51,7 +54,7 @@ exports[`MetricChart component template when isLoading is false and chartData is
       <span
         class="d-flex"
       >
-        <icon-stub
+        <gl-icon-stub
           aria-label="Selected"
           class="flex-shrink-0 gl-mr-2 invisible"
           name="mobile-issue-close"

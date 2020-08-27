@@ -1,17 +1,17 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import testAction from 'helpers/vuex_action_helper';
-import httpStatusCodes from '~/lib/utils/http_status';
 import * as actions from 'ee/analytics/cycle_analytics/store/modules/filters/actions';
 import * as types from 'ee/analytics/cycle_analytics/store/modules/filters/mutation_types';
 import initialState from 'ee/analytics/cycle_analytics/store/modules/filters/state';
-import createFlash from '~/flash';
+import httpStatusCodes from '~/lib/utils/http_status';
+import { deprecatedCreateFlash as createFlash } from '~/flash';
 import { filterMilestones, filterUsers, filterLabels } from '../../../mock_data';
 
-const milestonesPath = 'fake_milestones_path';
-const labelsPath = 'fake_labels_path';
+const milestonesEndpoint = 'fake_milestones_endpoint';
+const labelsEndpoint = 'fake_labels_endpoint';
 
-jest.mock('~/flash', () => jest.fn());
+jest.mock('~/flash');
 
 describe('Filters actions', () => {
   let state;
@@ -33,44 +33,35 @@ describe('Filters actions', () => {
 
   describe('initialize', () => {
     const initialData = {
-      milestonesPath,
-      labelsPath,
+      milestonesEndpoint,
+      labelsEndpoint,
       selectedAuthor: 'Mr cool',
       selectedMilestone: 'NEXT',
     };
 
-    it('dispatches setPaths, setSelectedFilters', () => {
-      return actions
-        .initialize(
-          {
-            state,
-            dispatch: mockDispatch,
-            commit: mockCommit,
-          },
-          initialData,
-        )
-        .then(() => {
-          expect(mockDispatch).toHaveBeenCalledTimes(2);
-          expect(mockDispatch).toHaveBeenCalledWith('setPaths', initialData);
-          expect(mockDispatch).toHaveBeenCalledWith('setSelectedFilters', initialData, {
-            root: true,
-          });
-        });
+    it('does not dispatch', () => {
+      const result = actions.initialize(
+        {
+          state,
+          dispatch: mockDispatch,
+          commit: mockCommit,
+        },
+        initialData,
+      );
+      expect(result).toBeUndefined();
+      expect(mockDispatch).not.toHaveBeenCalled();
     });
 
-    it(`commits the ${types.INITIALIZE}`, () => {
-      return actions
-        .initialize(
-          {
-            state,
-            dispatch: mockDispatch,
-            commit: mockCommit,
-          },
-          initialData,
-        )
-        .then(() => {
-          expect(mockCommit).toHaveBeenCalledWith(types.INITIALIZE, initialData);
-        });
+    it(`commits the ${types.SET_SELECTED_FILTERS}`, () => {
+      actions.initialize(
+        {
+          state,
+          dispatch: mockDispatch,
+          commit: mockCommit,
+        },
+        initialData,
+      );
+      expect(mockCommit).toHaveBeenCalledWith(types.SET_SELECTED_FILTERS, initialData);
     });
   });
 
@@ -80,57 +71,36 @@ describe('Filters actions', () => {
       selectedMilestone: 'NEXT',
     };
 
-    it('dispatches the root/setSelectedFilters and root/fetchCycleAnalyticsData actions', () => {
+    it('dispatches the root/setFilters action', () => {
       return testAction(
         actions.setFilters,
         nextFilters,
         state,
-        [],
         [
           {
-            type: 'setSelectedFilters',
             payload: nextFilters,
-          },
-          {
-            type: 'fetchCycleAnalyticsData',
-            payload: null,
+            type: types.SET_SELECTED_FILTERS,
           },
         ],
-      );
-    });
-
-    it('sets the selectedLabels from the labels available', () => {
-      return testAction(
-        actions.setFilters,
-        { ...nextFilters, selectedLabels: [filterLabels[1].title] },
-        { ...state, labels: { data: filterLabels } },
-        [],
         [
           {
-            type: 'setSelectedFilters',
-            payload: {
-              ...nextFilters,
-              selectedLabels: [filterLabels[1].title],
-            },
-          },
-          {
-            type: 'fetchCycleAnalyticsData',
-            payload: null,
+            type: 'setFilters',
+            payload: nextFilters,
           },
         ],
       );
     });
   });
 
-  describe('setPaths', () => {
+  describe('setEndpoints', () => {
     it('sets the api paths', () => {
       return testAction(
-        actions.setPaths,
-        { milestonesPath, labelsPath },
+        actions.setEndpoints,
+        { milestonesEndpoint, labelsEndpoint },
         state,
         [
-          { payload: 'fake_milestones_path.json', type: types.SET_MILESTONES_PATH },
-          { payload: 'fake_labels_path.json', type: types.SET_LABELS_PATH },
+          { payload: 'fake_milestones_endpoint', type: types.SET_MILESTONES_ENDPOINT },
+          { payload: 'fake_labels_endpoint', type: types.SET_LABELS_ENDPOINT },
         ],
         [],
       );
@@ -144,7 +114,7 @@ describe('Filters actions', () => {
       });
 
       it('dispatches RECEIVE_AUTHORS_SUCCESS with received data', () => {
-        testAction(
+        return testAction(
           actions.fetchAuthors,
           null,
           state,
@@ -153,7 +123,9 @@ describe('Filters actions', () => {
             { type: types.RECEIVE_AUTHORS_SUCCESS, payload: filterUsers },
           ],
           [],
-        );
+        ).then(({ data }) => {
+          expect(data).toBe(filterUsers);
+        });
       });
     });
 
@@ -183,20 +155,22 @@ describe('Filters actions', () => {
   describe('fetchMilestones', () => {
     describe('success', () => {
       beforeEach(() => {
-        mock.onGet(milestonesPath).replyOnce(httpStatusCodes.OK, filterMilestones);
+        mock.onGet(milestonesEndpoint).replyOnce(httpStatusCodes.OK, filterMilestones);
       });
 
       it('dispatches RECEIVE_MILESTONES_SUCCESS with received data', () => {
-        testAction(
+        return testAction(
           actions.fetchMilestones,
           null,
-          { ...state, milestonesPath },
+          { ...state, milestonesEndpoint },
           [
             { type: types.REQUEST_MILESTONES },
             { type: types.RECEIVE_MILESTONES_SUCCESS, payload: filterMilestones },
           ],
           [],
-        );
+        ).then(({ data }) => {
+          expect(data).toBe(filterMilestones);
+        });
       });
     });
 
@@ -230,16 +204,18 @@ describe('Filters actions', () => {
       });
 
       it('dispatches RECEIVE_ASSIGNEES_SUCCESS with received data', () => {
-        testAction(
+        return testAction(
           actions.fetchAssignees,
           null,
-          { ...state, milestonesPath },
+          { ...state, milestonesEndpoint },
           [
             { type: types.REQUEST_ASSIGNEES },
             { type: types.RECEIVE_ASSIGNEES_SUCCESS, payload: filterUsers },
           ],
           [],
-        );
+        ).then(({ data }) => {
+          expect(data).toBe(filterUsers);
+        });
       });
     });
 
@@ -269,20 +245,22 @@ describe('Filters actions', () => {
   describe('fetchLabels', () => {
     describe('success', () => {
       beforeEach(() => {
-        mock.onGet(labelsPath).replyOnce(httpStatusCodes.OK, filterLabels);
+        mock.onGet(labelsEndpoint).replyOnce(httpStatusCodes.OK, filterLabels);
       });
 
       it('dispatches RECEIVE_LABELS_SUCCESS with received data', () => {
-        testAction(
+        return testAction(
           actions.fetchLabels,
           null,
-          { ...state, labelsPath },
+          { ...state, labelsEndpoint },
           [
             { type: types.REQUEST_LABELS },
             { type: types.RECEIVE_LABELS_SUCCESS, payload: filterLabels },
           ],
           [],
-        );
+        ).then(({ data }) => {
+          expect(data).toBe(filterLabels);
+        });
       });
     });
 

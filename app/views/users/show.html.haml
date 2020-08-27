@@ -30,7 +30,7 @@
       - if current_user && current_user.admin?
         = link_to [:admin, @user], class: link_classes + 'btn btn-default', title: s_('UserProfile|View user in admin area'),
           data: {toggle: 'tooltip', placement: 'bottom', container: 'body'} do
-          = icon('users')
+          = sprite_icon('user')
 
     .profile-header{ class: [('with-no-profile-tabs' if profile_tabs.empty?)] }
       .avatar-holder
@@ -160,15 +160,12 @@
     .loading.hide
       .spinner.spinner-md
 
-  - if profile_tabs.empty?
-    .row
-      .col-12
-        .svg-content
-          = image_tag 'illustrations/profile_private_mode.svg'
-      .col-12.text-center
-        .text-content
-          %h4
-            - if @user.blocked?
-              = s_('UserProfile|This user is blocked')
-            - else
-              = s_('UserProfile|This user has a private profile')
+    - if profile_tabs.empty?
+      .svg-content
+        = image_tag 'illustrations/profile_private_mode.svg'
+      .text-content.text-center
+        %h4
+          - if @user.blocked?
+            = s_('UserProfile|This user is blocked')
+          - else
+            = s_('UserProfile|This user has a private profile')

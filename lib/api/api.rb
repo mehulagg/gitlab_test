@@ -56,6 +56,10 @@ module API
       )
     end
 
+    before do
+      set_peek_enabled_for_current_request
+    end
+
     # The locale is set to the current user's locale when `current_user` is loaded
     after { Gitlab::I18n.use_default_locale }
 
@@ -116,6 +120,7 @@ module API
     # Ensure the namespace is right, otherwise we might load Grape::API::Helpers
     helpers ::API::Helpers
     helpers ::API::Helpers::CommonHelpers
+    helpers ::API::Helpers::PerformanceBarHelpers
 
     namespace do
       after do
@@ -162,6 +167,7 @@ module API
       mount ::API::GroupVariables
       mount ::API::ImportBitbucketServer
       mount ::API::ImportGithub
+      mount ::API::IssueLinks
       mount ::API::Issues
       mount ::API::JobArtifacts
       mount ::API::Jobs
@@ -191,6 +197,7 @@ module API
       mount ::API::ConanPackages
       mount ::API::MavenPackages
       mount ::API::NpmPackages
+      mount ::API::GenericPackages
       mount ::API::GoProxy
       mount ::API::Pages
       mount ::API::PagesDomains

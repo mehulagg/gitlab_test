@@ -529,7 +529,7 @@ fewer than 3 nodes or consisting of `f1-micro`, `g1-small`, `n1-standard-1`, or
 
 NOTE: **Note:**
 The Elastic Stack cluster application is intended as a log aggregation solution and is not related to our
-[Advanced Global Search](../search/advanced_global_search.md) functionality, which uses a separate
+[Advanced Search](../search/advanced_global_search.md) functionality, which uses a separate
 Elasticsearch cluster.
 
 #### Optional: deploy Kibana to perform advanced queries
@@ -894,7 +894,7 @@ GitLab Runner is installed into the `gitlab-managed-apps` namespace of your clus
 
 In order for GitLab Runner to function, you **must** specify the following:
 
-- `gitlabUrl` - the GitLab server full URL (for example, `https://example.gitlab.com`) to register the Runner against.
+- `gitlabUrl` - the GitLab server full URL (for example, `https://gitlab.example.com`) to register the Runner against.
 - `runnerRegistrationToken` - The registration token for adding new Runners to GitLab. This must be
   [retrieved from your GitLab instance](../../ci/runners/README.md).
 
@@ -1189,7 +1189,7 @@ server:
       }
 ```
 
-Once you have successfully installed Vault, you will need to [initialize the Vault](https://learn.hashicorp.com/vault/getting-started/deploy#initializing-the-vault)
+Once you have successfully installed Vault, you will need to [initialize the Vault](https://learn.hashicorp.com/tutorials/vault/getting-started-deploy#initializing-the-vault)
 and obtain the initial root token. You will need access to your Kubernetes cluster that Vault has been deployed into in order to do this.
 To initialize the Vault, get a shell to one of the Vault pods running inside Kubernetes (typically this is done by using the `kubectl` command line tool).
 Once you have a shell into the pod, run the `vault operator init` command:
@@ -1421,7 +1421,7 @@ Refer to the [AppArmor chart](https://gitlab.com/gitlab-org/charts/apparmor) for
 
 After installing AppAmor, you can use profiles by adding Pod Annotations. If you're using Auto
 DevOps, you can [customize `auto-deploy-values.yaml`](../../topics/autodevops/customize.md#customize-values-for-helm-chart)
-to annotate your pods. Although it's helpful to be aware of the [list of custom attributes](https://gitlab.com/gitlab-org/charts/auto-deploy-app#gitlabs-auto-deploy-helm-chart), you're only required to set
+to annotate your pods. Although it's helpful to be aware of the [list of custom attributes](https://gitlab.com/gitlab-org/cluster-integration/auto-deploy-image/-/tree/master/assets/auto-deploy-app#gitlabs-auto-deploy-helm-chart), you're only required to set
 `podAnnotations` as follows:
 
 ```yaml

@@ -83,6 +83,7 @@ Settings.omniauth['external_providers'] = [] if Settings.omniauth['external_prov
 Settings.omniauth['block_auto_created_users'] = true if Settings.omniauth['block_auto_created_users'].nil?
 Settings.omniauth['auto_link_ldap_user'] = false if Settings.omniauth['auto_link_ldap_user'].nil?
 Settings.omniauth['auto_link_saml_user'] = false if Settings.omniauth['auto_link_saml_user'].nil?
+Settings.omniauth['auto_link_user'] = false if Settings.omniauth['auto_link_user'].nil?
 
 Settings.omniauth['sync_profile_from_provider'] = false if Settings.omniauth['sync_profile_from_provider'].nil?
 Settings.omniauth['sync_profile_attributes'] = ['email'] if Settings.omniauth['sync_profile_attributes'].nil?
@@ -575,6 +576,9 @@ Gitlab.ee do
   Settings.cron_jobs['elastic_cluster_reindexing_cron_worker'] ||= Settingslogic.new({})
   Settings.cron_jobs['elastic_cluster_reindexing_cron_worker']['cron'] ||= '*/10 * * * *'
   Settings.cron_jobs['elastic_cluster_reindexing_cron_worker']['job_class'] ||= 'ElasticClusterReindexingCronWorker'
+  Settings.cron_jobs['elastic_remove_expired_namespace_subscriptions_from_index_cron_worker'] ||= Settingslogic.new({})
+  Settings.cron_jobs['elastic_remove_expired_namespace_subscriptions_from_index_cron_worker']['cron'] ||= '10 3 * * *'
+  Settings.cron_jobs['elastic_remove_expired_namespace_subscriptions_from_index_cron_worker']['job_class'] ||= 'ElasticRemoveExpiredNamespaceSubscriptionsFromIndexCronWorker'
   Settings.cron_jobs['sync_seat_link_worker'] ||= Settingslogic.new({})
   Settings.cron_jobs['sync_seat_link_worker']['cron'] ||= "#{rand(60)} 0 * * *"
   Settings.cron_jobs['sync_seat_link_worker']['job_class'] = 'SyncSeatLinkWorker'
@@ -629,6 +633,12 @@ ObjectStoreSettings.new(Settings).parse!
 #
 Settings['workhorse'] ||= Settingslogic.new({})
 Settings.workhorse['secret_file'] ||= Rails.root.join('.gitlab_workhorse_secret')
+
+#
+# GitLab KAS
+#
+Settings['gitlab_kas'] ||= Settingslogic.new({})
+Settings.gitlab_kas['secret_file'] ||= Rails.root.join('.gitlab_kas_secret')
 
 #
 # Repositories

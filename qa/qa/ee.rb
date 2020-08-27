@@ -71,7 +71,7 @@ module QA
 
         module Settings
           autoload :Templates, 'qa/ee/page/admin/settings/templates'
-          autoload :Integration, 'qa/ee/page/admin/settings/integration'
+          autoload :Elasticsearch, 'qa/ee/page/admin/settings/elasticsearch'
           autoload :Preferences, 'qa/ee/page/admin/settings/preferences'
 
           module Component
@@ -99,6 +99,10 @@ module QA
         autoload :New, 'qa/ee/page/project/new'
         autoload :Show, 'qa/ee/page/project/show'
         autoload :Menu, 'qa/ee/page/project/menu'
+
+        module Artifact
+          autoload :Show, 'qa/ee/page/project/artifact/show'
+        end
 
         module SubMenus
           autoload :SecurityCompliance, 'qa/ee/page/project/sub_menus/security_compliance'

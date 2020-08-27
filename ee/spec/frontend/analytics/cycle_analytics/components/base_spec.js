@@ -7,8 +7,7 @@ import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import GroupsDropdownFilter from 'ee/analytics/shared/components/groups_dropdown_filter.vue';
 import ProjectsDropdownFilter from 'ee/analytics/shared/components/projects_dropdown_filter.vue';
-import RecentActivityCard from 'ee/analytics/cycle_analytics/components/recent_activity_card.vue';
-import TimeMetricsCard from 'ee/analytics/cycle_analytics/components/time_metrics_card.vue';
+import Metrics from 'ee/analytics/cycle_analytics/components/metrics.vue';
 import PathNavigation from 'ee/analytics/cycle_analytics/components/path_navigation.vue';
 import StageTable from 'ee/analytics/cycle_analytics/components/stage_table.vue';
 import StageTableNav from 'ee/analytics/cycle_analytics/components/stage_table_nav.vue';
@@ -20,13 +19,13 @@ import Daterange from 'ee/analytics/shared/components/daterange.vue';
 import TypeOfWorkCharts from 'ee/analytics/cycle_analytics/components/type_of_work_charts.vue';
 import ValueStreamSelect from 'ee/analytics/cycle_analytics/components/value_stream_select.vue';
 import waitForPromises from 'helpers/wait_for_promises';
+import { toYmd } from 'ee/analytics/shared/utils';
 import httpStatusCodes from '~/lib/utils/http_status';
+import UrlSync from '~/vue_shared/components/url_sync.vue';
 import * as commonUtils from '~/lib/utils/common_utils';
 import * as urlUtils from '~/lib/utils/url_utility';
-import { toYmd } from 'ee/analytics/shared/utils';
 import * as mockData from '../mock_data';
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
-import UrlSyncMixin from 'ee/analytics/shared/mixins/url_sync_mixin';
 
 const noDataSvgPath = 'path/to/no/data';
 const noAccessSvgPath = 'path/to/no/access';
@@ -38,7 +37,6 @@ const localVue = createLocalVue();
 localVue.use(Vuex);
 
 const defaultStubs = {
-  'recent-activity-card': true,
   'stage-event-list': true,
   'stage-nav-item': true,
   'tasks-by-type-chart': true,
@@ -46,6 +44,8 @@ const defaultStubs = {
   DurationChart: true,
   GroupsDropdownFilter: true,
   ValueStreamSelect: true,
+  Metrics: true,
+  UrlSync,
 };
 
 const defaultFeatureFlags = {
@@ -58,10 +58,6 @@ const defaultFeatureFlags = {
 const initialCycleAnalyticsState = {
   createdAfter: mockData.startDate,
   createdBefore: mockData.endDate,
-  selectedMilestone: null,
-  selectedAuthor: null,
-  selectedAssignees: [],
-  selectedLabels: [],
   group: selectedGroup,
 };
 
@@ -85,7 +81,6 @@ function createComponent({
   const comp = func(Component, {
     localVue,
     store,
-    mixins: [UrlSyncMixin],
     propsData: {
       emptyStateSvgPath,
       noDataSvgPath,
@@ -125,6 +120,14 @@ function createComponent({
   return comp;
 }
 
+async function shouldMergeUrlParams(wrapper, result) {
+  await wrapper.vm.$nextTick();
+  expect(urlUtils.mergeUrlParams).toHaveBeenCalledWith(result, window.location.href, {
+    spreadArrays: true,
+  });
+  expect(commonUtils.historyPushState).toHaveBeenCalled();
+}
+
 describe('Cycle Analytics component', () => {
   let wrapper;
   let mock;
@@ -135,13 +138,6 @@ describe('Cycle Analytics component', () => {
       .findAll(StageNavItem)
       .at(index);
 
-  const shouldSetUrlParams = result => {
-    return wrapper.vm.$nextTick().then(() => {
-      expect(urlUtils.setUrlParams).toHaveBeenCalledWith(result, window.location.href, true);
-      expect(commonUtils.historyPushState).toHaveBeenCalled();
-    });
-  };
-
   const displaysProjectsDropdownFilter = flag => {
     expect(wrapper.find(ProjectsDropdownFilter).exists()).toBe(flag);
   };
@@ -150,12 +146,8 @@ describe('Cycle Analytics component', () => {
     expect(wrapper.find(Daterange).exists()).toBe(flag);
   };
 
-  const displaysRecentActivityCard = flag => {
-    expect(wrapper.find(RecentActivityCard).exists()).toBe(flag);
-  };
-
-  const displaysTimeMetricsCard = flag => {
-    expect(wrapper.find(TimeMetricsCard).exists()).toBe(flag);
+  const displaysMetrics = flag => {
+    expect(wrapper.contains(Metrics)).toBe(flag);
   };
 
   const displaysStageTable = flag => {
@@ -225,12 +217,8 @@ describe('Cycle Analytics component', () => {
         displaysDateRangePicker(false);
       });
 
-      it('does not display the recent activity card', () => {
-        displaysRecentActivityCard(false);
-      });
-
-      it('does not display the time metrics card', () => {
-        displaysTimeMetricsCard(false);
+      it('does not display the metrics cards', () => {
+        displaysMetrics(false);
       });
 
       it('does not display the stage table', () => {
@@ -335,12 +323,8 @@ describe('Cycle Analytics component', () => {
           displaysDateRangePicker(true);
         });
 
-        it('displays the recent activity card', () => {
-          displaysRecentActivityCard(true);
-        });
-
-        it('displays the time metrics card', () => {
-          displaysTimeMetricsCard(true);
+        it('displays the metrics', () => {
+          displaysMetrics(true);
         });
 
         it('displays the stage table', () => {
@@ -473,12 +457,8 @@ describe('Cycle Analytics component', () => {
           displaysDateRangePicker(false);
         });
 
-        it('does not display the recent activity card', () => {
-          displaysRecentActivityCard(false);
-        });
-
-        it('does not display the time metrics card', () => {
-          displaysTimeMetricsCard(false);
+        it('does not display the metrics', () => {
+          displaysMetrics(false);
         });
 
         it('does not display the stage table', () => {
@@ -667,18 +647,14 @@ describe('Cycle Analytics component', () => {
       created_after: toYmd(mockData.startDate),
       created_before: toYmd(mockData.endDate),
       group_id: selectedGroup.fullPath,
-      'project_ids[]': [],
-      milestone_title: null,
-      author_username: null,
-      'assignee_username[]': [],
-      'label_name[]': [],
+      project_ids: null,
     };
 
     const selectedProjectIds = mockData.selectedProjects.map(({ id }) => id);
 
     beforeEach(() => {
       commonUtils.historyPushState = jest.fn();
-      urlUtils.setUrlParams = jest.fn();
+      urlUtils.mergeUrlParams = jest.fn();
 
       mock = new MockAdapter(axios);
       wrapper = createComponent();
@@ -687,13 +663,13 @@ describe('Cycle Analytics component', () => {
     });
 
     it('sets the created_after and created_before url parameters', () => {
-      return shouldSetUrlParams(defaultParams);
+      return shouldMergeUrlParams(wrapper, defaultParams);
     });
 
     describe('with hideGroupDropDown=true', () => {
       beforeEach(() => {
         commonUtils.historyPushState = jest.fn();
-        urlUtils.setUrlParams = jest.fn();
+        urlUtils.mergeUrlParams = jest.fn();
 
         mock = new MockAdapter(axios);
 
@@ -710,7 +686,7 @@ describe('Cycle Analytics component', () => {
       });
 
       it('sets the group_id url parameter', () => {
-        return shouldSetUrlParams({
+        return shouldMergeUrlParams(wrapper, {
           ...defaultParams,
           created_after: toYmd(mockData.startDate),
           created_before: toYmd(mockData.endDate),
@@ -727,7 +703,7 @@ describe('Cycle Analytics component', () => {
       });
 
       it('sets the group_id url parameter', () => {
-        return shouldSetUrlParams({
+        return shouldMergeUrlParams(wrapper, {
           ...defaultParams,
           group_id: fakeGroup.fullPath,
         });
@@ -745,35 +721,12 @@ describe('Cycle Analytics component', () => {
       });
 
       it('sets the project_ids url parameter', () => {
-        return shouldSetUrlParams({
+        return shouldMergeUrlParams(wrapper, {
           ...defaultParams,
           created_after: toYmd(mockData.startDate),
           created_before: toYmd(mockData.endDate),
           group_id: selectedGroup.fullPath,
-          'project_ids[]': selectedProjectIds,
-        });
-      });
-    });
-
-    describe.each`
-      stateKey               | payload                          | paramKey
-      ${'selectedMilestone'} | ${'12.0'}                        | ${'milestone_title'}
-      ${'selectedAuthor'}    | ${'rootUser'}                    | ${'author_username'}
-      ${'selectedAssignees'} | ${['rootUser', 'secondaryUser']} | ${'assignee_username[]'}
-      ${'selectedLabels'}    | ${['Afternix', 'Brouceforge']}   | ${'label_name[]'}
-    `('with a $stateKey updates the $paramKey url parameter', ({ stateKey, payload, paramKey }) => {
-      beforeEach(() => {
-        wrapper.vm.$store.dispatch('filters/setFilters', {
-          ...initialCycleAnalyticsState,
-          group: selectedGroup,
-          selectedProjects: mockData.selectedProjects,
-          [stateKey]: payload,
-        });
-      });
-      it(`sets the ${paramKey} url parameter`, () => {
-        return shouldSetUrlParams({
-          ...defaultParams,
-          [paramKey]: payload,
+          project_ids: selectedProjectIds,
         });
       });
     });

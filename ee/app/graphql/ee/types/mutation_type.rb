@@ -6,6 +6,8 @@ module EE
       extend ActiveSupport::Concern
 
       prepended do
+        mount_mutation ::Mutations::Clusters::Agents::Create
+        mount_mutation ::Mutations::Clusters::Agents::Delete
         mount_mutation ::Mutations::Issues::SetIteration
         mount_mutation ::Mutations::Issues::SetWeight
         mount_mutation ::Mutations::Issues::SetEpic

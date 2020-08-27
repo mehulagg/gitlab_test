@@ -17,6 +17,13 @@ module Gitlab
         @egress = egress
       end
 
+      def generate
+        ::Kubeclient::Resource.new.tap do |resource|
+          resource.metadata = metadata
+          resource.spec = spec
+        end
+      end
+
       def self.from_yaml(manifest)
         return unless manifest
 

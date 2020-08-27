@@ -1,9 +1,10 @@
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex';
-import { GlLoadingIcon, GlButtonGroup, GlButton } from '@gitlab/ui';
+import { GlLoadingIcon, GlButton, GlAlert, GlPagination, GlSprintf } from '@gitlab/ui';
 import Mousetrap from 'mousetrap';
 import { __ } from '~/locale';
-import createFlash from '~/flash';
+import { getParameterByName, parseBoolean } from '~/lib/utils/common_utils';
+import { deprecatedCreateFlash as createFlash } from '~/flash';
 import PanelResizer from '~/vue_shared/components/panel_resizer.vue';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { isSingleViewStyle } from '~/helpers/diffs_helper';
@@ -36,8 +37,10 @@ export default {
     TreeList,
     GlLoadingIcon,
     PanelResizer,
-    GlButtonGroup,
+    GlPagination,
     GlButton,
+    GlAlert,
+    GlSprintf,
   },
   mixins: [glFeatureFlagsMixin()],
   props: {
@@ -133,6 +136,9 @@ export default {
       'startVersion',
       'currentDiffFileId',
       'isTreeLoaded',
+      'conflictResolutionPath',
+      'canMerge',
+      'hasConflicts',
     ]),
     ...mapGetters('diffs', ['isParallelView', 'currentDiffIndex']),
     ...mapGetters(['isNotesFetched', 'getNoteableData']),
@@ -161,6 +167,25 @@ export default {
     isLimitedContainer() {
       return !this.showTreeList && !this.isParallelView && !this.isFluidLayout;
     },
+    isDiffHead() {
+      return parseBoolean(getParameterByName('diff_head'));
+    },
+    showFileByFileNavigation() {
+      return this.diffFiles.length > 1 && this.viewDiffsFileByFile;
+    },
+    currentFileNumber() {
+      return this.currentDiffIndex + 1;
+    },
+    previousFileNumber() {
+      const { currentDiffIndex } = this;
+
+      return currentDiffIndex >= 1 ? currentDiffIndex : null;
+    },
+    nextFileNumber() {
+      const { currentFileNumber, diffFiles } = this;
+
+      return currentFileNumber < diffFiles.length ? currentFileNumber + 1 : null;
+    },
   },
   watch: {
     commit(newCommit, oldCommit) {
@@ -178,7 +203,7 @@ export default {
       }
     },
     diffViewType() {
-      if (this.needsReload() || this.needsFirstLoad()) {
+      if (!this.glFeatures.unifiedDiffLines && (this.needsReload() || this.needsFirstLoad())) {
         this.refetchDiffData();
       }
       this.adjustView();
@@ -266,6 +291,9 @@ export default {
       'toggleShowTreeList',
       'navigateToDiffFileIndex',
     ]),
+    navigateToDiffFileNumber(number) {
+      this.navigateToDiffFileIndex(number - 1);
+    },
     refetchDiffData() {
       this.fetchData(false);
     },
@@ -423,6 +451,49 @@ export default {
       />
 
       <div
+        v-if="isDiffHead && hasConflicts"
+        :class="{
+          [CENTERED_LIMITED_CONTAINER_CLASSES]: isLimitedContainer,
+        }"
+      >
+        <gl-alert
+          :dismissible="false"
+          :title="__('There are merge conflicts')"
+          variant="warning"
+          class="w-100 mb-3"
+        >
+          <p class="mb-1">
+            {{ __('The comparison view may be inaccurate due to merge conflicts.') }}
+          </p>
+          <p class="mb-0">
+            {{
+              __(
+                'Resolve these conflicts or ask someone with write access to this repository to merge it locally.',
+              )
+            }}
+          </p>
+          <template #actions>
+            <gl-button
+              v-if="conflictResolutionPath"
+              :href="conflictResolutionPath"
+              variant="info"
+              class="mr-3 gl-alert-action"
+            >
+              {{ __('Resolve conflicts') }}
+            </gl-button>
+            <gl-button
+              v-if="canMerge"
+              class="gl-alert-action"
+              data-toggle="modal"
+              data-target="#modal_merge_info"
+            >
+              {{ __('Merge locally') }}
+            </gl-button>
+          </template>
+        </gl-alert>
+      </div>
+
+      <div
         :data-can-create-note="getNoteableData.current_user.can_create_note"
         class="files d-flex"
       >
@@ -458,23 +529,22 @@ export default {
               :can-current-user-fork="canCurrentUserFork"
               :view-diffs-file-by-file="viewDiffsFileByFile"
             />
-            <div v-if="viewDiffsFileByFile" class="d-flex gl-justify-content-center">
-              <gl-button-group>
-                <gl-button
-                  :disabled="currentDiffIndex === 0"
-                  data-testid="singleFilePrevious"
-                  @click="navigateToDiffFileIndex(currentDiffIndex - 1)"
-                >
-                  {{ __('Prev') }}
-                </gl-button>
-                <gl-button
-                  :disabled="currentDiffIndex === diffFiles.length - 1"
-                  data-testid="singleFileNext"
-                  @click="navigateToDiffFileIndex(currentDiffIndex + 1)"
-                >
-                  {{ __('Next') }}
-                </gl-button>
-              </gl-button-group>
+            <div
+              v-if="showFileByFileNavigation"
+              data-testid="file-by-file-navigation"
+              class="gl-display-grid gl-text-center"
+            >
+              <gl-pagination
+                class="gl-mx-auto"
+                :value="currentFileNumber"
+                :prev-page="previousFileNumber"
+                :next-page="nextFileNumber"
+                @input="navigateToDiffFileNumber"
+              />
+              <gl-sprintf :message="__('File %{current} of %{total}')">
+                <template #current>{{ currentFileNumber }}</template>
+                <template #total>{{ diffFiles.length }}</template>
+              </gl-sprintf>
             </div>
           </template>
           <no-changes v-else :changes-empty-state-illustration="changesEmptyStateIllustration" />
