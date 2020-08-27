@@ -28,13 +28,11 @@ describe('IssuableForm', () => {
       ${'  [DRaft] '}
       ${'drAft:'}
       ${'[draFT]'}
-      ${'draft -'}
       ${' dRaFt - '}
       ${'dRaFt -      '}
       ${'(draft) '}
-      ${'(draft) '}
       ${' (DrafT)'}
-      ${'wip: [wip] draft draft - draft: [draft] (draft)'}
+      ${'wip: [wip] draft - draft: [draft] (draft)'}
     `('removes "$prefix" from the beginning of the title', ({ prefix }) => {
       instance.titleField.val(`${prefix}The Issuable's Title Value`);
 

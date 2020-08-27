@@ -1110,9 +1110,8 @@ RSpec.describe MergeRequest do
     subject { build_stubbed(:merge_request) }
 
     [
-      'WIP:', 'WIP: ', '[WIP]', '[WIP] ', '[WIP] WIP: [WIP] WIP:',
-      'draft:', 'Draft: ', '[Draft]', '[DRAFT] ', 'Draft - ', 'Draft -',
-      '(draft)', '(Draft) '
+      'WIP:', 'WIP: ', '[WIP]', '[WIP] ', ' [WIP] WIP: [WIP] WIP:',
+      'draft:', 'Draft: ', '[Draft]', '[DRAFT] ', 'Draft - '
     ].each do |wip_prefix|
       it "detects the '#{wip_prefix}' prefix" do
         subject.title = "#{wip_prefix}#{subject.title}"
@@ -1145,12 +1144,6 @@ RSpec.describe MergeRequest do
       expect(subject.work_in_progress?).to eq false
     end
 
-    it 'does not detect Draft at the end of the title' do
-      subject.title = 'Add important detail to project charter draft'
-
-      expect(subject.work_in_progress?).to eq false
-    end
-
     it "doesn't detect WIP for words starting with WIP" do
       subject.title = "Wipwap #{subject.title}"
       expect(subject.work_in_progress?).to eq false
@@ -1170,9 +1163,8 @@ RSpec.describe MergeRequest do
     subject { build_stubbed(:merge_request) }
 
     [
-      'WIP:', 'WIP: ', '[WIP]', '[WIP] ', '[WIP] WIP: [WIP] WIP:',
-      'draft:', 'Draft: ', '[Draft]', '[DRAFT] ', 'Draft - ', 'Draft -',
-      '(draft)', '(Draft) '
+      'WIP:', 'WIP: ', '[WIP]', '[WIP] ',
+      'draft:', 'Draft: ', '[Draft]', '[DRAFT] ', 'Draft - '
     ].each do |wip_prefix|
       it "removes the '#{wip_prefix}' prefix" do
         wipless_title = subject.title
@@ -1181,7 +1173,7 @@ RSpec.describe MergeRequest do
         expect(subject.wipless_title).to eq wipless_title
       end
 
-      it "is satisfies the #work_in_progress? method" do
+      it "satisfies the #work_in_progress? method" do
         subject.title = "#{wip_prefix}#{subject.title}"
         subject.title = subject.wipless_title
 
@@ -1205,7 +1197,7 @@ RSpec.describe MergeRequest do
       expect(subject.wip_title).to eq wip_title
     end
 
-    it "is satisfies the #work_in_progress? method" do
+    it "satisfies the #work_in_progress? method" do
       subject.title = subject.wip_title
 
       expect(subject.work_in_progress?).to eq true

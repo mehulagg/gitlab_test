@@ -686,13 +686,13 @@ eos
       end
     end
 
-    it "does not detect WIP for a commit just saying 'wip'" do
+    it "doesn't detect WIP for a commit just saying 'wip'" do
       commit.message = "wip"
 
       expect(commit).not_to be_work_in_progress
     end
 
-    it "does not detect WIP for a commit just saying 'draft'" do
+    it "doesn't detect WIP for a commit just saying 'draft'" do
       commit.message = "draft"
 
       expect(commit).not_to be_work_in_progress
