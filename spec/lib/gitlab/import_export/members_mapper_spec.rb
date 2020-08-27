@@ -5,8 +5,8 @@ require 'spec_helper'
 RSpec.describe Gitlab::ImportExport::MembersMapper do
   describe 'map members' do
     shared_examples 'imports exported members' do
-      let(:user) { create(:admin) }
-      let(:user2) { create(:user) }
+      let(:importer_user) { create(:admin) }
+      let(:mapped_user) { create(:user) }
       let(:exported_user_id) { 99 }
       let(:exported_members) do
         [{
@@ -24,7 +24,7 @@ RSpec.describe Gitlab::ImportExport::MembersMapper do
            "user" =>
              {
                "id" => exported_user_id,
-               "email" => user2.email,
+               "email" => mapped_user.email,
                "username" => 'test'
              },
            "user_id" => 19
@@ -47,7 +47,7 @@ RSpec.describe Gitlab::ImportExport::MembersMapper do
 
       let(:members_mapper) do
         described_class.new(
-          exported_members: exported_members, user: user, importable: importable)
+          exported_members: exported_members, user: importer_user, importable: importable)
       end
 
       it 'includes the exported user ID in the map' do
@@ -55,11 +55,11 @@ RSpec.describe Gitlab::ImportExport::MembersMapper do
       end
 
       it 'maps a member' do
-        expect(members_mapper.map[exported_user_id]).to eq(user2.id)
+        expect(members_mapper.map[exported_user_id]).to eq(mapped_user.id)
       end
 
       it 'defaults to importer member if it does not exist' do
-        expect(members_mapper.map[-1]).to eq(user.id)
+        expect(members_mapper.map[-1]).to eq(importer_user.id)
       end
 
       it 'has invited members with no user' do
@@ -98,7 +98,7 @@ RSpec.describe Gitlab::ImportExport::MembersMapper do
             }
           end
 
-          expect(logger).to receive(:info).with(hash_including(expected_log_params.call(user2.id))).once
+          expect(logger).to receive(:info).with(hash_including(expected_log_params.call(mapped_user.id))).once
           expect(logger).to receive(:info).with(hash_including(expected_log_params.call(nil))).once
 
           members_mapper.map
@@ -122,7 +122,7 @@ RSpec.describe Gitlab::ImportExport::MembersMapper do
                 "user" =>
                   {
                     "id" => exported_user_id,
-                    "email" => user2.email,
+                    "email" => mapped_user.email,
                     "username" => 'test'
                   },
                 "user_id" => 19
@@ -138,23 +138,9 @@ RSpec.describe Gitlab::ImportExport::MembersMapper do
         end
       end
 
-      context 'user is not an admin' do
-        let(:user) { create(:user) }
-
-        it 'does not map a member' do
-          expect(members_mapper.map[exported_user_id]).to eq(user.id)
-        end
-
-        it 'defaults to importer member if it does not exist' do
-          expect(members_mapper.map[-1]).to eq(user.id)
-        end
-      end
-
       context 'chooses the one with an email' do
-        let(:user3) { create(:user, username: 'test') }
-
         it 'maps the member that has a matching email' do
-          expect(members_mapper.map[exported_user_id]).to eq(user2.id)
+          expect(members_mapper.map[exported_user_id]).to eq(mapped_user.id)
         end
       end
     end
@@ -168,60 +154,53 @@ RSpec.describe Gitlab::ImportExport::MembersMapper do
         it 'authorizes the users to the project' do
           members_mapper.map
 
-          expect(user.authorized_project?(importable)).to be true
-          expect(user2.authorized_project?(importable)).to be true
+          expect(importer_user.authorized_project?(importable)).to be true
+          expect(mapped_user.authorized_project?(importable)).to be true
         end
 
         it 'maps an owner as a maintainer' do
           exported_members.first['access_level'] = ProjectMember::OWNER
 
-          expect(members_mapper.map[exported_user_id]).to eq(user2.id)
-          expect(member_class.find_by_user_id(user2.id).access_level).to eq(ProjectMember::MAINTAINER)
+          expect(members_mapper.map[exported_user_id]).to eq(mapped_user.id)
+          expect(member_class.find_by_user_id(mapped_user.id).access_level).to eq(ProjectMember::MAINTAINER)
         end
 
         context 'importer same as group member' do
-          let(:user2) { create(:admin) }
+          let(:importer_user) { mapped_user }
           let(:group) { create(:group) }
           let(:importable) { create(:project, :public, name: 'searchable_project', namespace: group) }
-          let(:members_mapper) do
-            described_class.new(
-              exported_members: exported_members, user: user2, importable: importable)
-          end
 
           before do
-            group.add_users([user, user2], GroupMember::DEVELOPER)
+            group.add_users([importer_user, mapped_user], GroupMember::DEVELOPER)
           end
 
           it 'maps the project member' do
-            expect(members_mapper.map[exported_user_id]).to eq(user2.id)
+            expect(members_mapper.map[exported_user_id]).to eq(mapped_user.id)
           end
 
           it 'maps the project member if it already exists' do
-            importable.add_maintainer(user2)
+            importable.add_maintainer(mapped_user)
 
-            expect(members_mapper.map[exported_user_id]).to eq(user2.id)
+            expect(members_mapper).to include exported_user_id
+            expect(members_mapper.map[exported_user_id]).to eq(mapped_user.id)
           end
         end
 
         context 'importing group members' do
           let(:group) { create(:group) }
           let(:importable) { create(:project, namespace: group) }
-          let(:members_mapper) do
-            described_class.new(
-              exported_members: exported_members, user: user, importable: importable)
-          end
 
           before do
-            group.add_users([user, user2], GroupMember::DEVELOPER)
-            user.update(email: 'invite@test.com')
+            group.add_users([importer_user, mapped_user], GroupMember::DEVELOPER)
+            importer_user.update(email: 'invite@test.com')
           end
 
           it 'maps the importer' do
-            expect(members_mapper.map[-1]).to eq(user.id)
+            expect(members_mapper.map[-1]).to eq(importer_user.id)
           end
 
           it 'maps the group member' do
-            expect(members_mapper.map[exported_user_id]).to eq(user2.id)
+            expect(members_mapper.map[exported_user_id]).to eq(mapped_user.id)
           end
         end
 
@@ -246,8 +225,8 @@ RSpec.describe Gitlab::ImportExport::MembersMapper do
         it 'does not lower owner access level' do
           exported_members.first['access_level'] = member_class::OWNER
 
-          expect(members_mapper.map[exported_user_id]).to eq(user2.id)
-          expect(member_class.find_by_user_id(user2.id).access_level).to eq(member_class::OWNER)
+          expect(members_mapper.map[exported_user_id]).to eq(mapped_user.id)
+          expect(member_class.find_by_user_id(mapped_user.id).access_level).to eq(member_class::OWNER)
         end
       end
     end

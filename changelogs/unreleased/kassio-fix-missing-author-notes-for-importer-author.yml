@@ -1,0 +1,5 @@
+---
+title: Fix missing author on Gitlab Import
+merge_request: 40591
+author:
+type: fixed
