@@ -20062,7 +20062,7 @@ CREATE INDEX index_merge_request_metrics_on_target_project_id ON public.merge_re
 
 CREATE INDEX index_merge_request_metrics_on_target_project_id_merged_at ON public.merge_request_metrics USING btree (target_project_id, merged_at);
 
-CREATE INDEX index_merge_request_reviewers_on_merge_request_id ON public.merge_request_reviewers USING btree (merge_request_id);
+CREATE UNIQUE INDEX index_merge_request_reviewers_on_merge_request_id_and_user_id ON public.merge_request_reviewers USING btree (merge_request_id, user_id);
 
 CREATE INDEX index_merge_request_reviewers_on_user_id ON public.merge_request_reviewers USING btree (user_id);
 
