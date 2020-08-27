@@ -1,11 +1,12 @@
 <script>
-import { GlTooltipDirective, GlIcon } from '@gitlab/ui';
+import { GlButton, GlTooltipDirective, GlIcon } from '@gitlab/ui';
 import discussionNavigation from '../mixins/discussion_navigation';
 
 export default {
   name: 'JumpToNextDiscussionButton',
   components: {
     GlIcon,
+    GlButton,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -22,8 +23,8 @@ export default {
 
 <template>
   <div class="btn-group" role="group">
-    <button
-      ref="button"
+    <gl-button
+      ref="gl-button"
       v-gl-tooltip
       class="btn btn-default discussion-next-btn"
       :title="s__('MergeRequests|Jump to next unresolved thread')"
