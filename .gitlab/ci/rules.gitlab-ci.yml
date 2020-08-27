@@ -642,7 +642,7 @@
       allow_failure: true
     - <<: *if-dot-com-gitlab-org-merge-request
       changes: *code-qa-patterns
-      when: manual
+      when: always #ng-changed
       allow_failure: true
 
 .reports:schedule-dast:
