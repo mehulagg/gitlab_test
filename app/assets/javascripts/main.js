@@ -39,6 +39,7 @@ import initBroadcastNotifications from './broadcast_notification';
 import initPersistentUserCallouts from './persistent_user_callouts';
 import { initUserTracking } from './tracking';
 import { __ } from './locale';
+import StartupCSS from './lib/startupcss';
 
 import 'ee_else_ce/main_ee';
 
@@ -52,7 +53,7 @@ window.$ = jQuery;
 jQuery.ajaxSetup({
   converters: {
     // eslint-disable-next-line @gitlab/require-i18n-strings, func-names
-    'text script': function(text) {
+    'text script': function (text) {
       jQuery.globalEval(text, { nonce: getCspNonceValue() });
       return text;
     },
@@ -97,6 +98,10 @@ gl.lazyLoader = new LazyLoader({
   scrollContainer: window,
   observerNode: '#content-body',
 });
+
+if (gl.startupcssEnabled) {
+  gl.startupcss = new StartupCSS();
+}
 
 // Put all initialisations here that can also wait after everything is rendered and ready
 function deferredInitialisation() {

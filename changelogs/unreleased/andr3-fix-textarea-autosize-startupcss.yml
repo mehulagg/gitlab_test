@@ -1,0 +1,5 @@
+---
+title: Fixes a bug with setting up autosizing textareas under StartupCSS mode
+merge_request: 40625
+author:
+type: fixed

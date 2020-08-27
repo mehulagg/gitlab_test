@@ -2,6 +2,8 @@
 
 = javascript_tag nonce: true do
   :plain
+    gl = window.gl || {}; gl.startupcssEnabled = true;
     document.querySelectorAll('link[media="print"]').forEach(linkTag => {
-      linkTag.addEventListener('load', function() {this.media='all'}, {once: true});
+      linkTag.setAttribute('data-startupcss', 'loading');
+      linkTag.addEventListener('load', function() {this.media='all'; this.setAttribute('data-startupcss', 'loaded'); setTimeout(function() {document.dispatchEvent(new CustomEvent('startupcss-stylesheet-activated', {detail:{startupcssHref: this.href}}))}.bind(this), 0);}, {once: true});
     })
