@@ -171,6 +171,7 @@ review-qa-all:
 
 review-performance:
   extends:
+    - .dast:rules:skip_me
     - .default-retry
     - .review:rules:mr-and-schedule-auto-if-frontend-manual-otherwise
   image:

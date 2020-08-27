@@ -671,8 +671,6 @@
 
 .review:rules:mr-and-schedule-auto-if-frontend-manual-otherwise:
   rules:
-    - if: '$DAST_RUN == "true"' # Skip this job when DAST is run
-      when: never
     - <<: *if-not-ee
       when: never
     - <<: *if-dot-com-gitlab-org-merge-request
@@ -800,3 +798,8 @@
   rules:
     - <<: *if-default-refs
       changes: *yaml-patterns
+
+.dast:rules:skip_me:
+  rules:
+    - if: '$DAST_RUN == "true"' # Skip this job when DAST is run
+      when: never
