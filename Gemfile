@@ -222,6 +222,9 @@ gem 'js_regex', '~> 3.4'
 # User agent parsing
 gem 'device_detector'
 
+# Cookie handling
+gem 'rails_same_site_cookie', '~> 0.1'
+
 # Redis
 gem 'redis', '~> 4.0'
 gem 'connection_pool', '~> 2.0'
