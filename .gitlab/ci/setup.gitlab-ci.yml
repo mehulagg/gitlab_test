@@ -59,3 +59,20 @@ verify-tests-yml:
     - source scripts/utils.sh
     - install_tff_gem
     - scripts/verify-tff-mapping
+
+detect-tests as-if-foss:
+  extends:
+    - .rails:rules:ee-mr-only
+    - .as-if-foss
+  image: ruby:2.6-alpine
+  stage: setup
+  needs: []
+  script:
+    - source scripts/utils.sh
+    - install_gitlab_gem
+    - install_tff_gem
+    - tooling/bin/find_foss_tests tmp/matching_foss_tests.txt
+  artifacts:
+    expire_in: 7d
+    paths:
+      - tmp/matching_foss_tests.txt
