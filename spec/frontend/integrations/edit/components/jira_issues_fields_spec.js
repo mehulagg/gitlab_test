@@ -27,7 +27,7 @@ describe('JiraIssuesFields', () => {
 
   const findEnableCheckbox = () => wrapper.find(GlFormCheckbox);
   const findProjectKey = () => wrapper.find(GlFormInput);
-  const expectedBannerText = 'This is a Premium feature';
+  const expectedBannerText = 'This feature is part of our Standard plan';
 
   describe('template', () => {
     describe('upgrade banner for non-Premium user', () => {

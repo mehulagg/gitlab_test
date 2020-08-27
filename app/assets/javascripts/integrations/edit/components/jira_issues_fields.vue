@@ -102,7 +102,7 @@ export default {
           </gl-form-checkbox>
         </template>
         <gl-card v-else class="gl-mt-7">
-          <strong>{{ __('This is a Premium feature') }}</strong>
+          <strong>{{ __('This feature is part of our Standard plan') }}</strong>
           <p>{{ __('Upgrade your plan to enable this feature of the Jira Integration.') }}</p>
           <gl-button
             v-if="upgradePlanPath"
