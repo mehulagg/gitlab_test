@@ -20,9 +20,9 @@ module Gitlab
 
     def activity_dates
       strong_memoize(:activity_dates) do
-        counts = activity_dates_query.map { |count| { count.date => count.total_amount } }
-
-        {}.merge(*counts) { |_, a, b| a + b }
+        activity_dates_query.group('date') # rubocop: disable CodeReuse/ActiveRecord
+          .select('date as key, sum(total_amount)::int as value')
+          .to_h { |record| [record.key, record.value] }
       end
     end
 
