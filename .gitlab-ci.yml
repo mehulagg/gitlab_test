@@ -63,7 +63,8 @@ variables:
   ES_JAVA_OPTS: "-Xms256m -Xmx256m"
   ELASTIC_URL: "http://elastic:changeme@elasticsearch:9200"
   DOCKER_VERSION: "19.03.0"
-  RUBYOPT: "--jit"
+  # Getting a pristine pipeline
+  # RUBYOPT: "--jit --jit-max-cache=100 --jit-min-calls=10000"
 
   # Preparing custom clone path to reduce space used by all random forks
   # on GitLab.com's Shared Runners. Our main forks - especially the security
