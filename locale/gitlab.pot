@@ -13783,7 +13783,7 @@ msgstr ""
 msgid "JiraService|Password or API token"
 msgstr ""
 
-msgid "JiraService|This feature requires a Premium plan."
+msgid "JiraService|This feature requires a Standard plan."
 msgstr ""
 
 msgid "JiraService|Transition ID(s)"
@@ -25160,6 +25160,9 @@ msgstr ""
 msgid "This epic does not exist or you don't have sufficient permission."
 msgstr ""
 
+msgid "This feature is part of our Standard plan"
+msgstr ""
+
 msgid "This feature requires local storage to be enabled"
 msgstr ""
 
@@ -25191,9 +25194,6 @@ msgid "This group, its subgroups and projects will be removed on %{date} since i
 msgstr ""
 
 msgid "This is a \"Ghost User\", created to hold all issues authored by users that have since been deleted. This user cannot be removed."
-msgstr ""
-
-msgid "This is a Premium feature"
 msgstr ""
 
 msgid "This is a confidential %{noteableTypeText}."
