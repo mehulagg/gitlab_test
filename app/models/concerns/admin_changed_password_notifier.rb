@@ -8,7 +8,8 @@ module AdminChangedPasswordNotifier
   # These emails are disabled by default and are never trigerred after updating the password, unless
   # explicitly specified.
 
-  # To explicitly trigger this email, the `send_only_admin_changed_your_password_notification!` should be called:
+  # To explicitly trigger this email, the `send_only_admin_changed_your_password_notification!`
+  # method should be called, so like:
 
   # user = User.find_by(email: 'hello@example.com')
   # user.send_only_admin_changed_your_password_notification!
@@ -24,7 +25,7 @@ module AdminChangedPasswordNotifier
   # hence the only public API made available from this module is `send_only_admin_changed_your_password_notification!`
 
   # There is no public API made available to send the `Password changed by administrator` email,
-  # *without* skipping the default `Password changed` email, to prevent this problem.
+  # *without* skipping the default `Password changed` email, to prevent the problem mentioned above.
 
   extend ActiveSupport::Concern
 

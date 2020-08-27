@@ -307,7 +307,7 @@ RSpec.describe Admin::UsersController do
 
           it 'does not set the new password to expire immediately' do
             expect { update_password(admin, 'AValidPassword1') }
-              .not_to change { admin.reload.password_expires_at }
+              .not_to change { admin.reload.password_expired? }
           end
 
           it 'does not enqueue the `admin changed your password` email' do
@@ -337,7 +337,7 @@ RSpec.describe Admin::UsersController do
 
           it 'sets the new password to expire immediately' do
             expect { update_password(user, 'AValidPassword1') }
-              .to change { user.reload.password_expires_at }.to be_within(2.seconds).of(Time.current)
+              .to change { user.reload.password_expired? }.from(false).to(true)
           end
 
           it 'enqueues the `admin changed your password` email' do

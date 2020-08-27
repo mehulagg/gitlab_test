@@ -924,7 +924,7 @@ RSpec.describe API::Users, :do_not_mock_admin_mode do
           update_password(admin, admin)
 
           expect(response).to have_gitlab_http_status(:ok)
-          expect(user.reload.password_expires_at).to be_nil
+          expect(user.reload.password_expired?).to eq(false)
         end
 
         it 'does not enqueue the `admin changed your password` email' do
@@ -943,7 +943,7 @@ RSpec.describe API::Users, :do_not_mock_admin_mode do
           update_password(user, admin)
 
           expect(response).to have_gitlab_http_status(:ok)
-          expect(user.reload.password_expires_at).to be <= Time.now
+          expect(user.reload.password_expired?).to eq(true)
         end
 
         it 'enqueues the `admin changed your password` email' do
