@@ -48,7 +48,7 @@ class IssuableBaseService < BaseService
 
     assignee_ids = params[:assignee_ids].select { |assignee_id| assignee_can_read?(issuable, assignee_id) }
 
-    if params[:assignee_ids].map(&:to_s) == [IssuableFinder::Params::NONE]
+    if params[:assignee_ids].map(&:to_s) == [IssuableFinderParams::NONE]
       params[:assignee_ids] = []
     elsif assignee_ids.any?
       params[:assignee_ids] = assignee_ids
@@ -72,7 +72,7 @@ class IssuableBaseService < BaseService
     milestone_id = params[:milestone_id]
     return unless milestone_id
 
-    params[:milestone_id] = '' if milestone_id == IssuableFinder::Params::NONE
+    params[:milestone_id] = '' if milestone_id == IssuableFinderParams::NONE
     groups = project.group&.self_and_ancestors&.select(:id)
 
     milestone =

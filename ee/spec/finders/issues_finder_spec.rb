@@ -87,7 +87,7 @@ RSpec.describe IssuesFinder do
         let_it_be(:issue_subepic) { create(:issue, project: project1, epic: sub_epic) }
 
         context 'filter issues with no epic' do
-          let(:params) { { epic_id: ::IssuableFinder::Params::FILTER_NONE } }
+          let(:params) { { epic_id: ::IssuableFinderParams::FILTER_NONE } }
 
           it 'returns filtered issues' do
             expect(issues).to contain_exactly(issue1, issue2, issue3, issue4)
@@ -115,7 +115,7 @@ RSpec.describe IssuesFinder do
         end
 
         context 'filter issues with any epic' do
-          let(:params) { { epic_id: ::IssuableFinder::Params::FILTER_ANY } }
+          let(:params) { { epic_id: ::IssuableFinderParams::FILTER_ANY } }
 
           it 'returns filtered issues' do
             expect(issues).to contain_exactly(issue_1, issue_2, issue_subepic)
@@ -131,7 +131,7 @@ RSpec.describe IssuesFinder do
         let_it_be(:iteration_2_issue) { create(:issue, project: project1, iteration: iteration_2) }
 
         context 'filter issues with no iteration' do
-          let(:params) { { iteration_id: ::IssuableFinder::Params::FILTER_NONE } }
+          let(:params) { { iteration_id: ::IssuableFinderParams::FILTER_NONE } }
 
           it 'returns all issues without iterations' do
             expect(issues).to contain_exactly(issue1, issue2, issue3, issue4)
@@ -139,7 +139,7 @@ RSpec.describe IssuesFinder do
         end
 
         context 'filter issues with any iteration' do
-          let(:params) { { iteration_id: ::IssuableFinder::Params::FILTER_ANY } }
+          let(:params) { { iteration_id: ::IssuableFinderParams::FILTER_ANY } }
 
           it 'returns filtered issues' do
             expect(issues).to contain_exactly(iteration_1_issue, iteration_2_issue)

@@ -174,9 +174,9 @@ RSpec.describe Issuable::BulkUpdateService do
         end
       end
 
-      context "when the new assignee ID is #{IssuableFinder::Params::NONE}" do
+      context "when the new assignee ID is #{IssuableFinderParams::NONE}" do
         it 'unassigns the issues' do
-          expect { bulk_update(merge_request, assignee_ids: [IssuableFinder::Params::NONE]) }
+          expect { bulk_update(merge_request, assignee_ids: [IssuableFinderParams::NONE]) }
             .to change { merge_request.reload.assignee_ids }.to([])
         end
       end
@@ -211,9 +211,9 @@ RSpec.describe Issuable::BulkUpdateService do
         end
       end
 
-      context "when the new assignee ID is #{IssuableFinder::Params::NONE}" do
+      context "when the new assignee ID is #{IssuableFinderParams::NONE}" do
         it "unassigns the issues" do
-          expect { bulk_update(issue, assignee_ids: [IssuableFinder::Params::NONE.to_s]) }
+          expect { bulk_update(issue, assignee_ids: [IssuableFinderParams::NONE.to_s]) }
             .to change { issue.reload.assignees.count }.from(1).to(0)
         end
       end

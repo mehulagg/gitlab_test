@@ -87,7 +87,7 @@ class IssuableFinder
   end
 
   def params_class
-    IssuableFinder::Params
+    ::IssuableFinderParams
   end
 
   def initialize(current_user, params = {})

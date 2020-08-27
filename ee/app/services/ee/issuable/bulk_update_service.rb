@@ -32,7 +32,7 @@ module EE
       def set_health_status
         return unless params[:health_status].present?
 
-        params[:health_status] = nil if params[:health_status] == IssuableFinder::Params::NONE.to_s
+        params[:health_status] = nil if params[:health_status] == IssuableFinderParams::NONE.to_s
       end
 
       def set_epic_param
@@ -51,7 +51,7 @@ module EE
       end
 
       def remove_epic?(epic_id)
-        epic_id == IssuableFinder::Params::NONE.to_s
+        epic_id == IssuableFinderParams::NONE.to_s
       end
 
       def epics_available?

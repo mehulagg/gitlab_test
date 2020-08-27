@@ -11,11 +11,11 @@ module EE
       end
 
       def filter_by_no_epic?
-        params[:epic_id].to_s.downcase == ::IssuableFinder::Params::FILTER_NONE
+        params[:epic_id].to_s.downcase == ::IssuableFinderParams::FILTER_NONE
       end
 
       def filter_by_any_epic?
-        params[:epic_id].to_s.downcase == ::IssuableFinder::Params::FILTER_ANY
+        params[:epic_id].to_s.downcase == ::IssuableFinderParams::FILTER_ANY
       end
 
       def weights?
@@ -23,11 +23,11 @@ module EE
       end
 
       def filter_by_no_weight?
-        params[:weight].to_s.downcase == ::IssuableFinder::Params::FILTER_NONE
+        params[:weight].to_s.downcase == ::IssuableFinderParams::FILTER_NONE
       end
 
       def filter_by_any_weight?
-        params[:weight].to_s.downcase == ::IssuableFinder::Params::FILTER_ANY
+        params[:weight].to_s.downcase == ::IssuableFinderParams::FILTER_ANY
       end
 
       override :assignees

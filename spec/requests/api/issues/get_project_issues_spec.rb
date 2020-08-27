@@ -357,25 +357,25 @@ RSpec.describe API::Issues do
     end
 
     it 'returns an array of project issues with any label' do
-      get api("#{base_url}/issues", user), params: { labels: IssuableFinder::Params::FILTER_ANY }
+      get api("#{base_url}/issues", user), params: { labels: IssuableFinderParams::FILTER_ANY }
 
       expect_paginated_array_response(issue.id)
     end
 
     it 'returns an array of project issues with any label with labels param as array' do
-      get api("#{base_url}/issues", user), params: { labels: [IssuableFinder::Params::FILTER_ANY] }
+      get api("#{base_url}/issues", user), params: { labels: [IssuableFinderParams::FILTER_ANY] }
 
       expect_paginated_array_response(issue.id)
     end
 
     it 'returns an array of project issues with no label' do
-      get api("#{base_url}/issues", user), params: { labels: IssuableFinder::Params::FILTER_NONE }
+      get api("#{base_url}/issues", user), params: { labels: IssuableFinderParams::FILTER_NONE }
 
       expect_paginated_array_response([confidential_issue.id, closed_issue.id])
     end
 
     it 'returns an array of project issues with no label with labels param as array' do
-      get api("#{base_url}/issues", user), params: { labels: [IssuableFinder::Params::FILTER_NONE] }
+      get api("#{base_url}/issues", user), params: { labels: [IssuableFinderParams::FILTER_NONE] }
 
       expect_paginated_array_response([confidential_issue.id, closed_issue.id])
     end

@@ -67,9 +67,9 @@ module EE
       return items unless params.iterations
 
       case params.iterations.to_s.downcase
-      when ::IssuableFinder::Params::FILTER_NONE
+      when ::IssuableFinderParams::FILTER_NONE
         items.no_iteration
-      when ::IssuableFinder::Params::FILTER_ANY
+      when ::IssuableFinderParams::FILTER_ANY
         items.any_iteration
       else
         items.in_iterations(params.iterations)

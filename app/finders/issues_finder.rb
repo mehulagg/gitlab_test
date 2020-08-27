@@ -41,7 +41,7 @@ class IssuesFinder < IssuableFinder
   # rubocop: enable CodeReuse/ActiveRecord
 
   def params_class
-    IssuesFinder::Params
+    IssuesFinderParams
   end
 
   # rubocop: disable CodeReuse/ActiveRecord

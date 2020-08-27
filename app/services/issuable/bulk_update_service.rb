@@ -26,7 +26,7 @@ module Issuable
       params.slice!(*permitted_attrs(type))
       params.delete_if { |k, v| v.blank? }
 
-      if params[:assignee_ids] == [IssuableFinder::Params::NONE.to_s]
+      if params[:assignee_ids] == [IssuableFinderParams::NONE.to_s]
         params[:assignee_ids] = []
       end
     end
