@@ -3,7 +3,6 @@ import createRouter from './router';
 import App from './components/app.vue';
 import apolloProvider from './graphql';
 
-
 export const createDesignManagement = ({ issueIid, projectPath, issuePath, projectNamespace }) => {
   // NOTE: Design Management is not currently supported at the group level
   // currently we are just pulling in the project path for the Graphql call
