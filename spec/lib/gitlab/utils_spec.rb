@@ -70,6 +70,10 @@ RSpec.describe Gitlab::Utils do
     it 'raises an exception if an absolute path is not allowed' do
       expect { check_allowed_absolute_path!('/etc/passwd', allowed_paths) }.to raise_error(StandardError)
     end
+    
+    it 'does not raise an exception if no allowed_paths specified' do
+      expect { check_allowed_absolute_path!('/etc/passwd') }.not_to raise_error
+    end
 
     it 'does nothing for an allowed absolute path' do
       expect(check_allowed_absolute_path!('/home/foo', allowed_paths)).to be_nil

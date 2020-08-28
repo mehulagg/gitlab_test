@@ -28,7 +28,7 @@ module Gitlab
       end
     end
 
-    def check_allowed_absolute_path!(path, allowlist)
+    def check_allowed_absolute_path!(path, allowlist = [])
       return unless Pathname.new(path).absolute?
       return if allowlisted?(path, allowlist)
 
