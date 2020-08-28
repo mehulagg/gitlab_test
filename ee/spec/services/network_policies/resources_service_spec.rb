@@ -116,9 +116,7 @@ RSpec.describe NetworkPolicies::ResourcesService do
 
     context 'without environment_id' do
       let(:environment_id) { nil }
-      let(:namespace_2) { 'namespace_2' }
-      let(:kubeclient_info) { [[platform, namespace], [platform, namespace_2]] }
-      let(:environment_2) { instance_double('Environment', deployment_namespace: namespace_2) }
+      let(:environment_2) { create(:environment, project: project) }
       let(:policy_2) do
         Gitlab::Kubernetes::NetworkPolicy.new(
           name: 'policy_2',
@@ -128,13 +126,16 @@ RSpec.describe NetworkPolicies::ResourcesService do
         )
       end
 
+      before do
+        allow(platform).to receive_message_chain(:cluster, :kubernetes_namespace_for).with(environment_2).and_return('namespace_2')
+      end
+
       it 'returns success response with policies from two deployment namespaces', :aggregate_failures do
         expect(kubeclient).to receive(:get_network_policies).with(namespace: environment.deployment_namespace) { [policy.generate] }
         expect(kubeclient).to receive(:get_network_policies).with(namespace: environment_2.deployment_namespace) { [policy_2.generate] }
         expect(subject).to be_success
         expect(subject.payload.count).to eq(2)
-        expect(subject.payload.first.as_json).to eq(policy.as_json)
-        expect(subject.payload.last.as_json).to eq(policy_2.as_json)
+        expect(subject.payload.map(&:as_json)).to include(policy.as_json, policy_2.as_json)
       end
     end
   end
