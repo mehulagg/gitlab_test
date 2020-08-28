@@ -85,7 +85,7 @@ export default {
       <div v-if="isLoggedIn && !allResolved" class="btn-group btn-group-sm" role="group">
         <gl-button
           v-gl-tooltip
-          :title="__('Jump to the next unresolved thread')"
+          :title="__('Jump to next unresolved thread')"
           class="btn btn-default discussion-next-btn"
           data-track-event="click_button"
           data-track-label="mr_next_unresolved_thread"
