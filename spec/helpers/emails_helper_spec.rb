@@ -157,7 +157,7 @@ RSpec.describe EmailsHelper do
     context 'format is html' do
       it 'returns HTML' do
         expect(admin_changed_password_text(format: :html)).to eq(
-          "An administrator has changed the password for your GitLab account on " \
+          "An administrator changed the password for your GitLab account on " \
           "#{link_to(Gitlab.config.gitlab.url, Gitlab.config.gitlab.url, target: :_blank, rel: 'noopener noreferrer')}."
         )
       end
@@ -166,7 +166,7 @@ RSpec.describe EmailsHelper do
     context 'format is not specified' do
       it 'returns text' do
         expect(admin_changed_password_text).to eq(
-          "An administrator has changed the password for your GitLab account on #{Gitlab.config.gitlab.url}."
+          "An administrator changed the password for your GitLab account on #{Gitlab.config.gitlab.url}."
         )
       end
     end

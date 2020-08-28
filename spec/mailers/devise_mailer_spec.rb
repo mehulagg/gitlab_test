@@ -57,7 +57,7 @@ RSpec.describe DeviseMailer do
     end
 
     it 'includes the correct content' do
-      is_expected.to have_body_text /An administrator has changed the password for your GitLab account/
+      is_expected.to have_body_text /An administrator changed the password for your GitLab account/
     end
 
     it 'includes a link to GitLab' do

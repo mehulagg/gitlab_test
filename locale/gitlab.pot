@@ -2540,7 +2540,7 @@ msgstr ""
 msgid "An %{link_start}alert%{link_end} with the same fingerprint is already open. To change the status of this alert, resolve the linked alert."
 msgstr ""
 
-msgid "An administrator has changed the password for your GitLab account on %{link_to}."
+msgid "An administrator changed the password for your GitLab account on %{link_to}."
 msgstr ""
 
 msgid "An alert has been triggered in %{project_path}."

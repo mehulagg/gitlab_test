@@ -208,9 +208,9 @@ module EmailsHelper
     case format
     when :html
       link_to = generate_link(url, url).html_safe
-      _('An administrator has changed the password for your GitLab account on %{link_to}.').html_safe % { link_to: link_to }
+      _('An administrator changed the password for your GitLab account on %{link_to}.').html_safe % { link_to: link_to }
     else
-      _('An administrator has changed the password for your GitLab account on %{link_to}.') % { link_to: url }
+      _('An administrator changed the password for your GitLab account on %{link_to}.') % { link_to: url }
     end
   end
 
