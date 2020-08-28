@@ -57,7 +57,7 @@ module EE
       onboarding_issues_experiment_enabled? ? continue : get_started
     end
 
-    def data_attributes_for_progress_bar
+    def data_attributes_for_progress_bar_js_component
       {
         is_in_subscription_flow: in_subscription_flow?.to_s,
         is_onboarding_issues_experiment_enabled: onboarding_issues_experiment_enabled?.to_s

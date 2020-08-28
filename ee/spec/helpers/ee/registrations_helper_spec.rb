@@ -245,21 +245,21 @@ RSpec.describe EE::RegistrationsHelper do
     end
   end
 
-  describe '#data_attributes_for_progress_bar' do
+  describe '#data_attributes_for_progress_bar_js_component' do
     before do
-      allow(helper).to receive(:in_subscription_flow?).and_return(in_subscription_flow)
-      allow(helper).to receive(:onboarding_issues_experiment_enabled?).and_return(onboarding_issues_experiment_enabled)
+      allow(helper).to receive(:in_subscription_flow?).and_return(options_enabled)
+      allow(helper).to receive(:onboarding_issues_experiment_enabled?).and_return(options_enabled)
     end
 
-    subject { helper.tag(:div, data: helper.data_attributes_for_progress_bar) }
+    subject { helper.tag(:div, data: helper.data_attributes_for_progress_bar_js_component) }
 
-    where(:in_subscription_flow, :onboarding_issues_experiment_enabled, :attr_values) do
-      true  | true  | 'true'
-      false | false | 'false'
+    where(:options_enabled, :attr_values) do
+      true  | 'true'
+      false | 'false'
     end
 
     with_them do
-      it 'includes both attributes with stringified boolean values' do
+      it 'always includes both attributes with stringified boolean values' do
         is_expected.to eq(%{<div data-is-in-subscription-flow="#{attr_values}" data-is-onboarding-issues-experiment-enabled="#{attr_values}" />})
       end
     end
