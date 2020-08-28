@@ -2,6 +2,7 @@
 import { GlLink, GlSprintf } from '@gitlab/ui';
 import { mapState } from 'vuex';
 import { s__ } from '~/locale';
+import Form from '../forms/components/new_cluster_form.vue';
 
 export default {
   i18n: {
@@ -11,6 +12,7 @@ export default {
     ),
   },
   components: {
+    Form,
     GlLink,
     GlSprintf,
   },
@@ -30,5 +32,7 @@ export default {
         </template>
       </gl-sprintf>
     </p>
+
+    <Form />
   </div>
 </template>
