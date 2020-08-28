@@ -27,13 +27,13 @@ describe('JumpToNextDiscussionButton', () => {
   });
 
   it('calls jumpToNextRelativeDiscussion when clicked', () => {
-    wrapper.find({ ref: 'button' }).trigger('click');
+    wrapper.find({ ref: 'gl-button' }).trigger('click');
 
     expect(jumpFn).toHaveBeenCalledWith(fromDiscussionId);
   });
 
   it('sends the correct tracking event when clicked', () => {
-    wrapper.find({ ref: 'button' }).trigger('click');
+    wrapper.find({ ref: 'gl-button' }).trigger('click');
 
     expect(trackingSpy).toHaveBeenCalledWith('_category_', 'click_button', {
       label: 'mr_next_unresolved_thread',
