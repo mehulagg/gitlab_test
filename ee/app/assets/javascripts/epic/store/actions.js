@@ -3,6 +3,7 @@ import { __, s__, sprintf } from '~/locale';
 
 import axios from '~/lib/utils/axios_utils';
 import { visitUrl } from '~/lib/utils/url_utility';
+import { globalEmit, TODO_TOGGLE } from '~/helpers/global_event_hub';
 
 import epicUtils from '../utils/epic_utils';
 import { statusType, statusEvent, dateTypes } from '../constants';
@@ -111,7 +112,7 @@ export const requestEpicTodoToggleFailure = ({ commit, state }, data) => {
   }
 };
 export const triggerTodoToggleEvent = (_, { count }) => {
-  epicUtils.triggerDocumentEvent('todo:toggle', count);
+  globalEmit(TODO_TOGGLE, count);
 };
 export const toggleTodo = ({ state, dispatch }) => {
   let reqPromise;

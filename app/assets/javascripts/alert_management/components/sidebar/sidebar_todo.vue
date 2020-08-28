@@ -4,6 +4,7 @@ import Todo from '~/sidebar/components/todo_toggle/todo.vue';
 import createAlertTodoMutation from '../../graphql/mutations/alert_todo_create.mutation.graphql';
 import todoMarkDoneMutation from '~/graphql_shared/mutations/todo_mark_done.mutation.graphql';
 import alertQuery from '../../graphql/queries/details.query.graphql';
+import { globalEmit, TODO_TOGGLE } from '~/helpers/global_event_hub';
 
 export default {
   i18n: {
@@ -54,13 +55,8 @@ export default {
     updateToDoCount(add) {
       const oldCount = parseInt(document.querySelector('.todos-count').innerText, 10);
       const count = add ? oldCount + 1 : oldCount - 1;
-      const headerTodoEvent = new CustomEvent('todo:toggle', {
-        detail: {
-          count,
-        },
-      });
 
-      return document.dispatchEvent(headerTodoEvent);
+      globalEmit(TODO_TOGGLE, count);
     },
     addToDo() {
       this.isUpdating = true;

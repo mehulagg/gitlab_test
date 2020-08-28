@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import { mockTracking, unmockTracking } from 'helpers/tracking_helper';
 import initTodoToggle, { initNavUserDropdownTracking } from '~/header';
+import { globalEmit, TODO_TOGGLE } from '~/helpers/global_event_hub';
 
 describe('Header', () => {
   describe('Todos notification', () => {
@@ -12,7 +13,7 @@ describe('Header', () => {
     }
 
     function triggerToggle(newCount) {
-      $(document).trigger('todo:toggle', newCount);
+      globalEmit(TODO_TOGGLE, newCount);
     }
 
     preloadFixtures(fixtureTemplate);

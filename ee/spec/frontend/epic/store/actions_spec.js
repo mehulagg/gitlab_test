@@ -9,6 +9,7 @@ import testAction from 'helpers/vuex_action_helper';
 import axios from '~/lib/utils/axios_utils';
 
 import { mockEpicMeta, mockEpicData } from '../mock_data';
+import { globalOn, TODO_TOGGLE } from '~/helpers/global_event_hub';
 
 describe('Epic Store Actions', () => {
   let state;
@@ -428,13 +429,15 @@ describe('Epic Store Actions', () => {
   });
 
   describe('triggerTodoToggleEvent', () => {
-    it('Calls `triggerDocumentEvent` with event `todo:toggle` and passes `count` as param', () => {
-      jest.spyOn(epicUtils, 'triggerDocumentEvent').mockReturnValue(false);
-
+    it('Calls `triggerDocumentEvent` with event `todo:toggle` and passes `count` as param', done => {
       const data = { count: 5 };
-      actions.triggerTodoToggleEvent({}, data);
 
-      expect(epicUtils.triggerDocumentEvent).toHaveBeenCalledWith('todo:toggle', data.count);
+      globalOn(TODO_TOGGLE, count => {
+        expect(count).toEqual(data.count);
+        done();
+      });
+
+      actions.triggerTodoToggleEvent({}, data);
     });
   });
 

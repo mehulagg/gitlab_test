@@ -9,6 +9,7 @@ import { addDelimiter } from '~/lib/utils/text_utility';
 import { __ } from '~/locale';
 import { deprecatedCreateFlash as flash } from '~/flash';
 import axios from '~/lib/utils/axios_utils';
+import { globalEmit, TODO_TOGGLE } from '~/helpers/global_event_hub';
 
 export default class Todos {
   constructor() {
@@ -146,7 +147,7 @@ export default class Todos {
   }
 
   updateBadges(data) {
-    $(document).trigger('todo:toggle', data.count);
+    globalEmit(TODO_TOGGLE, data.count);
     document.querySelector('.todos-pending .badge').innerHTML = addDelimiter(data.count);
     document.querySelector('.todos-done .badge').innerHTML = addDelimiter(data.done_count);
   }

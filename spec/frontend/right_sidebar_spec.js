@@ -3,6 +3,7 @@ import MockAdapter from 'axios-mock-adapter';
 import '~/commons/bootstrap';
 import axios from '~/lib/utils/axios_utils';
 import Sidebar from '~/right_sidebar';
+import { globalOn } from '~/helpers/global_event_hub';
 
 let $aside = null;
 let $toggle = null;
@@ -66,16 +67,12 @@ describe('RightSidebar', () => {
       const todos = getJSONFixture('todos/todos.json');
       mock.onPost(/(.*)\/todos$/).reply(200, todos);
 
-      const todoToggleSpy = jest.fn();
-      $(document).on('todo:toggle', todoToggleSpy);
-
-      $('.issuable-sidebar-header .js-issuable-todo').click();
-
-      setImmediate(() => {
-        expect(todoToggleSpy.mock.calls.length).toEqual(1);
-
+      globalOn('todo:toggle', count => {
+        expect(count).toEqual(2);
         done();
       });
+
+      $('.issuable-sidebar-header .js-issuable-todo').click();
     });
 
     it('should not hide collapsed icons', () => {

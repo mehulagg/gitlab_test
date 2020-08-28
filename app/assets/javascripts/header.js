@@ -6,21 +6,19 @@ import SetStatusModalTrigger from './set_status_modal/set_status_modal_trigger.v
 import SetStatusModalWrapper from './set_status_modal/set_status_modal_wrapper.vue';
 import { parseBoolean } from '~/lib/utils/common_utils';
 import Tracking from '~/tracking';
+import { globalOn, TODO_TOGGLE } from '~/helpers/global_event_hub';
 
 /**
  * Updates todo counter when todos are toggled.
  * When count is 0, we hide the badge.
- *
- * @param {jQuery.Event} e
- * @param {String} count
  */
 export default function initTodoToggle() {
-  $(document).on('todo:toggle', (e, count) => {
-    const updatedCount = count || e?.detail?.count || 0;
-    const $todoPendingCount = $('.todos-count');
+  globalOn(TODO_TOGGLE, count => {
+    const updatedCount = count || 0;
+    const $todoPendingCount = document.querySelector('.todos-count');
 
-    $todoPendingCount.text(highCountTrim(updatedCount));
-    $todoPendingCount.toggleClass('hidden', updatedCount === 0);
+    $todoPendingCount.textContent = highCountTrim(updatedCount);
+    $todoPendingCount.classList.toggle('hidden', updatedCount === 0);
   });
 }
 

@@ -5,6 +5,7 @@ import Cookies from 'js-cookie';
 import { deprecatedCreateFlash as flash } from './flash';
 import axios from './lib/utils/axios_utils';
 import { sprintf, s__, __ } from './locale';
+import { globalEmit, TODO_TOGGLE } from '~/helpers/global_event_hub';
 
 function Sidebar() {
   this.toggleTodo = this.toggleTodo.bind(this);
@@ -105,7 +106,7 @@ Sidebar.prototype.todoUpdateDone = function(data) {
   const attrPrefix = deletePath ? 'mark' : 'todo';
   const $todoBtns = $('.js-issuable-todo');
 
-  $(document).trigger('todo:toggle', data.count);
+  globalEmit(TODO_TOGGLE, data.count);
 
   $todoBtns.each((i, el) => {
     const $el = $(el);

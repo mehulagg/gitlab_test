@@ -5,6 +5,7 @@ import '~/lib/utils/common_utils';
 import axios from '~/lib/utils/axios_utils';
 import { addDelimiter } from '~/lib/utils/text_utility';
 import { visitUrl } from '~/lib/utils/url_utility';
+import { globalOn, TODO_TOGGLE } from '~/helpers/global_event_hub';
 
 jest.mock('~/lib/utils/url_utility', () => ({
   visitUrl: jest.fn().mockName('visitUrl'),
@@ -81,7 +82,7 @@ describe('Todos', () => {
           .onDelete(path)
           .replyOnce(200, { count: TEST_COUNT_BIG, done_count: TEST_DONE_COUNT_BIG });
         onToggleSpy = jest.fn();
-        $(document).on('todo:toggle', onToggleSpy);
+        globalOn(TODO_TOGGLE, onToggleSpy);
 
         // Act
         el.click();
@@ -91,7 +92,7 @@ describe('Todos', () => {
       });
 
       it('dispatches todo:toggle', () => {
-        expect(onToggleSpy).toHaveBeenCalledWith(expect.anything(), TEST_COUNT_BIG);
+        expect(onToggleSpy.mock.calls).toMatchObject([[TEST_COUNT_BIG]]);
       });
 
       it('updates pending text', () => {
