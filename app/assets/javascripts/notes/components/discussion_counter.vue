@@ -9,6 +9,7 @@ export default {
   },
   components: {
     GlIcon,
+    GlButton,
   },
   mixins: [discussionNavigation],
   computed: {
@@ -82,9 +83,9 @@ export default {
         </a>
       </div>
       <div v-if="isLoggedIn && !allResolved" class="btn-group btn-group-sm" role="group">
-        <button
+        <gl-button
           v-gl-tooltip
-          :title="__('Jump to next unresolved thread')"
+          :title="__('Jump to the next unresolved thread')"
           class="btn btn-default discussion-next-btn"
           data-track-event="click_button"
           data-track-label="mr_next_unresolved_thread"
@@ -92,17 +93,17 @@ export default {
           @click="jumpToNextDiscussion"
         >
           <gl-icon name="comment-next" />
-        </button>
+        </gl-button>
       </div>
       <div class="btn-group btn-group-sm" role="group">
-        <button
+        <gl-button
           v-gl-tooltip
           :title="__('Toggle all threads')"
           class="btn btn-default toggle-all-discussions-btn"
           @click="handleExpandDiscussions"
         >
           <gl-icon :name="allExpanded ? 'angle-up' : 'angle-down'" />
-        </button>
+        </gl-button>
       </div>
     </div>
   </div>
