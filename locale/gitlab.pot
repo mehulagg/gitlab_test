@@ -71,6 +71,9 @@ msgstr ""
 msgid "\"%{path}\" did not exist on \"%{ref}\""
 msgstr ""
 
+msgid "\"el\" parameter is required for createInstance()"
+msgstr ""
+
 msgid "%d Scanned URL"
 msgid_plural "%d Scanned URLs"
 msgstr[0] ""
@@ -1393,6 +1396,9 @@ msgstr ""
 msgid "Activate Service Desk"
 msgstr ""
 
+msgid "Activate user activity analysis"
+msgstr ""
+
 msgid "Active"
 msgstr ""
 
@@ -1552,6 +1558,9 @@ msgid "Add email address"
 msgstr ""
 
 msgid "Add environment"
+msgstr ""
+
+msgid "Add existing confidential %{issuableType}"
 msgstr ""
 
 msgid "Add header and footer to emails. Please note that color settings will only be applied within the application interface"
@@ -2096,6 +2105,9 @@ msgstr[1] ""
 msgid "AlertManagement|Acknowledged"
 msgstr ""
 
+msgid "AlertManagement|Activity feed"
+msgstr ""
+
 msgid "AlertManagement|Alert"
 msgstr ""
 
@@ -2183,9 +2195,6 @@ msgstr ""
 msgid "AlertManagement|Opsgenie is enabled"
 msgstr ""
 
-msgid "AlertManagement|Overview"
-msgstr ""
-
 msgid "AlertManagement|Please try again."
 msgstr ""
 
@@ -2241,9 +2250,6 @@ msgid "AlertManagement|Tool"
 msgstr ""
 
 msgid "AlertManagement|Triggered"
-msgstr ""
-
-msgid "AlertManagement|Unassigned"
 msgstr ""
 
 msgid "AlertManagement|Unknown"
@@ -2834,9 +2840,6 @@ msgstr ""
 msgid "An error occurred while saving assignees"
 msgstr ""
 
-msgid "An error occurred while saving the approval settings"
-msgstr ""
-
 msgid "An error occurred while saving the template. Please check if the template exists."
 msgstr ""
 
@@ -3326,6 +3329,9 @@ msgid "Artifacts"
 msgstr ""
 
 msgid "As U2F devices are only supported by a few browsers, we require that you set up a two-factor authentication app before a U2F device. That way you'll always be able to log in - even when you're using an unsupported browser."
+msgstr ""
+
+msgid "As we continue to build more features for SAST, we'd love your feedback on the SAST configuration feature in %{linkStart}this issue%{linkEnd}."
 msgstr ""
 
 msgid "AsanaService|%{user} pushed to branch %{branch} of %{project_name} ( %{commit_url} ):"
@@ -4182,6 +4188,9 @@ msgid "BurndownChartLabel|Open issues"
 msgstr ""
 
 msgid "Burnup chart"
+msgstr ""
+
+msgid "Burnup chart could not be generated due to too many events"
 msgstr ""
 
 msgid "Business"
@@ -7054,6 +7063,9 @@ msgstr ""
 msgid "Could not save prometheus manual configuration"
 msgstr ""
 
+msgid "Could not udpdate wiki page"
+msgstr ""
+
 msgid "Could not update the LDAP settings"
 msgstr ""
 
@@ -7196,6 +7208,9 @@ msgid "Create new board"
 msgstr ""
 
 msgid "Create new branch"
+msgstr ""
+
+msgid "Create new confidential %{issuableType}"
 msgstr ""
 
 msgid "Create new directory"
@@ -8589,7 +8604,10 @@ msgstr ""
 msgid "Diffs|No file name available"
 msgstr ""
 
-msgid "Diffs|Show unchanged lines"
+msgid "Diffs|Show %{unfoldCount} lines"
+msgstr ""
+
+msgid "Diffs|Show all unchanged lines"
 msgstr ""
 
 msgid "Diffs|Something went wrong while fetching diff lines."
@@ -10100,9 +10118,6 @@ msgstr ""
 msgid "Expand approvers"
 msgstr ""
 
-msgid "Expand down"
-msgstr ""
-
 msgid "Expand dropdown"
 msgstr ""
 
@@ -10110,9 +10125,6 @@ msgid "Expand milestones"
 msgstr ""
 
 msgid "Expand sidebar"
-msgstr ""
-
-msgid "Expand up"
 msgstr ""
 
 msgid "Expected documents: %{expected_documents}"
@@ -10125,9 +10137,6 @@ msgid "Expiration"
 msgstr ""
 
 msgid "Expiration date"
-msgstr ""
-
-msgid "Expiration not enforced"
 msgstr ""
 
 msgid "Expired"
@@ -11296,6 +11305,12 @@ msgstr ""
 msgid "Geo|Geo Status"
 msgstr ""
 
+msgid "Geo|Go to the primary site"
+msgstr ""
+
+msgid "Geo|If you want to make changes, you must visit the primary site."
+msgstr ""
+
 msgid "Geo|In progress"
 msgstr ""
 
@@ -11428,10 +11443,10 @@ msgstr ""
 msgid "Geo|Waiting for scheduler"
 msgstr ""
 
-msgid "Geo|You are on a secondary, %{b_open}read-only%{b_close} Geo node. If you want to make changes, you must visit this page on the %{node_link_open}primary node%{node_link_close}."
+msgid "Geo|You are on a secondary, %{b_open}read-only%{b_close} Geo node."
 msgstr ""
 
-msgid "Geo|You are on a secondary, %{b_open}read-only%{b_close} Geo node. You may be able to make a limited amount of changes or perform a limited amount of actions on this page."
+msgid "Geo|You may be able to make a limited amount of changes or perform a limited amount of actions on this page."
 msgstr ""
 
 msgid "Geo|misconfigured"
@@ -12008,6 +12023,9 @@ msgid "Group pipeline minutes were successfully reset."
 msgstr ""
 
 msgid "Group project URLs are prefixed with the group namespace"
+msgstr ""
+
+msgid "Group push rule exists, try updating"
 msgstr ""
 
 msgid "Group requires separate account"
@@ -12998,7 +13016,7 @@ msgstr ""
 msgid "Improve customer support with GitLab Service Desk."
 msgstr ""
 
-msgid "Improve search with Advanced Global Search and GitLab Enterprise Edition."
+msgid "Improve search with Advanced Search and GitLab Enterprise Edition."
 msgstr ""
 
 msgid "In %{time_to_now}"
@@ -13412,6 +13430,27 @@ msgid "Invite member"
 msgstr ""
 
 msgid "Invite teammates (optional)"
+msgstr ""
+
+msgid "InviteEmail|%{inviter} invited you"
+msgstr ""
+
+msgid "InviteEmail|%{project_or_group} as a %{role}"
+msgstr ""
+
+msgid "InviteEmail|Join now"
+msgstr ""
+
+msgid "InviteEmail|You are invited!"
+msgstr ""
+
+msgid "InviteEmail|You have been invited"
+msgstr ""
+
+msgid "InviteEmail|to join the %{project_or_group_name} %{project_or_group} as a %{role}"
+msgstr ""
+
+msgid "InviteEmail|to join the %{strong_start}%{project_or_group_name}%{strong_end}"
 msgstr ""
 
 msgid "Invited"
@@ -14283,6 +14322,9 @@ msgstr ""
 msgid "License ID:"
 msgstr ""
 
+msgid "License overview"
+msgstr ""
+
 msgid "License-Check"
 msgstr ""
 
@@ -14407,6 +14449,9 @@ msgid "Licensed Features"
 msgstr ""
 
 msgid "Licensed to"
+msgstr ""
+
+msgid "Licensed to:"
 msgstr ""
 
 msgid "Licenses"
@@ -14564,6 +14609,9 @@ msgstr ""
 msgid "Load more"
 msgstr ""
 
+msgid "Load more users"
+msgstr ""
+
 msgid "Loading"
 msgstr ""
 
@@ -14664,6 +14712,12 @@ msgid "MD5"
 msgstr ""
 
 msgid "MERGED"
+msgstr ""
+
+msgid "MR widget|Back to the Merge request"
+msgstr ""
+
+msgid "MR widget|See your pipeline in action"
 msgstr ""
 
 msgid "MR widget|Take a look at our %{beginnerLinkStart}Beginner's Guide to Continuous Integration%{beginnerLinkEnd} and our %{exampleLinkStart}examples of GitLab CI/CD%{exampleLinkEnd} to learn more."
@@ -15666,10 +15720,16 @@ msgid_plural "Milestones"
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "Milestone does not support burnup charts"
+msgstr ""
+
 msgid "Milestone lists not available with your current license"
 msgstr ""
 
 msgid "Milestone lists show all issues from the selected milestone."
+msgstr ""
+
+msgid "Milestone must have a start and due date"
 msgstr ""
 
 msgid "MilestoneSidebar|Closed:"
@@ -16083,10 +16143,22 @@ msgstr ""
 msgid "Network Policy|New rule"
 msgstr ""
 
+msgid "NetworkPolicies|%{ifLabelStart}if%{ifLabelEnd} %{ruleType} %{isLabelStart}is%{isLabelEnd} %{ruleDirection} %{ruleSelector} %{directionLabelStart}and is inbound from a%{directionLabelEnd} %{rule} %{portsLabelStart}on%{portsLabelEnd} %{ports}"
+msgstr ""
+
+msgid "NetworkPolicies|%{ifLabelStart}if%{ifLabelEnd} %{ruleType} %{isLabelStart}is%{isLabelEnd} %{ruleDirection} %{ruleSelector} %{directionLabelStart}and is outbound to a%{directionLabelEnd} %{rule} %{portsLabelStart}on%{portsLabelEnd} %{ports}"
+msgstr ""
+
+msgid "NetworkPolicies|%{number} selected"
+msgstr ""
+
 msgid "NetworkPolicies|.yaml mode"
 msgstr ""
 
 msgid "NetworkPolicies|Actions"
+msgstr ""
+
+msgid "NetworkPolicies|All selected"
 msgstr ""
 
 msgid "NetworkPolicies|Choose whether to enforce this policy."
@@ -16110,6 +16182,9 @@ msgstr ""
 msgid "NetworkPolicies|Environment does not have deployment platform"
 msgstr ""
 
+msgid "NetworkPolicies|IP/subnet"
+msgstr ""
+
 msgid "NetworkPolicies|If you are using Auto DevOps, your %{monospacedStart}auto-deploy-values.yaml%{monospacedEnd} file will not be updated if you change a policy in this section. Auto DevOps users should make changes by following the %{linkStart}Container Network Policy documentation%{linkEnd}."
 msgstr ""
 
@@ -16128,10 +16203,16 @@ msgstr ""
 msgid "NetworkPolicies|Network Policy"
 msgstr ""
 
+msgid "NetworkPolicies|Network traffic"
+msgstr ""
+
 msgid "NetworkPolicies|New policy"
 msgstr ""
 
 msgid "NetworkPolicies|No policies detected"
+msgstr ""
+
+msgid "NetworkPolicies|None selected"
 msgstr ""
 
 msgid "NetworkPolicies|Policies are a specification of how groups of pods are allowed to communicate with each other's network endpoints."
@@ -16174,6 +16255,33 @@ msgid "NetworkPolicies|Status"
 msgstr ""
 
 msgid "NetworkPolicies|YAML editor"
+msgstr ""
+
+msgid "NetworkPolicies|any pod"
+msgstr ""
+
+msgid "NetworkPolicies|any port"
+msgstr ""
+
+msgid "NetworkPolicies|domain name"
+msgstr ""
+
+msgid "NetworkPolicies|entity"
+msgstr ""
+
+msgid "NetworkPolicies|inbound to"
+msgstr ""
+
+msgid "NetworkPolicies|outbound from"
+msgstr ""
+
+msgid "NetworkPolicies|pod with labels"
+msgstr ""
+
+msgid "NetworkPolicies|pods with labels"
+msgstr ""
+
+msgid "NetworkPolicies|ports/protocols"
 msgstr ""
 
 msgid "Never"
@@ -16907,16 +17015,10 @@ msgstr ""
 msgid "OnDemandScans|Could not run the scan. Please try again."
 msgstr ""
 
-msgid "OnDemandScans|Could not run the scan: %{backendErrorMessage}"
-msgstr ""
-
 msgid "OnDemandScans|Create a new site profile"
 msgstr ""
 
 msgid "OnDemandScans|Create new DAST scan"
-msgstr ""
-
-msgid "OnDemandScans|DAST will scan the target URL and any discovered sub URLs."
 msgstr ""
 
 msgid "OnDemandScans|Manage profiles"
@@ -16940,16 +17042,7 @@ msgstr ""
 msgid "OnDemandScans|Passive"
 msgstr ""
 
-msgid "OnDemandScans|Passive DAST Scan"
-msgstr ""
-
-msgid "OnDemandScans|Please enter a valid URL format, ex: http://www.example.com/home"
-msgstr ""
-
 msgid "OnDemandScans|Run scan"
-msgstr ""
-
-msgid "OnDemandScans|Run this scan"
 msgstr ""
 
 msgid "OnDemandScans|Scan mode"
@@ -16965,9 +17058,6 @@ msgid "OnDemandScans|Select one of the existing profiles"
 msgstr ""
 
 msgid "OnDemandScans|Site profiles"
-msgstr ""
-
-msgid "OnDemandScans|Target URL"
 msgstr ""
 
 msgid "OnDemandScans|Use existing site profile"
@@ -17063,6 +17153,9 @@ msgid "Open"
 msgstr ""
 
 msgid "Open Selection"
+msgstr ""
+
+msgid "Open Web IDE"
 msgstr ""
 
 msgid "Open comment type dropdown"
@@ -21112,6 +21205,9 @@ msgstr ""
 msgid "Rook"
 msgstr ""
 
+msgid "Rule name is already taken."
+msgstr ""
+
 msgid "Rules that define what git pushes are accepted for a project in this group. All newly created projects in this group will use these settings."
 msgstr ""
 
@@ -21681,7 +21777,7 @@ msgstr ""
 msgid "SecurityReports|Add a project to your dashboard"
 msgstr ""
 
-msgid "SecurityReports|Add or remove projects from your dashboard"
+msgid "SecurityReports|Add or remove projects to monitor in the security area. Projects included in this list will have their results displayed in the security dashboard and vulnerability report."
 msgstr ""
 
 msgid "SecurityReports|Add projects"
@@ -21717,9 +21813,6 @@ msgstr ""
 msgid "SecurityReports|Download Report"
 msgstr ""
 
-msgid "SecurityReports|Edit dashboard"
-msgstr ""
-
 msgid "SecurityReports|Either you don't have permission to view this dashboard or the dashboard has not been setup. Please check your permission settings with your administrator or check your dashboard configurations to proceed."
 msgstr ""
 
@@ -21753,6 +21846,9 @@ msgstr ""
 msgid "SecurityReports|Monitor vulnerabilities in your code"
 msgstr ""
 
+msgid "SecurityReports|Monitored projects"
+msgstr ""
+
 msgid "SecurityReports|More info"
 msgstr ""
 
@@ -21775,9 +21871,6 @@ msgid "SecurityReports|Projects added"
 msgstr ""
 
 msgid "SecurityReports|Remove project from dashboard"
-msgstr ""
-
-msgid "SecurityReports|Return to dashboard"
 msgstr ""
 
 msgid "SecurityReports|Scan details"
@@ -21889,9 +21982,6 @@ msgid "See the affected projects in the GitLab admin panel"
 msgstr ""
 
 msgid "See what's new at GitLab"
-msgstr ""
-
-msgid "See your pipeline in action"
 msgstr ""
 
 msgid "Select"
@@ -24246,7 +24336,7 @@ msgid_plural "The %{type} contains the following errors:"
 msgstr[0] ""
 msgstr[1] ""
 
-msgid "The Advanced Global Search in GitLab is a powerful search service that saves you time. Instead of creating duplicate code and wasting time, you can now search for code within other teams that can help your own project."
+msgid "The Advanced Search in GitLab is a powerful search service that saves you time. Instead of creating duplicate code and wasting time, you can now search for code within other teams that can help your own project."
 msgstr ""
 
 msgid "The CSV export will be created in the background. Once finished, it will be sent to %{strong_open}%{email}%{strong_close} in an attachment."
@@ -24271,6 +24361,9 @@ msgid "The URL defined on the primary node that secondary nodes should use to co
 msgstr ""
 
 msgid "The URL to use for connecting to Elasticsearch. Use a comma-separated list to support clustering (e.g., \"http://localhost:9200, http://localhost:9201\")."
+msgstr ""
+
+msgid "The Web IDE offers advanced syntax highlighting capabilities and more."
 msgstr ""
 
 msgid "The X509 Certificate to use when mutual TLS is required to communicate with the external authorization service. If left blank, the server certificate is still validated when accessing over HTTPS."
@@ -24474,6 +24567,9 @@ msgid "The number of times an upload record could not find its file"
 msgstr ""
 
 msgid "The one place for your designs"
+msgstr ""
+
+msgid "The parent epic is confidential and can only contain confidential epics and issues"
 msgstr ""
 
 msgid "The passphrase required to decrypt the private key. This is optional and the value is encrypted at rest."
@@ -24881,10 +24977,10 @@ msgstr ""
 msgid "There was an error when unsubscribing from this label."
 msgstr ""
 
-msgid "There was an error while fetching the chart data."
+msgid "There was an error while fetching the chart data. Please refresh the page to try again."
 msgstr ""
 
-msgid "There was an error while fetching the table data."
+msgid "There was an error while fetching the table data. Please refresh the page to try again."
 msgstr ""
 
 msgid "There was an error while fetching value stream analytics %{requestTypeName} data."
@@ -25734,9 +25830,6 @@ msgstr ""
 msgid "To define internal users, first enable new users set to external"
 msgstr ""
 
-msgid "To enable it and see User Cohorts, visit %{application_settings_link_start}application settings%{application_settings_link_end}."
-msgstr ""
-
 msgid "To further protect your account, consider configuring a %{mfa_link_start}two-factor authentication%{mfa_link_end} method."
 msgstr ""
 
@@ -25903,6 +25996,9 @@ msgid "Toggled :%{name}: emoji award."
 msgstr ""
 
 msgid "Toggles :%{name}: emoji award."
+msgstr ""
+
+msgid "Token valid until revoked"
 msgstr ""
 
 msgid "Tomorrow"
@@ -26121,7 +26217,13 @@ msgstr ""
 msgid "Turn On"
 msgstr ""
 
+msgid "Turn on %{strongStart}usage ping%{strongEnd} to activate analysis of user activity, known as %{docLinkStart}Cohorts%{docLinkEnd}."
+msgstr ""
+
 msgid "Turn on Service Desk"
+msgstr ""
+
+msgid "Turn on usage ping"
 msgstr ""
 
 msgid "Twitter"
@@ -26526,7 +26628,7 @@ msgstr ""
 msgid "Upgrade your plan"
 msgstr ""
 
-msgid "Upgrade your plan to activate Advanced Global Search."
+msgid "Upgrade your plan to activate Advanced Search."
 msgstr ""
 
 msgid "Upgrade your plan to activate Audit Events."
@@ -26743,9 +26845,6 @@ msgid "User %{current_user_username} has started impersonating %{username}"
 msgstr ""
 
 msgid "User %{username} was successfully removed."
-msgstr ""
-
-msgid "User Cohorts are only shown when the %{usage_ping_link_start}usage ping%{usage_ping_link_end} is enabled."
 msgstr ""
 
 msgid "User IDs"
@@ -26995,6 +27094,9 @@ msgid "Users requesting access to %{strong_start}%{group_name}%{strong_end}"
 msgstr ""
 
 msgid "Users were successfully added."
+msgstr ""
+
+msgid "Users with a Guest role or those who don't belong to a Project or Group will not use a seat from your license."
 msgstr ""
 
 msgid "Users with a Guest role or those who don't belong to any projects or groups don't count towards seats in use."

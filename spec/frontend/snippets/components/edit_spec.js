@@ -183,7 +183,7 @@ describe('Snippet Edit app', () => {
       ${'foo'} | ${[]}                                            | ${false}
       ${'foo'} | ${[TEST_ACTIONS.VALID]}                          | ${false}
       ${'foo'} | ${[TEST_ACTIONS.VALID, TEST_ACTIONS.NO_CONTENT]} | ${true}
-      ${'foo'} | ${[TEST_ACTIONS.VALID, TEST_ACTIONS.NO_PATH]}    | ${true}
+      ${'foo'} | ${[TEST_ACTIONS.VALID, TEST_ACTIONS.NO_PATH]}    | ${false}
     `(
       'should handle submit disable (title=$title, actions=$actions, shouldDisable=$shouldDisable)',
       async ({ title, actions, shouldDisable }) => {
@@ -200,8 +200,8 @@ describe('Snippet Edit app', () => {
 
     it.each`
       projectPath       | snippetArg               | expectation
-      ${''}             | ${[]}                    | ${`${relativeUrlRoot}-/snippets`}
-      ${'project/path'} | ${[]}                    | ${`${relativeUrlRoot}project/path/-/snippets`}
+      ${''}             | ${[]}                    | ${urlUtils.joinPaths('/', relativeUrlRoot, '-', 'snippets')}
+      ${'project/path'} | ${[]}                    | ${urlUtils.joinPaths('/', relativeUrlRoot, 'project/path/-', 'snippets')}
       ${''}             | ${[createTestSnippet()]} | ${TEST_WEB_URL}
       ${'project/path'} | ${[createTestSnippet()]} | ${TEST_WEB_URL}
     `(

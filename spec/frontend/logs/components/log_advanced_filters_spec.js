@@ -68,8 +68,6 @@ describe('LogAdvancedFilters', () => {
   it('displays UI elements', () => {
     initWrapper();
 
-    expect(wrapper.isVueInstance()).toBe(true);
-
     expect(findFilteredSearch().exists()).toBe(true);
     expect(findTimeRangePicker().exists()).toBe(true);
   });

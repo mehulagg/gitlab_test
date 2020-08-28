@@ -62,13 +62,38 @@ RSpec.describe Projects::AfterRenameService do
 
       context 'gitlab pages' do
         before do
-          expect(project_storage).to receive(:rename_repo) { true }
+          allow(project_storage).to receive(:rename_repo) { true }
         end
 
-        it 'moves pages folder to new location' do
-          expect_any_instance_of(Gitlab::PagesTransfer).to receive(:rename_project)
+        context 'when async_pages_move_project_rename is disabled' do
+          it 'moves pages folder to new location' do
+            stub_feature_flags(async_pages_move_project_rename: false)
 
-          service_execute
+            expect_any_instance_of(Gitlab::PagesTransfer).to receive(:rename_project)
+
+            service_execute
+          end
+        end
+
+        context 'when the project has pages deployed' do
+          it 'schedules a move of the pages directory' do
+            allow(project).to receive(:pages_deployed?).and_return(true)
+
+            expect(PagesTransferWorker).to receive(:perform_async).with('rename_project', anything)
+
+            service_execute
+          end
+        end
+
+        context 'when the project does not have pages deployed' do
+          it 'does nothing with the pages directory' do
+            allow(project).to receive(:pages_deployed?).and_return(false)
+
+            expect(PagesTransferWorker).not_to receive(:perform_async)
+            expect(Gitlab::PagesTransfer).not_to receive(:new)
+
+            service_execute
+          end
         end
       end
 
@@ -160,10 +185,35 @@ RSpec.describe Projects::AfterRenameService do
       end
 
       context 'gitlab pages' do
-        it 'moves pages folder to new location' do
-          expect_any_instance_of(Gitlab::PagesTransfer).to receive(:rename_project)
+        context 'when async_pages_move_project_rename is disabled' do
+          it 'moves pages folder to new location' do
+            stub_feature_flags(async_pages_move_project_rename: false)
 
-          service_execute
+            expect_any_instance_of(Gitlab::PagesTransfer).to receive(:rename_project)
+
+            service_execute
+          end
+        end
+
+        context 'when the project has pages deployed' do
+          it 'schedules a move of the pages directory' do
+            allow(project).to receive(:pages_deployed?).and_return(true)
+
+            expect(PagesTransferWorker).to receive(:perform_async).with('rename_project', anything)
+
+            service_execute
+          end
+        end
+
+        context 'when the project does not have pages deployed' do
+          it 'does nothing with the pages directory' do
+            allow(project).to receive(:pages_deployed?).and_return(false)
+
+            expect(PagesTransferWorker).not_to receive(:perform_async)
+            expect(Gitlab::PagesTransfer).not_to receive(:new)
+
+            service_execute
+          end
         end
       end
 

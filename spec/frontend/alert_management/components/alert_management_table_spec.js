@@ -11,6 +11,7 @@ import {
   GlBadge,
   GlPagination,
   GlSearchBoxByType,
+  GlAvatar,
 } from '@gitlab/ui';
 import waitForPromises from 'helpers/wait_for_promises';
 import { visitUrl } from '~/lib/utils/url_utility';
@@ -49,11 +50,11 @@ describe('AlertManagementTable', () => {
   const findIssueFields = () => wrapper.findAll('[data-testid="issueField"]');
   const findAlertError = () => wrapper.find('[data-testid="alert-error"]');
   const alertsCount = {
-    open: 14,
-    triggered: 10,
-    acknowledged: 6,
-    resolved: 1,
-    all: 16,
+    open: 24,
+    triggered: 20,
+    acknowledged: 16,
+    resolved: 11,
+    all: 26,
   };
   const selectFirstStatusOption = () => {
     findFirstStatusOption().vm.$emit('click');
@@ -94,13 +95,10 @@ describe('AlertManagementTable', () => {
     });
   }
 
-  beforeEach(() => {
-    mountComponent({ data: { alerts: mockAlerts, alertsCount } });
-  });
-
   afterEach(() => {
     if (wrapper) {
       wrapper.destroy();
+      wrapper = null;
     }
   });
 
@@ -268,18 +266,22 @@ describe('AlertManagementTable', () => {
       ).toBe('Unassigned');
     });
 
-    it('renders username(s) when assignee(s) present', () => {
+    it('renders user avatar when assignee present', () => {
       mountComponent({
         props: { alertManagementEnabled: true, userCanEnableAlertManagement: true },
         data: { alerts: { list: mockAlerts }, alertsCount, hasError: false },
         loading: false,
       });
 
-      expect(
-        findAssignees()
-          .at(1)
-          .text(),
-      ).toBe(mockAlerts[1].assignees.nodes[0].username);
+      const avatar = findAssignees()
+        .at(1)
+        .find(GlAvatar);
+      const { src, label } = avatar.attributes();
+      const { name, avatarUrl } = mockAlerts[1].assignees.nodes[0];
+
+      expect(avatar.exists()).toBe(true);
+      expect(label).toBe(name);
+      expect(src).toBe(avatarUrl);
     });
 
     it('navigates to the detail page when alert row is clicked', () => {

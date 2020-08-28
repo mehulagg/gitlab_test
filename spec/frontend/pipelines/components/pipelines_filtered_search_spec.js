@@ -47,8 +47,6 @@ describe('Pipelines filtered search', () => {
   });
 
   it('displays UI elements', () => {
-    expect(wrapper.isVueInstance()).toBe(true);
-
     expect(findFilteredSearch().exists()).toBe(true);
   });
 

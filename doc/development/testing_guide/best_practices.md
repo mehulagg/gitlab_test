@@ -57,14 +57,24 @@ bundle exec guard
 
 When using spring and guard together, use `SPRING=1 bundle exec guard` instead to make use of spring.
 
-Use [Factory Doctor](https://test-prof.evilmartians.io/#/profilers/factory_doctor) to find cases on un-necessary database manipulation, which can cause slow tests.
+Use [Factory Doctor](https://test-prof.evilmartians.io/#/profilers/factory_doctor) to find cases where database persistence is not needed in a given test.
 
 ```shell
 # run test for path
 FDOC=1 bin/rspec spec/[path]/[to]/[spec].rb
 ```
 
-[Factory Profiler](https://test-prof.evilmartians.io/#/profilers/factory_prof) can help to identify unnecessary factory creation.
+A common change is to use `build` instead of `create`:
+
+```ruby
+# Old
+let(:project) { create(:project) }
+
+# New
+let(:project) { build(:project) }
+```
+
+[Factory Profiler](https://test-prof.evilmartians.io/#/profilers/factory_prof) can help to identify repetitive database persistance via factories.
 
 ```shell
 # run test for path
@@ -74,14 +84,40 @@ FPROF=1 bin/rspec spec/[path]/[to]/[spec].rb
 FPROF=flamegraph bin/rspec spec/[path]/[to]/[spec].rb
 ```
 
-A common change is to use [`let_it_be`](#common-test-setup).
+A common change is to use [`let_it_be`](#common-test-setup):
 
 ```ruby
-  # Old
-  let(:project) { create(:project) }
+# Old
+let(:project) { create(:project) }
 
-  # New
-  let_it_be(:project) { create(:project) }
+# New
+let_it_be(:project) { create(:project) }
+```
+
+A common cause of a large number of created factories is [factory cascades](https://github.com/test-prof/test-prof/blob/master/docs/profilers/factory_prof.md#factory-flamegraph), which result when factories create and recreate associations.
+They can be identified by a noticeable difference between `total time` and `top-level time` numbers:
+
+```shell
+   total   top-level     total time      time per call      top-level time               name
+
+     208           0        9.5812s            0.0461s             0.0000s          namespace
+     208          76       37.4214s            0.1799s            13.8749s            project
+```
+
+In order to reuse a single factory for all implicit parent associations,
+[`FactoryDefault`](https://github.com/test-prof/test-prof/blob/master/docs/recipes/factory_default.md)
+can be used:
+
+```ruby
+  let_it_be(:namespace) { create_default(:namespace) }
+  let_it_be(:project) { create_default(:project) }
+```
+
+In this case, the `total time` and `top-level time` numbers match more closely:
+
+```shell
+      31          30        4.6378s            0.1496s             4.5366s            project
+       8           8        0.0477s            0.0477s             0.0477s          namespace
 ```
 
 ### General guidelines

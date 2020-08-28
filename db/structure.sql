@@ -9782,7 +9782,8 @@ CREATE TABLE public.ci_build_trace_chunks (
     build_id integer NOT NULL,
     chunk_index integer NOT NULL,
     data_store integer NOT NULL,
-    raw_data bytea
+    raw_data bytea,
+    checksum bytea
 );
 
 CREATE SEQUENCE public.ci_build_trace_chunks_id_seq
@@ -10233,6 +10234,23 @@ CREATE SEQUENCE public.ci_pipelines_id_seq
 
 ALTER SEQUENCE public.ci_pipelines_id_seq OWNED BY public.ci_pipelines.id;
 
+CREATE TABLE public.ci_platform_metrics (
+    id bigint NOT NULL,
+    recorded_at timestamp with time zone NOT NULL,
+    platform_target text NOT NULL,
+    count integer NOT NULL,
+    CONSTRAINT check_f922abc32b CHECK ((char_length(platform_target) <= 255))
+);
+
+CREATE SEQUENCE public.ci_platform_metrics_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.ci_platform_metrics_id_seq OWNED BY public.ci_platform_metrics.id;
+
 CREATE TABLE public.ci_refs (
     id bigint NOT NULL,
     project_id bigint NOT NULL,
@@ -10593,7 +10611,9 @@ CREATE TABLE public.cluster_providers_aws (
     encrypted_secret_access_key_iv character varying(255),
     encrypted_secret_access_key text,
     session_token text,
-    status_reason text
+    status_reason text,
+    kubernetes_version text DEFAULT '1.14'::text NOT NULL,
+    CONSTRAINT check_f1f42cd85e CHECK ((char_length(kubernetes_version) <= 30))
 );
 
 CREATE SEQUENCE public.cluster_providers_aws_id_seq
@@ -12479,6 +12499,21 @@ CREATE SEQUENCE public.ip_restrictions_id_seq
 
 ALTER SEQUENCE public.ip_restrictions_id_seq OWNED BY public.ip_restrictions.id;
 
+CREATE TABLE public.issuable_severities (
+    id bigint NOT NULL,
+    issue_id bigint NOT NULL,
+    severity smallint DEFAULT 0 NOT NULL
+);
+
+CREATE SEQUENCE public.issuable_severities_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.issuable_severities_id_seq OWNED BY public.issuable_severities.id;
+
 CREATE TABLE public.issue_assignees (
     user_id integer NOT NULL,
     issue_id integer NOT NULL
@@ -13341,7 +13376,8 @@ CREATE TABLE public.namespace_root_storage_statistics (
     build_artifacts_size bigint DEFAULT 0 NOT NULL,
     storage_size bigint DEFAULT 0 NOT NULL,
     packages_size bigint DEFAULT 0 NOT NULL,
-    snippets_size bigint DEFAULT 0 NOT NULL
+    snippets_size bigint DEFAULT 0 NOT NULL,
+    pipeline_artifacts_size bigint DEFAULT 0 NOT NULL
 );
 
 CREATE TABLE public.namespace_settings (
@@ -16128,7 +16164,6 @@ CREATE TABLE public.users (
     skype character varying DEFAULT ''::character varying NOT NULL,
     linkedin character varying DEFAULT ''::character varying NOT NULL,
     twitter character varying DEFAULT ''::character varying NOT NULL,
-    bio character varying,
     failed_attempts integer DEFAULT 0,
     locked_at timestamp without time zone,
     username character varying,
@@ -16856,6 +16891,8 @@ ALTER TABLE ONLY public.ci_pipelines ALTER COLUMN id SET DEFAULT nextval('public
 
 ALTER TABLE ONLY public.ci_pipelines_config ALTER COLUMN pipeline_id SET DEFAULT nextval('public.ci_pipelines_config_pipeline_id_seq'::regclass);
 
+ALTER TABLE ONLY public.ci_platform_metrics ALTER COLUMN id SET DEFAULT nextval('public.ci_platform_metrics_id_seq'::regclass);
+
 ALTER TABLE ONLY public.ci_refs ALTER COLUMN id SET DEFAULT nextval('public.ci_refs_id_seq'::regclass);
 
 ALTER TABLE ONLY public.ci_resource_groups ALTER COLUMN id SET DEFAULT nextval('public.ci_resource_groups_id_seq'::regclass);
@@ -17067,6 +17104,8 @@ ALTER TABLE ONLY public.insights ALTER COLUMN id SET DEFAULT nextval('public.ins
 ALTER TABLE ONLY public.internal_ids ALTER COLUMN id SET DEFAULT nextval('public.internal_ids_id_seq'::regclass);
 
 ALTER TABLE ONLY public.ip_restrictions ALTER COLUMN id SET DEFAULT nextval('public.ip_restrictions_id_seq'::regclass);
+
+ALTER TABLE ONLY public.issuable_severities ALTER COLUMN id SET DEFAULT nextval('public.issuable_severities_id_seq'::regclass);
 
 ALTER TABLE ONLY public.issue_links ALTER COLUMN id SET DEFAULT nextval('public.issue_links_id_seq'::regclass);
 
@@ -17820,6 +17859,9 @@ ALTER TABLE ONLY public.ci_pipelines_config
 ALTER TABLE ONLY public.ci_pipelines
     ADD CONSTRAINT ci_pipelines_pkey PRIMARY KEY (id);
 
+ALTER TABLE ONLY public.ci_platform_metrics
+    ADD CONSTRAINT ci_platform_metrics_pkey PRIMARY KEY (id);
+
 ALTER TABLE ONLY public.ci_refs
     ADD CONSTRAINT ci_refs_pkey PRIMARY KEY (id);
 
@@ -18149,6 +18191,9 @@ ALTER TABLE ONLY public.internal_ids
 
 ALTER TABLE ONLY public.ip_restrictions
     ADD CONSTRAINT ip_restrictions_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.issuable_severities
+    ADD CONSTRAINT issuable_severities_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY public.issue_links
     ADD CONSTRAINT issue_links_pkey PRIMARY KEY (id);
@@ -19402,6 +19447,8 @@ CREATE INDEX index_ci_triggers_on_owner_id ON public.ci_triggers USING btree (ow
 
 CREATE INDEX index_ci_triggers_on_project_id ON public.ci_triggers USING btree (project_id);
 
+CREATE INDEX index_ci_variables_on_key ON public.ci_variables USING btree (key);
+
 CREATE UNIQUE INDEX index_ci_variables_on_project_id_and_key_and_environment_scope ON public.ci_variables USING btree (project_id, key, environment_scope);
 
 CREATE INDEX index_cluster_agent_tokens_on_agent_id ON public.cluster_agent_tokens USING btree (agent_id);
@@ -19873,6 +19920,8 @@ CREATE UNIQUE INDEX index_internal_ids_on_usage_and_namespace_id ON public.inter
 CREATE UNIQUE INDEX index_internal_ids_on_usage_and_project_id ON public.internal_ids USING btree (usage, project_id) WHERE (project_id IS NOT NULL);
 
 CREATE INDEX index_ip_restrictions_on_group_id ON public.ip_restrictions USING btree (group_id);
+
+CREATE UNIQUE INDEX index_issuable_severities_on_issue_id ON public.issuable_severities USING btree (issue_id);
 
 CREATE UNIQUE INDEX index_issue_assignees_on_issue_id_and_user_id ON public.issue_assignees USING btree (issue_id, user_id);
 
@@ -21008,6 +21057,8 @@ CREATE INDEX index_vulnerability_feedback_on_comment_author_id ON public.vulnera
 
 CREATE INDEX index_vulnerability_feedback_on_issue_id ON public.vulnerability_feedback USING btree (issue_id);
 
+CREATE INDEX index_vulnerability_feedback_on_issue_id_not_null ON public.vulnerability_feedback USING btree (id) WHERE (issue_id IS NOT NULL);
+
 CREATE INDEX index_vulnerability_feedback_on_merge_request_id ON public.vulnerability_feedback USING btree (merge_request_id);
 
 CREATE INDEX index_vulnerability_feedback_on_pipeline_id ON public.vulnerability_feedback USING btree (pipeline_id);
@@ -21137,8 +21188,6 @@ CREATE INDEX terraform_states_verification_checksum_partial ON public.terraform_
 CREATE INDEX terraform_states_verification_failure_partial ON public.terraform_states USING btree (verification_failure) WHERE (verification_failure IS NOT NULL);
 
 CREATE INDEX tmp_build_stage_position_index ON public.ci_builds USING btree (stage_id, stage_idx) WHERE (stage_idx IS NOT NULL);
-
-CREATE INDEX tmp_idx_on_user_id_where_bio_is_filled ON public.users USING btree (id) WHERE ((COALESCE(bio, ''::character varying))::text IS DISTINCT FROM ''::text);
 
 CREATE INDEX tmp_index_for_email_unconfirmation_migration ON public.emails USING btree (id) WHERE (confirmed_at IS NOT NULL);
 
@@ -22214,6 +22263,9 @@ ALTER TABLE ONLY public.protected_branch_unprotect_access_levels
 
 ALTER TABLE ONLY public.ci_freeze_periods
     ADD CONSTRAINT fk_rails_2e02bbd1a6 FOREIGN KEY (project_id) REFERENCES public.projects(id);
+
+ALTER TABLE ONLY public.issuable_severities
+    ADD CONSTRAINT fk_rails_2fbb74ad6d FOREIGN KEY (issue_id) REFERENCES public.issues(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.saml_providers
     ADD CONSTRAINT fk_rails_306d459be7 FOREIGN KEY (group_id) REFERENCES public.namespaces(id) ON DELETE CASCADE;

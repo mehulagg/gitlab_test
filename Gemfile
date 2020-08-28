@@ -22,7 +22,7 @@ gem 'rugged', '~> 0.28'
 gem 'grape-path-helpers', '~> 1.3'
 
 gem 'faraday', '~> 0.12'
-gem 'marginalia', '~> 1.8.0'
+gem 'marginalia', '~> 1.9.0'
 
 # Authentication libraries
 gem 'devise', '~> 4.6'
@@ -260,7 +260,7 @@ gem 'ruby-fogbugz', '~> 0.2.1'
 gem 'kubeclient', '~> 4.6.0'
 
 # Sanitize user input
-gem 'sanitize', '~> 4.6'
+gem 'sanitize', '~> 5.2.1'
 gem 'babosa', '~> 1.0.2'
 
 # Sanitizes SVG input
@@ -316,7 +316,7 @@ gem 'ruby_parser', '~> 3.8', require: false
 gem 'rails-i18n', '~> 6.0'
 gem 'gettext_i18n_rails', '~> 1.8.0'
 gem 'gettext_i18n_rails_js', '~> 1.3'
-gem 'gettext', '~> 3.2.2', require: false, group: :development
+gem 'gettext', '~> 3.3', require: false, group: :development
 
 gem 'batch-loader', '~> 1.4.0'
 
@@ -328,7 +328,7 @@ gem 'snowplow-tracker', '~> 0.6.1'
 
 # Metrics
 group :metrics do
-  gem 'method_source', '~> 0.8', require: false
+  gem 'method_source', '~> 1.0', require: false
 
   # Prometheus
   gem 'prometheus-client-mmap', '~> 0.11.0'
@@ -351,7 +351,7 @@ end
 
 group :development, :test do
   gem 'bullet', '~> 6.1.0'
-  gem 'pry-byebug', '~> 3.5.1', platform: :mri
+  gem 'pry-byebug', '~> 3.9.0', platform: :mri
   gem 'pry-rails', '~> 0.3.9'
 
   gem 'awesome_print', require: false

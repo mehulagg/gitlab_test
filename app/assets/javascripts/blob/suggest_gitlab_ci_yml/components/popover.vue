@@ -1,4 +1,5 @@
 <script>
+/* eslint-disable vue/no-v-html */
 import { GlPopover, GlSprintf, GlButton } from '@gitlab/ui';
 import { parseBoolean, scrollToElement, setCookie, getCookie } from '~/lib/utils/common_utils';
 import { s__ } from '~/locale';
@@ -46,6 +47,10 @@ export default {
       required: true,
     },
     humanAccess: {
+      type: String,
+      required: true,
+    },
+    mergeRequestPath: {
       type: String,
       required: true,
     },
