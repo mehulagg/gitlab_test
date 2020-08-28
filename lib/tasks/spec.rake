@@ -25,7 +25,8 @@ namespace :spec do
   end
 
   desc 'Run the code examples in spec/requests/api'
-  RSpec::Core::RakeTask.new(:api) do |t|
+  RSpec::Core::RakeTask.new(:api, :rspec_opts) do |t, args|
     t.pattern = 'spec/requests/api/**/*_spec.rb'
+    t.rspec_opts = args[:rspec_opts]
   end
 end

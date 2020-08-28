@@ -97,6 +97,14 @@ Some features depend on others:
 - Metrics dashboard access requires reading both project environments and deployments.
   Users with access to the metrics dashboard can also access environments and deployments.
 
+#### Disabling the CVE ID request button **(GitLab.com ONLY)**
+
+In applicable environments, a [_Create CVE ID Request_ button](../cve_id_request.md)
+is present in the issue sidebar. The button may be disabled on a per-project
+basis by toggling the **Enable CVE ID Requests in the issue sidebar** setting.
+
+![CVE ID Request toggle](img/cve_id_request_toggle.png)
+
 #### Disabling email notifications
 
 Project owners can disable all [email notifications](../../profile/notifications.md#gitlab-notification-emails)

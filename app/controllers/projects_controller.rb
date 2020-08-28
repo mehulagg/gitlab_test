@@ -390,6 +390,7 @@ class ProjectsController < Projects::ApplicationController
       :printing_merge_request_link_enabled,
       :public_builds,
       :remove_source_branch_after_merge,
+      :cve_id_request_enabled,
       :request_access_enabled,
       :runners_token,
       :tag_list,

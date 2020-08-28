@@ -64,6 +64,8 @@ When you create a project in GitLab, you'll have access to a large number of
   references to users, groups, issues, merge requests, and other GitLab
   elements.
 - [Web IDE](web_ide/index.md)
+- [CVE ID Requests](cve_id_request.md): Request a CVE identifier to track a
+  vulnerability in your project.
 
 **GitLab CI/CD:**
 

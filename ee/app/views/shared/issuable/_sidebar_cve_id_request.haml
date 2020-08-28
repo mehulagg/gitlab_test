@@ -1,0 +1,13 @@
+- issuable_type = issuable_sidebar[:type]
+- is_gitlab_com = issuable_sidebar[:is_gitlab_com]
+- cve_request_enabled = issuable_sidebar[:cve_id_request_is_enabled]
+- project_is_public = issuable_sidebar[:project_is_public]
+- can_admin_project = issuable_sidebar.dig(:current_user, :can_admin_project)
+
+-# must:
+-#   * be an issue
+-#   * be in a confidential issue
+-#   * be in a public project
+-#   * current user is maintainer+
+- if issuable_type == "issue" && project_is_public && can_admin_project && is_gitlab_com && cve_request_enabled
+  #js-sidebar-cve-id-request-entry-point

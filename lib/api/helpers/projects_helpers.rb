@@ -127,6 +127,7 @@ module API
           :public_builds,
           :remove_source_branch_after_merge,
           :repository_access_level,
+          :cve_id_request_enabled,
           :request_access_enabled,
           :resolve_outdated_diff_discussions,
           :shared_runners_enabled,
