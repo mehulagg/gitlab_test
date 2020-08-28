@@ -27,16 +27,12 @@ export const addIconStatus = testCase => ({
 });
 
 export const sortTestCases = (a, b) => {
-  if (a.status === b.status) {
-    return 0;
-  }
+  const testCaseSortOrder = [
+    TestStatus.ERRORED,
+    TestStatus.FAILED,
+    TestStatus.SUCCESS,
+    TestStatus.SKIPPED,
+  ];
 
-  switch (b.status) {
-    case TestStatus.SUCCESS:
-      return -1;
-    case TestStatus.FAILED:
-      return 1;
-    default:
-      return 0;
-  }
+  return testCaseSortOrder.indexOf(a.status) - testCaseSortOrder.indexOf(b.status);
 };
