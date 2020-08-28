@@ -379,7 +379,7 @@ application server, or a Gitaly node.
    CAUTION: **Caution:**
    If you have data on an already existing storage called
    `default`, you should configure the virtual storage with another name and
-   [migrate the data to the Praefect storage](#migrating-existing-repositories-to-praefect)
+   [migrate the data to the Gitaly Cluster storage](#migrate-existing-repositories-to-gitaly-cluster)
    afterwards.
 
    Replace `PRAEFECT_INTERNAL_TOKEN` with a strong secret, which will be used by
@@ -802,7 +802,8 @@ Particular attention should be shown to:
 
    CAUTION: **Caution:**
    If you have existing data stored on the default Gitaly storage,
-   you should [migrate the data your Praefect storage first](#migrating-existing-repositories-to-praefect).
+   you should [migrate the data your Gitaly Cluster storage](#migrate-existing-repositories-to-gitaly-cluster)
+   first.
 
    ```ruby
    gitaly['enable'] = false
@@ -943,6 +944,9 @@ Congratulations! You've configured an observable highly available Praefect
 cluster.
 
 ## Distributed reads
+
+> - Introduced in GitLab 13.1 in [beta](https://about.gitlab.com/handbook/product/gitlab-the-product/#alpha-beta-ga) with feature flag `gitaly_distributed_reads` set to disabled.
+> - [Made generally available](https://gitlab.com/gitlab-org/gitaly/-/issues/2951) in GitLab 13.3.
 
 Praefect supports distribution of read operations across Gitaly nodes that are
 configured for the virtual node.
@@ -1227,17 +1231,30 @@ The command will return a list of repositories that were found to be
 inconsistent against the current primary. Each of these inconsistencies will
 also be logged with an accompanying replication job ID.
 
-## Migrating existing repositories to Praefect
+## Migrate existing repositories to Gitaly Cluster
 
-If your GitLab instance already has repositories, these won't be migrated
-automatically.
+If your GitLab instance already has repositories on single Gitaly nodes, these aren't migrated to
+Gitaly Cluster automatically.
 
 Repositories may be moved from one storage location using the [Project repository storage moves API](../../api/project_repository_storage_moves.md):
 
-```shell
-curl --request POST --header "Private-Token: <your_access_token>" --header "Content-Type: application/json" \
---data '{"destination_storage_name":"praefect"}' "https://gitlab.example.com/api/v4/projects/123/repository_storage_moves"
-```
+To move repositories to Gitaly Cluster:
+
+1. [Schedule a move](../../api/project_repository_storage_moves.md#schedule-a-repository-storage-move-for-a-project)
+   for the first repository using the API. For example:
+
+   ```shell
+   curl --request POST --header "Private-Token: <your_access_token>" --header "Content-Type: application/json" \
+   --data '{"destination_storage_name":"praefect"}' "https://gitlab.example.com/api/v4/projects/123/repository_storage_moves"
+   ```
+
+1. Using the ID that is returned, [query the repository move](../../api/project_repository_storage_moves.md#get-a-single-repository-storage-move-for-a-project)
+   using the API. The query indicates either:
+   - The move has completed successfully. The `state` field is `finished`.
+   - The move is in progress. Re-query the repository move until it completes successfully.
+   - The move has failed. Most failures are temporary and are solved by rescheduling the move.
+
+1. Once the move is successful, repeat these steps for all repositories for your projects.
 
 ## Debugging Praefect
 

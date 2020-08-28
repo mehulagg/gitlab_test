@@ -5,11 +5,18 @@ class CreateMergeRequestReviewers < ActiveRecord::Migration[6.0]
 
   DOWNTIME = false
 
-  def change
+  def up
     create_table :merge_request_reviewers do |t|
-      t.references :user, foreign_key: { on_delete: :cascade }, index: true, null: false
-      t.references :merge_request, foreign_key: { on_delete: :cascade }, index: true, null: false
+      t.bigint :user_id, null: false
+      t.bigint :merge_request_id, null: false
       t.datetime_with_timezone :created_at, null: false
     end
+
+    add_index :merge_request_reviewers, [:merge_request_id, :user_id], unique: true
+    add_index :merge_request_reviewers, :user_id
+  end
+
+  def down
+    drop_table :merge_request_reviewers
   end
 end

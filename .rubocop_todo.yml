@@ -20,19 +20,6 @@ Layout/ArgumentAlignment:
 
 # Offense count: 13
 # Cop supports --auto-correct.
-Layout/ClosingHeredocIndentation:
-  Exclude:
-    - 'app/graphql/mutations/merge_requests/set_wip.rb'
-    - 'ee/db/geo/migrate/20180322062741_migrate_ci_job_artifacts_to_separate_registry.rb'
-    - 'ee/lib/gitlab/geo/health_check.rb'
-    - 'spec/features/merge_request/user_sees_diff_spec.rb'
-    - 'spec/lib/gitlab/asciidoc_spec.rb'
-    - 'spec/lib/gitlab/checks/project_moved_spec.rb'
-    - 'spec/rubocop/cop/active_record_association_reload_spec.rb'
-    - 'spec/services/task_list_toggle_service_spec.rb'
-
-# Offense count: 13
-# Cop supports --auto-correct.
 Layout/ClosingParenthesisIndentation:
   Exclude:
     - 'db/post_migrate/20180704145007_update_project_indexes.rb'
@@ -1033,8 +1020,6 @@ Rails/SaveBang:
     - 'ee/spec/support/shared_examples/models/member_shared_examples.rb'
     - 'ee/spec/support/shared_examples/models/mentionable_shared_examples.rb'
     - 'ee/spec/support/shared_examples/policies/protected_environments_shared_examples.rb'
-    - 'ee/spec/support/shared_examples/services/build_execute_shared_examples.rb'
-    - 'ee/spec/support/shared_examples/services/issue_epic_shared_examples.rb'
     - 'ee/spec/workers/adjourned_project_deletion_worker_spec.rb'
     - 'ee/spec/workers/clear_shared_runners_minutes_worker_spec.rb'
     - 'ee/spec/workers/create_github_webhook_worker_spec.rb'
@@ -1488,9 +1473,6 @@ Rails/SaveBang:
     - 'spec/support/shared_examples/quick_actions/issuable/issuable_quick_actions_shared_examples.rb'
     - 'spec/support/shared_examples/quick_actions/merge_request/merge_quick_action_shared_examples.rb'
     - 'spec/support/shared_examples/serializers/note_entity_shared_examples.rb'
-    - 'spec/support/shared_examples/services/common_system_notes_shared_examples.rb'
-    - 'spec/support/shared_examples/services/issuable_shared_examples.rb'
-    - 'spec/support/shared_examples/services/wiki_pages/destroy_service_shared_examples.rb'
     - 'spec/tasks/gitlab/web_hook_rake_spec.rb'
     - 'spec/uploaders/file_uploader_spec.rb'
     - 'spec/uploaders/object_storage_spec.rb'

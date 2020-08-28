@@ -28,8 +28,6 @@ describe('LogControlButtons', () => {
   it('displays UI elements', () => {
     initWrapper();
 
-    expect(wrapper.isVueInstance()).toBe(true);
-
     expect(findScrollToTop().is(GlButton)).toBe(true);
     expect(findScrollToBottom().is(GlButton)).toBe(true);
     expect(findRefreshBtn().is(GlButton)).toBe(true);

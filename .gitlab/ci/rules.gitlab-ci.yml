@@ -127,6 +127,7 @@
   - "{,ee/}{,spec/}{db,migrations}/**/*"
   - "{,ee/}{,spec/}lib/{,ee/}gitlab/background_migration/**/*"
   - "config/prometheus/common_metrics.yml" # Used by Gitlab::DatabaseImporters::CommonMetrics::Importer
+  - "{,ee/}app/models/project_statistics.rb" # Used to calculate sizes in migration specs
 
 .backstage-patterns: &backstage-patterns
   - "Dangerfile"
@@ -148,6 +149,7 @@
   - "*_VERSION"
   - "Gemfile{,.lock}"
   - "Rakefile"
+  - "tests.yml"
   - "config.ru"
   - "{,ee/}{app,bin,config,db,haml_lint,lib,locale,public,scripts,symbol,vendor}/**/*"
   - "doc/api/graphql/reference/*"  # Files in this folder are auto-generated
@@ -169,6 +171,7 @@
   - "*_VERSION"
   - "Gemfile{,.lock}"
   - "Rakefile"
+  - "tests.yml"
   - "config.ru"
   - "{,ee/}{app,bin,config,db,haml_lint,lib,locale,public,scripts,symbol,vendor}/**/*"
   - "doc/api/graphql/reference/*"  # Files in this folder are auto-generated
@@ -192,6 +195,7 @@
   - "*_VERSION"
   - "Gemfile{,.lock}"
   - "Rakefile"
+  - "tests.yml"
   - "config.ru"
   - "{,ee/}{app,bin,config,db,haml_lint,lib,locale,public,scripts,symbol,vendor}/**/*"
   - "doc/api/graphql/reference/*"  # Files in this folder are auto-generated
@@ -212,6 +216,7 @@
   - "*_VERSION"
   - "Gemfile{,.lock}"
   - "Rakefile"
+  - "tests.yml"
   - "config.ru"
   - "{,ee/}{app,bin,config,db,haml_lint,lib,locale,public,scripts,symbol,vendor}/**/*"
   - "doc/api/graphql/reference/*"  # Files in this folder are auto-generated
@@ -644,7 +649,7 @@
   rules:
     - if: '$DAST_DISABLED || $GITLAB_FEATURES !~ /\bdast\b/'
       when: never
-    - <<: *if-dot-com-gitlab-org-schedule
+    - <<: *if-master-schedule-nightly
       allow_failure: true
 
 ################
@@ -664,7 +669,23 @@
       allow_failure: true
     - <<: *if-dot-com-gitlab-org-schedule
 
-.review:rules:mr-and-schedule-auto-if-frontend-manual-otherwise:
+.review:rules:review-deploy:
+  rules:
+    - <<: *if-not-ee
+      when: never
+    - <<: *if-dot-com-gitlab-org-merge-request
+      changes: *ci-review-patterns
+    - <<: *if-dot-com-gitlab-org-merge-request
+      changes: *frontend-patterns
+      allow_failure: true
+    - <<: *if-dot-com-gitlab-org-merge-request
+      changes: *code-qa-patterns
+      when: manual
+      allow_failure: true
+    - <<: *if-dot-com-gitlab-org-schedule
+      allow_failure: true
+
+.review:rules:review-performance:
   rules:
     - if: '$DAST_RUN == "true"' # Skip this job when DAST is run
       when: never
@@ -756,6 +777,14 @@
 .setup:rules:no_ee_check:
   rules:
     - <<: *if-not-foss
+      when: never
+    - <<: *if-default-refs
+      changes: *code-backstage-patterns
+      when: on_success
+
+.setup:rules:verify-tests-yml:
+  rules:
+    - <<: *if-not-ee
       when: never
     - <<: *if-default-refs
       changes: *code-backstage-patterns

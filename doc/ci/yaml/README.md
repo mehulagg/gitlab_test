@@ -1548,6 +1548,22 @@ considered for their usage and behavior in this context. Future keyword improvem
 are being discussed in our [epic for improving `rules`](https://gitlab.com/groups/gitlab-org/-/epics/2783),
 where anyone can add suggestions or requests.
 
+You can use [parentheses](../variables/README.md#parentheses) with `&&` and `||` to build more complicated variable expressions.
+[Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/230938) in GitLab 13.3:
+
+```yaml
+job1:
+  script:
+    - echo This rule uses parentheses.
+  rules:
+    if: ($CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "develop") && $MY_VARIABLE
+```
+
+NOTE: **Note:**
+In GitLab 13.2 and older, the order of operations when mixing `||` and `&&` in a single rule may not have executed
+in the expected order. This is [fixed](https://gitlab.com/gitlab-org/gitlab/-/issues/230938)
+in GitLab 13.3.
+
 ### `only`/`except` (basic)
 
 NOTE: **Note:**
@@ -1833,7 +1849,17 @@ end-to-end:
       - $CI_COMMIT_MESSAGE =~ /skip-end-to-end-tests/
 ```
 
-Learn more about [variables expressions](../variables/README.md#environment-variables-expressions).
+You can use [parentheses](../variables/README.md#parentheses) with `&&` and `||` to build more complicated variable expressions.
+[Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/230938) in GitLab 13.3:
+
+```yaml
+job1:
+  script:
+    - echo This rule uses parentheses.
+  only:
+    variables:
+      - ($CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "develop") && $MY_VARIABLE
+```
 
 #### `only:changes`/`except:changes`
 
@@ -2164,10 +2190,7 @@ build_job:
 ```
 
 Environment variables support for `project:`, `job:`, and `ref` was [introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/202093)
-in GitLab 13.3. This is under development, but it is ready for production use. It is deployed
-behind the `ci_expand_names_for_cross_pipeline_artifacts` feature flag, which is **disabled by default**.
-[GitLab administrators with access to the GitLab Rails console](../../administration/feature_flags.md)
-can enable it for your instance.
+in GitLab 13.3. [Feature flag removed](https://gitlab.com/gitlab-org/gitlab/-/issues/235761) in GitLab 13.4.
 
 For example:
 
@@ -4249,7 +4272,7 @@ script:
   - ls -al cache/
 ```
 
-The configurtion above will result in `git fetch` being called this way:
+The configuration above will result in `git fetch` being called this way:
 
 ```shell
 git fetch origin $REFSPECS --depth 50  --prune
