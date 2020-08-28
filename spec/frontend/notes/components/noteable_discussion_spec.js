@@ -107,9 +107,9 @@ describe('noteable_discussion component', () => {
     });
 
     it('does not render jump to thread button', () => {
-      expect(wrapper.find('*[data-original-title="Jump to the next unresolved thread"]').exists()).toBe(
-        false,
-      );
+      expect(
+        wrapper.find('*[data-original-title="Jump to the next unresolved thread"]').exists(),
+      ).toBe(false);
     });
   });
 
