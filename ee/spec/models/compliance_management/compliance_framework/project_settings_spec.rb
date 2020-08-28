@@ -3,9 +3,9 @@
 require 'spec_helper'
 
 RSpec.describe ComplianceManagement::ComplianceFramework::ProjectSettings do
-  let(:known_frameworks) { ComplianceManagement::ComplianceFramework::ProjectSettings.frameworks.keys }
+  let_it_be(:compliance_framework_project_setting) { create(:compliance_framework_project_setting) }
 
-  subject { build :compliance_framework_project_setting }
+  subject { compliance_framework_project_setting }
 
   describe 'Associations' do
     it 'belongs to project' do
@@ -23,7 +23,7 @@ RSpec.describe ComplianceManagement::ComplianceFramework::ProjectSettings do
     end
 
     it 'allows all known frameworks' do
-      expect(subject).to allow_values(*known_frameworks).for(:framework)
+      expect(subject).to allow_values(*ComplianceManagement::ComplianceFramework::ProjectSettings.frameworks.keys).for(:framework)
     end
 
     it 'invalidates an unknown framework' do
