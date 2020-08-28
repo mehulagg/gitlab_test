@@ -45,12 +45,10 @@ class CreateDbGuides < ActiveRecord::Migration[6.0]
   disable_ddl_transaction!
 
   def up
-    unless table_exists?(:db_guides)
-      create_table :db_guides do |t|
-        t.bigint :stars, default: 0, null: false
-        t.text :title
-        t.text :notes
-      end
+    create_table :db_guides, if_not_exists: true do |t|
+      t.bigint :stars, default: 0, null: false
+      t.text :title
+      t.text :notes
     end
 
     # The following add the constraints and validate them immediately (no data in the table)
