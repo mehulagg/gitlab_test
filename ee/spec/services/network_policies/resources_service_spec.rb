@@ -137,6 +137,26 @@ RSpec.describe NetworkPolicies::ResourcesService do
         expect(subject.payload.count).to eq(2)
         expect(subject.payload.map(&:as_json)).to include(policy.as_json, policy_2.as_json)
       end
+
+      context 'with a partial successful response' do
+        let(:error_message) { 'system failure' }
+
+        before do
+          allow(kubeclient).to receive(:get_network_policies).with(namespace: environment.deployment_namespace).and_return([policy.generate])
+          allow(kubeclient).to receive(:get_network_policies).with(namespace: environment_2.deployment_namespace).and_raise(Kubeclient::HttpError.new(500, error_message, nil))
+        end
+
+        it 'returns error response for the platforms with failures' do
+          expect(subject).to be_error
+          expect(subject.message).to match(error_message)
+        end
+
+        it 'returns error response with the policies for all successful platforms' do
+          expect(subject).to be_error
+          expect(subject.payload.count).to eq(1)
+          expect(subject.payload.first.as_json).to eq(policy.as_json)
+        end
+      end
     end
   end
 end

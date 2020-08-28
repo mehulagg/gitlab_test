@@ -42,7 +42,6 @@ module NetworkPolicies
       kubeclient_info.any? { |platform, namespace| platform.present? }
     end
 
-    # rubocop: disable CodeReuse/ActiveRecord
     def extract_info_for_kubeclient(project, environment_id)
       kubernetes_namespaces =
         if environment_id
@@ -57,6 +56,5 @@ module NetworkPolicies
         .group_by(&:namespace)
         .map { |namespace, kubernetes_namespaces| [kubernetes_namespaces.first.platform_kubernetes, namespace] }
     end
-    # rubocop: enable CodeReuse/ActiveRecord
   end
 end
