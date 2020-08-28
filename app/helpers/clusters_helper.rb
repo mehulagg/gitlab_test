@@ -38,7 +38,8 @@ module ClustersHelper
 
   def js_cluster_new
     {
-      cluster_connect_help_path: help_page_path('user/project/clusters/add_remove_clusters', anchor: 'add-existing-cluster')
+      cluster_connect_help_path: help_page_path('user/project/clusters/add_remove_clusters', anchor: 'add-existing-cluster'),
+      rbac_help_link: help_page_path('user/project/clusters/add_remove_clusters.md', anchor: 'access-controls')
     }
   end
 

@@ -1,10 +1,19 @@
 <script>
-import { GlForm, GlFormGroup, GlFormInput, GlLink, GlSprintf, GlFormTextarea } from '@gitlab/ui';
+import {
+  GlForm,
+  GlFormCheckbox,
+  GlFormGroup,
+  GlFormInput,
+  GlLink,
+  GlSprintf,
+  GlFormTextarea
+} from '@gitlab/ui';
 import { mapState } from 'vuex';
 
 export default {
   components: {
     GlForm,
+    GlFormCheckbox,
     GlFormGroup,
     GlFormInput,
     GlLink,
@@ -17,11 +26,12 @@ export default {
       certificate: '',
       clusterEnvironment: '*',
       clusterName: '',
+      rbacEnabled: true,
       token: '',
     };
   },
   computed: {
-    ...mapState(['clusterConnectHelpPath']),
+    ...mapState(['clusterConnectHelpPath', 'rbacHelpLink']),
   },
   methods: {
     onSubmit() {
@@ -39,7 +49,6 @@ export default {
     <gl-form @submit="onSubmit" @reset="onReset">
       <gl-form-group
         id="cluster_name_group"
-        label-size="md"
         label-for="cluster_name"
         :label="s__('ClusterIntegration|Kubernetes cluster name')"
       >
@@ -55,7 +64,6 @@ export default {
 
       <gl-form-group
         id="cluster_environment_scope_group"
-        label-size="md"
         label-for="cluster_environment_scope"
         :label="s__('ClusterIntegration|Environment scope')"
         :description="
@@ -74,7 +82,6 @@ export default {
 
       <gl-form-group
         id="cluster_platform_kubernetes_attributes_api_url_group"
-        label-size="md"
         label-for="cluster_platform_kubernetes_attributes_api_url"
         :label="s__('ClusterIntegration|API URL')"
       >
@@ -104,7 +111,6 @@ export default {
 
       <gl-form-group
         id="cluster_platform_kubernetes_attributes_ca_cert_group"
-        label-size="md"
         label-for="cluster_platform_kubernetes_attributes_ca_cert"
         :label="s__('ClusterIntegration|CA Certificate')"
       >
@@ -133,7 +139,6 @@ export default {
 
       <gl-form-group
         id="cluster_platform_kubernetes_attributes_token_group"
-        label-size="md"
         label-for="cluster_platform_kubernetes_attributes_token"
         :label="s__('ClusterIntegration|Service Token')"
       >
@@ -168,6 +173,31 @@ export default {
             </template>
           </gl-sprintf>
         </template>
+      </gl-form-group>
+
+      <gl-form-group
+        id="cluster_platform_kubernetes_attributes_authorization_type_group"
+      >
+        <gl-form-checkbox v-model="rbacEnabled">
+          <label
+            for="cluster_platform_kubernetes_attributes_authorization_type"
+          >
+            {{ s__('ClusterIntegration|RBAC-enabled cluster') }}
+          </label>
+
+          <template #help>
+            <gl-sprintf
+              :message="s__(
+                  'ClusterIntegration|Enable this setting if using role-based access control (RBAC). This option will allow you to install applications on RBAC clusters. %{linkStart}More Information%{linkEnd}'
+                )
+              "
+            >
+            <template #link="{ content }">
+              <gl-link :href="rbacHelpLink" target="_blank">{{ content }}</gl-link>
+            </template>
+            </gl-sprintf>
+          </template>
+        </gl-form-checkbox>
       </gl-form-group>
     </gl-form>
   </div>
