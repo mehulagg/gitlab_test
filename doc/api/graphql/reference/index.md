@@ -1644,6 +1644,7 @@ Information about pagination in a connection.
 | `containerExpirationPolicy` | ContainerExpirationPolicy | The container expiration policy of the project |
 | `containerRegistryEnabled` | Boolean | Indicates if the project stores Docker container images in a container registry |
 | `createdAt` | Time | Timestamp of the project creation |
+| `cveIdRequestEnabled` | Boolean | Indicates if a CVE ID request button appears in the issue sidebar |
 | `description` | String | Short description of the project |
 | `descriptionHtml` | String | The GitLab Flavored Markdown rendering of `description` |
 | `environment` | Environment | A single environment of the project |
