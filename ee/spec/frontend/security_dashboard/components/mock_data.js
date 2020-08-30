@@ -188,9 +188,9 @@ export const generateProjectsWithSeverityCounts = () => [
   {
     id: 'gid://gitlab/Project/7',
     name: 'Gitlab Test 7',
-    nameWithNamespace: 'Gitlab Org / Gitlab Test 7',
-    fullPath: 'gitlab-org/gitlab-test-7',
-    securityDashboardPath: '/gitlab-org/gitlab-test-7/-/security/dashboard',
+    nameWithNamespace: 'Gitlab Org / Subgroup / Gitlab Test 7',
+    fullPath: 'gitlab-org/subgroup/gitlab-test-7',
+    securityDashboardPath: '/gitlab-org/subgroup/gitlab-test-7/-/security/dashboard',
     vulnerabilitySeveritiesCount: {
       critical: 0,
       high: 0,
