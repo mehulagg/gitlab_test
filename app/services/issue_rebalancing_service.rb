@@ -4,9 +4,11 @@ class IssueRebalancingService
   MAX_ISSUE_COUNT = 10_000
   TooManyIssues = Class.new(StandardError)
 
-  def initialize(issue)
+  def initialize(issue, update_batch_size = 100, in_transaction = true)
     @issue = issue
     @base = Issue.relative_positioning_query_base(issue)
+    @update_batch_size = update_batch_size
+    @in_transaction = in_transaction
   end
 
   def execute
@@ -17,14 +19,47 @@ class IssueRebalancingService
 
     start = RelativePositioning::START_POSITION - (gaps / 2) * gap_size
 
-    Issue.transaction do
-      indexed_ids.each_slice(100) { |pairs| assign_positions(start, pairs) }
+    Issue.connection.exec_query(<<~SQL, 'Create new-positions temporary table')
+      create temp table #{temp_table_name} as
+      select id as issue_id, relative_position as new_pos
+      from issues
+      limit 0
+    SQL
+
+    created_table = true
+
+    indexed_ids.each_slice(500) do |pairs|
+      insert_pairs(start, pairs)
     end
+
+    ranges = indexed_ids.each_slice(update_batch_size).map do |pairs|
+      (pairs.first.first..pairs.last.first)
+    end
+
+    if @in_transaction
+      Issue.connection.transaction { update_ranges(ranges) }
+    else
+      update_ranges(ranges)
+    end
+
+  ensure
+    Issue.connection.exec_query("drop table #{temp_table_name}") if created_table
   end
 
   private
 
-  attr_reader :issue, :base
+  attr_reader :issue, :base, :update_batch_size
+
+  def update_ranges(ranges)
+    ranges.each do |range|
+      Issue.connection.exec_query(<<~SQL, 'update issue positions')
+        update issues
+        set relative_position = new_pos
+        from #{temp_table_name}
+        where id = issue_id AND id between #{range.first} and #{range.last}
+      SQL
+    end
+  end
 
   # rubocop: disable CodeReuse/ActiveRecord
   def indexed_ids
@@ -32,24 +67,19 @@ class IssueRebalancingService
   end
   # rubocop: enable CodeReuse/ActiveRecord
 
-  # rubocop: disable CodeReuse/ActiveRecord
-  def assign_positions(start, positions)
+  def insert_pairs(start, positions)
     values = positions.map do |id, index|
       "(#{id}, #{start + (index * gap_size)})"
     end.join(', ')
 
-    Issue.connection.exec_query(<<~SQL, "rebalance issue positions")
-      WITH cte(cte_id, new_pos) AS (
-       SELECT *
-       FROM (VALUES #{values}) as t (id, pos)
-      )
-      UPDATE #{Issue.table_name}
-      SET relative_position = cte.new_pos
-      FROM cte
-      WHERE cte_id = id
+    Issue.connection.exec_query(<<~SQL, 'Insert pairs')
+      insert into #{temp_table_name} values #{values}
     SQL
   end
-  # rubocop: enable CodeReuse/ActiveRecord
+
+  def temp_table_name
+    'temp_issue_position_updates'
+  end
 
   def issue_count
     @issue_count ||= base.count
