@@ -83,7 +83,7 @@ a YAML definition in `config/feature_flags` or `ee/config/feature_flags`.
 Only feature flags that have a YAML definition file can be used when running the development or testing environments.
 
 ```shell
-$ bin/feature-flag my-feature-flag
+$ bin/feature-flag my_feature_flag
 >> Please specify the group introducing feature flag, like `group::apm`:
 ?> group::memory
 
