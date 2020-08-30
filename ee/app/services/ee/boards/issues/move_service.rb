@@ -8,9 +8,9 @@ module EE
 
         override :issue_params
         def issue_params(issue)
-          return super unless move_between_lists?
-
           args = super
+          args[:epic] = params[:epic] if params[:epic].present?
+          return args unless move_between_lists?
 
           unless both_are_same_type? || !moving_to_list.movable?
             args.delete(:remove_label_ids)

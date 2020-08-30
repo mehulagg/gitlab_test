@@ -22,6 +22,7 @@ module EE
         mount_mutation ::Mutations::RequirementsManagement::UpdateRequirement
         mount_mutation ::Mutations::Vulnerabilities::Dismiss
         mount_mutation ::Mutations::Boards::Update
+        mount_mutation ::Mutations::Boards::Issues::IssueMoveList
         mount_mutation ::Mutations::Boards::Lists::UpdateLimitMetrics
         mount_mutation ::Mutations::InstanceSecurityDashboard::AddProject
         mount_mutation ::Mutations::InstanceSecurityDashboard::RemoveProject
