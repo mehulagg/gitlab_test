@@ -1,6 +1,5 @@
 <script>
-import { GlTooltipDirective, GlIcon } from '@gitlab/ui';
-import { GlButton } from '@gitlab/ui';
+import { GlButton, GlTooltipDirective, GlIcon } from '@gitlab/ui';
 import discussionNavigation from '../mixins/discussion_navigation';
 
 export default {
