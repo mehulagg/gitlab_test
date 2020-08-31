@@ -6,5 +6,5 @@
     "source_type": { "type": "string" },
     "access_level": { "type": "integer" }
   },
-  "additionalProperties": false
+  "additionalProperties": true
 }

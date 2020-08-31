@@ -9,6 +9,9 @@ module API
       end
       expose :source_type
       expose :access_level
+      expose :plan do |namespace|
+        namespace.source.try(:gitlab_subscription)&.plan_name
+      end
     end
   end
 end
