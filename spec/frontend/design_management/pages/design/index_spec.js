@@ -75,7 +75,7 @@ describe('Design management design index page', () => {
   const findSidebar = () => wrapper.find(DesignSidebar);
   const findDesignPresentation = () => wrapper.find(DesignPresentation);
 
-  function createComponent(loading = false, data = {}) {
+  function createComponent({ loading = false } = {}, data = {}) {
     const $apollo = {
       queries: {
         design: {
@@ -88,7 +88,7 @@ describe('Design management design index page', () => {
     router = createRouter();
 
     wrapper = shallowMount(DesignIndex, {
-      propsData: { id: '1' },
+      propsData: { id: 'design-id' },
       mocks: { $apollo },
       stubs: {
         ApolloMutation,
@@ -119,36 +119,39 @@ describe('Design management design index page', () => {
 
   describe('when navigating', () => {
     it('applies fullscreen layout', () => {
-      const mockEl = {
+      const mockPageLayoutElement = {
         classList: {
           add: jest.fn(),
           remove: jest.fn(),
         },
       };
-      jest.spyOn(utils, 'getPageLayoutElement').mockReturnValue(mockEl);
-      createComponent(true);
+      jest.spyOn(utils, 'getPageLayoutElement').mockReturnValue(mockPageLayoutElement);
+
+      createComponent({ loading: true });
 
       wrapper.vm.$router.push('/designs/test');
-      expect(mockEl.classList.add).toHaveBeenCalledTimes(1);
-      expect(mockEl.classList.add).toHaveBeenCalledWith(...DESIGN_DETAIL_LAYOUT_CLASSLIST);
+      expect(mockPageLayoutElement.classList.add).toHaveBeenCalledTimes(1);
+      expect(mockPageLayoutElement.classList.add).toHaveBeenCalledWith(
+        ...DESIGN_DETAIL_LAYOUT_CLASSLIST,
+      );
     });
   });
 
   it('sets loading state', () => {
-    createComponent(true);
+    createComponent({ loading: true });
 
     expect(wrapper.element).toMatchSnapshot();
   });
 
   it('renders design index', () => {
-    createComponent(false, { design });
+    createComponent({ loading: false }, { design });
 
     expect(wrapper.element).toMatchSnapshot();
     expect(wrapper.find(GlAlert).exists()).toBe(false);
   });
 
   it('passes correct props to sidebar component', () => {
-    createComponent(false, { design });
+    createComponent({ loading: false }, { design });
 
     expect(findSidebar().props()).toEqual({
       design,
@@ -158,14 +161,17 @@ describe('Design management design index page', () => {
   });
 
   it('opens a new discussion form', () => {
-    createComponent(false, {
-      design: {
-        ...design,
-        discussions: {
-          nodes: [],
+    createComponent(
+      { loading: false },
+      {
+        design: {
+          ...design,
+          discussions: {
+            nodes: [],
+          },
         },
       },
-    });
+    );
 
     findDesignPresentation().vm.$emit('openCommentForm', { x: 0, y: 0 });
 
@@ -175,15 +181,18 @@ describe('Design management design index page', () => {
   });
 
   it('keeps new discussion form focused', () => {
-    createComponent(false, {
-      design: {
-        ...design,
-        discussions: {
-          nodes: [],
+    createComponent(
+      { loading: false },
+      {
+        design: {
+          ...design,
+          discussions: {
+            nodes: [],
+          },
         },
+        annotationCoordinates,
       },
-      annotationCoordinates,
-    });
+    );
 
     findDesignPresentation().vm.$emit('openCommentForm', { x: 10, y: 10 });
 
@@ -191,16 +200,19 @@ describe('Design management design index page', () => {
   });
 
   it('sends a mutation on submitting form and closes form', () => {
-    createComponent(false, {
-      design: {
-        ...design,
-        discussions: {
-          nodes: [],
+    createComponent(
+      { loading: false },
+      {
+        design: {
+          ...design,
+          discussions: {
+            nodes: [],
+          },
         },
+        annotationCoordinates,
+        comment: newComment,
       },
-      annotationCoordinates,
-      comment: newComment,
-    });
+    );
 
     findDiscussionForm().vm.$emit('submitForm');
     expect(mutate).toHaveBeenCalledWith(createDiscussionMutationVariables);
@@ -216,16 +228,19 @@ describe('Design management design index page', () => {
   });
 
   it('closes the form and clears the comment on canceling form', () => {
-    createComponent(false, {
-      design: {
-        ...design,
-        discussions: {
-          nodes: [],
+    createComponent(
+      { loading: false },
+      {
+        design: {
+          ...design,
+          discussions: {
+            nodes: [],
+          },
         },
+        annotationCoordinates,
+        comment: newComment,
       },
-      annotationCoordinates,
-      comment: newComment,
-    });
+    );
 
     findDiscussionForm().vm.$emit('cancelForm');
 
@@ -238,15 +253,18 @@ describe('Design management design index page', () => {
 
   describe('with error', () => {
     beforeEach(() => {
-      createComponent(false, {
-        design: {
-          ...design,
-          discussions: {
-            nodes: [],
+      createComponent(
+        { loading: false },
+        {
+          design: {
+            ...design,
+            discussions: {
+              nodes: [],
+            },
           },
+          errorMessage: 'woops',
         },
-        errorMessage: 'woops',
-      });
+      );
     });
 
     it('GlAlert is rendered in correct position with correct content', () => {
@@ -257,7 +275,7 @@ describe('Design management design index page', () => {
   describe('onDesignQueryResult', () => {
     describe('with no designs', () => {
       it('redirects to /designs', () => {
-        createComponent(true);
+        createComponent({ loading: true });
         router.push = jest.fn();
 
         wrapper.vm.onDesignQueryResult({ data: mockResponseNoDesigns, loading: false });
@@ -272,7 +290,7 @@ describe('Design management design index page', () => {
 
     describe('when no design exists for given version', () => {
       it('redirects to /designs', () => {
-        createComponent(true);
+        createComponent({ loading: true });
         wrapper.setData({
           allVersions: mockAllVersions,
         });
