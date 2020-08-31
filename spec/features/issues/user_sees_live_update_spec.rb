@@ -39,7 +39,7 @@ RSpec.describe 'Issues > User sees live update', :js do
       expect(page).to have_css('.sidebar-item-warning-message')
 
       within('.sidebar-item-warning-message') do
-        find('.btn-close').click
+        find('.btn-warning').click
       end
 
       wait_for_requests

@@ -1,5 +1,4 @@
 import { shallowMount } from '@vue/test-utils';
-import { GlLoadingIcon } from '@gitlab/ui';
 import waitForPromises from 'helpers/wait_for_promises';
 import EditFormButtons from '~/sidebar/components/confidential/edit_form_buttons.vue';
 import eventHub from '~/sidebar/event_hub';
@@ -56,11 +55,7 @@ describe('Edit Form Buttons', () => {
     });
 
     it('disables the toggle button', () => {
-      expect(findConfidentialToggle().attributes('disabled')).toBe('disabled');
-    });
-
-    it('finds the GlLoadingIcon', () => {
-      expect(wrapper.find(GlLoadingIcon).exists()).toBe(true);
+      expect(findConfidentialToggle().attributes('disabled')).toBe('true');
     });
   });
 
@@ -106,12 +101,6 @@ describe('Edit Form Buttons', () => {
       expect(store.dispatch).toHaveBeenCalledWith('updateConfidentialityOnIssuable', {
         confidential: false,
         fullPath: '',
-      });
-    });
-
-    it('resets loading', () => {
-      return waitForPromises().then(() => {
-        expect(wrapper.find(GlLoadingIcon).exists()).toBe(false);
       });
     });
 
