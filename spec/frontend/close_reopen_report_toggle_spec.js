@@ -274,7 +274,12 @@ describe('CloseReopenReportToggle', () => {
           {
             input: button,
             valueAttribute: 'data-url',
-            inputAttribute: 'data-endpoint',
+            inputAttribute: 'href',
+          },
+          {
+            input: button,
+            valueAttribute: 'data-method',
+            inputAttribute: 'data-method',
           },
         ],
       });

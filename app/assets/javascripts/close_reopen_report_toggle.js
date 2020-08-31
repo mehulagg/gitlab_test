@@ -80,7 +80,12 @@ class CloseReopenReportToggle {
         {
           input: this.button,
           valueAttribute: 'data-url',
-          inputAttribute: 'data-endpoint',
+          inputAttribute: 'href',
+        },
+        {
+          input: this.button,
+          valueAttribute: 'data-method',
+          inputAttribute: 'data-method',
         },
       ],
     };
