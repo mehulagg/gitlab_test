@@ -11,8 +11,6 @@ describe('JumpToNextDiscussionButton', () => {
 
   const findButton = () => wrapper.find(GlButton);
 
-    const findButton = () => wrapper.find(GlButton);
-
   beforeEach(() => {
     jumpFn = jest.fn();
     wrapper = shallowMount(JumpToNextDiscussionButton, {
