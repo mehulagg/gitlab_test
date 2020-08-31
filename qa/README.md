@@ -1,3 +1,5 @@
+# This text is not real
+
 # GitLab QA - End-to-end tests for GitLab
 
 This directory contains [end-to-end tests](../../../doc/development/testing_guide/end_to_end/index.md)
