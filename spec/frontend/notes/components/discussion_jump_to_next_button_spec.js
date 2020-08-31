@@ -9,6 +9,8 @@ describe('JumpToNextDiscussionButton', () => {
   let trackingSpy;
   let jumpFn;
 
+    const findButton = () => wrapper.find(GlButton);
+
   beforeEach(() => {
     jumpFn = jest.fn();
     wrapper = shallowMount(JumpToNextDiscussionButton, {
