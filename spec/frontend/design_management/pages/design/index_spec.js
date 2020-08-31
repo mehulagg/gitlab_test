@@ -26,6 +26,13 @@ jest.mock('mousetrap', () => ({
   unbind: jest.fn(),
 }));
 
+const mockPageLayoutElement = {
+  classList: {
+    add: jest.fn(),
+    remove: jest.fn(),
+  },
+};
+
 const focusInput = jest.fn();
 
 const DesignReplyForm = {
@@ -115,23 +122,32 @@ describe('Design management design index page', () => {
 
   afterEach(() => {
     wrapper.destroy();
+    // router.push('/designs/test');
   });
 
-  describe('when navigating', () => {
-    it('applies fullscreen layout', () => {
-      const mockPageLayoutElement = {
-        classList: {
-          add: jest.fn(),
-          remove: jest.fn(),
-        },
-      };
+  describe('when navigating to component', () => {
+    it('applies fullscreen layout class', async () => {
       jest.spyOn(utils, 'getPageLayoutElement').mockReturnValue(mockPageLayoutElement);
-
       createComponent({ loading: true });
 
-      wrapper.vm.$router.push('/designs/test');
+      await router.push('/designs/test');
+
       expect(mockPageLayoutElement.classList.add).toHaveBeenCalledTimes(1);
       expect(mockPageLayoutElement.classList.add).toHaveBeenCalledWith(
+        ...DESIGN_DETAIL_LAYOUT_CLASSLIST,
+      );
+    });
+  });
+
+  describe('when navigating away from component', () => {
+    it('removes fullscreen layout class', async () => {
+      jest.spyOn(utils, 'getPageLayoutElement').mockReturnValue(mockPageLayoutElement);
+      createComponent({ loading: true });
+
+      await router.push('/designs');
+
+      expect(mockPageLayoutElement.classList.remove).toHaveBeenCalledTimes(1);
+      expect(mockPageLayoutElement.classList.remove).toHaveBeenCalledWith(
         ...DESIGN_DETAIL_LAYOUT_CLASSLIST,
       );
     });

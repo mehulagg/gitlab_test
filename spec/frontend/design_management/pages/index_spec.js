@@ -565,14 +565,6 @@ describe('Design management index page', () => {
   });
 
   describe('when navigating', () => {
-    it('ensures fullscreen layout is not applied', () => {
-      createComponent({ loading: true });
-
-      wrapper.vm.$router.push('/');
-      expect(mockPageEl.classList.remove).toHaveBeenCalledTimes(1);
-      expect(mockPageEl.classList.remove).toHaveBeenCalledWith(...DESIGN_DETAIL_LAYOUT_CLASSLIST);
-    });
-
     it('should trigger a scrollIntoView method if designs route is detected', () => {
       router.replace({
         path: '/designs',
