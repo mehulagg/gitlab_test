@@ -127,7 +127,7 @@ module EE
     end
 
     def allows_reviewers?
-      project.feature_available?(:merge_request_reviewers)
+      project.beta_feature_available?(:merge_request_reviewers)
     end
 
     def visible_blocking_merge_requests(user)
