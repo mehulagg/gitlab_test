@@ -36,7 +36,7 @@ describe('JumpToNextDiscussionButton', () => {
   });
 
   it('sends the correct tracking event when clicked', () => {
-    wrapper.find({ ref: 'gl-button' }).trigger('click');
+    findButton().trigger('click');
 
     expect(trackingSpy).toHaveBeenCalledWith('_category_', 'click_button', {
       label: 'mr_next_unresolved_thread',
