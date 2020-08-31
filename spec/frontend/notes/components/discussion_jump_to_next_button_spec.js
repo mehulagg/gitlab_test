@@ -30,7 +30,7 @@ describe('JumpToNextDiscussionButton', () => {
   });
 
   it('calls jumpToNextRelativeDiscussion when clicked', () => {
-    wrapper.find({ ref: 'gl-button' }).trigger('click');
+    findButton().trigger('click');
 
     expect(jumpFn).toHaveBeenCalledWith(fromDiscussionId);
   });
