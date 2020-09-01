@@ -4,4 +4,4 @@
   %h3
     = _("Repositories Analytics")
 
-#js-group-repository-analytics{ data: { group_analytics_coverage_reports_path: group_analytics_coverage_reports_path(@group, format: :csv, ref_path: "refs/heads/master", start_date: Date.today - 1.year, end_date: Date.today) } }
+#js-group-repository-analytics{ data: { group_analytics_coverage_reports_path: group_analytics_coverage_reports_path(@group, format: :csv, ref_path: "refs/heads/master") } }
