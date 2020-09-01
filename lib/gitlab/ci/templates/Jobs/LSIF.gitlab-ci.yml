@@ -1,6 +1,6 @@
 
 .lsif:
-  stagge: lsif
+  stage: lsif
   allow_failure: true
   artifacts:
     reports:
