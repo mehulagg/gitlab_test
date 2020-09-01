@@ -21217,6 +21217,9 @@ msgstr ""
 msgid "ReviewApp|Enable Review App"
 msgstr ""
 
+msgid "Reviewer"
+msgstr ""
+
 msgid "Reviewing"
 msgstr ""
 
