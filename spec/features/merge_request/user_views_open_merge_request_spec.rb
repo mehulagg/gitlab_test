@@ -24,6 +24,10 @@ RSpec.describe 'User views an open merge request' do
 
       expect(page).to have_content(merge_request.title).and have_content(merge_request.description)
     end
+
+    it 'has reviewers in sidebar' do
+      expect(page).to have_css('.reviewer')
+    end
   end
 
   context 'when a merge request has repository', :js do
