@@ -3,6 +3,7 @@ import Vue from 'vue';
 import VueApollo from 'vue-apollo';
 import SidebarTimeTracking from './components/time_tracking/sidebar_time_tracking.vue';
 import SidebarAssignees from './components/assignees/sidebar_assignees.vue';
+import SidebarReviewers from './components/reviewers/sidebar_reviewers.vue';
 import ConfidentialIssueSidebar from './components/confidential/confidential_issue_sidebar.vue';
 import SidebarMoveIssue from './lib/sidebar_move_issue';
 import IssuableLockForm from './components/lock/issuable_lock_form.vue';
@@ -39,6 +40,36 @@ function mountAssigneesComponent(mediator) {
     },
     render: createElement =>
       createElement('sidebar-assignees', {
+        props: {
+          mediator,
+          issuableIid: String(iid),
+          projectPath: fullPath,
+          field: el.dataset.field,
+          signedIn: el.hasAttribute('data-signed-in'),
+          issuableType: isInIssuePage() ? 'issue' : 'merge_request',
+        },
+      }),
+  });
+}
+
+function mountReviewersComponent(mediator) {
+  const el = document.getElementById('js-vue-sidebar-reviewers');
+  const apolloProvider = new VueApollo({
+    defaultClient: createDefaultClient(),
+  });
+
+  if (!el) return;
+
+  const { iid, fullPath } = getSidebarOptions();
+  // eslint-disable-next-line no-new
+  new Vue({
+    el,
+    apolloProvider,
+    components: {
+      SidebarReviewers,
+    },
+    render: createElement =>
+      createElement('sidebar-reviewers', {
         props: {
           mediator,
           issuableIid: String(iid),
@@ -161,6 +192,7 @@ function mountTimeTrackingComponent() {
 
 export function mountSidebar(mediator) {
   mountAssigneesComponent(mediator);
+  mountReviewersComponent(mediator);
   mountConfidentialComponent(mediator);
   mountLockComponent(mediator);
   mountParticipantsComponent(mediator);
