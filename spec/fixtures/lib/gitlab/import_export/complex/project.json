@@ -393,6 +393,11 @@
         "id": 1,
         "issue_id": 40,
         "sentry_issue_identifier": 1234567891
+      },
+      "issuable_severity": {
+        "id": 1,
+        "issue_id": 40,
+        "severity": 1
       }
     },
     {

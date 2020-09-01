@@ -304,6 +304,12 @@ RSpec.describe Gitlab::ImportExport::Project::TreeRestorer do
           expect(sentry_issue.sentry_issue_identifier).to eq(1234567891)
         end
 
+        it 'restores issuable severity' do
+          issuable_severity = @project.issues.first.issuable_severity
+
+          expect(issuable_severity.severity).to eq('low')
+        end
+
         it 'has award emoji for an issue' do
           award_emoji = @project.issues.first.award_emoji.first
 

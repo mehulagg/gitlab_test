@@ -38,6 +38,7 @@ tree:
         - actions:
           - :design # Duplicate export of issues.designs in order to link the record to both Issue and Action
       - :issue_assignees
+      - :issuable_severity
       - :zoom_meetings
       - :sentry_issue
       - :award_emoji
@@ -247,6 +248,8 @@ excluded_attributes:
     - :waiting_for_resource_at
     - :processed
   sentry_issue:
+    - :issue_id
+  issuable_severity:
     - :issue_id
   push_event_payload:
     - :event_id

@@ -640,6 +640,12 @@ ProjectAutoDevops:
 - updated_at
 IssueAssignee:
 - user_id
+IssuableSeverity:
+- id
+- issue_id
+- severity
+- created_at
+- updated_at
 ProjectCustomAttribute:
 - id
 - created_at
