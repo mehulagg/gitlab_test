@@ -32,6 +32,8 @@ The alert list displays the following information:
   - **Acknowledged**: Someone is actively investigating the problem.
   - **Resolved**: No further work is required.
 
+  Check out a [live example]() in GitLab to see Alerts in action.
+
 ## Enable Alerts
 
 NOTE: **Note:**
