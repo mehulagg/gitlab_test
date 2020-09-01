@@ -848,10 +848,10 @@
   resolved "https://registry.yarnpkg.com/@gitlab/svgs/-/svgs-1.161.0.tgz#661e8d19862dfba0e4c558e2eb6d64b402c1453e"
   integrity sha512-qsbboEICn08ZoEoAX/TuYygsFaXlzsCY+CfmdOzqvJbOdfHhVXmrJBxd2hP2qqjTZm2PkbRRmn+03+ce1jvatQ==
 
-"@gitlab/ui@20.10.0":
-  version "20.10.0"
-  resolved "https://registry.yarnpkg.com/@gitlab/ui/-/ui-20.10.0.tgz#5efdb5394d7cc8c95ce4bc5ec5b85d33e15b41d6"
-  integrity sha512-A6SDIZb7Vgj+k5iYKNLMYOp61bWFhjtsab2u3Z32sgx7GkOIZo5dB9ILJHBlLvZ5oOfQ/7Ch+3FmhGxsDjRIuQ==
+"@gitlab/ui@20.12.1":
+  version "20.12.1"
+  resolved "https://registry.yarnpkg.com/@gitlab/ui/-/ui-20.12.1.tgz#7ff01a52c777168feac764f94a9d9e024c157b02"
+  integrity sha512-X7ICu/gVK48ok3SQyH9bOE5zaVGIb8nN0Oz+pKhTz2PoZz7e3Js5ZSQFrb4UQmkQGYIOZiSj+NCeKlpmzPYk2g==
   dependencies:
     "@babel/standalone" "^7.0.0"
     "@gitlab/vue-toasted" "^1.3.0"
@@ -7078,10 +7078,10 @@ jquery.waitforimages@^2.2.0:
   resolved "https://registry.yarnpkg.com/jquery.waitforimages/-/jquery.waitforimages-2.2.0.tgz#63f23131055a1b060dc913e6d874bcc9b9e6b16b"
   integrity sha1-Y/IxMQVaGwYNyRPm2HS8ybnmsWs=
 
-"jquery@>= 1.9.1", jquery@>=1.8.0, jquery@^3.4.1:
-  version "3.4.1"
-  resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.4.1.tgz#714f1f8d9dde4bdfa55764ba37ef214630d80ef2"
-  integrity sha512-36+AdBzCL+y6qjw5Tx7HgzeGCzC81MDDgaUP8ld2zhx58HdqXGoBd+tHdrBMiyjGQs0Hxs/MLZTu/eHNJJuWPw==
+"jquery@>= 1.9.1", jquery@>=1.8.0, jquery@^3.5.0:
+  version "3.5.1"
+  resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.5.1.tgz#d7b4d08e1bfdb86ad2f1a3d039ea17304717abb5"
+  integrity sha512-XwIBPqcMn57FxfT+Go5pzySnm4KWkT1Tv7gjrpT1srtf8Weynl6R273VJ5GjkRb51IzMp5nbaPjJXMWeju2MKg==
 
 js-base64@^2.1.8:
   version "2.5.1"

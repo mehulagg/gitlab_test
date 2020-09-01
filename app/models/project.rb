@@ -545,6 +545,8 @@ class Project < ApplicationRecord
     preload(:project_feature, :route, namespace: [:route, :owner])
   }
 
+  scope :imported_from, -> (type) { where(import_type: type) }
+
   enum auto_cancel_pending_pipelines: { disabled: 0, enabled: 1 }
 
   chronic_duration_attr :build_timeout_human_readable, :build_timeout,
@@ -1826,12 +1828,12 @@ class Project < ApplicationRecord
   end
   # rubocop: enable CodeReuse/ServiceClass
 
-  def mark_pages_as_deployed
-    ensure_pages_metadatum.update!(deployed: true)
+  def mark_pages_as_deployed(artifacts_archive: nil)
+    ensure_pages_metadatum.update!(deployed: true, artifacts_archive: artifacts_archive)
   end
 
   def mark_pages_as_not_deployed
-    ensure_pages_metadatum.update!(deployed: false)
+    ensure_pages_metadatum.update!(deployed: false, artifacts_archive: nil)
   end
 
   def write_repository_config(gl_full_path: full_path)

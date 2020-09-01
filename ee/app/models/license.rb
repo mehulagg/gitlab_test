@@ -146,6 +146,7 @@ class License < ApplicationRecord
     subepics
     threat_monitoring
     tracing
+    quality_management
   ]
   EEU_FEATURES.freeze
 

@@ -2,12 +2,13 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
+import * as utils from 'ee/analytics/shared/utils';
 import storeConfig from 'ee/analytics/cycle_analytics/store';
-import FilterBar, { prepareTokens } from 'ee/analytics/cycle_analytics/components/filter_bar.vue';
-import initialFiltersState from 'ee/analytics/cycle_analytics/store/modules/filters/state';
+import FilterBar from 'ee/analytics/cycle_analytics/components/filter_bar.vue';
+import initialFiltersState from 'ee/analytics/shared/store/modules/filters/state';
 import FilteredSearchBar from '~/vue_shared/components/filtered_search_bar/filtered_search_bar_root.vue';
 import UrlSync from '~/vue_shared/components/url_sync.vue';
-import { filterMilestones, filterLabels } from '../mock_data';
+import { filterMilestones, filterLabels } from '../../shared/store/modules/filters/mock_data';
 import * as commonUtils from '~/lib/utils/common_utils';
 import * as urlUtils from '~/lib/utils/url_utility';
 
@@ -22,8 +23,8 @@ const assigneesTokenType = 'assignees';
 const initialFilterBarState = {
   selectedMilestone: null,
   selectedAuthor: null,
-  selectedAssignees: null,
-  selectedLabels: null,
+  selectedAssigneeList: null,
+  selectedLabelList: null,
 };
 
 const defaultParams = {
@@ -90,7 +91,7 @@ describe('Filter bar', () => {
   });
 
   const selectedMilestone = [filterMilestones[0]];
-  const selectedLabels = [filterLabels[0]];
+  const selectedLabelList = [filterLabels[0]];
 
   const findFilteredSearch = () => wrapper.find(FilteredSearchBar);
   const getSearchToken = type =>
@@ -113,7 +114,7 @@ describe('Filter bar', () => {
     beforeEach(() => {
       store = createStore({
         milestones: { data: selectedMilestone },
-        labels: { data: selectedLabels },
+        labels: { data: selectedLabelList },
         authors: { data: [] },
         assignees: { data: [] },
       });
@@ -139,7 +140,7 @@ describe('Filter bar', () => {
     it('provides the initial label token', () => {
       const { initialLabels: labelToken } = getSearchToken(labelsTokenType);
 
-      expect(labelToken).toHaveLength(selectedLabels.length);
+      expect(labelToken).toHaveLength(selectedLabelList.length);
     });
   });
 
@@ -150,107 +151,38 @@ describe('Filter bar', () => {
         labels: { data: filterLabels },
       });
       wrapper = createComponent(store);
+      jest.spyOn(utils, 'processFilters');
     });
 
     it('clicks on the search button, setFilters is dispatched', () => {
-      findFilteredSearch().vm.$emit('onFilter', [
+      const filters = [
         { type: 'milestone', value: { data: selectedMilestone[0].title, operator: '=' } },
-        { type: 'labels', value: { data: selectedLabels[0].title, operator: '=' } },
-      ]);
+        { type: 'labels', value: { data: selectedLabelList[0].title, operator: '=' } },
+      ];
+
+      findFilteredSearch().vm.$emit('onFilter', filters);
+
+      expect(utils.processFilters).toHaveBeenCalledWith(filters);
 
       expect(setFiltersMock).toHaveBeenCalledWith(
         expect.anything(),
         {
-          selectedLabels: [selectedLabels[0].title],
+          selectedLabelList: [selectedLabelList[0].title],
           selectedMilestone: selectedMilestone[0].title,
-          selectedAssignees: [],
+          selectedAssigneeList: [],
           selectedAuthor: null,
         },
         undefined,
       );
-    });
-
-    it('removes wrapping double quotes from the data and dispatches setFilters', () => {
-      findFilteredSearch().vm.$emit('onFilter', [
-        { type: 'milestone', value: { data: '"milestone with spaces"', operator: '=' } },
-      ]);
-
-      expect(setFiltersMock).toHaveBeenCalledWith(
-        expect.anything(),
-        {
-          selectedMilestone: 'milestone with spaces',
-          selectedLabels: [],
-          selectedAssignees: [],
-          selectedAuthor: null,
-        },
-        undefined,
-      );
-    });
-
-    it('removes wrapping single quotes from the data and dispatches setFilters', () => {
-      findFilteredSearch().vm.$emit('onFilter', [
-        { type: 'milestone', value: { data: "'milestone with spaces'", operator: '=' } },
-      ]);
-
-      expect(setFiltersMock).toHaveBeenCalledWith(
-        expect.anything(),
-        {
-          selectedMilestone: 'milestone with spaces',
-          selectedLabels: [],
-          selectedAssignees: [],
-          selectedAuthor: null,
-        },
-        undefined,
-      );
-    });
-
-    it('does not remove inner double quotes from the data and dispatches setFilters ', () => {
-      findFilteredSearch().vm.$emit('onFilter', [
-        { type: 'milestone', value: { data: 'milestone "with" spaces', operator: '=' } },
-      ]);
-
-      expect(setFiltersMock).toHaveBeenCalledWith(
-        expect.anything(),
-        {
-          selectedMilestone: 'milestone "with" spaces',
-          selectedAssignees: [],
-          selectedAuthor: null,
-          selectedLabels: [],
-        },
-        undefined,
-      );
-    });
-  });
-
-  describe('prepareTokens', () => {
-    describe('with empty data', () => {
-      it('returns an empty array', () => {
-        expect(prepareTokens()).toEqual([]);
-        expect(prepareTokens({})).toEqual([]);
-        expect(prepareTokens({ milestone: null, author: null, assignees: [], labels: [] })).toEqual(
-          [],
-        );
-      });
-    });
-
-    it.each`
-      token          | value                     | result
-      ${'milestone'} | ${'v1.0'}                 | ${[{ type: 'milestone', value: { data: 'v1.0' } }]}
-      ${'author'}    | ${'mr.popo'}              | ${[{ type: 'author', value: { data: 'mr.popo' } }]}
-      ${'labels'}    | ${['z-fighters']}         | ${[{ type: 'labels', value: { data: 'z-fighters' } }]}
-      ${'assignees'} | ${['krillin', 'piccolo']} | ${[{ type: 'assignees', value: { data: 'krillin' } }, { type: 'assignees', value: { data: 'piccolo' } }]}
-    `('with $token=$value sets the $token key', ({ token, value, result }) => {
-      const res = prepareTokens({ [token]: value });
-      expect(res).toEqual(result);
     });
   });
 
   describe.each`
-    stateKey               | payload                          | paramKey
-    ${'selectedMilestone'} | ${'12.0'}                        | ${'milestone_title'}
-    ${'selectedAuthor'}    | ${'rootUser'}                    | ${'author_username'}
-    ${'selectedLabels'}    | ${['Afternix', 'Brouceforge']}   | ${'label_name'}
-    ${'selectedAssignees'} | ${['rootUser', 'secondaryUser']} | ${'assignee_username'}
+    stateKey                  | payload                          | paramKey
+    ${'selectedMilestone'}    | ${'12.0'}                        | ${'milestone_title'}
+    ${'selectedAuthor'}       | ${'rootUser'}                    | ${'author_username'}
+    ${'selectedLabelList'}    | ${['Afternix', 'Brouceforge']}   | ${'label_name'}
+    ${'selectedAssigneeList'} | ${['rootUser', 'secondaryUser']} | ${'assignee_username'}
   `('with a $stateKey updates the $paramKey url parameter', ({ stateKey, payload, paramKey }) => {
     beforeEach(() => {
       commonUtils.historyPushState = jest.fn();

@@ -12133,7 +12133,9 @@ CREATE TABLE public.gitlab_subscriptions (
     seats integer DEFAULT 0,
     trial boolean DEFAULT false,
     trial_starts_on date,
-    auto_renew boolean
+    auto_renew boolean,
+    seats_in_use integer DEFAULT 0 NOT NULL,
+    seats_owed integer DEFAULT 0 NOT NULL
 );
 
 CREATE SEQUENCE public.gitlab_subscriptions_id_seq
@@ -14506,7 +14508,8 @@ ALTER SEQUENCE public.project_mirror_data_id_seq OWNED BY public.project_mirror_
 
 CREATE TABLE public.project_pages_metadata (
     project_id bigint NOT NULL,
-    deployed boolean DEFAULT false NOT NULL
+    deployed boolean DEFAULT false NOT NULL,
+    artifacts_archive_id bigint
 );
 
 CREATE TABLE public.project_repositories (
@@ -15136,7 +15139,6 @@ CREATE TABLE public.requirements_management_test_reports (
     id bigint NOT NULL,
     created_at timestamp with time zone NOT NULL,
     requirement_id bigint NOT NULL,
-    pipeline_id bigint,
     author_id bigint,
     state smallint NOT NULL,
     build_id bigint
@@ -19905,6 +19907,8 @@ CREATE INDEX index_import_failures_on_project_id_and_correlation_id_value ON pub
 
 CREATE INDEX index_import_failures_on_project_id_not_null ON public.import_failures USING btree (project_id) WHERE (project_id IS NOT NULL);
 
+CREATE INDEX index_imported_projects_on_import_type_creator_id_created_at ON public.projects USING btree (import_type, creator_id, created_at) WHERE (import_type IS NOT NULL);
+
 CREATE UNIQUE INDEX index_index_statuses_on_project_id ON public.index_statuses USING btree (project_id);
 
 CREATE INDEX index_insights_on_namespace_id ON public.insights USING btree (namespace_id);
@@ -20461,6 +20465,8 @@ CREATE UNIQUE INDEX index_project_mirror_data_on_project_id ON public.project_mi
 
 CREATE INDEX index_project_mirror_data_on_status ON public.project_mirror_data USING btree (status);
 
+CREATE INDEX index_project_pages_metadata_on_artifacts_archive_id ON public.project_pages_metadata USING btree (artifacts_archive_id);
+
 CREATE UNIQUE INDEX index_project_pages_metadata_on_project_id ON public.project_pages_metadata USING btree (project_id);
 
 CREATE INDEX index_project_pages_metadata_on_project_id_and_deployed_is_true ON public.project_pages_metadata USING btree (project_id) WHERE (deployed = true);
@@ -20666,8 +20672,6 @@ CREATE UNIQUE INDEX index_repository_languages_on_project_and_languages_id ON pu
 CREATE INDEX index_requirements_management_test_reports_on_author_id ON public.requirements_management_test_reports USING btree (author_id);
 
 CREATE INDEX index_requirements_management_test_reports_on_build_id ON public.requirements_management_test_reports USING btree (build_id);
-
-CREATE INDEX index_requirements_management_test_reports_on_pipeline_id ON public.requirements_management_test_reports USING btree (pipeline_id);
 
 CREATE INDEX index_requirements_management_test_reports_on_requirement_id ON public.requirements_management_test_reports USING btree (requirement_id);
 
@@ -21658,6 +21662,9 @@ ALTER TABLE ONLY public.merge_requests
 ALTER TABLE ONLY public.ci_builds
     ADD CONSTRAINT fk_6661f4f0e8 FOREIGN KEY (resource_group_id) REFERENCES public.ci_resource_groups(id) ON DELETE SET NULL;
 
+ALTER TABLE ONLY public.project_pages_metadata
+    ADD CONSTRAINT fk_69366a119e FOREIGN KEY (artifacts_archive_id) REFERENCES public.ci_job_artifacts(id) ON DELETE SET NULL;
+
 ALTER TABLE ONLY public.application_settings
     ADD CONSTRAINT fk_693b8795e4 FOREIGN KEY (push_rule_id) REFERENCES public.push_rules(id) ON DELETE SET NULL;
 
@@ -22015,6 +22022,9 @@ ALTER TABLE ONLY public.events
 ALTER TABLE ONLY public.vulnerabilities
     ADD CONSTRAINT fk_efb96ab1e2 FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY public.emails
+    ADD CONSTRAINT fk_emails_user_id FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY public.clusters
     ADD CONSTRAINT fk_f05c5e5a42 FOREIGN KEY (management_project_id) REFERENCES public.projects(id) ON DELETE SET NULL;
 
@@ -22227,9 +22237,6 @@ ALTER TABLE ONLY public.service_desk_settings
 
 ALTER TABLE ONLY public.group_custom_attributes
     ADD CONSTRAINT fk_rails_246e0db83a FOREIGN KEY (group_id) REFERENCES public.namespaces(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY public.requirements_management_test_reports
-    ADD CONSTRAINT fk_rails_24cecc1e68 FOREIGN KEY (pipeline_id) REFERENCES public.ci_pipelines(id) ON DELETE SET NULL;
 
 ALTER TABLE ONLY public.cluster_agents
     ADD CONSTRAINT fk_rails_25e9fc2d5d FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;

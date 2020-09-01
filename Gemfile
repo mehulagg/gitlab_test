@@ -26,7 +26,7 @@ gem 'marginalia', '~> 1.9.0'
 
 # Authentication libraries
 gem 'devise', '~> 4.6'
-gem 'doorkeeper', '~> 5.0.3'
+gem 'doorkeeper', '~> 5.1.1'
 gem 'doorkeeper-openid_connect', '~> 1.6.3'
 gem 'omniauth', '~> 1.8'
 gem 'omniauth-auth0', '~> 2.0.0'
@@ -119,7 +119,7 @@ gem 'fog-local', '~> 0.6'
 gem 'fog-openstack', '~> 1.0'
 gem 'fog-rackspace', '~> 0.1.1'
 gem 'fog-aliyun', '~> 0.3'
-gem 'gitlab-fog-azure-rm', '~> 0.7', require: false
+gem 'gitlab-fog-azure-rm', '~> 0.8', require: false
 
 # for Google storage
 gem 'google-api-client', '~> 0.33'

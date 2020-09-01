@@ -1,15 +1,11 @@
 import Vuex from 'vuex';
 import { shallowMount, mount, createLocalVue } from '@vue/test-utils';
-import { GlLoadingIcon, GlNewDropdownItem } from '@gitlab/ui';
-import durationChartStore from 'ee/analytics/cycle_analytics/store/modules/duration_chart';
+import { GlNewDropdownItem } from '@gitlab/ui';
 import Scatterplot from 'ee/analytics/shared/components/scatterplot.vue';
 import DurationChart from 'ee/analytics/cycle_analytics/components/duration_chart.vue';
 import StageDropdownFilter from 'ee/analytics/cycle_analytics/components/stage_dropdown_filter.vue';
-import {
-  allowedStages as stages,
-  durationChartPlottableData as durationData,
-  durationChartPlottableMedianData as durationMedianData,
-} from '../mock_data';
+import ChartSkeletonLoader from '~/vue_shared/components/resizable_chart/skeleton_loader.vue';
+import { allowedStages as stages, durationChartPlottableData as durationData } from '../mock_data';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -23,16 +19,16 @@ const fakeStore = ({ initialGetters, initialState }) =>
   new Vuex.Store({
     modules: {
       durationChart: {
-        ...durationChartStore,
+        namespaced: true,
         getters: {
           durationChartPlottableData: () => durationData,
-          durationChartMedianData: () => durationMedianData,
           ...initialGetters,
         },
         state: {
           isLoading: false,
           ...initialState,
         },
+        actions: actionSpies,
       },
     },
   });
@@ -51,9 +47,8 @@ function createComponent({
       stages,
       ...props,
     },
-    methods: actionSpies,
     stubs: {
-      GlLoadingIcon: true,
+      ChartSkeletonLoader: true,
       Scatterplot: true,
       StageDropdownFilter: true,
       ...stubs,
@@ -67,7 +62,7 @@ describe('DurationChart', () => {
   const findNoDataContainer = _wrapper => _wrapper.find({ ref: 'duration-chart-no-data' });
   const findScatterPlot = _wrapper => _wrapper.find(Scatterplot);
   const findStageDropdown = _wrapper => _wrapper.find(StageDropdownFilter);
-  const findLoader = _wrapper => _wrapper.find(GlLoadingIcon);
+  const findLoader = _wrapper => _wrapper.find(ChartSkeletonLoader);
 
   const selectStage = (_wrapper, index = 0) => {
     findStageDropdown(_wrapper)
@@ -107,7 +102,11 @@ describe('DurationChart', () => {
     });
 
     it('calls the `updateSelectedDurationChartStages` action', () => {
-      expect(actionSpies.updateSelectedDurationChartStages).toHaveBeenCalledWith(selectedStages);
+      expect(actionSpies.updateSelectedDurationChartStages).toHaveBeenCalledWith(
+        expect.any(Object),
+        selectedStages,
+        undefined,
+      );
     });
   });
 
@@ -130,7 +129,6 @@ describe('DurationChart', () => {
       wrapper = createComponent({
         initialGetters: {
           durationChartPlottableData: () => [],
-          durationChartMedianData: () => [],
         },
       });
     });
