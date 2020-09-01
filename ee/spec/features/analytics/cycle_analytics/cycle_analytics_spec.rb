@@ -29,12 +29,43 @@ RSpec.describe 'Group Value Stream Analytics', :js do
     let_it_be("issue_#{i}".to_sym) { create(:issue, title: "New Issue #{i}", project: project, created_at: 2.days.ago) }
   end
 
+  def wait_for_stages_to_load
+    expect(page).to have_selector '.js-stage-table'
+  end
+
+  # TODO: figure out how to build url from object
+  def select_group(target_group = group)
+    visit group_analytics_cycle_analytics_path(target_group)
+
+    wait_for_stages_to_load
+  end
+
+  def select_project
+    select_group
+
+    dropdown = page.find('.dropdown-projects')
+    dropdown.click
+    dropdown.find('a').click
+    dropdown.click
+  end
+
   shared_examples 'empty state' do
     it 'displays an empty state' do
       element = page.find('.row.empty-state')
 
-      expect(element).to have_content(_("Value Stream Analytics can help you determine your team’s velocity"))
+      expect(element).to have_content(_("We don't have enough data to show this stage."))
       expect(element.find('.svg-content img')['src']).to have_content('illustrations/analytics/cycle-analytics-empty-chart')
+    end
+  end
+
+  shared_examples 'no group available' do
+    it 'displays empty text' do
+      [
+        'Value Stream Analytics can help you determine your team’s velocity',
+        'Start by choosing a group to see how your team is spending time. You can then drill down to the project level.'
+      ].each do |content|
+        expect(page).to have_content(content)
+      end
     end
   end
 
@@ -58,7 +89,7 @@ RSpec.describe 'Group Value Stream Analytics', :js do
           visit "#{group_analytics_cycle_analytics_path(group)}?created_after=2019-12-31&created_before=2019-11-01"
         end
 
-        it_behaves_like 'empty state'
+        it_behaves_like 'no group available'
       end
 
       context 'with fake parameters' do
@@ -103,7 +134,7 @@ RSpec.describe 'Group Value Stream Analytics', :js do
 
   context 'displays correct fields after group selection' do
     before do
-      visit group_analytics_cycle_analytics_path(group)
+      select_group
     end
 
     it 'hides the empty state' do
@@ -131,7 +162,6 @@ RSpec.describe 'Group Value Stream Analytics', :js do
     before do
       stub_feature_flags(value_stream_analytics_path_navigation: false)
 
-      visit analytics_cycle_analytics_path
       select_group
     end
 
@@ -146,7 +176,6 @@ RSpec.describe 'Group Value Stream Analytics', :js do
     before do
       stub_feature_flags(value_stream_analytics_create_multiple_value_streams: false)
 
-      visit analytics_cycle_analytics_path
       select_group
     end
 
@@ -156,36 +185,6 @@ RSpec.describe 'Group Value Stream Analytics', :js do
 
     it 'displays the duration chart' do
       expect(page).to have_selector(duration_stage_selector, visible: true)
-    end
-  end
-
-  def wait_for_stages_to_load
-    expect(page).to have_selector '.js-stage-table'
-  end
-
-  def select_group(name = group.name)
-    dropdown = page.find('.dropdown-groups')
-    dropdown.click
-    dropdown.find('.js-group-path', exact_text: name).click
-
-    wait_for_stages_to_load
-  end
-
-  def select_project
-    select_group
-
-    dropdown = page.find('.dropdown-projects')
-    dropdown.click
-    dropdown.find('a').click
-    dropdown.click
-  end
-
-  it 'displays empty text' do
-    [
-      'Value Stream Analytics can help you determine your team’s velocity',
-      'Start by choosing a group to see how your team is spending time. You can then drill down to the project level.'
-    ].each do |content|
-      expect(page).to have_content(content)
     end
   end
 
@@ -293,7 +292,7 @@ RSpec.describe 'Group Value Stream Analytics', :js do
 
   context 'with a sub group selected' do
     before do
-      select_group(sub_group.full_name)
+      select_group(sub_group)
     end
 
     it_behaves_like 'group value stream analytics'
@@ -405,7 +404,7 @@ RSpec.describe 'Group Value Stream Analytics', :js do
             create(:labeled_issue, created_at: i.days.ago, project: create(:project, group: group), labels: [group_label2])
           end
 
-          visit analytics_cycle_analytics_path
+
           select_group
         end
 
@@ -426,8 +425,6 @@ RSpec.describe 'Group Value Stream Analytics', :js do
 
       context 'no data available' do
         before do
-          visit analytics_cycle_analytics_path
-
           select_group
         end
 
@@ -798,7 +795,7 @@ RSpec.describe 'Group Value Stream Analytics', :js do
       context 'with a sub group' do
         context 'selected' do
           before do
-            select_group(sub_group.full_name)
+            select_group(sub_group)
           end
 
           it_behaves_like 'can create custom stages' do
@@ -811,7 +808,7 @@ RSpec.describe 'Group Value Stream Analytics', :js do
         context 'with a custom stage created' do
           before do
             create_custom_stage(sub_group)
-            select_group(sub_group.full_name)
+            select_group(sub_group)
 
             expect(page).to have_text custom_stage_name
           end
@@ -988,7 +985,6 @@ RSpec.describe 'Group Value Stream Analytics', :js do
     end
 
     before do
-      visit analytics_cycle_analytics_path
 
       select_group
     end
