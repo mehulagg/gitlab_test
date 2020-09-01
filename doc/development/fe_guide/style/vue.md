@@ -436,7 +436,7 @@ Creating a global, mutable wrapper provides a number of advantages, including th
 
 #### The `createComponent` factory
 
-To avoid duplicating our mounting logic, it is useful to define a `createComponent` factory function that we can reuse in each test block.This is a closure which should reassign our `wrapper` variable to the result of [`mount`](https://vue-test-utils.vuejs.org/api/#mount)/[`shallowMount`](https://vue-test-utils.vuejs.org/api/#shallowMount).
+To avoid duplicating our mounting logic, it is useful to define a `createComponent` factory function that we can reuse in each test block. This is a closure which should reassign our `wrapper` variable to the result of [`mount`](https://vue-test-utils.vuejs.org/api/#mount)/[`shallowMount`](https://vue-test-utils.vuejs.org/api/#shallowMount).
 
 ```javascript
 import MyComponent from '~/path/to/my_component.vue';
