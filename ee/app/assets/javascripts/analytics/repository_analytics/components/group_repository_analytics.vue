@@ -37,6 +37,7 @@ export default {
       :href="csvReportPath"
       rel="nofollow"
       download
+      data-testid="group-code-coverage-csv-button"
     >{{ $options.text.downloadCSVButton }}</gl-button>
   </div>
 </template>
