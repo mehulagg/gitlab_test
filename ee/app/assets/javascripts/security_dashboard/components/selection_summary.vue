@@ -4,6 +4,7 @@ import { s__, n__ } from '~/locale';
 import toast from '~/vue_shared/plugins/global_toast';
 import { deprecatedCreateFlash as createFlash } from '~/flash';
 import dismissVulnerability from '../graphql/dismissVulnerability.graphql';
+import { VULNERABILITY_DISMISSAL_REASONS } from '../../vulnerabilities/constants'
 
 const REASON_NONE = s__('SecurityReports|[No reason]');
 const REASON_WONT_FIX = s__("SecurityReports|Won't fix / Accept risk");
@@ -80,9 +81,7 @@ export default {
   },
   dismissalReasons: [
     { value: null, text: s__('SecurityReports|Select a reason') },
-    REASON_FALSE_POSITIVE,
-    REASON_WONT_FIX,
-    REASON_NONE,
+    ...VULNERABILITY_DISMISSAL_REASONS
   ],
 };
 </script>

@@ -249,6 +249,7 @@ export default {
         <vulnerability-state-dropdown
           v-else
           :initial-state="vulnerability.state"
+          :dismissal-comment="vulnerability.dismissal_comment"
           @change="changeVulnerabilityState"
         />
         <split-button

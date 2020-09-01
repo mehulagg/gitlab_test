@@ -1,5 +1,14 @@
 import { s__ } from '~/locale';
 
+export const VULNERABILITY_DISMISSAL_REASON_NONE = s__('SecurityReports|[No reason]');
+export const VULNERABILITY_DISMISSAL_REASON_WONT_FIX = s__("SecurityReports|Won't fix / Accept risk");
+export const VULNERABILITY_DISMISSAL_REASON_FALSE_POSITIVE = s__('SecurityReports|False positive');
+export const VULNERABILITY_DISMISSAL_REASONS = [
+  VULNERABILITY_DISMISSAL_REASON_NONE,
+  VULNERABILITY_DISMISSAL_REASON_WONT_FIX,
+  VULNERABILITY_DISMISSAL_REASON_FALSE_POSITIVE
+]
+
 export const VULNERABILITY_STATE_OBJECTS = {
   dismissed: {
     action: 'dismiss',
@@ -7,6 +16,7 @@ export const VULNERABILITY_STATE_OBJECTS = {
     statusBoxStyle: 'upcoming',
     displayName: s__('Dismiss'),
     description: s__('VulnerabilityManagement|Will not fix or a false-positive'),
+    reasons: VULNERABILITY_DISMISSAL_REASONS
   },
   confirmed: {
     action: 'confirm',
