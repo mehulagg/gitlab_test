@@ -31,7 +31,7 @@ RSpec.describe API::Helpers::Packages::DependencyProxyHelpers do
         subject
       end
 
-      it_behaves_like 'a gitlab tracking event', described_class.name, 'npm_request_forward'
+      it_behaves_like 'a gitlab tracking event', described_class.name, ("#{package_type}_request_forward")
     end
 
     context 'with npm packages' do
