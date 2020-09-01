@@ -30,67 +30,41 @@ RSpec.describe 'Group Value Stream Analytics', :js do
   end
 
   shared_examples 'empty state' do
-    it 'displays an empty state before a group is selected' do
+    it 'displays an empty state' do
       element = page.find('.row.empty-state')
 
-      expect(element).to have_content(_('Value Stream Analytics can help you determine your team’s velocity'))
+      expect(element).to have_content(_("Value Stream Analytics can help you determine your team’s velocity"))
       expect(element.find('.svg-content img')['src']).to have_content('illustrations/analytics/cycle-analytics-empty-chart')
     end
   end
 
   before do
-    stub_licensed_features(cycle_analytics_for_groups: true)
+    stub_licensed_features(cycle_analytics_for_groups: true, type_of_work_analytics: true)
 
     group.add_owner(user)
     project.add_maintainer(user)
 
     sign_in(user)
-
-    visit analytics_cycle_analytics_path
   end
 
   it_behaves_like 'empty state'
 
   context 'deep linked url parameters' do
-    group_dropdown = '.js-groups-dropdown-filter'
     projects_dropdown = '.js-projects-dropdown-filter'
 
-    before do
-      stub_licensed_features(cycle_analytics_for_groups: true)
-
-      group.add_owner(user)
-
-      sign_in(user)
-    end
-
-    shared_examples 'group dropdown set' do
-      it 'has the group dropdown prepopulated' do
-        element = page.find(group_dropdown)
-
-        expect(element).to have_content group.name
-      end
-    end
-
     context 'without valid query parameters set' do
-      context 'with no group_id set' do
-        before do
-          visit analytics_cycle_analytics_path
-        end
-
-        it_behaves_like 'empty state'
-      end
-
       context 'with created_after date > created_before date' do
         before do
-          visit "#{analytics_cycle_analytics_path}?created_after=2019-12-31&created_before=2019-11-01"
+          visit "#{group_analytics_cycle_analytics_path(group)}?created_after=2019-12-31&created_before=2019-11-01"
         end
 
         it_behaves_like 'empty state'
       end
 
       context 'with fake parameters' do
+        # TODO: problematic
         before do
-          visit "#{analytics_cycle_analytics_path}?beans=not-cool"
+          visit "#{group_analytics_cycle_analytics_path(group)}?beans=not-cool"
         end
 
         it_behaves_like 'empty state'
@@ -98,17 +72,9 @@ RSpec.describe 'Group Value Stream Analytics', :js do
     end
 
     context 'with valid query parameters set' do
-      context 'with group_id set' do
-        before do
-          visit "#{analytics_cycle_analytics_path}?group_id=#{group.full_path}"
-        end
-
-        it_behaves_like 'group dropdown set'
-      end
-
       context 'with project_ids set' do
         before do
-          visit "#{analytics_cycle_analytics_path}?group_id=#{group.full_path}&project_ids[]=#{project.id}"
+          visit "#{group_analytics_cycle_analytics_path(group)}?project_ids[]=#{project.id}"
         end
 
         it 'has the projects dropdown prepopulated' do
@@ -116,15 +82,13 @@ RSpec.describe 'Group Value Stream Analytics', :js do
 
           expect(element).to have_content project.name
         end
-
-        it_behaves_like 'group dropdown set'
       end
 
       context 'with created_before and created_after set' do
         date_range = '.js-daterange-picker'
 
         before do
-          visit "#{analytics_cycle_analytics_path}?group_id=#{group.full_path}&created_before=2019-12-31&created_after=2019-11-01"
+          visit "#{group_analytics_cycle_analytics_path(group)}?created_before=2019-12-31&created_after=2019-11-01"
         end
 
         it 'has the date range prepopulated' do
@@ -133,15 +97,13 @@ RSpec.describe 'Group Value Stream Analytics', :js do
           expect(element.find('.js-daterange-picker-from input').value).to eq '2019-11-01'
           expect(element.find('.js-daterange-picker-to input').value).to eq '2019-12-31'
         end
-
-        it_behaves_like 'group dropdown set'
       end
     end
   end
 
   context 'displays correct fields after group selection' do
     before do
-      select_group
+      visit group_analytics_cycle_analytics_path(group)
     end
 
     it 'hides the empty state' do
@@ -431,7 +393,7 @@ RSpec.describe 'Group Value Stream Analytics', :js do
   describe 'Tasks by type chart', :js do
     context 'enabled' do
       before do
-        stub_licensed_features(cycle_analytics_for_groups: true, type_of_work_analytics: true)
+
 
         sign_in(user)
       end
