@@ -25,7 +25,7 @@ module EE
           projects,
           group: group,
           public_and_internal_projects: elastic_global,
-          filters: { state: params[:state] }
+          filters: { confidential: params[:confidential], state: params[:state] }
         )
       end
     end

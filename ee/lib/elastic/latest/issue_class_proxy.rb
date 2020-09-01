@@ -33,6 +33,11 @@ module Elastic
       def confidentiality_filter(query_hash, options)
         current_user = options[:current_user]
         project_ids = options[:project_ids]
+        confidential_filter = options[:confidential]
+
+        if confidential_filter.present?
+          query_hash[:query][:bool][:filter] << { term: { confidential: confidential_filter } }
+        end
 
         return query_hash if current_user&.can_read_all_resources?
 

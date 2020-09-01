@@ -193,6 +193,10 @@ module Gitlab
         end
 
         params[:state] = filters[:state] if filters.key?(:state)
+
+        if filters.key?(:confidential)
+          params[:confidential] = filters[:confidential] == 'yes'
+        end
       end
     end
 

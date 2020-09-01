@@ -2,7 +2,7 @@
 
 module Gitlab
   class ProjectSearchResults < SearchResults
-    attr_reader :project, :repository_ref
+    attr_reader :project, :repository_ref, :filters
 
     def initialize(current_user, query, project:, repository_ref: nil, filters: {})
       @project = project
