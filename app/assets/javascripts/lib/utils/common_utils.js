@@ -239,6 +239,13 @@ export const contentTop = () => {
   );
 };
 
+// Calculate header height for the GlDrawer
+export const drawerHeaderHeight = () => {
+  const { y: layoutTop } = document.querySelector('.layout-page').getBoundingClientRect();
+
+  return `${layoutTop}px`;
+};
+
 export const scrollToElement = (element, options = {}) => {
   let $el = element;
   if (!(element instanceof $)) {

@@ -4,13 +4,13 @@ import { mapActions, mapState, mapGetters } from 'vuex';
 import { __ } from '~/locale';
 import boardsStore from '~/boards/stores/boards_store';
 import eventHub from '~/sidebar/event_hub';
-import { isScopedLabel } from '~/lib/utils/common_utils';
+import { isScopedLabel, drawerHeaderHeight } from '~/lib/utils/common_utils';
 import { LIST } from '~/boards/constants';
 import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 
 // NOTE: need to revisit how we handle headerHeight, because we have so many different header and footer options.
 export default {
-  headerHeight: process.env.NODE_ENV === 'development' ? '75px' : '40px',
+  headerHeight: drawerHeaderHeight(),
   listSettingsText: __('List settings'),
   assignee: 'assignee',
   milestone: 'milestone',

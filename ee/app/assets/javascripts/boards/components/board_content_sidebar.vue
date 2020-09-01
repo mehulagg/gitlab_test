@@ -2,10 +2,10 @@
 import { mapState, mapActions, mapGetters } from 'vuex';
 import { GlDrawer } from '@gitlab/ui';
 import { ISSUABLE } from '~/boards/constants';
-import { contentTop } from '~/lib/utils/common_utils';
+import { drawerHeaderHeight } from '~/lib/utils/common_utils';
 
 export default {
-  headerHeight: `${contentTop()}px`,
+  headerHeight: drawerHeaderHeight(),
   components: {
     GlDrawer,
   },
