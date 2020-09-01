@@ -59,6 +59,12 @@ module Issues
 
       Milestones::IssuesCountService.new(milestone).delete_cache
     end
+
+    def track_incident_action(issue, user, action)
+      return unless issue.issue_type == 'incident'
+
+      ::Gitlab::UsageDataCounters::IncidentManagementActivity.track_event(user, :"incident_management_#{action}")
+    end
   end
 end
 

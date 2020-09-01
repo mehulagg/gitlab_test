@@ -13,7 +13,7 @@ module Mutations
         alert = authorized_find!(project_path: args[:project_path], iid: args[:iid])
         result = update_status(alert, args[:status])
 
-        Gitlab::Analytics::IncidentManagement::AlertStatusChangeEvent.track_event(current_user)
+        ::Gitlab::UsageDataCounters::IncidentManagementActivity.track_event(current_user, :incident_management_alert_status_changed)
 
         prepare_response(result)
       end

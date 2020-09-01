@@ -20,6 +20,8 @@ module Mutations
           alert = authorized_find!(project_path: args[:project_path], iid: args[:iid])
           result = set_assignees(alert, args[:assignee_usernames], args[:operation_mode])
 
+          ::Gitlab::UsageDataCounters::IncidentManagementActivity.track_event(current_user, :incident_management_alert_assigned)
+
           prepare_response(result)
         end
 

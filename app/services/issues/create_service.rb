@@ -31,6 +31,7 @@ module Issues
       resolve_discussions_with_issue(issuable)
       delete_milestone_total_issue_counter_cache(issuable.milestone)
       rebalance_if_needed(issuable)
+      track_incident_action(issuable, :incident_created)
 
       super
     end

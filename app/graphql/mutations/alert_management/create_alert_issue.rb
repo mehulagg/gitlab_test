@@ -9,6 +9,8 @@ module Mutations
         alert = authorized_find!(project_path: args[:project_path], iid: args[:iid])
         result = create_alert_issue(alert, current_user)
 
+        ::Gitlab::UsageDataCounters::IncidentManagementActivity.track_event(current_user, :incident_management_incident_created)
+
         prepare_response(alert, result)
       end
 

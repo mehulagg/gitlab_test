@@ -539,12 +539,28 @@ module Gitlab
 
       # rubocop: disable CodeReuse/ActiveRecord
       def usage_activity_by_stage_monitor(time_period)
+        total_incident_management_activity = redis_usage_data do
+          ::Gitlab::UsageDataCounters::IncidentManagementActivity.total_unique_users(
+            start_date: time_period[:created_at].first,
+            end_date: time_period[:created_at].last
+          )
+        end
+
+        all_incident_management_activitiy = redis_usage_data do
+          ::Gitlab::UsageDataCounters::IncidentManagementActivity.unique_users_by_action(
+            start_date: time_period[:created_at].first,
+            end_date: time_period[:created_at].last
+          )
+        end
+
         {
           clusters: distinct_count(::Clusters::Cluster.where(time_period), :user_id),
           clusters_applications_prometheus: cluster_applications_user_distinct_count(::Clusters::Applications::Prometheus, time_period),
           operations_dashboard_default_dashboard: count(::User.active.with_dashboard('operations').where(time_period),
                                                         start: user_minimum_id,
-                                                        finish: user_maximum_id)
+                                                        finish: user_maximum_id),
+          incident_management_activity: total_incident_management_activity,
+          **all_incident_management_activitiy
         }
       end
       # rubocop: enable CodeReuse/ActiveRecord

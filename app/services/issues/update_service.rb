@@ -44,6 +44,7 @@ module Issues
         create_assignee_note(issue, old_assignees)
         notification_service.async.reassigned_issue(issue, current_user, old_assignees)
         todo_service.reassigned_assignable(issue, current_user, old_assignees)
+        track_incident_action(issuable, :incident_assigned)
       end
 
       if issue.previous_changes.include?('confidential')
