@@ -68,3 +68,5 @@ package-and-qa:
       artifacts: false
     - job: build-assets-image
       artifacts: false
+  variables:
+    QA_BRANCH: "ml-rename-status-issue-tag-to-testcase-test"
