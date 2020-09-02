@@ -33,6 +33,7 @@ export default {
       @click="jumpToNextRelativeDiscussion(fromDiscussionId)"
     >
       <gl-icon name="comment-next" />
+          :icon="comment-next"
     </gl-button>
   </div>
 </template>
