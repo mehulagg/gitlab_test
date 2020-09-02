@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require 'spec_helper'
 
-RSpec.describe 'Group Value Stream Analytics', :js do
+RSpec.describe 'Customizable Value Stream Analytics', :js do
   include DragTo
 
   let_it_be(:user) { create(:user) }
@@ -17,6 +17,7 @@ RSpec.describe 'Group Value Stream Analytics', :js do
   end_event_identifier = :merge_request_merged
   start_label_event = :issue_label_added
   stop_label_event = :issue_label_removed
+  stage_nav_selector = '.stage-nav'
 
   let(:add_stage_button) { '.js-add-stage-button' }
   let(:params) { { name: custom_stage_name, start_event_identifier: start_event_identifier, end_event_identifier: end_event_identifier } }
@@ -529,52 +530,6 @@ RSpec.describe 'Group Value Stream Analytics', :js do
 
           expect(page.find('.flash-notice')).to have_text(_('Stage removed'))
           expect(nav).not_to have_text(custom_stage_name)
-        end
-      end
-    end
-
-    context 'Duration chart' do
-      let(:duration_chart_dropdown) { page.find(duration_stage_selector) }
-
-      let_it_be(:translated_default_stage_names) do
-        Gitlab::Analytics::CycleAnalytics::DefaultStages.names.map do |name|
-          stage = Analytics::CycleAnalytics::GroupStage.new(name: name)
-          Analytics::CycleAnalytics::StagePresenter.new(stage).title
-        end.freeze
-      end
-
-      def duration_chart_stages
-        duration_chart_dropdown.all('.dropdown-item').collect(&:text)
-      end
-
-      def toggle_duration_chart_dropdown
-        duration_chart_dropdown.click
-      end
-
-      before do
-        select_group
-      end
-
-      it 'has all the default stages' do
-        toggle_duration_chart_dropdown
-
-        expect(duration_chart_stages).to eq(translated_default_stage_names)
-      end
-
-      context 'hidden stage' do
-        before do
-          toggle_more_options(first_default_stage)
-
-          click_button(_('Hide stage'))
-
-          # wait for the stage list to laod
-          expect(nav).to have_content(s_('CycleAnalyticsStage|Plan'))
-        end
-
-        it 'will not appear in the duration chart dropdown' do
-          toggle_duration_chart_dropdown
-
-          expect(duration_chart_stages).not_to include(s_('CycleAnalyticsStage|Issue'))
         end
       end
     end
