@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import { GlButton } from 'gitlab-ui';
+import { GlButton } from '@gitlab/ui';
 import JumpToNextDiscussionButton from '~/notes/components/discussion_jump_to_next_button.vue';
 import { mockTracking } from '../../helpers/tracking_helper';
 
