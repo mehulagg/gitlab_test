@@ -137,3 +137,7 @@ function play_job() {
   job_url=$(curl --silent --show-error --request POST --header "PRIVATE-TOKEN: ${api_token}" "${url}" | jq ".web_url")
   echoinfo "Manual job '${job_name}' started at: ${job_url}"
 }
+
+function cancel_current_pipeline() {
+  curl --request POST --header "PRIVATE-TOKEN: ${DANGER_GITLAB_API_TOKEN}" "https://${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/pipelines/${CI_PIPELINE_ID}/cancel"
+}
