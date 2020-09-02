@@ -18,7 +18,7 @@ You can also view a list of [recent updates to this guide](https://gitlab.com/da
 
 If you can't find what you need:
 
-- See the GitLab Handbook for further [writing style guidelines](https://about.gitlab.com/handbook/communication/#writing-style-guidelines) that apply to all GitLab content, not just documentation.
+- See the GitLab Handbook for [writing style guidelines](https://about.gitlab.com/handbook/communication/#writing-style-guidelines) that apply to all GitLab content, not just documentation.
 - Reference one of the following:
 
   - [Microsoft Style Guide](https://docs.microsoft.com/en-us/style-guide/).
