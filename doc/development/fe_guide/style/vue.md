@@ -499,7 +499,7 @@ describe('MyComponent', () => {
 #### `createComponent` tips
 
 1. Consider using a single (or a limited number of) object arguments over many arguments. Defining single parameters for common data like `props` is okay,
-but keep in mind our [JavaScript style guide](/javascript.md#limit-number-of-parameters) and stay within the parameter number limit.
+but keep in mind our [JavaScript style guide](./javascript.md#limit-number-of-parameters) and stay within the parameter number limit.
 
     ```javascript
     // bad
