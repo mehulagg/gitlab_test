@@ -1633,6 +1633,10 @@ class MergeRequest < ApplicationRecord
     end
   end
 
+  def allows_reviewers?
+    Feature.enabled?(:merge_request_reviewers, project)
+  end
+
   private
 
   def with_rebase_lock

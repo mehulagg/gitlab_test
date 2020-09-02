@@ -24,24 +24,6 @@ module EE
       super
     end
 
-    def filter_reviewer(issuable)
-      return if params[:reviewer_ids].blank?
-
-      unless can_admin_issuable?(issuable) && issuable.allows_reviewers?
-        params.delete(:reviewer_ids)
-      end
-
-      reviewer_ids = params[:reviewer_ids].select { |reviewer_id| user_can_read?(issuable, reviewer_id) }
-
-      if params[:reviewer_ids].map(&:to_s) == [IssuableFinder::Params::NONE]
-        params[:reviewer_ids] = []
-      elsif reviewer_ids.any?
-        params[:reviewer_ids] = reviewer_ids
-      else
-        params.delete(:reviewer_ids)
-      end
-    end
-
     override :filter_labels
     def filter_labels
       super

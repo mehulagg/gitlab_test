@@ -51,24 +51,6 @@ RSpec.describe MergeRequest do
     end
   end
 
-  describe '#allows_reviewers?' do
-    it 'returns false without merge_request_reviewers license' do
-      stub_licensed_features(merge_request_reviewers: false)
-
-      merge_request = build_stubbed(:merge_request)
-
-      expect(merge_request.allows_reviewers?).to be(false)
-    end
-
-    it 'returns true with merge_request_reviewers license' do
-      stub_licensed_features(merge_request_reviewers: true)
-
-      merge_request = build_stubbed(:merge_request)
-
-      expect(merge_request.allows_reviewers?).to be(true)
-    end
-  end
-
   describe '#participants' do
     context 'with approval rule' do
       before do

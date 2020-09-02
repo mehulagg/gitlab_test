@@ -35,7 +35,6 @@ class IssuableBaseService < BaseService
     end
 
     filter_assignee(issuable)
-    filter_reviewer(issuable)
     filter_milestone
     filter_labels
   end
@@ -56,11 +55,6 @@ class IssuableBaseService < BaseService
     else
       params.delete(:assignee_ids)
     end
-  end
-
-  def filter_reviewer(issuable)
-    # Reviewer is only available for EE
-    params.delete(:reviewer_ids)
   end
 
   def user_can_read?(issuable, user_id)
