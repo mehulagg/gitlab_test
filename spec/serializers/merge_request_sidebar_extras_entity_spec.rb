@@ -31,7 +31,7 @@ RSpec.describe MergeRequestSidebarExtrasEntity do
   describe '#reviewers' do
     context 'when merge_request_reviewers feature is disabled' do
       it 'does not contain assignees attributes' do
-        stub_licensed_features(merge_request_reviewers: false)
+        stub_feature_flags(merge_request_reviewers: false)
 
         expect(entity[:reviewers]).to be_nil
       end
@@ -39,7 +39,7 @@ RSpec.describe MergeRequestSidebarExtrasEntity do
 
     context 'when merge_request_reviewers feature is enabled' do
       it 'does not include code navigation properties' do
-        stub_licensed_features(merge_request_reviewers: true)
+        stub_feature_flags(merge_request_reviewers: true)
 
         expect(entity[:reviewers].count).to be 1
         expect(entity[:reviewers].first.keys).to include(

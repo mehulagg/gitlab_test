@@ -88,7 +88,7 @@ module MergeRequests
         params.delete(:allow_collaboration)
       end
 
-      filter_reviewer
+      filter_reviewer(merge_request)
     end
 
     def filter_reviewer(merge_request)
@@ -96,6 +96,8 @@ module MergeRequests
 
       unless can_admin_issuable?(merge_request) && merge_request.allows_reviewers?
         params.delete(:reviewer_ids)
+
+        return
       end
 
       reviewer_ids = params[:reviewer_ids].select { |reviewer_id| user_can_read?(merge_request, reviewer_id) }
