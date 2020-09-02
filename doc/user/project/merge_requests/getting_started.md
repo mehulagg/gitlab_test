@@ -119,6 +119,9 @@ It is also possible to manage multiple assignees:
 > - It's not recommended for production use.
 > - To use it in GitLab self-managed instances, ask a GitLab administrator to [enable it](#enable-or-disable-merge-request-reviewers-core-only). **(CORE ONLY)**
 
+CAUTION: **Caution:**
+This feature might not be available to you. Check the **version history** note above for details.
+
 Choose an reviewer to designate someone as the person responsible for the review of the merge request. Open the drop down box to search for the user you wish to review.
 
 ### Enable or disable Merge Request Reviewers **(CORE ONLY)**
