@@ -26,7 +26,7 @@ describe('JumpToNextDiscussionButton', () => {
   });
 
   it('matches the snapshot', () => {
-    expect(wrapper.vm.$el).toMatchSnapshot();
+    expect(wrapper.element).toMatchSnapshot();
   });
 
   it('calls jumpToNextRelativeDiscussion when clicked', () => {
