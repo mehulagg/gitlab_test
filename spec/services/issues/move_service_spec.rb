@@ -3,6 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe Issues::MoveService do
+  include DesignManagementTestHelpers
+
   let_it_be(:user) { create(:user) }
   let_it_be(:author) { create(:user) }
   let_it_be(:title) { 'Some issue' }
@@ -164,6 +166,43 @@ RSpec.describe Issues::MoveService do
 
         it 'copies existing notes in order' do
           expect(copied_notes.order('id ASC').pluck(:note)).to eq(notes.map(&:note))
+        end
+      end
+
+      context 'issue with a design' do
+        let!(:design) { create(:design, :with_lfs_file, issue: old_issue) }
+        let!(:note) { create(:diff_note_on_design, noteable: design, issue: old_issue, project: old_issue.project) }
+
+        before do
+          enable_design_management
+        end
+
+        include_context 'issue move executed'
+
+        it 'copies the design' do
+          expect(new_issue.designs.size).to eq(1)
+        end
+
+        it 'copies the design notes' do
+          expect(new_issue.designs.first.notes.size).to eq(1)
+        end
+
+        it 'does not copy the design when the feature flag is disabled' do
+          stub_feature_flags(design_management_copy_designs: false)
+
+          expect(new_issue.designs.size).to eq(0)
+        end
+
+        it 'logs an error and continues if copying designs fails' do
+          # TODO this test fails for some reason
+          error_message = 'foo'
+
+          expect(Gitlab::AppLogger).to receive(:error).with(error_message)
+          expect_next_instance_of(DesignManagement::CopyDesignCollectionService) do |service|
+            expect(service).to receive(:execute).and_return(ServiceResponse.error(message: error_message))
+          end
+
+          expect(new_issue).to be_kind_of(Issue)
         end
       end
     end
