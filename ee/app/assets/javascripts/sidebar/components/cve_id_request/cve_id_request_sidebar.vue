@@ -1,5 +1,5 @@
 <script>
-import { __, s__ } from '~/locale';
+import { __, s__ } from '~/locale'; // eslint-disable no-unused-vars
 import { joinPaths } from '~/lib/utils/url_utility';
 import tooltip from '~/vue_shared/directives/tooltip';
 import { GlIcon } from '@gitlab/ui';
