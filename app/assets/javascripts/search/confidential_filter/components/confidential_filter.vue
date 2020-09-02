@@ -36,17 +36,23 @@ export default {
       get() {
         return this.confidential;
       },
-      set(value) {
-        let confidential = value;
-        if (value === FILTER_STATES.ANY.value) {
-          confidential = null;
-        }
+      set(confidential) {
+        // let confidential = value;
+        // if (value === FILTER_STATES.ANY.value) {
+        //   confidential = null;
+        // }
 
         visitUrl(setUrlParams({ confidential }));
       },
     },
   },
   methods: {
+    dropDownItemClass(filter) {
+      return {
+        'gl-border-b-solid gl-border-b-gray-100 gl-border-b-1 gl-pb-2! gl-mb-2':
+          filter === FILTER_STATES.ANY,
+      };
+    },
     isFilterSelected(filter) {
       return filter === this.selectedFilter;
     },
@@ -75,10 +81,7 @@ export default {
       :key="filter.value"
       :is-check-item="true"
       :is-checked="isFilterSelected(filter.value)"
-      :class="{
-        'gl-border-b-solid gl-border-b-gray-100 gl-border-b-1 gl-pb-2! gl-mb-2':
-          filter === $options.filterStates.ANY,
-      }"
+      :class="dropDownItemClass(filter)"
       @click="handleFilterChange(filter.value)"
     >
       {{ filter.label }}

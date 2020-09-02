@@ -7,7 +7,7 @@ export const FILTER_TEXT = __('Any Confidentiality');
 export const FILTER_STATES = {
   ANY: {
     label: __('Any'),
-    value: 'any',
+    value: null,
   },
   CONFIDENTIAL: {
     label: __('Confidential'),
