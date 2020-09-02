@@ -111,6 +111,35 @@ It is also possible to manage multiple assignees:
 - When creating a merge request.
 - Using [quick actions](../quick_actions.md#quick-actions-for-issues-merge-requests-and-epics).
 
+## Reviewer
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/216054) in GitLab 13.4.
+> - It's deployed behind a feature flag, disabled by default.
+> - It's disabled on GitLab.com.
+> - It's not recommended for production use.
+> - To use it in GitLab self-managed instances, ask a GitLab administrator to [enable it](#enable-or-disable-merge-request-reviewers-core-only). **(CORE ONLY)**
+
+Choose an reviewer to designate someone as the person responsible for the review of the merge request. Open the drop down box to search for the user you wish to review.
+
+### Enable or disable Merge Request Reviewers **(CORE ONLY)**
+
+Merge Request Reviewers is under development and not ready for production use. It is
+deployed behind a feature flag that is **disabled by default**.
+[GitLab administrators with access to the GitLab Rails console](../../../administration/feature_flags.md)
+can enable it.
+
+To enable it:
+
+```ruby
+Feature.enable(:merge_request_reviewers)
+```
+
+To disable it:
+
+```ruby
+Feature.disable(:merge_request_reviewers)
+```
+
 ### Merge requests to close issues
 
 If the merge request is being created to resolve an issue, you can
