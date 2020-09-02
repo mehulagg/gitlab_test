@@ -536,5 +536,16 @@ rspec foss-impact:
     paths:
       - tmp/capybara/
 
+fail-pipeline-early:
+  extends:
+    - .rails:rules:fail-pipeline-early
+  stage: post-test
+  needs:
+    - job: rspec-impact
+      artifacts: false
+  script:
+    - . scripts/utils.sh
+    - echo "Failing pipeline early for fast feedback due to test failures in rspec-impact."
+    - cancel_current_pipeline
 # EE: Canonical MR pipelines
 ##################################################
