@@ -121,6 +121,7 @@ class IssuableSidebarBasicEntity < Grape::Entity
   end
 
   expose :supports_time_tracking?, as: :supports_time_tracking
+  expose :supports_milestone?, as: :supports_milestone
 
   private
 

@@ -2,11 +2,11 @@
 import { __, s__ } from '~/locale';
 import { joinPaths } from '~/lib/utils/url_utility';
 import tooltip from '~/vue_shared/directives/tooltip';
-import Icon from '~/vue_shared/components/icon.vue';
+import { GlIcon } from '@gitlab/ui';
 
 export default {
   components: {
-    Icon,
+    GlIcon,
   },
 
   directives: {
@@ -122,7 +122,7 @@ CVSS scores can be computed by means of the [NVD CVSS Calculator](https://nvd.ni
       data-placement="left"
       data-boundary="viewport"
     >
-      <icon name="bug" class="sidebar-item-icon is-active" />
+      <gl-icon name="bug" class="sidebar-item-icon is-active" />
     </div>
 
     <div class="hide-collapsed">
@@ -135,7 +135,7 @@ CVSS scores can be computed by means of the [NVD CVSS Calculator](https://nvd.ni
         class="close-help-button float-right"
         @click="toggleHelpState(false)"
       >
-        <i class="fa fa-close" aria-hidden="true"> </i>
+        <gl-icon name="close" />
       </div>
 
       <div class="cve-id-request-content">
