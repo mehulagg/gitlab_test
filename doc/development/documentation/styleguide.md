@@ -10,7 +10,7 @@ For broader information about the documentation, see the [Documentation guidelin
 
 For guidelines specific to text in the GitLab interface, see the Pajamas [Content](https://design.gitlab.com/content/error-messages) section.
 
-For information on how we automate checks for style using GitLab CI/CD and how to do this in your local editor, see [Testing](index.md#testing).
+For information on how we use GitLab CI/CD to validate style and how to do this in your local editor, see [Testing](index.md#testing).
 
 Use this guide for standards on grammar, formatting, word usage, and more.
 
