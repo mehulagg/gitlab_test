@@ -61,7 +61,6 @@ module Gitlab
 
               entry :include, ::Gitlab::Ci::Config::Entry::Includes,
                 description: 'List of external YAML files to include.',
-                reserved: true,
                 metadata: { max_size: INCLUDE_MAX_SIZE }
 
               def value

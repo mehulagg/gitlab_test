@@ -18,51 +18,36 @@ module Gitlab
             validates :config, allowed_keys: ALLOWED_KEYS
           end
 
-          # reserved:
-          #   defines whether the node name is reserved
-          #   the reserved name cannot be used a job name
-          #   reserved should not be used as it will make
-          #   breaking change to `.gitlab-ci.yml`
-
           entry :default, Entry::Default,
             description: 'Default configuration for all jobs.',
             default: {}
 
           entry :include, Entry::Includes,
             description: 'List of external YAML files to include.',
-            reserved: true
 
           entry :before_script, Entry::Script,
             description: 'Script that will be executed before each job.',
-            reserved: true
 
           entry :image, Entry::Image,
             description: 'Docker image that will be used to execute jobs.',
-            reserved: true
 
           entry :services, Entry::Services,
             description: 'Docker images that will be linked to the container.',
-            reserved: true
 
           entry :after_script, Entry::Script,
             description: 'Script that will be executed after each job.',
-            reserved: true
 
           entry :variables, Entry::Variables,
             description: 'Environment variables that will be used.',
-            reserved: true
 
           entry :stages, Entry::Stages,
             description: 'Configuration of stages for this pipeline.',
-            reserved: true
 
           entry :types, Entry::Stages,
             description: 'Deprecated: stages for this pipeline.',
-            reserved: true
 
           entry :cache, Entry::Cache,
             description: 'Configure caching between build jobs.',
-            reserved: true
 
           entry :workflow, Entry::Workflow,
             description: 'List of evaluable rules to determine Pipeline status',
@@ -77,18 +62,6 @@ module Gitlab
                    :cache_value, to: :default_entry
 
           attr_reader :jobs_config
-
-          class << self
-            include ::Gitlab::Utils::StrongMemoize
-
-            def reserved_nodes_names
-              strong_memoize(:reserved_nodes_names) do
-                self.nodes.select do |_, node|
-                  node.reserved?
-                end.keys
-              end
-            end
-          end
 
           def initialize(config, **metadata)
             super do
