@@ -25,7 +25,7 @@ export default {
   <div class="btn-group" role="group">
     <gl-button
       v-gl-tooltip
-      class="btn btn-default discussion-next-btn"
+      class="discussion-next-btn"
       :title="s__('MergeRequests|Jump to next unresolved thread')"
       data-track-event="click_button"
       data-track-label="mr_next_unresolved_thread"
