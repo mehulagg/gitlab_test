@@ -9,7 +9,7 @@ describe('Project Feature Labeled Toggle', () => {
     label: 'TEST',
     value: true,
     disabledInput: false,
-    helpPath: 'HELP PATH'
+    helpPath: 'HELP PATH',
   };
   let wrapper;
 
@@ -28,7 +28,7 @@ describe('Project Feature Labeled Toggle', () => {
 
   describe('Feature label', () => {
     it('should render the correct label', () => {
-      expect(wrapper.find("span").element.innerHTML.trim()).toBe(defaultProps.label);
+      expect(wrapper.find('span').element.innerHTML.trim()).toBe(defaultProps.label);
     });
   });
 
