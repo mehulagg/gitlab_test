@@ -66,6 +66,8 @@ export default {
     <div v-show="!expanded" class="gl-text-gray-400">
       <slot name="collapsed">{{ __('None') }}</slot>
     </div>
-    <slot v-if="expanded"></slot>
+    <div v-show="expanded">
+      <slot></slot>
+    </div>
   </div>
 </template>

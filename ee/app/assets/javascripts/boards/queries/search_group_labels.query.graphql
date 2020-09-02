@@ -1,0 +1,11 @@
+query searchGroupLabels($fullPath: ID!, $searchTerm: String = "") {
+  group(fullPath: $fullPath) {
+    labels(searchTerm: $searchTerm) {
+      nodes {
+        id
+        title
+        color
+      }
+    }
+  }
+}

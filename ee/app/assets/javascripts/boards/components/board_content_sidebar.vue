@@ -4,12 +4,14 @@ import { GlDrawer } from '@gitlab/ui';
 import { ISSUABLE } from '~/boards/constants';
 import { contentTop } from '~/lib/utils/common_utils';
 import EpicSelector from './sidebar/epic_selector.vue';
+import LabelsSelector from './sidebar/labels_selector.vue';
 
 export default {
   headerHeight: `${contentTop()}px`,
   components: {
     GlDrawer,
     EpicSelector,
+    LabelsSelector,
   },
   computed: {
     ...mapGetters(['isSidebarOpen', 'getActiveIssue']),
@@ -43,6 +45,7 @@ export default {
 
     <template>
       <epic-selector />
+      <labels-selector />
     </template>
   </gl-drawer>
 </template>

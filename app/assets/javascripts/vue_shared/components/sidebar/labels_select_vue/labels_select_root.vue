@@ -232,7 +232,7 @@ export default {
 
 <template>
   <div
-    class="labels-select-wrapper position-relative"
+    class="labels-select-wrapper position-relative gl-w-full!"
     :class="{
       'is-standalone': isDropdownVariantStandalone,
       'is-embedded': isDropdownVariantEmbedded,
