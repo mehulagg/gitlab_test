@@ -86,13 +86,13 @@ export default {
         <gl-button
           v-gl-tooltip
           :title="__('Jump to next unresolved thread')"
+          :icon="comment-next"
           class="btn btn-default discussion-next-btn"
           data-track-event="click_button"
           data-track-label="mr_next_unresolved_thread"
           data-track-property="click_next_unresolved_thread_top"
           @click="jumpToNextDiscussion"
         >
-          <gl-icon name="comment-next" />
         </gl-button>
       </div>
       <div class="btn-group btn-group-sm" role="group">
