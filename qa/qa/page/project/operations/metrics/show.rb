@@ -57,8 +57,10 @@ module QA
             end
 
             def has_metrics?
-              within_element :prometheus_graphs do
-                has_text?(EXPECTED_TITLE)
+              wait_until(max_duration: 180) do
+                within_element :prometheus_graphs do
+                  has_text?(EXPECTED_TITLE)
+                end
               end
             end
 

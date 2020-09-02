@@ -60,7 +60,7 @@ module QA
 
           private
 
-          def loaded?(wait: 60)
+          def loaded?(wait: 120)
             wait_until(reload: true, max_duration: wait, sleep_interval: 1) do
               has_element?(:job_log_content, wait: 1)
             end

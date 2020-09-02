@@ -112,7 +112,7 @@ module QA
           end
 
           def has_metrics_unfurled?
-            has_element?(:prometheus_graph_widgets, wait: 30)
+            has_element?(:prometheus_graph_widgets, wait: 60)
           end
 
           private

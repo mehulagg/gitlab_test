@@ -3,7 +3,7 @@ require 'pathname'
 require_relative '../../../browser_ui/8_monitor/cluster_with_prometheus.rb'
 
 module QA
-  RSpec.describe 'Monitor', :orchestrated, :kubernetes, :requires_admin, quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/241448', type: :investigating } do
+  RSpec.describe 'Monitor', :orchestrated, :kubernetes, :requires_admin do
     include_context "cluster with Prometheus installed"
 
     before do
@@ -107,7 +107,7 @@ module QA
       Page::Project::Menu.perform(&:go_to_operations_incidents)
 
       Page::Project::Operations::Incidents::Index.perform do |incidents_page|
-        incidents_page.create_incident
+        incidents_page.create_first_incident
       end
 
       Page::Project::Issue::New.perform do |new_issue|

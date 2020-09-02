@@ -13,6 +13,10 @@ module QA
             def create_incident
               click_element :create_incident_button
             end
+
+            def create_first_incident
+              click_link_with_text 'Create incident'
+            end
           end
         end
       end

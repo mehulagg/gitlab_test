@@ -2,7 +2,7 @@
 require_relative 'cluster_with_prometheus.rb'
 
 module QA
-  RSpec.describe 'Monitor', :orchestrated, :kubernetes, :requires_admin, quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/241448', type: :investigating } do
+  RSpec.describe 'Monitor', :orchestrated, :kubernetes, :requires_admin do
     include_context "cluster with Prometheus installed"
 
     before do
@@ -66,14 +66,16 @@ module QA
     end
 
     it 'uses templating variables for metrics dashboards' do
-      templating_dashboard_yml = Pathname
+      templating_dashboard_fixture = Pathname
                                      .new(__dir__)
                                      .join('../../../../fixtures/metrics_dashboards/templating.yml')
 
+      template_file_name = "#{SecureRandom.hex(8)}-templating.yml"
+
       Resource::Repository::ProjectPush.fabricate! do |push|
         push.project = @project
-        push.file_name = '.gitlab/dashboards/templating.yml'
-        push.file_content = File.read(templating_dashboard_yml)
+        push.file_name = ".gitlab/dashboards/#{template_file_name}"
+        push.file_content = File.read(templating_dashboard_fixture)
         push.commit_message = 'Add templating in dashboard file'
         push.new_branch = false
       end
@@ -81,7 +83,7 @@ module QA
       Page::Project::Menu.perform(&:go_to_operations_metrics)
 
       Page::Project::Operations::Metrics::Show.perform do |dashboard|
-        dashboard.select_dashboard('templating.yml')
+        dashboard.select_dashboard(template_file_name)
 
         expect(dashboard).to have_template_metric('CPU usage GitLab Runner')
         expect(dashboard).to have_template_metric('Memory usage Postgresql')
