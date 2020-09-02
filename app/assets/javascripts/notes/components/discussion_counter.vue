@@ -99,7 +99,7 @@ export default {
         <gl-button
           v-gl-tooltip
           :title="__('Toggle all threads')"
-          class="btn btn-default toggle-all-discussions-btn"
+          class="toggle-all-discussions-btn"
           @click="handleExpandDiscussions"
         >
           <gl-icon :name="allExpanded ? 'angle-up' : 'angle-down'" />
