@@ -13086,6 +13086,9 @@ msgstr ""
 msgid "If this was a mistake you can leave the %{source_type}."
 msgstr ""
 
+msgid "If unchecked, users that are not part of the LDAP could be removed from the group, subgroups or projects."
+msgstr ""
+
 msgid "If using GitHub, you’ll see pipeline statuses on GitHub for your commits and pull requests. %{more_info_link}"
 msgstr ""
 
@@ -14353,6 +14356,9 @@ msgid "Kubernetes popover"
 msgstr ""
 
 msgid "LDAP"
+msgstr ""
+
+msgid "LDAP Group Settings"
 msgstr ""
 
 msgid "LDAP Synchronization"
