@@ -51,27 +51,26 @@ module Gitlab
     def activity_dates_query
       # Can't use Event.contributions here because we need to check different
       # project_features
-      date_from = 1.year.ago
 
       join_on_notes = %q{
         INNER JOIN notes ON target_type = 'Note' AND target_id = notes.id
       }
 
       queries = [
-        event_counts(date_from, :repository).having(action: :pushed),
-        event_counts(date_from, :issues).having(action: %i[created closed], target_type: 'Issue'),
-        event_counts(date_from, :wiki).having(action: %i[created updated], target_type: 'WikiPage::Meta'),
-        event_counts(date_from, :merge_requests).having(action: %i[merged created closed], target_type: 'MergeRequest'),
-        event_counts(date_from, :issues).having(action: %i[created updated], target_type: 'DesignManagement::Design'),
-        event_counts(date_from, :merge_requests, 'notes.noteable_type')
+        event_counts(:repository).having(action: :pushed),
+        event_counts(:issues).having(action: %i[created closed], target_type: 'Issue'),
+        event_counts(:wiki).having(action: %i[created updated], target_type: 'WikiPage::Meta'),
+        event_counts(:merge_requests).having(action: %i[merged created closed], target_type: 'MergeRequest'),
+        event_counts(:issues).having(action: %i[created updated], target_type: 'DesignManagement::Design'),
+        event_counts(:merge_requests, 'notes.noteable_type')
           .joins(join_on_notes)
           .having('action = ? AND notes.noteable_type = ?', Event.actions[:commented], 'MergeRequest'),
-        event_counts(date_from, nil, 'notes.noteable_type')
+        event_counts(nil, 'notes.noteable_type')
           .joins(join_on_notes)
           .having('action = ? AND notes.noteable_type != ?', Event.actions[:commented], 'MergeRequest')
       ]
 
-      Event.from_union(queries, remove_duplicates: false)
+      Event.with(user_events_in_range.to_arel).from_union(queries, remove_duplicates: false)
     end
 
     # rubocop: enable CodeReuse/ActiveRecord
@@ -79,29 +78,51 @@ module Gitlab
       Ability.allowed?(current_user, :read_cross_project)
     end
 
-    # rubocop: disable CodeReuse/ActiveRecord
-    def event_counts(date_from, feature, *grouping_columns)
-      t = Event.arel_table
-
+    def contributed_project_ids
       # re-running the contributed projects query in each union is expensive, so
       # use IN(project_ids...) instead. It's the intersection of two users so
       # the list will be (relatively) short
-      @contributed_project_ids ||= projects.distinct.pluck(:id)
-      authed_projects = Project.where(id: @contributed_project_ids)
-      authed_projects = authed_projects.with_feature_available_for_user(feature, current_user) if feature
-      authed_projects = authed_projects.reorder(nil).select(:id)
+      strong_memoize(:contributed_project_ids) { projects.distinct.pluck(:id) } # rubocop: disable CodeReuse/ActiveRecord
+    end
 
-      conditions = t[:created_at].gteq(date_from.beginning_of_day)
-        .and(t[:created_at].lteq(Date.current.end_of_day))
-        .and(t[:author_id].eq(contributor.id))
+    # rubocop: disable CodeReuse/ActiveRecord
+    def user_events_in_range
+      strong_memoize(:my_events_this_year) do
+        date_from = 1.year.ago
+        t = Event.arel_table
+        conditions = t[:created_at].gteq(date_from.beginning_of_day)
+          .and(t[:created_at].lteq(Date.current.end_of_day))
+          .and(t[:author_id].eq(contributor.id))
 
-      date_interval = "INTERVAL '#{Time.zone.now.utc_offset} seconds'"
+        date_interval = "INTERVAL '#{Time.zone.now.utc_offset} seconds'"
 
-      Event.reorder(nil)
-        .select(t[:project_id], t[:target_type], t[:action], "date(events.created_at + #{date_interval}) AS date", 'count(events.id) as total_amount')
-        .group(t[:project_id], t[:target_type], t[:action], "date(events.created_at + #{date_interval})", *grouping_columns)
-        .where(conditions)
-        .where("events.project_id in (#{authed_projects.to_sql})") # rubocop:disable GitlabSecurity/SqlInjection
+        q = Event.reorder(nil)
+          .select(:id, :project_id, :target_type, :target_id, :action, "date(events.created_at + #{date_interval}) as date")
+          .where(conditions)
+
+        Gitlab::SQL::CTE.new(:user_events_in_range, q)
+      end
+    end
+
+    def total_amount
+      Event.arel_table[:id].count.as('total_amount')
+    end
+
+    # rubocop: disable CodeReuse/ActiveRecord
+    def event_counts(feature, *grouping_columns)
+      t = Event.arel_table
+      authed_projects = if feature
+                          Project.where(id: contributed_project_ids)
+                            .with_feature_available_for_user(feature, current_user)
+                            .reorder(nil)
+                        else
+                          contributed_project_ids
+                        end
+
+      Event.from(user_events_in_range.alias_to(Event.arel_table))
+        .where(project_id: authed_projects) # rubocop:disable GitlabSecurity/SqlInjection
+        .group(t[:project_id], :target_type, :action, :date, *grouping_columns)
+        .select(t[:project_id], :target_type, :action, :date, total_amount)
     end
     # rubocop: enable CodeReuse/ActiveRecord
   end
