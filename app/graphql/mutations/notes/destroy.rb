@@ -8,14 +8,12 @@ module Mutations
       authorize :admin_note
 
       argument :id,
-                GraphQL::ID_TYPE,
+                ::Types::GlobalIDType[::Note],
                 required: true,
                 description: 'The global id of the note to destroy'
 
       def resolve(id:)
         note = authorized_find!(id: id)
-
-        check_object_is_note!(note)
 
         ::Notes::DestroyService.new(note.project, current_user).execute(note)
 

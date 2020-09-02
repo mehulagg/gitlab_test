@@ -4,6 +4,8 @@ module Mutations
   module Notes
     module Update
       class ImageDiffNote < Mutations::Notes::Update::Base
+        extend ::Gitlab::Utils::Override
+
         graphql_name 'UpdateImageDiffNote'
 
         argument :body,
@@ -33,7 +35,8 @@ module Mutations
 
         private
 
-        def pre_update_checks!(note, args)
+        override :pre_update_checks!
+        def pre_update_checks!(note)
           unless note.is_a?(DiffNote) && note.position.on_image?
             raise Gitlab::Graphql::Errors::ResourceNotAvailable,
                   'Resource is not an ImageDiffNote'

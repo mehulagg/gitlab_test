@@ -15,12 +15,6 @@ module Mutations
                   GraphQL::BOOLEAN_TYPE,
                   required: false,
                   description: 'The confidentiality flag of a note. Default is false.'
-
-        private
-
-        def pre_update_checks!(note, _args)
-          check_object_is_note!(note)
-        end
       end
     end
   end

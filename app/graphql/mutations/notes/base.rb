@@ -20,13 +20,6 @@ module Mutations
                 'Cannot add notes to this resource'
         end
       end
-
-      def check_object_is_note!(object)
-        unless object.is_a?(Note)
-          raise Gitlab::Graphql::Errors::ResourceNotAvailable,
-                'Resource is not a note'
-        end
-      end
     end
   end
 end

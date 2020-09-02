@@ -9,7 +9,7 @@ module Mutations
         authorize :create_note
 
         argument :noteable_id,
-                  GraphQL::ID_TYPE,
+                  ::Types::GlobalIDType[::Noteable],
                   required: true,
                   description: 'The global id of the resource to add a note to'
 

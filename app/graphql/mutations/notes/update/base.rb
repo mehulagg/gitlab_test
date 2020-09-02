@@ -9,14 +9,14 @@ module Mutations
         authorize :admin_note
 
         argument :id,
-                  GraphQL::ID_TYPE,
+                  ::Types::GlobalIDType[::Note],
                   required: true,
                   description: 'The global id of the note to update'
 
         def resolve(args)
           note = authorized_find!(id: args[:id])
 
-          pre_update_checks!(note, args)
+          pre_update_checks!(note)
 
           updated_note = ::Notes::UpdateService.new(
             note.project,
@@ -35,8 +35,7 @@ module Mutations
 
         private
 
-        def pre_update_checks!(_note, _args)
-          raise NotImplementedError
+        def pre_update_checks!(_note)
         end
 
         def note_params(_note, args)

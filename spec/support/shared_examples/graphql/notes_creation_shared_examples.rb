@@ -52,11 +52,19 @@ RSpec.shared_examples 'a Note mutation when the given resource id is not for a N
 
   it_behaves_like 'a Note mutation that does not create a Note'
 
-  it_behaves_like 'a mutation that returns top-level errors', errors: ['Cannot add notes to this resource']
+  it 'returns an error' do
+    post_graphql_mutation(mutation, current_user: current_user)
+
+    expect(graphql_errors.first['message']).to include('does not represent an instance of Noteable')
+  end
 end
 
 RSpec.shared_examples 'a Note mutation when the given resource id is not for a Note' do
   let(:note) { create(:issue) }
 
-  it_behaves_like 'a mutation that returns top-level errors', errors: ['Resource is not a note']
+  it 'returns an error' do
+    post_graphql_mutation(mutation, current_user: current_user)
+
+    expect(graphql_errors.first['message']).to include('does not represent an instance of Note')
+  end
 end

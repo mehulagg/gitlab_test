@@ -2486,7 +2486,7 @@ input CreateDiffNoteInput {
   """
   The global id of the resource to add a note to
   """
-  noteableId: ID!
+  noteableId: NoteableID!
 
   """
   The position of this note on a diff
@@ -2616,7 +2616,7 @@ input CreateImageDiffNoteInput {
   """
   The global id of the resource to add a note to
   """
-  noteableId: ID!
+  noteableId: NoteableID!
 
   """
   The position of this note on a diff
@@ -2731,7 +2731,7 @@ input CreateNoteInput {
   """
   The global id of the resource to add a note to
   """
-  noteableId: ID!
+  noteableId: NoteableID!
 }
 
 """
@@ -4160,7 +4160,7 @@ input DestroyNoteInput {
   """
   The global id of the note to destroy
   """
-  id: ID!
+  id: NoteID!
 }
 
 """
@@ -10390,6 +10390,11 @@ type NoteEdge {
   node: Note
 }
 
+"""
+Identifier of Note
+"""
+scalar NoteID
+
 type NotePermissions {
   """
   Indicates the user can perform `admin_note` on this resource
@@ -10468,6 +10473,11 @@ interface Noteable {
     last: Int
   ): NoteConnection!
 }
+
+"""
+Identifier of Noteable
+"""
+scalar NoteableID
 
 """
 Represents a package
@@ -16493,7 +16503,7 @@ input UpdateImageDiffNoteInput {
   """
   The global id of the note to update
   """
-  id: ID!
+  id: NoteID!
 
   """
   The position of this note on a diff
@@ -16688,7 +16698,7 @@ input UpdateNoteInput {
   """
   The global id of the note to update
   """
-  id: ID!
+  id: NoteID!
 }
 
 """
