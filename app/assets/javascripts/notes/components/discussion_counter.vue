@@ -103,6 +103,7 @@ export default {
           @click="handleExpandDiscussions"
         >
           <gl-icon :name="allExpanded ? 'angle-up' : 'angle-down'" />
+            :icon="comment-next"
         </gl-button>
       </div>
     </div>
