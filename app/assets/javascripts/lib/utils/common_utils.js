@@ -243,11 +243,11 @@ export const contentTop = () => {
 export const drawerHeaderHeight = () => {
   const el = document.querySelector('.layout-page');
 
-  if (el) {
-    return `${el.getBoundingClientRect().y}px`;
+  if (!el) {
+    return null;
   }
 
-  return null;
+  return `${el.getBoundingClientRect().y}px`;
 };
 
 export const scrollToElement = (element, options = {}) => {
