@@ -505,6 +505,22 @@ rspec-ee system pg12 geo:
 
 ##################################################
 # EE: Canonical MR pipelines
+rspec-impact:
+  extends:
+    - .rspec-base-pg11
+    - .rails:rules:detect-tests
+  stage: test
+  needs: ["setup-test-env", "retrieve-tests-metadata", "compile-test-assets", "detect-tests"]
+  script:
+    - run_timed_command "scripts/gitaly-test-build"
+    - run_timed_command "scripts/gitaly-test-spawn"
+    - source scripts/rspec_helpers.sh
+    - rspec_impact_job tmp/matching_tests.txt "--tag ~quarantine"
+  artifacts:
+    expire_in: 7d
+    paths:
+      - tmp/capybara/
+
 rspec foss-impact:
   extends:
     - .rspec-base-pg11-as-if-foss
