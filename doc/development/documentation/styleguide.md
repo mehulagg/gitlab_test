@@ -19,7 +19,7 @@ You can also view a list of [recent updates to this guide](https://gitlab.com/da
 If you can't find what you need:
 
 - View the GitLab Handbook for [writing style guidelines](https://about.gitlab.com/handbook/communication/#writing-style-guidelines) that apply to all GitLab content.
-- Reference one of the following:
+- Refer to one of the following:
 
   - [Microsoft Style Guide](https://docs.microsoft.com/en-us/style-guide/).
   - [Google Developer Documentation Style Guide](https://developers.google.com/style).
