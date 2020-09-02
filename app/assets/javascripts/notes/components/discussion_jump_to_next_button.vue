@@ -24,7 +24,6 @@ export default {
 <template>
   <div class="btn-group" role="group">
     <gl-button
-      ref="gl-button"
       v-gl-tooltip
       class="btn btn-default discussion-next-btn"
       :title="s__('MergeRequests|Jump to next unresolved thread')"
