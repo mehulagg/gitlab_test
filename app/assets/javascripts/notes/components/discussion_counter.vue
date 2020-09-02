@@ -87,7 +87,7 @@ export default {
           v-gl-tooltip
           :title="__('Jump to next unresolved thread')"
           :icon="comment-next"
-          class="btn btn-default discussion-next-btn"
+          class="discussion-next-btn"
           data-track-event="click_button"
           data-track-label="mr_next_unresolved_thread"
           data-track-property="click_next_unresolved_thread_top"
