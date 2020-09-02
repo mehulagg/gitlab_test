@@ -14,6 +14,11 @@ const localVue = createLocalVue();
 
 localVue.use(Vuex);
 
+jest.mock('~/lib/utils/common_utils', () => ({
+  ...jest.requireActual('~/lib/utils/common_utils'),
+  drawerHeaderHeight: () => '20px',
+}));
+
 describe('BoardSettingsSidebar', () => {
   let wrapper;
   let mock;
@@ -48,6 +53,12 @@ describe('BoardSettingsSidebar', () => {
       createComponent();
 
       expect(findDrawer().exists()).toBe(true);
+    });
+
+    it('sets height from top to be the result of drawerHeaderHeight', () => {
+      createComponent();
+
+      expect(findDrawer().props('headerHeight')).toBe('20px');
     });
 
     describe('on close', () => {
