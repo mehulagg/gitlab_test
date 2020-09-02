@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import VueApollo from 'vue-apollo';
 import { parseBoolean } from '~/lib/utils/common_utils';
+import CveIdRequest from './components/cve_id_request/cve_id_request_sidebar.vue';
 import * as CEMountSidebar from '~/sidebar/mount_sidebar';
 import SidebarItemEpicsSelect from './components/sidebar_item_epics_select.vue';
 import SidebarStatus from './components/status/sidebar_status.vue';
@@ -52,6 +53,30 @@ const mountStatusComponent = mediator => {
       }),
   });
 };
+
+function mountCveIdRequestComponent() {
+  const el = document.getElementById('js-sidebar-cve-id-request-entry-point');
+
+  if (!el) return;
+
+  const { iid, fullPath, title } = CEMountSidebar.getSidebarOptions();
+
+  // eslint-disable-next-line no-new
+  new Vue({
+    el,
+    components: {
+      CveIdRequest,
+    },
+    render: createElement =>
+      createElement('cve-id-request', {
+        props: {
+          iid: String(iid),
+          fullPath,
+          issueTitle: title,
+        },
+      }),
+  });
+}
 
 const mountEpicsSelect = () => {
   const el = document.querySelector('#js-vue-sidebar-item-epics-select');
@@ -115,4 +140,5 @@ export default function mountSidebar(mediator) {
   mountStatusComponent(mediator);
   mountEpicsSelect();
   mountIterationSelect();
+  mountCveIdRequestComponent();
 }

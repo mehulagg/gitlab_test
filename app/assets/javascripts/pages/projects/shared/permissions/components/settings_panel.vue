@@ -4,6 +4,7 @@ import { GlSprintf, GlLink, GlFormCheckbox } from '@gitlab/ui';
 import settingsMixin from 'ee_else_ce/pages/projects/shared/permissions/mixins/settings_pannel_mixin';
 import { s__ } from '~/locale';
 import projectFeatureSetting from './project_feature_setting.vue';
+import projectFeatureLabeledToggle from './project_feature_labeled_toggle.vue';
 import projectFeatureToggle from '~/vue_shared/components/toggle_button.vue';
 import projectSettingRow from './project_setting_row.vue';
 import {
@@ -21,6 +22,7 @@ export default {
   components: {
     projectFeatureSetting,
     projectFeatureToggle,
+    projectFeatureLabeledToggle,
     projectSettingRow,
     GlSprintf,
     GlLink,
@@ -29,6 +31,10 @@ export default {
   mixins: [settingsMixin],
 
   props: {
+    isGitlabCom: {
+      type: Boolean,
+      required: true,
+    },
     currentSettings: {
       type: Object,
       required: true,
@@ -87,6 +93,11 @@ export default {
       required: false,
       default: '',
     },
+    cveIdRequestHelpPath: {
+      type: String,
+      required: false,
+      default: 'https://about.gitlab.com/security/cve',
+    },
     registryHelpPath: {
       type: String,
       required: false,
@@ -136,6 +147,7 @@ export default {
       requestAccessEnabled: true,
       highlightChangesClass: false,
       emailsDisabled: false,
+      cveIdRequestEnabled: true,
       featureAccessLevelEveryone,
       featureAccessLevelMembers,
     };
@@ -348,6 +360,14 @@ export default {
           v-model="issuesAccessLevel"
           :options="featureAccessLevelOptions"
           name="project[project_feature_attributes][issues_access_level]"
+        />
+        <project-feature-labeled-toggle
+          v-if="isGitlabCom"
+          v-model="cveIdRequestEnabled"
+          :label="s__('CVE|Enable CVE ID requests in the issue sidebar')"
+          :disabled-input="visibilityLevel != visibilityOptions.PUBLIC"
+          :help-path="cveIdRequestHelpPath"
+          name="project[cve_id_request_enabled]"
         />
       </project-setting-row>
       <project-setting-row
