@@ -25,6 +25,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
 
       it 'clears memoized values' do
         values = %i(issue_minimum_id issue_maximum_id
+                    project_minimum_id project_maximum_id
                     user_minimum_id user_maximum_id unique_visit_service
                     deployment_minimum_id deployment_maximum_id
                     approval_merge_request_rule_minimum_id
@@ -53,6 +54,21 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
       expect(described_class).to receive(:recorded_at).and_raise(Exception.new('Stopped calculating recorded_at'))
 
       expect { described_class.uncached_data }.to raise_error('Stopped calculating recorded_at')
+    end
+  end
+
+  describe 'usage_activity_by_stage_package' do
+    it 'includes accurate usage_activity_by_stage data' do
+      for_defined_days_back do
+        create(:project, packages: [create(:package)] )
+      end
+
+      expect(described_class.usage_activity_by_stage_package({})).to eq(
+        projects_with_packages: 2
+      )
+      expect(described_class.usage_activity_by_stage_package(described_class.last_28_days_time_period)).to eq(
+        projects_with_packages: 1
+      )
     end
   end
 
@@ -178,6 +194,58 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
       )
     end
 
+    it 'includes imports usage data' do
+      for_defined_days_back do
+        user = create(:user)
+
+        %w(gitlab_project gitlab github bitbucket bitbucket_server gitea git manifest fogbugz phabricator).each do |type|
+          create(:project, import_type: type, creator_id: user.id)
+        end
+
+        jira_project = create(:project, creator_id: user.id)
+        create(:jira_import_state, :finished, project: jira_project)
+      end
+
+      expect(described_class.usage_activity_by_stage_manage({})).to include(
+        {
+          projects_imported: {
+            gitlab_project: 2,
+            gitlab: 2,
+            github: 2,
+            bitbucket: 2,
+            bitbucket_server: 2,
+            gitea: 2,
+            git: 2,
+            manifest: 2
+          },
+          issues_imported: {
+            jira: 2,
+            fogbugz: 2,
+            phabricator: 2
+          }
+        }
+      )
+      expect(described_class.usage_activity_by_stage_manage(described_class.last_28_days_time_period)).to include(
+        {
+          projects_imported: {
+            gitlab_project: 1,
+            gitlab: 1,
+            github: 1,
+            bitbucket: 1,
+            bitbucket_server: 1,
+            gitea: 1,
+            git: 1,
+            manifest: 1
+          },
+          issues_imported: {
+            jira: 1,
+            fogbugz: 1,
+            phabricator: 1
+          }
+        }
+      )
+    end
+
     def omniauth_providers
       [
         OpenStruct.new(name: 'google_oauth2'),
@@ -218,6 +286,8 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
         create(:issue, project: project, author: User.support_bot)
         create(:note, project: project, noteable: issue, author: user)
         create(:todo, project: project, target: issue, author: user)
+        create(:jira_service, :jira_cloud_service, active: true, project: create(:project, :jira_dvcs_cloud, creator: user))
+        create(:jira_service, active: true, project: create(:project, :jira_dvcs_server, creator: user))
       end
 
       expect(described_class.usage_activity_by_stage_plan({})).to include(
@@ -226,7 +296,10 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
         projects: 2,
         todos: 2,
         service_desk_enabled_projects: 2,
-        service_desk_issues: 2
+        service_desk_issues: 2,
+        projects_jira_active: 2,
+        projects_jira_dvcs_cloud_active: 2,
+        projects_jira_dvcs_server_active: 2
       )
       expect(described_class.usage_activity_by_stage_plan(described_class.last_28_days_time_period)).to include(
         issues: 2,
@@ -234,7 +307,10 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
         projects: 1,
         todos: 1,
         service_desk_enabled_projects: 1,
-        service_desk_issues: 1
+        service_desk_issues: 1,
+        projects_jira_active: 1,
+        projects_jira_dvcs_cloud_active: 1,
+        projects_jira_dvcs_server_active: 1
       )
     end
   end
@@ -392,6 +468,8 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
       expect(count_data[:clusters_applications_jupyter]).to eq(1)
       expect(count_data[:clusters_applications_cilium]).to eq(1)
       expect(count_data[:clusters_management_project]).to eq(1)
+      expect(count_data[:kubernetes_agents]).to eq(2)
+      expect(count_data[:kubernetes_agents_with_token]).to eq(1)
 
       expect(count_data[:deployments]).to eq(4)
       expect(count_data[:successful_deployments]).to eq(2)
@@ -399,6 +477,9 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
       expect(count_data[:snippets]).to eq(6)
       expect(count_data[:personal_snippets]).to eq(2)
       expect(count_data[:project_snippets]).to eq(4)
+
+      expect(count_data[:projects_with_packages]).to eq(2)
+      expect(count_data[:packages]).to eq(3)
     end
 
     it 'gathers object store usage correctly' do
@@ -878,24 +959,25 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
     end
   end
 
-  describe '.merge_requests_users' do
-    let(:time_period) { { created_at: 2.days.ago..Time.current } }
-    let(:merge_request) { create(:merge_request) }
-    let(:other_user) { create(:user) }
-    let(:another_user) { create(:user) }
+  describe '.merge_requests_users', :clean_gitlab_redis_shared_state do
+    let(:time_period) { { created_at: 2.days.ago..time } }
+    let(:time) { Time.current }
 
     before do
-      create(:event, target: merge_request, author: merge_request.author, created_at: 1.day.ago)
-      create(:event, target: merge_request, author: merge_request.author, created_at: 1.hour.ago)
-      create(:event, target: merge_request, author: merge_request.author, created_at: 3.days.ago)
-      create(:event, target: merge_request, author: other_user, created_at: 1.day.ago)
-      create(:event, target: merge_request, author: other_user, created_at: 1.hour.ago)
-      create(:event, target: merge_request, author: other_user, created_at: 3.days.ago)
-      create(:event, target: merge_request, author: another_user, created_at: 4.days.ago)
+      counter = Gitlab::UsageDataCounters::TrackUniqueEvents
+      merge_request = Event::TARGET_TYPES[:merge_request]
+      project = Event::TARGET_TYPES[:project]
+
+      counter.track_event(event_action: :commented, event_target: merge_request, author_id: 1, time: time)
+      counter.track_event(event_action: :opened, event_target: merge_request, author_id: 1, time: time)
+      counter.track_event(event_action: :merged, event_target: merge_request, author_id: 2, time: time)
+      counter.track_event(event_action: :closed, event_target: merge_request, author_id: 3, time: time)
+      counter.track_event(event_action: :opened, event_target: merge_request, author_id: 4, time: time - 3.days)
+      counter.track_event(event_action: :created, event_target: project, author_id: 5, time: time)
     end
 
     it 'returns the distinct count of users using merge requests (via events table) within the specified time period' do
-      expect(described_class.merge_requests_users(time_period)).to eq(2)
+      expect(described_class.merge_requests_users(time_period)).to eq(3)
     end
   end
 
@@ -912,7 +994,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
     let(:time) { Time.zone.now }
 
     before do
-      counter = Gitlab::UsageDataCounters::TrackUniqueActions
+      counter = Gitlab::UsageDataCounters::TrackUniqueEvents
       project = Event::TARGET_TYPES[:project]
       wiki = Event::TARGET_TYPES[:wiki]
       design = Event::TARGET_TYPES[:design]
@@ -942,12 +1024,12 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
     subject { described_class.analytics_unique_visits_data }
 
     it 'returns the number of unique visits to pages with analytics features' do
-      ::Gitlab::Analytics::UniqueVisits::ANALYTICS_IDS.each do |target_id|
-        expect_any_instance_of(::Gitlab::Analytics::UniqueVisits).to receive(:unique_visits_for).with(targets: target_id).and_return(123)
+      ::Gitlab::Analytics::UniqueVisits.analytics_events.each do |target|
+        expect_any_instance_of(::Gitlab::Analytics::UniqueVisits).to receive(:unique_visits_for).with(targets: target).and_return(123)
       end
 
       expect_any_instance_of(::Gitlab::Analytics::UniqueVisits).to receive(:unique_visits_for).with(targets: :analytics).and_return(543)
-      expect_any_instance_of(::Gitlab::Analytics::UniqueVisits).to receive(:unique_visits_for).with(targets: :analytics, weeks: 4).and_return(987)
+      expect_any_instance_of(::Gitlab::Analytics::UniqueVisits).to receive(:unique_visits_for).with(targets: :analytics, start_date: 4.weeks.ago.to_date, end_date: Date.current).and_return(987)
 
       expect(subject).to eq({
         analytics_unique_visits: {
@@ -964,6 +1046,8 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
           'p_analytics_repo' => 123,
           'i_analytics_cohorts' => 123,
           'i_analytics_dev_ops_score' => 123,
+          'p_analytics_merge_request' => 123,
+          'g_analytics_merge_request' => 123,
           'analytics_unique_visits_for_any_target' => 543,
           'analytics_unique_visits_for_any_target_monthly' => 987
         }
@@ -978,13 +1062,13 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
       described_class.clear_memoization(:unique_visit_service)
 
       allow_next_instance_of(::Gitlab::Analytics::UniqueVisits) do |instance|
-        ::Gitlab::Analytics::UniqueVisits::COMPLIANCE_IDS.each do |target_id|
-          allow(instance).to receive(:unique_visits_for).with(targets: target_id).and_return(123)
+        ::Gitlab::Analytics::UniqueVisits.compliance_events.each do |target|
+          allow(instance).to receive(:unique_visits_for).with(targets: target).and_return(123)
         end
 
         allow(instance).to receive(:unique_visits_for).with(targets: :compliance).and_return(543)
 
-        allow(instance).to receive(:unique_visits_for).with(targets: :compliance, weeks: 4).and_return(987)
+        allow(instance).to receive(:unique_visits_for).with(targets: :compliance, start_date: 4.weeks.ago.to_date, end_date: Date.current).and_return(987)
       end
     end
 
@@ -997,6 +1081,32 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
           'i_compliance_audit_events' => 123,
           'compliance_unique_visits_for_any_target' => 543,
           'compliance_unique_visits_for_any_target_monthly' => 987
+        }
+      })
+    end
+  end
+
+  describe '.search_unique_visits_data' do
+    subject { described_class.search_unique_visits_data }
+
+    before do
+      described_class.clear_memoization(:unique_visit_service)
+      events = ::Gitlab::UsageDataCounters::HLLRedisCounter.events_for_category('search')
+      events.each do |event|
+        allow(::Gitlab::UsageDataCounters::HLLRedisCounter).to receive(:unique_events).with(event_names: event, start_date: 7.days.ago.to_date, end_date: Date.current).and_return(123)
+      end
+      allow(::Gitlab::UsageDataCounters::HLLRedisCounter).to receive(:unique_events).with(event_names: events, start_date: 7.days.ago.to_date, end_date: Date.current).and_return(543)
+      allow(::Gitlab::UsageDataCounters::HLLRedisCounter).to receive(:unique_events).with(event_names: events, start_date: 4.weeks.ago.to_date, end_date: Date.current).and_return(987)
+    end
+
+    it 'returns the number of unique visits to pages with search features' do
+      expect(subject).to eq({
+        search_unique_visits: {
+          'i_search_total' => 123,
+          'i_search_advanced' => 123,
+          'i_search_paid' => 123,
+          'search_unique_visits_for_any_target_weekly' => 543,
+          'search_unique_visits_for_any_target_monthly' => 987
         }
       })
     end

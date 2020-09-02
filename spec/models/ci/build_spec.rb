@@ -448,7 +448,7 @@ RSpec.describe Ci::Build do
     end
 
     it 'schedules BuildScheduleWorker at the right time' do
-      Timecop.freeze do
+      freeze_time do
         expect(Ci::BuildScheduleWorker)
           .to receive(:perform_at).with(be_like_time(1.minute.since), build.id)
 
@@ -496,7 +496,7 @@ RSpec.describe Ci::Build do
       let(:option) { { start_in: '1 day' } }
 
       it 'returns date after 1 day' do
-        Timecop.freeze do
+        freeze_time do
           is_expected.to eq(1.day.since)
         end
       end
@@ -506,7 +506,7 @@ RSpec.describe Ci::Build do
       let(:option) { { start_in: '1 week' } }
 
       it 'returns date after 1 week' do
-        Timecop.freeze do
+        freeze_time do
           is_expected.to eq(1.week.since)
         end
       end
@@ -608,6 +608,46 @@ RSpec.describe Ci::Build do
 
           it { is_expected.to be_falsy }
         end
+      end
+    end
+  end
+
+  describe '#locked_artifacts?' do
+    subject(:locked_artifacts) { build.locked_artifacts? }
+
+    context 'when pipeline is artifacts_locked' do
+      before do
+        build.pipeline.artifacts_locked!
+      end
+
+      context 'artifacts archive does not exist' do
+        let(:build) { create(:ci_build) }
+
+        it { is_expected.to be_falsy }
+      end
+
+      context 'artifacts archive exists' do
+        let(:build) { create(:ci_build, :artifacts) }
+
+        it { is_expected.to be_truthy }
+      end
+    end
+
+    context 'when pipeline is unlocked' do
+      before do
+        build.pipeline.unlocked!
+      end
+
+      context 'artifacts archive does not exist' do
+        let(:build) { create(:ci_build) }
+
+        it { is_expected.to be_falsy }
+      end
+
+      context 'artifacts archive exists' do
+        let(:build) { create(:ci_build, :artifacts) }
+
+        it { is_expected.to be_falsy }
       end
     end
   end
@@ -2329,6 +2369,7 @@ RSpec.describe Ci::Build do
           { key: 'CI_COMMIT_TITLE', value: pipeline.git_commit_title, public: true, masked: false },
           { key: 'CI_COMMIT_DESCRIPTION', value: pipeline.git_commit_description, public: true, masked: false },
           { key: 'CI_COMMIT_REF_PROTECTED', value: (!!pipeline.protected_ref?).to_s, public: true, masked: false },
+          { key: 'CI_COMMIT_TIMESTAMP', value: pipeline.git_commit_timestamp, public: true, masked: false },
           { key: 'CI_BUILD_REF', value: build.sha, public: true, masked: false },
           { key: 'CI_BUILD_BEFORE_SHA', value: build.before_sha, public: true, masked: false },
           { key: 'CI_BUILD_REF_NAME', value: build.ref, public: true, masked: false },
@@ -4087,7 +4128,7 @@ RSpec.describe Ci::Build do
     let(:path) { 'other_artifacts_0.1.2/another-subdirectory/banana_sample.gif' }
 
     around do |example|
-      Timecop.freeze { example.run }
+      freeze_time { example.run }
     end
 
     before do

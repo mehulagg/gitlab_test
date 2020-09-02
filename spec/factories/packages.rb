@@ -56,14 +56,20 @@ FactoryBot.define do
     end
 
     factory :pypi_package do
-      pypi_metadatum
-
       sequence(:name) { |n| "pypi-package-#{n}"}
       sequence(:version) { |n| "1.0.#{n}" }
       package_type { :pypi }
 
-      after :create do |package|
+      transient do
+        without_loaded_metadatum { false }
+      end
+
+      after :create do |package, evaluator|
         create :package_file, :pypi, package: package, file_name: "#{package.name}-#{package.version}.tar.gz"
+
+        unless evaluator.without_loaded_metadatum
+          create :pypi_metadatum, package: package
+        end
       end
     end
 
@@ -114,6 +120,12 @@ FactoryBot.define do
       trait(:without_loaded_metadatum) do
         conan_metadatum { build(:conan_metadatum, package: nil) }
       end
+    end
+
+    factory :generic_package do
+      sequence(:name) { |n| "generic-package-#{n}" }
+      version { '1.0.0' }
+      package_type { :generic }
     end
   end
 
@@ -297,7 +309,7 @@ FactoryBot.define do
   end
 
   factory :pypi_metadatum, class: 'Packages::Pypi::Metadatum' do
-    association :package, package_type: :pypi
+    package { create(:pypi_package, without_loaded_metadatum: true) }
     required_python { '>=2.7' }
   end
 

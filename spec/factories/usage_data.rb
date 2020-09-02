@@ -65,6 +65,10 @@ FactoryBot.define do
       create(:alert_management_alert, issue: alert_bot_issues[0], project: projects[0])
       create(:self_managed_prometheus_alert_event, related_issues: [issues[1]], project: projects[0])
 
+      # Kubernetes agents
+      create(:cluster_agent, project: projects[0])
+      create(:cluster_agent_token, agent: create(:cluster_agent, project: projects[1]) )
+
       # Enabled clusters
       gcp_cluster = create(:cluster_provider_gcp, :created).cluster
       create(:cluster_provider_aws, :created)
@@ -93,6 +97,10 @@ FactoryBot.define do
       create(:grafana_integration, project: projects[0], enabled: true)
       create(:grafana_integration, project: projects[1], enabled: true)
       create(:grafana_integration, project: projects[2], enabled: false)
+
+      create(:package, project: projects[0])
+      create(:package, project: projects[0])
+      create(:package, project: projects[1])
 
       ProjectFeature.first.update_attribute('repository_access_level', 0)
 

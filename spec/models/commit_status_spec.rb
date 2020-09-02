@@ -422,7 +422,7 @@ RSpec.describe CommitStatus do
       end
 
       it 'returns a correct compound status' do
-        expect(described_class.all.slow_composite_status(project: project)).to eq 'running'
+        expect(described_class.all.composite_status).to eq 'running'
       end
     end
 
@@ -432,7 +432,7 @@ RSpec.describe CommitStatus do
       end
 
       it 'returns status that indicates success' do
-        expect(described_class.all.slow_composite_status(project: project)).to eq 'success'
+        expect(described_class.all.composite_status).to eq 'success'
       end
     end
 
@@ -443,7 +443,7 @@ RSpec.describe CommitStatus do
       end
 
       it 'returns status according to the scope' do
-        expect(described_class.latest.slow_composite_status(project: project)).to eq 'success'
+        expect(described_class.latest.composite_status).to eq 'success'
       end
     end
   end
@@ -494,6 +494,10 @@ RSpec.describe CommitStatus do
   end
 
   describe '#group_name' do
+    let(:commit_status) do
+      build(:commit_status, pipeline: pipeline, stage: 'test')
+    end
+
     subject { commit_status.group_name }
 
     tests = {
@@ -510,7 +514,19 @@ RSpec.describe CommitStatus do
       'rspec:windows 0 : / 1' => 'rspec:windows',
       'rspec:windows 0 : / 1 name' => 'rspec:windows name',
       '0 1 name ruby' => 'name ruby',
-      '0 :/ 1 name ruby' => 'name ruby'
+      '0 :/ 1 name ruby' => 'name ruby',
+      'rspec: [aws]' => 'rspec: [aws]',
+      'rspec: [aws] 0/1' => 'rspec: [aws]',
+      'rspec: [aws, max memory]' => 'rspec',
+      'rspec:linux: [aws, max memory, data]' => 'rspec:linux',
+      'rspec: [inception: [something, other thing], value]' => 'rspec',
+      'rspec:windows 0/1: [name, other]' => 'rspec:windows',
+      'rspec:windows: [name, other] 0/1' => 'rspec:windows',
+      'rspec:windows: [name, 0/1] 0/1' => 'rspec:windows',
+      'rspec:windows: [0/1, name]' => 'rspec:windows',
+      'rspec:windows: [, ]' => 'rspec:windows',
+      'rspec:windows: [name]' => 'rspec:windows: [name]',
+      'rspec:windows: [name,other]' => 'rspec:windows: [name,other]'
     }
 
     tests.each do |name, group_name|

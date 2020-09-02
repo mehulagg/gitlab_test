@@ -298,7 +298,6 @@ module ApplicationSettingsHelper
       :unique_ips_limit_per_user,
       :unique_ips_limit_time_window,
       :usage_ping_enabled,
-      :instance_statistics_visibility_private,
       :user_default_external,
       :user_show_add_ssh_key_message,
       :user_default_internal_regex,
@@ -328,7 +327,8 @@ module ApplicationSettingsHelper
       :group_import_limit,
       :group_export_limit,
       :group_download_export_limit,
-      :wiki_page_max_content_bytes
+      :wiki_page_max_content_bytes,
+      :container_registry_delete_tags_service_timeout
     ]
   end
 

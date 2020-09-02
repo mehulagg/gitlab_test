@@ -7,10 +7,6 @@ module QA
         include Page::Component::Note
         include Page::Component::Issuable::Sidebar
 
-        view 'app/assets/javascripts/mr_tabs_popover/components/popover.vue' do
-          element :dismiss_popover_button
-        end
-
         view 'app/assets/javascripts/vue_merge_request_widget/components/mr_widget_header.vue' do
           element :dropdown_toggle
           element :download_email_patches
@@ -135,7 +131,7 @@ module QA
 
         def add_comment_to_diff(text)
           wait_until(sleep_interval: 5) do
-            has_text?("No newline at end of file")
+            has_css?('a[data-linenumber="1"]')
           end
           all_elements(:new_diff_line, minimum: 1).first.hover
           click_element(:diff_comment)

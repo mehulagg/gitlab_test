@@ -22,7 +22,7 @@ RSpec.describe Ci::RetryBuildService do
     described_class.new(project, user)
   end
 
-  clone_accessors = described_class::CLONE_ACCESSORS
+  clone_accessors = described_class.clone_accessors
 
   reject_accessors =
     %i[id status user token token_encrypted coverage trace runner
@@ -143,6 +143,8 @@ RSpec.describe Ci::RetryBuildService do
         Ci::Build.reflect_on_all_associations.map(&:name) +
         [:tag_list, :needs_attributes]
 
+      current_accessors << :secrets if Gitlab.ee?
+
       current_accessors.uniq!
 
       expect(current_accessors).to include(*processed_accessors)
@@ -181,17 +183,24 @@ RSpec.describe Ci::RetryBuildService do
         service.execute(build)
       end
 
-      context 'when there are subsequent builds that are skipped' do
+      context 'when there are subsequent processables that are skipped' do
         let!(:subsequent_build) do
           create(:ci_build, :skipped, stage_idx: 2,
                                       pipeline: pipeline,
                                       stage: 'deploy')
         end
 
-        it 'resumes pipeline processing in a subsequent stage' do
+        let!(:subsequent_bridge) do
+          create(:ci_bridge, :skipped, stage_idx: 2,
+                                       pipeline: pipeline,
+                                       stage: 'deploy')
+        end
+
+        it 'resumes pipeline processing in the subsequent stage' do
           service.execute(build)
 
           expect(subsequent_build.reload).to be_created
+          expect(subsequent_bridge.reload).to be_created
         end
       end
 

@@ -39,7 +39,7 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
               get :records
             end
           end
-          resources :value_streams, only: [:index, :create] do
+          resources :value_streams, only: [:index, :create, :destroy] do
             resources :stages, only: [:index, :create, :update, :destroy] do
               member do
                 get :duration_chart
@@ -124,7 +124,7 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
       end
     end
 
-    resources :iterations, only: [:index, :new, :show], constraints: { id: /\d+/ }
+    resources :iterations, only: [:index, :new, :edit, :show], constraints: { id: /\d+/ }
 
     resources :issues, only: [] do
       collection do
@@ -149,7 +149,6 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
       resource :dashboard, only: [:show], controller: :dashboard
       resources :vulnerabilities, only: [:index]
       resource :compliance_dashboard, only: [:show]
-      resources :vulnerable_projects, only: [:index]
       resource :discover, only: [:show], controller: :discover
       resources :credentials, only: [:index]
       resources :merge_commit_reports, only: [:index], constraints: { format: :csv }

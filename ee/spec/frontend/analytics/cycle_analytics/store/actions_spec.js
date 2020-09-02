@@ -4,7 +4,7 @@ import testAction from 'helpers/vuex_action_helper';
 import * as getters from 'ee/analytics/cycle_analytics/store/getters';
 import * as actions from 'ee/analytics/cycle_analytics/store/actions';
 import * as types from 'ee/analytics/cycle_analytics/store/mutation_types';
-import createFlash from '~/flash';
+import { deprecatedCreateFlash as createFlash } from '~/flash';
 import httpStatusCodes from '~/lib/utils/http_status';
 import {
   selectedGroup,
@@ -15,6 +15,10 @@ import {
   endpoints,
   valueStreams,
 } from '../mock_data';
+
+const group = { parentId: 'fake_group_parent_id', fullPath: 'fake_group_full_path' };
+const milestonesPath = 'fake_milestones_path';
+const labelsPath = 'fake_labels_path';
 
 const stageData = { events: [] };
 const error = new Error(`Request failed with status code ${httpStatusCodes.NOT_FOUND}`);
@@ -54,7 +58,6 @@ describe('Cycle analytics actions', () => {
       stages: [],
       featureFlags: {
         hasDurationChart: true,
-        hasDurationChartMedian: true,
       },
       activeStages,
       selectedValueStream,
@@ -98,6 +101,92 @@ describe('Cycle analytics actions', () => {
         { ...state, selectedValueStream: {} },
         [{ type: types.SET_SELECTED_VALUE_STREAM, payload: vs }],
         [{ type: 'fetchValueStreamData' }],
+      );
+    });
+  });
+
+  describe('setPaths', () => {
+    describe('with endpoint paths provided', () => {
+      it('dispatches the filters/setEndpoints action with enpoints', () => {
+        return testAction(
+          actions.setPaths,
+          { group, milestonesPath, labelsPath },
+          state,
+          [],
+          [
+            {
+              type: 'filters/setEndpoints',
+              payload: {
+                groupEndpoint: 'fake_group_parent_id',
+                labelsEndpoint: 'fake_labels_path.json',
+                milestonesEndpoint: 'fake_milestones_path.json',
+              },
+            },
+          ],
+        );
+      });
+    });
+
+    describe('without endpoint paths provided', () => {
+      it('dispatches the filters/setEndpoints action and prefers group.parentId', () => {
+        return testAction(
+          actions.setPaths,
+          { group },
+          state,
+          [],
+          [
+            {
+              type: 'filters/setEndpoints',
+              payload: {
+                groupEndpoint: 'fake_group_parent_id',
+                labelsEndpoint: '/groups/fake_group_parent_id/-/labels.json',
+                milestonesEndpoint: '/groups/fake_group_parent_id/-/milestones.json',
+              },
+            },
+          ],
+        );
+      });
+
+      it('dispatches the filters/setEndpoints action and uses group.fullPath', () => {
+        const { fullPath } = group;
+        return testAction(
+          actions.setPaths,
+          { group: { fullPath } },
+          state,
+          [],
+          [
+            {
+              type: 'filters/setEndpoints',
+              payload: {
+                groupEndpoint: 'fake_group_full_path',
+                labelsEndpoint: '/groups/fake_group_full_path/-/labels.json',
+                milestonesEndpoint: '/groups/fake_group_full_path/-/milestones.json',
+              },
+            },
+          ],
+        );
+      });
+
+      it.each([undefined, null, { parentId: null }, { fullPath: null }, {}])(
+        'group=%s will return empty string',
+        value => {
+          return testAction(
+            actions.setPaths,
+            { group: value, milestonesPath, labelsPath },
+            state,
+            [],
+            [
+              {
+                type: 'filters/setEndpoints',
+                payload: {
+                  groupEndpoint: '',
+                  labelsEndpoint: 'fake_labels_path.json',
+                  milestonesEndpoint: 'fake_milestones_path.json',
+                },
+              },
+            ],
+          );
+        },
       );
     });
   });
@@ -964,24 +1053,25 @@ describe('Cycle analytics actions', () => {
     });
 
     describe('with a failing request', () => {
-      const resp = { data: {} };
+      let mockCommit;
       beforeEach(() => {
-        mock.onGet(endpoints.valueStreamData).reply(httpStatusCodes.NOT_FOUND, resp);
+        mockCommit = jest.fn();
+        mock.onGet(endpoints.valueStreamData).reply(httpStatusCodes.NOT_FOUND);
       });
 
       it(`will commit ${types.RECEIVE_VALUE_STREAMS_ERROR}`, () => {
-        return testAction(
-          actions.fetchValueStreams,
-          null,
-          state,
-          [
-            { type: types.REQUEST_VALUE_STREAMS },
-            {
-              type: types.RECEIVE_VALUE_STREAMS_ERROR,
-            },
-          ],
-          [],
-        );
+        return actions.fetchValueStreams({ state, getters, commit: mockCommit }).catch(() => {
+          expect(mockCommit.mock.calls).toEqual([
+            ['REQUEST_VALUE_STREAMS'],
+            ['RECEIVE_VALUE_STREAMS_ERROR', httpStatusCodes.NOT_FOUND],
+          ]);
+        });
+      });
+
+      it(`throws an error`, () => {
+        return expect(
+          actions.fetchValueStreams({ state, getters, commit: mockCommit }),
+        ).rejects.toThrow('Request failed with status code 404');
       });
     });
 
@@ -1045,6 +1135,12 @@ describe('Cycle analytics actions', () => {
           { type: 'durationChart/fetchDurationData' },
         ],
       );
+    });
+  });
+
+  describe('setFilters', () => {
+    it('dispatches the fetchCycleAnalyticsData action', () => {
+      return testAction(actions.setFilters, null, state, [], [{ type: 'fetchCycleAnalyticsData' }]);
     });
   });
 });

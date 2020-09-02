@@ -4,7 +4,7 @@ class Profiles::TwoFactorAuthsController < Profiles::ApplicationController
   skip_before_action :check_two_factor_requirement
 
   def show
-    unless current_user.otp_secret
+    unless current_user.two_factor_enabled?
       current_user.otp_secret = User.generate_otp_secret(32)
     end
 
@@ -38,6 +38,8 @@ class Profiles::TwoFactorAuthsController < Profiles::ApplicationController
 
   def create
     if current_user.validate_and_consume_otp!(params[:pin_code])
+      ActiveSession.destroy_all_but_current(current_user, session)
+
       Users::UpdateService.new(current_user, user: current_user, otp_required_for_login: true).execute! do |user|
         @codes = user.generate_otp_backup_codes!
       end
@@ -73,9 +75,13 @@ class Profiles::TwoFactorAuthsController < Profiles::ApplicationController
   end
 
   def destroy
-    current_user.disable_two_factor!
+    result = TwoFactor::DestroyService.new(current_user, user: current_user).execute
 
-    redirect_to profile_account_path, status: :found
+    if result[:status] == :success
+      redirect_to profile_account_path, status: :found, notice: s_('Two-factor authentication has been disabled successfully!')
+    else
+      redirect_to profile_account_path, status: :found, alert: result[:message]
+    end
   end
 
   def skip

@@ -3,7 +3,7 @@
 import $ from 'jquery';
 import axios from './lib/utils/axios_utils';
 import { __ } from '~/locale';
-import createFlash from '~/flash';
+import { deprecatedCreateFlash as createFlash } from '~/flash';
 import TaskList from './task_list';
 import MergeRequestTabs from './merge_request_tabs';
 import IssuablesHelper from './helpers/issuables_helper';
@@ -66,6 +66,14 @@ MergeRequest.prototype.showAllCommits = function() {
 
 MergeRequest.prototype.initMRBtnListeners = function() {
   const _this = this;
+
+  $('.report-abuse-link').on('click', e => {
+    // this is needed because of the implementation of
+    // the dropdown toggle and Report Abuse needing to be
+    // linked to another page.
+    e.stopPropagation();
+  });
+
   return $('.btn-close, .btn-reopen').on('click', function(e) {
     const $this = $(this);
     const shouldSubmit = $this.hasClass('btn-comment');

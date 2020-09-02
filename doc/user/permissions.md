@@ -212,17 +212,14 @@ Find the current permissions on the Value Stream Analytics dashboard, as describ
 
 ### Issue Board permissions
 
-Developers and users with higher permission level can use all
-the functionality of the Issue Board, that is create/delete lists
-and drag issues around. Read through the
-[documentation on Issue Boards permissions](project/issue_board.md#permissions)
-to learn more.
+Find the current permissions for interacting with the Issue Board feature in the
+[Issue Boards permissions page](project/issue_board.md#permissions).
 
 ### File Locking permissions **(PREMIUM)**
 
 The user that locks a file or directory is the only one that can edit and push their changes back to the repository where the locked objects are located.
 
-Read through the documentation on [permissions for File Locking](project/file_lock.md#permissions-on-file-locking) to learn more.
+Read through the documentation on [permissions for File Locking](project/file_lock.md#permissions) to learn more.
 
 ### Confidential Issues permissions
 

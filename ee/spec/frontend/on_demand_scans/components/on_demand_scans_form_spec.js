@@ -82,7 +82,7 @@ describe('OnDemandScansApp', () => {
   });
 
   it('renders properly', () => {
-    expect(wrapper.isVueInstance()).toBe(true);
+    expect(wrapper.html()).not.toBe('');
   });
 
   describe('computed props', () => {
@@ -196,7 +196,7 @@ describe('OnDemandScansApp', () => {
       });
 
       it('shows a skeleton loader', () => {
-        expect(wrapper.contains(GlSkeletonLoader)).toBe(true);
+        expect(wrapper.find(GlSkeletonLoader).exists()).toBe(true);
       });
     });
 

@@ -43,12 +43,10 @@ To use the instance, group, project, or pipeline security dashboard:
 
 At the pipeline level, the Security section displays the vulnerabilities present in the branch of the project the pipeline was run against.
 
-![Pipeline Security Dashboard](img/pipeline_security_dashboard_v13_2.png)
+![Pipeline Security Dashboard](img/pipeline_security_dashboard_v13_3.png)
 
 Visit the page for any pipeline that ran any of the [supported reports](#supported-reports). To view
 the pipeline's security findings, select the **Security** tab when viewing the pipeline.
-
-![Pipeline Security Navigation](img/pipeline_security_v13_3.gif)
 
 NOTE: **Note:**
 A pipeline consists of multiple jobs, including SAST and DAST scanning. If any job fails to finish for any reason, the security dashboard will not show SAST scanner output. For example, if the SAST job finishes but the DAST job fails, the security dashboard will not show SAST results. The analyzer will output an [exit code](../../../development/integrations/secure.md#exit-code) on failure.
@@ -63,11 +61,13 @@ to **Security & Compliance > Security Dashboard**. By default, the Security Dash
 detected and confirmed vulnerabilities.
 
 The Security Dashboard first displays the total number of vulnerabilities by severity (for example,
-Critical, High, Medium, Low). Below this, a table displays each vulnerability's status, severity,
+Critical, High, Medium, Low, Info, Unknown). Below this, a table shows each vulnerability's status, severity,
 and description. Clicking a vulnerability takes you to its [Vulnerability Details](../vulnerabilities)
 page to view more information about that vulnerability.
 
-You can filter the vulnerabilities by:
+![Project Security Dashboard](img/project_security_dashboard_v13_3.png)
+
+You can filter the vulnerabilities by one or more of the following:
 
 - Status
 - Severity
@@ -131,14 +131,14 @@ bar at the top of the page. Under **More**, select **Security**.
 
 To add projects to the dashboard:
 
-1. Click the **Edit dashboard** button on the Instance Security Dashboard page.
+1. Click **Settings** in the left navigation bar.
 1. Search for and add one or more projects using the **Search your projects** field.
 1. Click the **Add projects** button.
 
-Once added, the Security Dashboard displays the vulnerabilities found in your chosen projects'
+After you add projects, the Security Dashboard displays the vulnerabilities found in those projects'
 default branches.
 
-![Instance Security Dashboard with projects](img/instance_security_dashboard_with_projects_v13_2_sm.png)
+![Uninitialized Instance Security Dashboard](img/instance_security_dashboard_empty_v13_3.png)
 
 ## Export vulnerabilities
 

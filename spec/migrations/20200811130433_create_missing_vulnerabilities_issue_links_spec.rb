@@ -7,13 +7,20 @@ RSpec.describe CreateMissingVulnerabilitiesIssueLinks, :migration do
   let(:users) { table(:users) }
   let(:user) { create_user! }
   let(:project) { table(:projects).create!(id: 123, namespace_id: namespace.id) }
-  let(:scanner) { table(:vulnerability_scanners).create!(project_id: project.id, external_id: 'test', name: 'test scanner') }
-  let(:issue) { table(:issues).create!(id: 123, project_id: project.id) }
+  let(:scanners) { table(:vulnerability_scanners) }
+  let(:scanner) { scanners.create!(project_id: project.id, external_id: 'test 1', name: 'test scanner 1') }
+  let(:different_scanner) { scanners.create!(project_id: project.id, external_id: 'test 2', name: 'test scanner 2') }
+  let(:issues) { table(:issues) }
+  let(:issue1) { issues.create!(id: 123, project_id: project.id) }
+  let(:issue2) { issues.create!(id: 124, project_id: project.id) }
+  let(:issue3) { issues.create!(id: 125, project_id: project.id) }
   let(:vulnerabilities) { table(:vulnerabilities) }
   let(:vulnerabilities_findings) { table(:vulnerability_occurrences) }
   let(:vulnerability_feedback) { table(:vulnerability_feedback) }
   let(:vulnerability_issue_links) { table(:vulnerability_issue_links) }
-  let(:vulnerability_identifier) { table(:vulnerability_identifiers).create!(project_id: project.id, external_type: 'test', external_id: 'test', fingerprint: 'test', name: 'test') }
+  let(:vulnerability_identifiers) { table(:vulnerability_identifiers) }
+  let(:vulnerability_identifier) { vulnerability_identifiers.create!(project_id: project.id, external_type: 'test 1', external_id: 'test 1', fingerprint: 'test 1', name: 'test 1') }
+  let(:different_vulnerability_identifier) { vulnerability_identifiers.create!(project_id: project.id, external_type: 'test 2', external_id: 'test 2', fingerprint: 'test 2', name: 'test 2') }
 
   let!(:vulnerability) do
     create_vulnerability!(
@@ -30,7 +37,24 @@ RSpec.describe CreateMissingVulnerabilitiesIssueLinks, :migration do
       primary_identifier_id: vulnerability_identifier.id
     )
     create_feedback!(
-      issue_id: issue.id,
+      issue_id: issue1.id,
+      project_id: project.id,
+      author_id: user.id
+    )
+
+    # Create a finding with no vulnerability_id
+    # https://gitlab.com/gitlab-com/gl-infra/production/-/issues/2539
+    create_finding!(
+      vulnerability_id: nil,
+      project_id: project.id,
+      scanner_id: different_scanner.id,
+      primary_identifier_id: different_vulnerability_identifier.id,
+      location_fingerprint: 'somewhereinspace',
+      uuid: 'test2'
+    )
+    create_feedback!(
+      category: 2,
+      issue_id: issue2.id,
       project_id: project.id,
       author_id: user.id
     )
@@ -48,7 +72,21 @@ RSpec.describe CreateMissingVulnerabilitiesIssueLinks, :migration do
 
   context 'when an Vulnerabilities::IssueLink already exists' do
     before do
-      vulnerability_issue_links.create!(vulnerability_id: vulnerability.id, issue_id: issue.id)
+      vulnerability_issue_links.create!(vulnerability_id: vulnerability.id, issue_id: issue1.id)
+    end
+
+    it 'creates no duplicates' do
+      expect(vulnerability_issue_links.count).to eq(1)
+
+      migrate!
+
+      expect(vulnerability_issue_links.count).to eq(1)
+    end
+  end
+
+  context 'when an Vulnerabilities::IssueLink of type created already exists' do
+    before do
+      vulnerability_issue_links.create!(vulnerability_id: vulnerability.id, issue_id: issue3.id, link_type: 2)
     end
 
     it 'creates no duplicates' do
@@ -101,7 +139,7 @@ RSpec.describe CreateMissingVulnerabilitiesIssueLinks, :migration do
   def create_feedback!(issue_id:, project_id:, author_id:, feedback_type: 1, category: 0, project_fingerprint: '3132337177656173647a7863')
     vulnerability_feedback.create!(
       feedback_type: feedback_type,
-      issue_id: issue.id,
+      issue_id: issue_id,
       category: category,
       project_fingerprint: project_fingerprint,
       project_id: project_id,

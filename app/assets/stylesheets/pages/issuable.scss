@@ -50,6 +50,7 @@
 
   .title-container {
     display: flex;
+    align-items: flex-start;
   }
 
   .title {
@@ -65,7 +66,6 @@
 
   .btn-edit {
     margin-left: auto;
-    height: $gl-padding * 2;
   }
 
   .emoji-block {
@@ -234,8 +234,8 @@
 
   .title {
     color: $gl-text-color;
-    margin-bottom: $gl-padding-8;
-    line-height: 1;
+    margin-bottom: $gl-padding-4;
+    line-height: $gl-line-height-20;
 
     .avatar {
       margin-left: 0;

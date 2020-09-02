@@ -1,7 +1,8 @@
 <script>
+/* eslint-disable vue/no-v-html */
 import axios from '~/lib/utils/axios_utils';
 
-import Flash from '~/flash';
+import { deprecatedCreateFlash as Flash } from '~/flash';
 import DeprecatedModal from '~/vue_shared/components/deprecated_modal.vue';
 import { n__, s__, sprintf } from '~/locale';
 import { redirectTo } from '~/lib/utils/url_utility';

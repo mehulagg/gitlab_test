@@ -4,7 +4,7 @@ module Gitlab
   module Metrics
     module Dashboard
       module Validator
-        DASHBOARD_SCHEMA_PATH = 'lib/gitlab/metrics/dashboard/validator/schemas/dashboard.json'.freeze
+        DASHBOARD_SCHEMA_PATH = Rails.root.join(*%w[lib gitlab metrics dashboard validator schemas dashboard.json]).freeze
 
         class << self
           def validate(content, schema_path = DASHBOARD_SCHEMA_PATH, dashboard_path: nil, project: nil)

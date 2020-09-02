@@ -26,13 +26,13 @@ module EE
         mount ::API::Geo
         mount ::API::GeoReplication
         mount ::API::GeoNodes
-        mount ::API::IssueLinks
         mount ::API::Ldap
         mount ::API::LdapGroupLinks
         mount ::API::License
         mount ::API::PersonalAccessTokens
         mount ::API::ProjectMirror
         mount ::API::ProjectPushRule
+        mount ::API::GroupPushRule
         mount ::API::MergeTrains
         mount ::API::GroupHooks
         mount ::API::Scim
@@ -50,16 +50,6 @@ module EE
         mount ::API::Analytics::GroupActivityAnalytics
         mount ::API::ProtectedEnvironments
         mount ::API::ResourceWeightEvents
-
-        version 'v3', using: :path do
-          # Although the following endpoints are kept behind V3 namespace,
-          # they're not deprecated neither should be removed when V3 get
-          # removed.  They're needed as a layer to integrate with Jira
-          # Development Panel.
-          namespace '/', requirements: ::API::V3::Github::ENDPOINT_REQUIREMENTS do
-            mount ::API::V3::Github
-          end
-        end
       end
     end
   end

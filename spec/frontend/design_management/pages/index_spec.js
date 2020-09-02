@@ -13,7 +13,7 @@ import {
   EXISTING_DESIGN_DROP_MANY_FILES_MESSAGE,
   EXISTING_DESIGN_DROP_INVALID_FILENAME_MESSAGE,
 } from '~/design_management/utils/error_messages';
-import createFlash from '~/flash';
+import { deprecatedCreateFlash as createFlash } from '~/flash';
 import createRouter from '~/design_management/router';
 import * as utils from '~/design_management/utils/design_management_utils';
 import { DESIGN_DETAIL_LAYOUT_CLASSLIST } from '~/design_management/constants';
@@ -478,16 +478,15 @@ describe('Design management index page', () => {
   describe('on non-latest version', () => {
     beforeEach(() => {
       createComponent({ designs: mockDesigns, allVersions: [mockVersion] });
+    });
 
-      router.replace({
+    it('does not render design checkboxes', async () => {
+      await router.replace({
         name: DESIGNS_ROUTE_NAME,
         query: {
           version: '2',
         },
       });
-    });
-
-    it('does not render design checkboxes', () => {
       expect(findDesignCheckboxes()).toHaveLength(0);
     });
 
@@ -514,13 +513,6 @@ describe('Design management index page', () => {
         files: [{ name: 'image.png', type: 'image/png' }],
         getData: () => 'test.png',
       };
-
-      router.replace({
-        name: DESIGNS_ROUTE_NAME,
-        query: {
-          version: '2',
-        },
-      });
     });
 
     it('does not call paste event if designs wrapper is not hovered', () => {
@@ -587,7 +579,9 @@ describe('Design management index page', () => {
       });
       createComponent(true);
 
-      expect(scrollIntoViewMock).toHaveBeenCalled();
+      return wrapper.vm.$nextTick().then(() => {
+        expect(scrollIntoViewMock).toHaveBeenCalled();
+      });
     });
   });
 });

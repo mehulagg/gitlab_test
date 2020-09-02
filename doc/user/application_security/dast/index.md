@@ -395,7 +395,11 @@ variables:
   DAST_API_HOST_OVERRIDE: api-test.host.com
 ```
 
-Note that `DAST_API_HOST_OVERRIDE` is only applied to specifications imported by URL.
+NOTE: **Note:**
+Using a host override is ONLY supported when importing the API
+specification from a URL. It does not work and will be ignored when importing
+the specification from a file. This is due to a limitation in the ZAP OpenAPI
+extension.
 
 #### Authentication using headers
 
@@ -455,8 +459,8 @@ DAST can be [configured](#customizing-the-dast-settings) using environment varia
 | `DAST_FULL_SCAN_ENABLED` | boolean | Set to `true` to run a [ZAP Full Scan](https://github.com/zaproxy/zaproxy/wiki/ZAP-Full-Scan) instead of a [ZAP Baseline Scan](https://github.com/zaproxy/zaproxy/wiki/ZAP-Baseline-Scan). Default: `false` |
 | `DAST_FULL_SCAN_DOMAIN_VALIDATION_REQUIRED` | boolean | Set to `true` to require [domain validation](#domain-validation) when running DAST full scans. Not supported for API scans. Default: `false` |
 | `DAST_AUTO_UPDATE_ADDONS` | boolean | ZAP add-ons are pinned to specific versions in the DAST Docker image. Set to `true` to download the latest versions when the scan starts. Default: `false` |
-| `DAST_API_HOST_OVERRIDE` | string | Used to override domains defined in API specification files. Example: `example.com:8080` |
-| `DAST_EXCLUDE_RULES` | string | Set to a comma-separated list of Vulnerability Rule IDs to exclude them from running during the scan. Rule IDs are numbers and can be found from the DAST log or on the [ZAP project](https://github.com/zaproxy/zaproxy/blob/develop/docs/scanners.md). For example, `HTTP Parameter Override` has a rule ID of `10026`. **Note:** In earlier versions of GitLab the excluded rules were executed but alerts they generated were supressed. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/118641) in GitLab 12.10. |
+| `DAST_API_HOST_OVERRIDE` | string | Used to override domains defined in API specification files. Only supported when importing the API specification from a URL. Example: `example.com:8080` |
+| `DAST_EXCLUDE_RULES` | string | Set to a comma-separated list of Vulnerability Rule IDs to exclude them from running during the scan. Rule IDs are numbers and can be found from the DAST log or on the [ZAP project](https://github.com/zaproxy/zaproxy/blob/develop/docs/scanners.md). For example, `HTTP Parameter Override` has a rule ID of `10026`. **Note:** In earlier versions of GitLab the excluded rules were executed but alerts they generated were suppressed. [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/118641) in GitLab 12.10. |
 | `DAST_REQUEST_HEADERS` | string | Set to a comma-separated list of request header names and values. Headers are added to every request made by DAST. For example, `Cache-control: no-cache,User-Agent: DAST/1.0` |
 | `DAST_DEBUG` | boolean | Enable debug message output. Default: `false` |
 | `DAST_SPIDER_MINS` | number | The maximum duration of the spider scan in minutes. Set to `0` for unlimited. Default: One minute, or unlimited when the scan is a full scan. |
@@ -647,16 +651,13 @@ a fixed timeout of 60 seconds.
 - Click **Create new DAST scan**.
 - Click **Delete** in the matching site profile's row.
 
-### Enable or disable On-demand Scans and site profiles
+### Enable or disable On-demand Scans
 
-On-demand Scans with site profiles is enabled by default. You can disable On-demand Scans
-instance-wide, or disable it for specific projects if you prefer. DAST site profiles are not
-available if the On-demand Scans feature is disabled.
+On-demand Scans is enabled by default. You can disable On-demand Scans
+instance-wide, or disable it for specific projects if you prefer.
 
-Use of On-demand Scans with site profiles requires **both** the following feature flags enabled:
-
-- security_on_demand_scans_feature_flag
-- security_on_demand_scans_site_profiles_feature_flag
+Use of On-demand Scans requires the `security_on_demand_scans_feature_flag`
+feature flag enabled.
 
 [GitLab administrators with access to the GitLab Rails console](../../../administration/feature_flags.md)
 can disable or enable the feature flags.
@@ -678,32 +679,7 @@ To enable On-demand Scans:
 # Instance-wide
 Feature.enable(:security_on_demand_scans_feature_flag)
 # or by project
-Feature.enable(:security_on_demand_scans_feature_flag, Project.find(<project id>))
-```
-
-#### Enable or disable site profiles
-
-The Site Profiles feature is enabled instance-wide by default. You can disable it instance-wide, or disable it
-for specific projects if you prefer.
-[GitLab administrators with access to the GitLab Rails console](../../../administration/feature_flags.md)
-can disable or enable the feature flag.
-
-To disable Site Profiles:
-
-```ruby
-# Instance-wide
-Feature.disable(:security_on_demand_scans_site_profiles_feature_flag)
-# or by project
-Feature.disable(:security_on_demand_scans_site_profiles_feature_flag, Project.find(<project id>))
-```
-
-To enable Site Profiles:
-
-```ruby
-# Instance-wide
-Feature.enable(:security_on_demand_scans_site_profiles_feature_flag)
-# or by project
-Feature.enable(:security_on_demand_scans_site_profiles_feature_flag, Project.find(<project id>))
+Feature.enable(:security_on_demand_scans_feature_flag, Project.find(<project ID>))
 ```
 
 ## Reports

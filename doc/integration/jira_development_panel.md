@@ -4,9 +4,10 @@ group: Ecosystem
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
 ---
 
-# GitLab Jira Development Panel integration **(PREMIUM)**
+# GitLab Jira Development Panel integration **(CORE)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/2381) in [GitLab Premium](https://about.gitlab.com/pricing/) 10.0.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/2381) in [GitLab Premium](https://about.gitlab.com/pricing/) 10.0.
+> - [Moved](https://gitlab.com/gitlab-org/gitlab/-/issues/233149) to [GitLab Core](https://about.gitlab.com/pricing/) in 13.4.
 
 The Jira Development Panel integration allows you to reference Jira issues within GitLab, displaying activity in the [Development panel](https://support.atlassian.com/jira-software-cloud/docs/view-development-information-for-an-issue/) in the issue. It complements the [GitLab Jira integration](../user/project/integrations/jira.md). You may choose to configure both integrations to take advantage of both sets of features. (See a [feature comparison](../user/project/integrations/jira_integrations.md#feature-comparison)).
 
@@ -31,6 +32,9 @@ a GitLab personal namespace in the Jira configuration, which will then connect t
 This differs from the [Jira integration](../user/project/integrations/jira.md), where the mapping is between one GitLab project and the entire Jira instance.
 
 ## Configuration
+
+<i class="fa fa-youtube-play youtube" aria-hidden="true"></i>
+For an overview, see [Agile Management - GitLab-Jira Development Panel Integration](https://www.youtube.com/watch?v=VjVTOmMl85M&feature=youtu.be).
 
 - If you're using GitLab.com and Jira Cloud, the recommended method to enable this integration is to install the [GitLab for Jira app](#gitlab-for-jira-app) from the Atlassian Marketplace, which offers a real-time sync between GitLab and Jira.
 - If you're using self-managed GitLab, self-managed Jira, or both, configure the integration using [Jira's DVCS Connector](#jira-dvcs-configuration), which syncs data hourly.
@@ -89,9 +93,6 @@ If you're using GitLab.com and Jira Cloud, we recommend you use the [GitLab for 
    If you're using Jira Cloud, go to **Settings (gear) > Products > DVCS accounts**.
 1. Click **Link GitHub Enterprise account** to start creating a new integration.
    (We're pretending to be GitHub in this integration, until there's additional platform support in Jira.)
-
-   ![Jira Settings](img/jira_dev_panel_jira_setup_1-1.png)
-
 1. Complete the form:
 
    Select **GitHub Enterprise** for the **Host** field.
@@ -131,6 +132,92 @@ steps with additional Jira DVCS accounts.
 
 Now that the integration is configured, read more about how to test and use it in [Usage](#usage).
 
+#### Troubleshooting your DVCS connection
+
+Refer to the items in this section if you're having problems with your DVCS connector.
+
+##### Jira cannot access GitLab server
+
+```plaintext
+Error obtaining access token. Cannot access https://gitlab.example.com from Jira.
+```
+
+This error message is generated in Jira, after completing the **Add New Account**
+form and authorizing access. It indicates a connectivity issue from Jira to
+GitLab. No other error messages appear in any logs.
+
+If there was an issue with SSL/TLS, this error message will be generated.
+
+- The [GitLab Jira integration](jira.md) requires GitLab to connect to Jira. Any
+  TLS issues that arise from a private certificate authority or self-signed
+  certificate [are resolved on the GitLab server](https://docs.gitlab.com/omnibus/settings/ssl.html#other-certificate-authorities),
+  as GitLab is the TLS client.
+- The Jira Development Panel integration requires Jira to connect to GitLab, which
+  causes Jira to be the TLS client. If your GitLab server's certificate is not
+  issued by a public certificate authority, the Java truststore on Jira's server
+  needs to have the appropriate certificate added to it (such as your organization's
+  root certificate).
+
+Refer to Atlassian's documentation and Atlassian Support for assistance setting up Jira correctly:
+
+- [Adding a certificate to the trust store](https://confluence.atlassian.com/kb/how-to-import-a-public-ssl-certificate-into-a-jvm-867025849.html).
+  - Simplest approach is to use [keytool](https://docs.oracle.com/javase/8/docs/technotes/tools/unix/keytool.html).
+  - Add additional roots to Java's default truststore (`cacerts`) to allow Jira to
+    also trust public certificate authorities.
+  - If the integration stops working after upgrading Jira's Java runtime, this
+    might be because the `cacerts` truststore got replaced.
+
+- [Troubleshooting connectivity up to and including TLS handshaking](https://confluence.atlassian.com/kb/unable-to-connect-to-ssl-services-due-to-pkix-path-building-failed-error-779355358.html),
+  using the a java class called `SSLPoke`.
+
+- Download the class from Atlassian's knowledgebase to Jira's server, for example to `/tmp`.
+- Use the same Java runtime as Jira.
+- Pass all networking-related parameters that Jira is called with, such as proxy
+  settings or an alternative root truststore (`-Djavax.net.ssl.trustStore`):
+
+```shell
+${JAVA_HOME}/bin/java -Djavax.net.ssl.trustStore=/var/atlassian/application-data/jira/cacerts -classpath /tmp SSLPoke gitlab.example.com 443
+```
+
+The message `Successfully connected` indicates a successful TLS handshake.
+
+If there are problems, the Java TLS library generates errors that you can
+look up for more detail.
+
+##### Jira error adding account and no repositories listed
+
+```plaintext
+Error!
+Failed adding the account: [Error retrieving list of repositories]
+```
+
+This error message is generated in Jira after completing the **Add New Account**
+form in Jira and authorizing access. Attempting to click **Try Again** returns
+`Account is already integrated with JIRA.` The account is set up in the DVCS
+accounts view, but no repositories are listed.
+
+Potential resolutions:
+
+- If you're using GitLab versions 11.10-12.7, upgrade to GitLab 12.8.10 or later
+  to resolve an identified [issue](https://gitlab.com/gitlab-org/gitlab/-/issues/37012).
+- If you're using GitLab Core or GitLab Starter, be sure you're using
+  GitLab 13.4 or later.
+
+[Contact GitLab Support](https://about.gitlab.com/support) if none of these reasons apply.
+
+#### Fixing synchronization issues
+
+If Jira displays incorrect information (such as deleted branches), you may need to
+resynchronize the information. To do so:
+
+1. In Jira, go to **Jira Administration > Applications > DVCS accounts**.
+1. At the account (group or subgroup) level, Jira displays an option to
+   **Refresh repositories** in the `...` (ellipsis) menu.
+1. For each project, there's a sync button displayed next to the **last activity** date.
+   To perform a *soft resync*, click the button, or complete a *full sync* by shift clicking
+   the button. For more information, see
+   [Atlassian's documentation](https://confluence.atlassian.com/adminjiracloud/synchronize-an-account-972332890.html).
+
 ### GitLab for Jira app
 
 You can integrate GitLab.com and Jira Cloud using the [GitLab for Jira](https://marketplace.atlassian.com/apps/1221011/gitlab-for-jira) app in the Atlassian Marketplace.
@@ -147,12 +234,14 @@ For a walkthrough of the integration with GitLab for Jira, watch [Configure GitL
 1. After installing, click **Get started** to go to the configurations page. This page is always available under **Jira Settings > Apps > Manage apps**.
 
    ![Start GitLab App configuration on Jira](img/jira_dev_panel_setup_com_2.png)
-1. Enter the group or personal namespace in the **Namespace** field and click **Link namespace to Jira**. Make sure you are logged in on GitLab.com and the namespace has a Silver or above license. The user setting up _GitLab for Jira_ must have **Maintainer** access to the GitLab namespace.
+1. In **Namespace**, enter the group or personal namespace, and then click
+   **Link namespace to Jira**. The user setting up *GitLab for Jira* must have
+   *Maintainer* access to the GitLab namespace.
 
 NOTE: **Note:**
 The GitLab user only needs access when adding a new namespace. For syncing with Jira, we do not depend on the user's token.
 
-   ![Confure namespace on GitLab Jira App](img/jira_dev_panel_setup_com_3.png)
+   ![Configure namespace on GitLab Jira App](img/jira_dev_panel_setup_com_3.png)
 
 After a namespace is added, all future commits, branches and merge requests of all projects under that namespace will be synced to Jira. Past data cannot be synced at the moment.
 

@@ -282,6 +282,14 @@ Cop/ActiveRecordAssociationReload:
 Gitlab/AvoidFeatureGet:
   Enabled: true
 
+RSpec/TimecopFreeze:
+  Enabled: false
+  AutoCorrect: true
+  Include:
+    - 'spec/**/*.rb'
+    - 'ee/spec/**/*.rb'
+    - 'qa/spec/**/*.rb'
+
 Naming/PredicateName:
   Enabled: true
   Exclude:
@@ -509,3 +517,14 @@ Cop/PutGroupRoutesUnderScope:
   Include:
     - 'config/routes/group.rb'
     - 'ee/config/routes/group.rb'
+
+Migration/ComplexIndexesRequireName:
+  Exclude:
+    - !ruby/regexp /\Adb\/(post_)?migrate\/201.*\.rb\z/
+    - !ruby/regexp /\Adb\/(post_)?migrate\/20200[1-7].*\.rb\z/
+
+Migration/ReferToIndexByName:
+  Exclude:
+    - !ruby/regexp /\Adb\/(post_)?migrate\/201.*\.rb\z/
+    - !ruby/regexp /\Adb\/(post_)?migrate\/20200[1-7].*\.rb\z/
+    - !ruby/regexp /\Aee\/db\/geo\/(post_)?migrate\/201.*\.rb\z/

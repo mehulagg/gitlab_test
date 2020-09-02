@@ -40,7 +40,7 @@ RSpec.describe 'Query.project(fullPath).dastScannerProfiles' do
     end
   end
 
-  context 'when a user does not have access to run_ondemand_dast_scan' do
+  context 'when the user can run a dast scan' do
     before do
       project.add_guest(current_user)
     end
@@ -65,6 +65,12 @@ RSpec.describe 'Query.project(fullPath).dastScannerProfiles' do
 
     describe 'first dast scanner profile id' do
       subject { response_data.dig('project', 'dastScannerProfiles', 'nodes').first['id'] }
+
+      it { is_expected.to eq(dast_scanner_profile.to_global_id.to_s) }
+    end
+
+    describe 'first dast scanner profile globalId' do
+      subject { response_data.dig('project', 'dastScannerProfiles', 'nodes').first['globalId'] }
 
       it { is_expected.to eq(dast_scanner_profile.to_global_id.to_s) }
     end

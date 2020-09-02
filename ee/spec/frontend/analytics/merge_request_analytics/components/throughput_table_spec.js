@@ -40,7 +40,7 @@ describe('ThroughputTable', () => {
   };
 
   const displaysComponent = (component, visible) => {
-    expect(wrapper.contains(component)).toBe(visible);
+    expect(wrapper.find(component).exists()).toBe(visible);
   };
 
   const additionalData = data => {
@@ -140,16 +140,33 @@ describe('ThroughputTable', () => {
         it('includes the correct title and IID', () => {
           const { title, iid } = throughputTableData[0];
 
-          expect(findCol(TEST_IDS.MERGE_REQUEST_DETAILS).text()).toBe(`${title} !${iid}`);
+          expect(findCol(TEST_IDS.MERGE_REQUEST_DETAILS).text()).toContain(`${title} !${iid}`);
         });
 
-        it('does not include any icons by default', () => {
-          const icon = findColSubComponent(TEST_IDS.MERGE_REQUEST_DETAILS, GlIcon);
+        it('includes an inactive label icon by default', () => {
+          const labels = findColSubItem(TEST_IDS.MERGE_REQUEST_DETAILS, TEST_IDS.LABEL_DETAILS);
+          const icon = labels.find(GlIcon);
 
-          expect(icon.exists()).toBe(false);
+          expect(labels.text()).toBe('0');
+          expect(labels.classes()).toContain('gl-opacity-5');
+          expect(icon.exists()).toBe(true);
+          expect(icon.props('name')).toBe('label');
         });
 
-        it('includes a label icon and count when available', async () => {
+        it('includes an inactive comment icon by default', () => {
+          const commentCount = findColSubItem(
+            TEST_IDS.MERGE_REQUEST_DETAILS,
+            TEST_IDS.COMMENT_COUNT,
+          );
+          const icon = commentCount.find(GlIcon);
+
+          expect(commentCount.text()).toBe('0');
+          expect(commentCount.classes()).toContain('gl-opacity-5');
+          expect(icon.exists()).toBe(true);
+          expect(icon.props('name')).toBe('comments');
+        });
+
+        it('includes an active label icon and count when available', async () => {
           additionalData({
             labels: {
               nodes: [{ title: 'Brinix' }],
@@ -165,8 +182,28 @@ describe('ThroughputTable', () => {
           const icon = labelDetails.find(GlIcon);
 
           expect(labelDetails.text()).toBe('1');
+          expect(labelDetails.classes()).not.toContain('gl-opacity-5');
           expect(icon.exists()).toBe(true);
           expect(icon.props('name')).toBe('label');
+        });
+
+        it('includes an active comment icon and count when available', async () => {
+          additionalData({
+            userNotesCount: 2,
+          });
+
+          await wrapper.vm.$nextTick();
+
+          const commentCount = findColSubItem(
+            TEST_IDS.MERGE_REQUEST_DETAILS,
+            TEST_IDS.COMMENT_COUNT,
+          );
+          const icon = commentCount.find(GlIcon);
+
+          expect(commentCount.text()).toBe('2');
+          expect(commentCount.classes()).not.toContain('gl-opacity-5');
+          expect(icon.exists()).toBe(true);
+          expect(icon.props('name')).toBe('comments');
         });
 
         it('includes a pipeline icon and when available', async () => {
@@ -213,6 +250,10 @@ describe('ThroughputTable', () => {
         await wrapper.vm.$nextTick();
 
         expect(findCol(TEST_IDS.MILESTONE).text()).toBe(title);
+      });
+
+      it('displays the correct commit count', () => {
+        expect(findCol(TEST_IDS.COMMITS).text()).toBe('1');
       });
 
       it('displays the correct pipeline count', () => {

@@ -204,8 +204,27 @@ password = <deploy token>
 When uploading packages, note that:
 
 - The maximum allowed size is 50 Megabytes.
-- If you upload the same package with the same version multiple times, each consecutive upload
-  is saved as a separate file. When installing a package, GitLab serves the most recent file.
+- You cannot upload the same version of a package multiple times. If you try, you receive the error `Validation failed: File name has already been taken`.
+
+### Ensure your version string is valid
+
+If your version string (for example, `0.0.1`) is invalid, it will be rejected. GitLab uses the following regex to validate the version string.
+
+```ruby
+\A(?:
+    v?
+    (?:([0-9]+)!)?                                                 (?# epoch)
+    ([0-9]+(?:\.[0-9]+)*)                                          (?# release segment)
+    ([-_\.]?((a|b|c|rc|alpha|beta|pre|preview))[-_\.]?([0-9]+)?)?  (?# pre-release)
+    ((?:-([0-9]+))|(?:[-_\.]?(post|rev|r)[-_\.]?([0-9]+)?))?       (?# post release)
+    ([-_\.]?(dev)[-_\.]?([0-9]+)?)?                                (?# dev release)
+    (?:\+([a-z0-9]+(?:[-_\.][a-z0-9]+)*))?                         (?# local version)
+)\z}xi
+```
+
+You can play around with the regex and try your version strings on [this regular expression editor](https://rubular.com/r/FKM6d07ouoDaFV).
+
+For more details about the regex used, please check the [documentation here](https://www.python.org/dev/peps/pep-0440/#appendix-b-parsing-version-strings-with-regular-expressions))
 
 ### Upload packages with Twine
 
@@ -228,6 +247,13 @@ Uploading mypypipackage-0.0.1.tar.gz
 
 This indicates that the package was uploaded successfully. You can then navigate
 to your project's **Packages & Registries** page and see the uploaded packages.
+
+If you would rather not use a `.pypirc` file to define your repository source,
+you can upload to the repository with the authentication inline:
+
+```shell
+TWINE_PASSWORD=<personal_access_token or deploy_token> TWINE_USERNAME=<username or deploy_token_username> python3 -m twine upload --repository-url https://gitlab.com/api/v4/projects/<project_id>/packages/pypi dist/*
+```
 
 If you did not follow the guide above, then you need to ensure your package
 has been properly built and you [created a PyPi package with `setuptools`](https://packaging.python.org/tutorials/packaging-projects/).
@@ -272,4 +298,33 @@ Collecting mypypipackage
   Downloading https://gitlab.com/api/v4/projects/<your_project_id>/packages/pypi/files/d53334205552a355fee8ca35a164512ef7334f33d309e60240d57073ee4386e6/mypypipackage-0.0.1-py3-none-any.whl (1.6 kB)
 Installing collected packages: mypypipackage
 Successfully installed mypypipackage-0.0.1
+```
+
+## Using GitLab CI with PyPI packages
+
+NOTE: **Note:**
+`CI_JOB_TOKEN`s are not yet supported for use with PyPI.
+
+To work with PyPI commands within [GitLab CI/CD](./../../../ci/README.md), you can use
+[environment variables](./../../../ci/variables/README.md#custom-environment-variables)
+to access your authentication tokens in your commands.
+
+Set up environment variables for `TWINE_PASSWORD` and `TWINE_USERNAME` using either:
+
+- A [personal access token](../../../user/profile/personal_access_tokens.md) and your GitLab username.
+- A [deploy token](./../../project/deploy_tokens/index.md) and its associated deploy token username.
+
+You can now access your `TWINE_USERNAME` and `TWINE_PASSWORD` using any `twine` command in your
+`.gitlab-ci.yml` file.
+
+For example:
+
+```yaml
+image: python:latest
+
+run:
+  script:
+    - pip install twine
+    - python setup.py sdist bdist_wheel
+    - TWINE_PASSWORD=${TWINE_PASSWORD} TWINE_USERNAME=${TWINE_USERNAME} python -m twine upload --repository-url https://gitlab.com/api/v4/projects/${CI_PROJECT_ID}/packages/pypi dist/*
 ```

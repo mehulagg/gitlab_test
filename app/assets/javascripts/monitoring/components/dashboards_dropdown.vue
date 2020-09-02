@@ -83,7 +83,7 @@ export default {
       <gl-search-box-by-type
         ref="monitorDashboardsDropdownSearch"
         v-model="searchTerm"
-        class="m-2"
+        class="gl-m-3"
       />
 
       <div class="flex-fill overflow-auto">
@@ -95,12 +95,10 @@ export default {
           @click="selectDashboard(dashboard)"
         >
           <div class="gl-display-flex">
-            <div class="gl-flex-grow-1 gl-min-w-0">
-              <div class="gl-word-break-all">
-                {{ dashboardDisplayName(dashboard) }}
-              </div>
-            </div>
-            <gl-icon class="text-muted gl-flex-shrink-0" name="star" />
+            <span class="gl-flex-grow-1 gl-min-w-0 gl-overflow-hidden gl-overflow-wrap-break">
+              {{ dashboardDisplayName(dashboard) }}
+            </span>
+            <gl-icon class="text-muted gl-flex-shrink-0 gl-ml-3 gl-align-self-center" name="star" />
           </div>
         </gl-new-dropdown-item>
         <gl-new-dropdown-divider
@@ -115,7 +113,9 @@ export default {
           :is-checked="dashboard.path === selectedDashboardPath"
           @click="selectDashboard(dashboard)"
         >
-          {{ dashboardDisplayName(dashboard) }}
+          <span class="gl-overflow-hidden gl-overflow-wrap-break">
+            {{ dashboardDisplayName(dashboard) }}
+          </span>
         </gl-new-dropdown-item>
       </div>
 

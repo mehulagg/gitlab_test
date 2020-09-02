@@ -10,7 +10,7 @@ RSpec.describe 'getting an issue list for a project' do
   let(:issues_data) { graphql_data['project']['issues']['edges'] }
   let!(:issues) do
     [create(:issue, project: project, discussion_locked: true),
-     create(:issue, project: project)]
+     create(:issue, :with_alert, project: project)]
   end
 
   let(:fields) do
@@ -256,9 +256,40 @@ RSpec.describe 'getting an issue list for a project' do
     end
   end
 
-  def grab_iids(data = issues_data)
-    data.map do |issue|
-      issue.dig('node', 'iid').to_i
+  context 'fetching alert management alert' do
+    let(:fields) do
+      <<~QUERY
+      edges {
+        node {
+          iid
+          alertManagementAlert {
+            title
+          }
+        }
+      }
+      QUERY
+    end
+
+    # Alerts need to have developer permission and above
+    before do
+      project.add_developer(current_user)
+    end
+
+    it 'avoids N+1 queries' do
+      control = ActiveRecord::QueryRecorder.new { post_graphql(query, current_user: current_user) }
+
+      create(:alert_management_alert, :with_issue, project: project )
+
+      expect { post_graphql(query, current_user: current_user) }.not_to exceed_query_limit(control)
+    end
+
+    it 'returns the alert data' do
+      post_graphql(query, current_user: current_user)
+
+      alert_titles = issues_data.map { |issue| issue.dig('node', 'alertManagementAlert', 'title') }
+      expected_titles = issues.map { |issue| issue.alert_management_alert&.title }
+
+      expect(alert_titles).to contain_exactly(*expected_titles)
     end
   end
 end

@@ -76,6 +76,8 @@ class Member < ApplicationRecord
   scope :request, -> { where.not(requested_at: nil) }
   scope :non_request, -> { where(requested_at: nil) }
 
+  scope :not_accepted_invitations_by_user, -> (user) { invite.where(invite_accepted_at: nil, created_by: user) }
+
   scope :has_access, -> { active.where('access_level > 0') }
 
   scope :guests, -> { active.where(access_level: GUEST) }
@@ -393,6 +395,10 @@ class Member < ApplicationRecord
 
       GroupMember.where(source: source.ancestors, user_id: user_id).order(:access_level).last
     end
+  end
+
+  def invite_to_unknown_user?
+    invite? && user_id.nil?
   end
 
   private

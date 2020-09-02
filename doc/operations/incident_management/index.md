@@ -50,7 +50,7 @@ user, but it does not count toward your license limit.
 ## Configure external generic alerts
 
 GitLab can accept alerts from any source through a generic webhook receiver. When
-[configuring the generic alerts integration](../../user/project/integrations/generic_alerts.md),
+[configuring the generic alerts integration](generic_alerts.md),
 GitLab creates a unique endpoint which receives a JSON-formatted, customizable payload.
 
 ## Integrate incidents with Slack
@@ -58,7 +58,7 @@ GitLab creates a unique endpoint which receives a JSON-formatted, customizable p
 Slack slash commands allow you to control GitLab and view GitLab content without leaving Slack.
 
 Learn how to [set up Slack slash commands](../../user/project/integrations/slack_slash_commands.md)
-and how to [use the available slash commands](../../user/project/slash_commands.md).
+and how to [use the available slash commands](../../integration/slash_commands.md).
 
 ## Integrate issues with Zoom
 

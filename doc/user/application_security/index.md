@@ -67,6 +67,7 @@ GitLab uses the following tools to scan and report known vulnerabilities found i
 | [Dependency List](dependency_list/index.md) **(ULTIMATE)**                   | View your project's dependencies and their known vulnerabilities.      |
 | [Dependency Scanning](dependency_scanning/index.md) **(ULTIMATE)**           | Analyze your dependencies for known vulnerabilities.                   |
 | [Dynamic Application Security Testing (DAST)](dast/index.md) **(ULTIMATE)**  | Analyze running web applications for known vulnerabilities.            |
+| [API fuzzing](api_fuzzing/index.md) **(ULTIMATE)**                 | Find unknown bugs and vulnerabilities in web APIs with fuzzing.    |
 | [Secret Detection](secret_detection/index.md) **(ULTIMATE)**                 | Analyze Git history for leaked secrets.                                |
 | [Security Dashboard](security_dashboard/index.md) **(ULTIMATE)**             | View vulnerabilities in all your projects and groups.                  |
 | [Static Application Security Testing (SAST)](sast/index.md)                  | Analyze source code for known vulnerabilities.                         |
@@ -121,7 +122,7 @@ information with several options:
 - [Solution](#solutions-for-vulnerabilities-auto-remediation): For some vulnerabilities,
   a solution is provided for how to fix the vulnerability.
 
-![Interacting with security reports](img/interacting_with_vulnerability_v13_0.png)
+![Interacting with security reports](img/interacting_with_vulnerability_v13_3.png)
 
 ### View details of a DAST vulnerability
 
@@ -198,9 +199,10 @@ Pressing the "Dismiss Selected" button will dismiss all the selected vulnerabili
 
 ### Creating an issue for a vulnerability
 
-You can create an issue for a vulnerability by selecting the **Create issue**
-button from within the vulnerability modal, or by using the action buttons to the right of
-a vulnerability row in the group security dashboard.
+You can create an issue for a vulnerability by visiting the vulnerability's page and clicking
+**Create issue**, which you can find in the **Related issues** section.
+
+![Create issue from vulnerability](img/create_issue_from_vulnerability_v13_3.png)
 
 This creates a [confidential issue](../project/issues/confidential_issues.md) in the project the
 vulnerability came from, and pre-populates it with some useful information taken from the vulnerability
@@ -321,14 +323,15 @@ Once this group is added to your project, the approval rule is enabled for all m
 
 Any code changes cause the approvals required to reset.
 
-An approval is required when a security report:
+An approval is required when the latest security report in a merge request:
 
-- Contains a new vulnerability of `high`, `critical`, or `unknown` severity, regardless of dismissal.
+- Contains a vulnerability of `high`, `critical`, or `unknown` severity that is not present in the
+  target branch. Note that approval is still required for dismissed vulnerabilities.
 - Is not generated during pipeline execution.
 
-An approval is optional when a security report:
+An approval is optional when the security report:
 
-- Contains no new vulnerabilities.
+- Contains no new vulnerabilities when compared to the target branch.
 - Contains only new vulnerabilities of `low` or `medium` severity.
 
 ## Enabling License Approvals within a project

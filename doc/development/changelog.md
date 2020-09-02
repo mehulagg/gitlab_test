@@ -30,7 +30,8 @@ the `author` field. GitLab team members **should not**.
 ## What warrants a changelog entry?
 
 - Any change that introduces a database migration, whether it's regular, post,
-  or data migration, **must** have a changelog entry.
+  or data migration, **must** have a changelog entry, even if it is behind a
+  disabled feature flag.
 - [Security fixes](https://gitlab.com/gitlab-org/release/docs/blob/master/general/security/developer.md)
   **must** have a changelog entry, without `merge_request` value
   and with `type` set to `security`.
@@ -43,8 +44,8 @@ the `author` field. GitLab team members **should not**.
   a changelog entry regardless of these guidelines if the contributor wants one.
   Example: "Fixed a typo on the search results page."
 - Any docs-only changes **should not** have a changelog entry.
-- Any change behind a feature flag **should not** have a changelog entry - unless
-  the feature flag has been defaulted to true.
+- Any change behind a disabled feature flag **should not** have a changelog entry.
+- Any change behind an enabled feature flag **should** have a changelog entry.
 - A change that [removes a feature flag](feature_flags/development.md) **should** have a changelog entry -
   only if the feature flag did not default to true already.
 - A fix for a regression introduced and then fixed in the same release (i.e.,
@@ -112,6 +113,11 @@ the `--ee` option:
 ```plaintext
 bin/changelog --ee 'Hey DZ, I added a feature to GitLab!'
 ```
+
+NOTE: **Note:**
+All entries in the `CHANGELOG.md` file apply to all editions of GitLab.
+Changelog updates are based on a common [GitLab codebase](https://gitlab.com/gitlab-org/gitlab/),
+and are mirrored without proprietary code to [GitLab FOSS](https://gitlab.com/gitlab-org/gitlab-foss/) (also known as GitLab Community Edition).
 
 At this point the script would ask you to select the category of the change (mapped to the `type` field in the entry):
 

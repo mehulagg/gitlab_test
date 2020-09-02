@@ -254,6 +254,7 @@ class Project < ApplicationRecord
   has_one :import_data, class_name: 'ProjectImportData', inverse_of: :project, autosave: true
   has_one :project_feature, inverse_of: :project
   has_one :statistics, class_name: 'ProjectStatistics'
+  has_one :feature_usage, class_name: 'ProjectFeatureUsage'
 
   has_one :cluster_project, class_name: 'Clusters::Project'
   has_many :clusters, through: :cluster_project, class_name: 'Clusters::Cluster'
@@ -393,6 +394,8 @@ class Project < ApplicationRecord
     to: :project_setting
   delegate :active?, to: :prometheus_service, allow_nil: true, prefix: true
 
+  delegate :log_jira_dvcs_integration_usage, :jira_dvcs_server_last_sync_at, :jira_dvcs_cloud_last_sync_at, to: :feature_usage
+
   # Validations
   validates :creator, presence: true, on: :create
   validates :description, length: { maximum: 2000 }, allow_blank: true
@@ -476,6 +479,9 @@ class Project < ApplicationRecord
   scope :for_milestones, ->(ids) { joins(:milestones).where('milestones.id' => ids).distinct }
   scope :with_push, -> { joins(:events).merge(Event.pushed_action) }
   scope :with_project_feature, -> { joins('LEFT JOIN project_features ON projects.id = project_features.project_id') }
+  scope :with_active_jira_services, -> { joins(:services).merge(::JiraService.active) } # rubocop:disable CodeReuse/ServiceClass
+  scope :with_jira_dvcs_cloud, -> { joins(:feature_usage).merge(ProjectFeatureUsage.with_jira_dvcs_integration_enabled(cloud: true)) }
+  scope :with_jira_dvcs_server, -> { joins(:feature_usage).merge(ProjectFeatureUsage.with_jira_dvcs_integration_enabled(cloud: false)) }
   scope :inc_routes, -> { includes(:route, namespace: :route) }
   scope :with_statistics, -> { includes(:statistics) }
   scope :with_namespace, -> { includes(:namespace) }
@@ -544,6 +550,8 @@ class Project < ApplicationRecord
   scope :with_api_commit_entity_associations, -> {
     preload(:project_feature, :route, namespace: [:route, :owner])
   }
+
+  scope :imported_from, -> (type) { where(import_type: type) }
 
   enum auto_cancel_pending_pipelines: { disabled: 0, enabled: 1 }
 
@@ -1442,6 +1450,10 @@ class Project < ApplicationRecord
     http_url_to_repo
   end
 
+  def feature_usage
+    super.presence || build_feature_usage
+  end
+
   def forked?
     fork_network && fork_network.root_project != self
   end
@@ -1826,12 +1838,12 @@ class Project < ApplicationRecord
   end
   # rubocop: enable CodeReuse/ServiceClass
 
-  def mark_pages_as_deployed
-    ensure_pages_metadatum.update!(deployed: true)
+  def mark_pages_as_deployed(artifacts_archive: nil)
+    ensure_pages_metadatum.update!(deployed: true, artifacts_archive: artifacts_archive)
   end
 
   def mark_pages_as_not_deployed
-    ensure_pages_metadatum.update!(deployed: false)
+    ensure_pages_metadatum.update!(deployed: false, artifacts_archive: nil)
   end
 
   def write_repository_config(gl_full_path: full_path)
@@ -2140,8 +2152,8 @@ class Project < ApplicationRecord
         data = repository.route_map_for(sha)
 
         Gitlab::RouteMap.new(data) if data
-      rescue Gitlab::RouteMap::FormatError
-        nil
+               rescue Gitlab::RouteMap::FormatError
+                 nil
       end
     end
 
@@ -2424,6 +2436,10 @@ class Project < ApplicationRecord
     false
   end
 
+  def jira_subscription_exists?
+    JiraConnectSubscription.for_project(self).exists?
+  end
+
   def uses_default_ci_config?
     ci_config_path.blank? || ci_config_path == Gitlab::FileDetector::PATTERNS[:gitlab_ci]
   end
@@ -2518,6 +2534,14 @@ class Project < ApplicationRecord
       .exists?
   end
 
+  def default_branch_or_master
+    default_branch || 'master'
+  end
+
+  def ci_config_path_or_default
+    ci_config_path.presence || Ci::Pipeline::DEFAULT_CONFIG_PATH
+  end
+
   private
 
   def find_service(services, name)
@@ -2533,11 +2557,11 @@ class Project < ApplicationRecord
   end
 
   def services_templates
-    @services_templates ||= Service.templates
+    @services_templates ||= Service.for_template
   end
 
   def services_instances
-    @services_instances ||= Service.instances
+    @services_instances ||= Service.for_instance
   end
 
   def closest_namespace_setting(name)

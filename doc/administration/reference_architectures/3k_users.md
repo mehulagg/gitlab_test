@@ -600,6 +600,9 @@ If you use a cloud-managed service, or provide your own PostgreSQL:
 1. Configure the GitLab application servers with the appropriate details.
    This step is covered in [Configuring the GitLab Rails application](#configure-gitlab-rails).
 
+See [Configure GitLab using an external PostgreSQL service](../postgresql/external.md) for
+further configuration steps.
+
 ### Standalone PostgreSQL using Omnibus GitLab
 
 The following IPs will be used as an example:
@@ -1128,7 +1131,7 @@ On each node:
    # to Gitaly, and a second for authentication callbacks from GitLab-Shell to the GitLab internal API.
    # The following two values must be the same as their respective values
    # of the GitLab Rails application setup
-   gitaly['auth_token'] = 'gitlaysecret'
+   gitaly['auth_token'] = 'gitalysecret'
    gitlab_shell['secret_token'] = 'shellsecret'
 
    # Avoid running unnecessary services on the Gitaly server
@@ -1142,7 +1145,7 @@ On each node:
    grafana['enable'] = false
    gitlab_exporter['enable'] = false
 
-   # If you run a seperate monitoring node you can disable these services
+   # If you run a separate monitoring node you can disable these services
    alertmanager['enable'] = false
    prometheus['enable'] = false
 
@@ -1471,7 +1474,7 @@ On each node perform the following:
    # to Gitaly, and a second for authentication callbacks from GitLab-Shell to the GitLab internal API.
    # The following two values must be the same as their respective values
    # of the Gitaly setup
-   gitlab_rails['gitaly_token'] = 'gitalyecret'
+   gitlab_rails['gitaly_token'] = 'gitalysecret'
    gitlab_shell['secret_token'] = 'shellsecret'
 
    git_data_dirs({
@@ -1723,7 +1726,7 @@ based on what features you intend to use:
 1. Configure [object storage for packages](../packages/index.md#using-object-storage) (optional feature). **(PREMIUM ONLY)**
 1. Configure [object storage for Dependency Proxy](../packages/dependency_proxy.md#using-object-storage) (optional feature). **(PREMIUM ONLY)**
 1. Configure [object storage for Pseudonymizer](../pseudonymizer.md#configuration) (optional feature). **(ULTIMATE ONLY)**
-1. Configure [object storage for autoscale Runner caching](https://docs.gitlab.com/runner/configuration/autoscale.html#distributed-runners-caching) (optional - for improved performance).
+1. Configure [object storage for autoscale runner caching](https://docs.gitlab.com/runner/configuration/autoscale.html#distributed-runners-caching) (optional - for improved performance).
 1. Configure [object storage for Terraform state files](../terraform_state.md#using-object-storage-core-only).
 
 Using separate buckets for each data type is the recommended approach for GitLab.

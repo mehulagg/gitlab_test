@@ -195,6 +195,19 @@ RSpec.describe Member do
       it { expect(described_class.non_request).to include @accepted_request_member }
     end
 
+    describe '.not_accepted_invitations_by_user' do
+      let(:invited_by_user) { create(:project_member, :invited, project: project, created_by: @owner_user) }
+
+      before do
+        create(:project_member, :invited, invite_email: 'test@test.com', project: project, created_by: @owner_user, invite_accepted_at: Time.zone.now)
+        create(:project_member, :invited, invite_email: 'test2@test.com', project: project, created_by: @maintainer_user)
+      end
+
+      subject { described_class.not_accepted_invitations_by_user(@owner_user) }
+
+      it { is_expected.to contain_exactly(invited_by_user) }
+    end
+
     describe '.search_invite_email' do
       it 'returns only members the matching e-mail' do
         create(:group_member, :invited)
@@ -614,6 +627,24 @@ RSpec.describe Member do
 
     it "sets the invite token" do
       expect { member.generate_invite_token }.to change { member.invite_token}
+    end
+  end
+
+  describe "#invite_to_unknown_user?" do
+    subject { member.invite_to_unknown_user? }
+
+    let(:member) { create(:project_member, invite_email: "user@example.com", invite_token: '1234', user: user) }
+
+    context 'when user is nil' do
+      let(:user) { nil }
+
+      it { is_expected.to eq(true) }
+    end
+
+    context 'when user is set' do
+      let(:user) { build(:user) }
+
+      it { is_expected.to eq(false) }
     end
   end
 

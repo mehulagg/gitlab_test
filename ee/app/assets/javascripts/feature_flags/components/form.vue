@@ -11,9 +11,9 @@ import {
   GlSprintf,
 } from '@gitlab/ui';
 import Api from 'ee/api';
-import RelatedIssuesRoot from 'ee/related_issues/components/related_issues_root.vue';
+import RelatedIssuesRoot from '~/related_issues/components/related_issues_root.vue';
 import { s__ } from '~/locale';
-import flash, { FLASH_TYPES } from '~/flash';
+import { deprecatedCreateFlash as flash, FLASH_TYPES } from '~/flash';
 import featureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import ToggleButton from '~/vue_shared/components/toggle_button.vue';
 import EnvironmentsDropdown from './environments_dropdown.vue';
@@ -155,6 +155,7 @@ export default {
       return (
         this.glFeatures.featureFlagsNewVersion &&
         this.glFeatures.featureFlagsLegacyReadOnly &&
+        !this.glFeatures.featureFlagsLegacyReadOnlyOverride &&
         this.version === LEGACY_FLAG
       );
     },

@@ -1,7 +1,8 @@
 <script>
+/* eslint-disable vue/no-v-html */
 import $ from 'jquery';
 import { s__, sprintf } from '~/locale';
-import createFlash from '~/flash';
+import { deprecatedCreateFlash as createFlash } from '~/flash';
 import animateMixin from '../mixins/animate';
 import TaskList from '../../task_list';
 import recaptchaModalImplementor from '../../vue_shared/mixins/recaptcha_modal_implementor';
@@ -47,11 +48,16 @@ export default {
     return {
       preAnimation: false,
       pulseAnimation: false,
+      initialUpdate: true,
     };
   },
   watch: {
-    descriptionHtml() {
-      this.animateChange();
+    descriptionHtml(newDescription, oldDescription) {
+      if (!this.initialUpdate && newDescription !== oldDescription) {
+        this.animateChange();
+      } else {
+        this.initialUpdate = false;
+      }
 
       this.$nextTick(() => {
         this.renderGFM();

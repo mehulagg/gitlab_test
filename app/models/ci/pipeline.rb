@@ -19,6 +19,8 @@ module Ci
     PROJECT_ROUTE_AND_NAMESPACE_ROUTE = {
       project: [:project_feature, :route, { namespace: :route }]
     }.freeze
+    CONFIG_EXTENSION = '.gitlab-ci.yml'
+    DEFAULT_CONFIG_PATH = CONFIG_EXTENSION
 
     BridgeStatusError = Class.new(StandardError)
 
@@ -104,15 +106,15 @@ module Ci
 
     after_create :keep_around_commits, unless: :importing?
 
-    # We use `Ci::PipelineEnums.sources` here so that EE can more easily extend
+    # We use `Enums::Ci::Pipeline.sources` here so that EE can more easily extend
     # this `Hash` with new values.
-    enum_with_nil source: ::Ci::PipelineEnums.sources
+    enum_with_nil source: Enums::Ci::Pipeline.sources
 
-    enum_with_nil config_source: ::Ci::PipelineEnums.config_sources
+    enum_with_nil config_source: Enums::Ci::Pipeline.config_sources
 
-    # We use `Ci::PipelineEnums.failure_reasons` here so that EE can more easily
+    # We use `Enums::Ci::Pipeline.failure_reasons` here so that EE can more easily
     # extend this `Hash` with new values.
-    enum failure_reason: ::Ci::PipelineEnums.failure_reasons
+    enum failure_reason: Enums::Ci::Pipeline.failure_reasons
 
     enum locked: { unlocked: 0, artifacts_locked: 1 }
 
@@ -229,6 +231,12 @@ module Ci
       end
 
       after_transition any => ::Ci::Pipeline.completed_statuses do |pipeline|
+        pipeline.run_after_commit do
+          ::Ci::Pipelines::CreateArtifactWorker.perform_async(pipeline.id)
+        end
+      end
+
+      after_transition any => ::Ci::Pipeline.completed_statuses do |pipeline|
         next unless pipeline.bridge_triggered?
         next unless pipeline.bridge_waiting?
 
@@ -254,7 +262,7 @@ module Ci
 
     scope :internal, -> { where(source: internal_sources) }
     scope :no_child, -> { where.not(source: :parent_pipeline) }
-    scope :ci_sources, -> { where(config_source: ::Ci::PipelineEnums.ci_config_sources_values) }
+    scope :ci_sources, -> { where(config_source: Enums::Ci::Pipeline.ci_config_sources_values) }
     scope :for_user, -> (user) { where(user: user) }
     scope :for_sha, -> (sha) { where(sha: sha) }
     scope :for_source_sha, -> (source_sha) { where(source_sha: source_sha) }
@@ -418,24 +426,6 @@ module Ci
       false
     end
 
-    def legacy_stages_using_sql
-      # TODO, this needs refactoring, see gitlab-foss#26481.
-      stages_query = statuses
-        .group('stage').select(:stage).order('max(stage_idx)')
-
-      status_sql = statuses.latest.where('stage=sg.stage').legacy_status_sql
-
-      warnings_sql = statuses.latest.select('COUNT(*)')
-        .where('stage=sg.stage').failed_but_allowed.to_sql
-
-      stages_with_statuses = CommitStatus.from(stages_query, :sg)
-        .pluck('sg.stage', Arel.sql(status_sql), Arel.sql("(#{warnings_sql})"))
-
-      stages_with_statuses.map do |stage|
-        Ci::LegacyStage.new(self, Hash[%i[name status warnings].zip(stage)])
-      end
-    end
-
     def legacy_stages_using_composite_status
       stages = latest_statuses_ordered_by_stage.group_by(&:stage)
 
@@ -456,11 +446,7 @@ module Ci
 
     # TODO: Remove usage of this method in templates
     def legacy_stages
-      if ::Gitlab::Ci::Features.composite_status?(project)
-        legacy_stages_using_composite_status
-      else
-        legacy_stages_using_sql
-      end
+      legacy_stages_using_composite_status
     end
 
     def valid_commit_sha
@@ -502,6 +488,12 @@ module Ci
     def git_commit_description
       strong_memoize(:git_commit_description) do
         commit.try(:description)
+      end
+    end
+
+    def git_commit_timestamp
+      strong_memoize(:git_commit_timestamp) do
+        commit.try(:timestamp)
       end
     end
 
@@ -560,12 +552,6 @@ module Ci
         .execute(self)
     end
     # rubocop: enable CodeReuse/ServiceClass
-
-    def mark_as_processable_after_stage(stage_idx)
-      builds.skipped.after_stage(stage_idx).find_each do |build|
-        Gitlab::OptimisticLocking.retry_lock(build, &:process)
-      end
-    end
 
     def lazy_ref_commit
       return unless ::Gitlab::Ci::Features.pipeline_latest?
@@ -669,7 +655,7 @@ module Ci
     def config_path
       return unless repository_source? || unknown_source?
 
-      project.ci_config_path.presence || '.gitlab-ci.yml'
+      project.ci_config_path_or_default
     end
 
     def has_yaml_errors?
@@ -788,6 +774,7 @@ module Ci
         variables.append(key: 'CI_COMMIT_TITLE', value: git_commit_full_title.to_s)
         variables.append(key: 'CI_COMMIT_DESCRIPTION', value: git_commit_description.to_s)
         variables.append(key: 'CI_COMMIT_REF_PROTECTED', value: (!!protected_ref?).to_s)
+        variables.append(key: 'CI_COMMIT_TIMESTAMP', value: git_commit_timestamp.to_s)
 
         # legacy variables
         variables.append(key: 'CI_BUILD_REF', value: sha)
@@ -880,12 +867,22 @@ module Ci
       builds.latest.with_reports(reports_scope)
     end
 
+    def builds_with_coverage
+      builds.with_coverage
+    end
+
     def has_reports?(reports_scope)
       complete? && latest_report_builds(reports_scope).exists?
     end
 
+    def has_coverage_reports?
+      self.has_reports?(Ci::JobArtifact.coverage_reports)
+    end
+
     def test_report_summary
-      Gitlab::Ci::Reports::TestReportSummary.new(latest_builds_report_results)
+      strong_memoize(:test_report_summary) do
+        Gitlab::Ci::Reports::TestReportSummary.new(latest_builds_report_results)
+      end
     end
 
     def test_reports
@@ -1030,7 +1027,7 @@ module Ci
     end
 
     def cacheable?
-      Ci::PipelineEnums.ci_config_sources.key?(config_source.to_sym)
+      Enums::Ci::Pipeline.ci_config_sources.key?(config_source.to_sym)
     end
 
     def source_ref_path

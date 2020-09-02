@@ -11,7 +11,7 @@ as the hardware requirements that are needed to install and use GitLab.
 
 ### Supported Linux distributions
 
-- Ubuntu (16.04/18.04)
+- Ubuntu (16.04/18.04/20.04)
 - Debian (8/9/10)
 - CentOS (6/7/8)
 - openSUSE (Leap 15.1/Enterprise Server 12.2)
@@ -74,9 +74,12 @@ a version older than `v10.13.0`, you need to update it to a newer version. You
 can find instructions to install from community maintained packages or compile
 from source at the [Node.js website](https://nodejs.org/en/download/).
 
-## Redis versions
+### Redis versions
 
-GitLab requires Redis 5.0+. Beginning in GitLab 13.0, lower versions are not supported.
+GitLab 13.0 and later requires Redis version 4.0 or higher.
+
+Redis version 5.0 or higher is recommended, as this is what ships with
+[Omnibus GitLab](https://docs.gitlab.com/omnibus/) packages starting with GitLab 12.7.
 
 ## Hardware requirements
 
@@ -260,8 +263,6 @@ For reference, GitLab.com's [auto-scaling shared runner](../user/gitlab_com/inde
 
 CAUTION: **Caution:**
 With GitLab 13.0 (May 2020) we have removed official support for Internet Explorer 11.
-With the release of GitLab 13.4 (September 2020) we will remove all code that supports Internet Explorer 11.
-You can provide feedback [on this issue](https://gitlab.com/gitlab-org/gitlab/-/issues/197987) or via your usual support channels.
 
 GitLab supports the following web browsers:
 
@@ -273,7 +274,7 @@ GitLab supports the following web browsers:
 
 For the listed web browsers, GitLab supports:
 
-- The current and previous major versions of browsers except Internet Explorer.
+- The current and previous major versions of browsers.
 - The current minor version of a supported major version.
 
 NOTE: **Note:**

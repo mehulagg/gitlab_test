@@ -41,8 +41,6 @@ RSpec.describe Gitlab::Metrics::Dashboard::Validator::Errors do
               let(:type) { expected_type }
               let(:details) { nil }
 
-              subject { described_class.new(error_hash).message }
-
               it { is_expected.to eq "'property_name' at root is not of type: #{expected_type}" }
             end
           end
@@ -64,8 +62,6 @@ RSpec.describe Gitlab::Metrics::Dashboard::Validator::Errors do
             context "on type: #{expected_type}" do
               let(:type) { expected_type }
               let(:details) { nil }
-
-              subject { described_class.new(error_hash).message }
 
               it { is_expected.to eq "'property_name' at /nested_objects/0 is not of type: #{expected_type}" }
             end

@@ -1,4 +1,5 @@
 <script>
+/* eslint-disable vue/no-v-html */
 /*
  * This is tightly coupled to projects/issues/_issue.html.haml,
  * any changes done to the haml need to be reflected here.
@@ -157,7 +158,7 @@ export default {
           value: this.issuable.merge_requests_count,
           title: __('Related merge requests'),
           dataTestId: 'merge-requests',
-          class: 'js-merge-requests icon-merge-request-unmerged',
+          class: 'js-merge-requests',
           icon: 'merge-request',
         },
         {

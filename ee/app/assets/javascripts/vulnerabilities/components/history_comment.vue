@@ -1,7 +1,8 @@
 <script>
-import { GlDeprecatedButton, GlButton, GlLoadingIcon } from '@gitlab/ui';
+/* eslint-disable vue/no-v-html */
+import { GlDeprecatedButton, GlButton } from '@gitlab/ui';
 import EventItem from 'ee/vue_shared/security_reports/components/event_item.vue';
-import createFlash from '~/flash';
+import { deprecatedCreateFlash as createFlash } from '~/flash';
 import { __, s__ } from '~/locale';
 import axios from '~/lib/utils/axios_utils';
 import HistoryCommentEditor from './history_comment_editor.vue';
@@ -12,7 +13,6 @@ export default {
     GlButton,
     EventItem,
     HistoryCommentEditor,
-    GlLoadingIcon,
   },
 
   props: {
@@ -42,9 +42,6 @@ export default {
   },
 
   computed: {
-    commentNote() {
-      return this.comment?.note;
-    },
     actionButtons() {
       return [
         {
@@ -58,6 +55,9 @@ export default {
           title: __('Delete Comment'),
         },
       ];
+    },
+    initialComment() {
+      return this.comment && this.comment.note;
     },
   },
 
@@ -135,8 +135,8 @@ export default {
 <template>
   <history-comment-editor
     v-if="isEditingComment"
-    class="discussion-reply-holder m-3"
-    :initial-comment="commentNote"
+    class="discussion-reply-holder"
+    :initial-comment="initialComment"
     :is-saving="isSavingComment"
     @onSave="saveComment"
     @onCancel="cancelEditingComment"
@@ -154,16 +154,15 @@ export default {
     icon-class="timeline-icon m-0"
     class="m-3"
   >
-    <div v-html="comment.note"></div>
+    <div class="md" v-html="comment.note_html"></div>
 
     <template #right-content>
       <gl-button
         ref="confirmDeleteButton"
         variant="danger"
-        :disabled="isDeletingComment"
+        :loading="isDeletingComment"
         @click="deleteComment"
       >
-        <gl-loading-icon v-if="isDeletingComment" class="mr-1" />
         {{ __('Delete') }}
       </gl-button>
       <gl-button

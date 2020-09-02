@@ -27,6 +27,7 @@ export default (el, dashboardType) => {
     });
   }
 
+  const provide = {};
   const props = {
     hasVulnerabilities: Boolean(el.dataset.hasVulnerabilities),
     securityDashboardHelpPath: el.dataset.securityDashboardHelpPath,
@@ -44,8 +45,8 @@ export default (el, dashboardType) => {
   } else if (dashboardType === DASHBOARD_TYPES.GROUP) {
     component = FirstClassGroupSecurityDashboard;
     props.groupFullPath = el.dataset.groupFullPath;
-    props.vulnerableProjectsEndpoint = el.dataset.vulnerableProjectsEndpoint;
   } else if (dashboardType === DASHBOARD_TYPES.INSTANCE) {
+    provide.instanceDashboardSettingsPath = el.dataset.instanceDashboardSettingsPath;
     component = FirstClassInstanceSecurityDashboard;
   }
 
@@ -63,6 +64,7 @@ export default (el, dashboardType) => {
       emptyStateSvgPath: el.dataset.emptyStateSvgPath,
       notEnabledScannersHelpPath: el.dataset.notEnabledScannersHelpPath,
       noPipelineRunScannersHelpPath: el.dataset.noPipelineRunScannersHelpPath,
+      ...provide,
     }),
     render(createElement) {
       return createElement(component, { props });

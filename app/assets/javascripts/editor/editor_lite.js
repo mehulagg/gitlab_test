@@ -1,17 +1,18 @@
-import { editor as monacoEditor, languages as monacoLanguages, Position, Uri } from 'monaco-editor';
+import { editor as monacoEditor, languages as monacoLanguages, Uri } from 'monaco-editor';
 import { DEFAULT_THEME, themes } from '~/ide/lib/themes';
 import languages from '~/ide/lib/languages';
 import { defaultEditorOptions } from '~/ide/lib/editor_options';
 import { registerLanguages } from '~/ide/utils';
 import { joinPaths } from '~/lib/utils/url_utility';
 import { clearDomElement } from './utils';
+import { EDITOR_LITE_INSTANCE_ERROR_NO_EL, URI_PREFIX } from './constants';
 
 export default class Editor {
   constructor(options = {}) {
     this.editorEl = null;
     this.blobContent = '';
     this.blobPath = '';
-    this.instance = null;
+    this.instances = [];
     this.model = null;
     this.options = {
       extraEditorClassName: 'gl-editor-lite',
@@ -40,39 +41,56 @@ export default class Editor {
    * @param {string} options.blobContent The content to initialize the monacoEditor.
    * @param {string} options.blobGlobalId This is used to help globally identify monaco instances that are created with the same blobPath.
    */
-  createInstance({ el = undefined, blobPath = '', blobContent = '', blobGlobalId = '' } = {}) {
-    if (!el) return;
+  createInstance({
+    el = undefined,
+    blobPath = '',
+    blobContent = '',
+    blobGlobalId = '',
+    ...instanceOptions
+  } = {}) {
+    if (!el) {
+      throw new Error(EDITOR_LITE_INSTANCE_ERROR_NO_EL);
+    }
     this.editorEl = el;
     this.blobContent = blobContent;
     this.blobPath = blobPath;
 
     clearDomElement(this.editorEl);
 
-    const uriFilePath = joinPaths('gitlab', blobGlobalId, blobPath);
+    const uriFilePath = joinPaths(URI_PREFIX, blobGlobalId, blobPath);
 
-    this.model = monacoEditor.createModel(this.blobContent, undefined, Uri.file(uriFilePath));
+    const model = monacoEditor.createModel(this.blobContent, undefined, Uri.file(uriFilePath));
 
     monacoEditor.onDidCreateEditor(this.renderEditor.bind(this));
 
-    this.instance = monacoEditor.create(this.editorEl, this.options);
-    this.instance.setModel(this.model);
+    const instance = monacoEditor.create(this.editorEl, {
+      ...this.options,
+      ...instanceOptions,
+    });
+    instance.setModel(model);
+    instance.onDidDispose(() => {
+      const index = this.instances.findIndex(inst => inst === instance);
+      this.instances.splice(index, 1);
+      model.dispose();
+    });
+    instance.updateModelLanguage = path => this.updateModelLanguage(path);
+
+    // Reference to the model on the editor level will go away in
+    // https://gitlab.com/gitlab-org/gitlab/-/issues/241023
+    // After that, the references to the model will be routed through
+    // instance exclusively
+    this.model = model;
+
+    this.instances.push(instance);
+    return instance;
   }
 
   dispose() {
-    if (this.model) {
-      this.model.dispose();
-      this.model = null;
-    }
-
-    return this.instance && this.instance.dispose();
+    this.instances.forEach(instance => instance.dispose());
   }
 
   renderEditor() {
     delete this.editorEl.dataset.editorLoading;
-  }
-
-  onChangeContent(fn) {
-    return this.model.onDidChangeContent(fn);
   }
 
   updateModelLanguage(path) {
@@ -86,28 +104,12 @@ export default class Editor {
     monacoEditor.setModelLanguage(this.model, id);
   }
 
-  getValue() {
-    return this.instance.getValue();
-  }
-
-  setValue(val) {
-    this.instance.setValue(val);
-  }
-
-  focus() {
-    this.instance.focus();
-  }
-
-  navigateFileStart() {
-    this.instance.setPosition(new Position(1, 1));
-  }
-
-  updateOptions(options = {}) {
-    this.instance.updateOptions(options);
-  }
-
-  use(exts = []) {
+  use(exts = [], instance = null) {
     const extensions = Array.isArray(exts) ? exts : [exts];
-    Object.assign(this, ...extensions);
+    if (instance) {
+      Object.assign(instance, ...extensions);
+    } else {
+      this.instances.forEach(inst => Object.assign(inst, ...extensions));
+    }
   }
 }

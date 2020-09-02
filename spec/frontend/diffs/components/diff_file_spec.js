@@ -45,7 +45,7 @@ describe('DiffFile', () => {
 
       vm.$nextTick()
         .then(() => {
-          expect(el.querySelectorAll('.line_content').length).toBe(5);
+          expect(el.querySelectorAll('.line_content').length).toBe(8);
           expect(el.querySelectorAll('.js-line-expansion-content').length).toBe(1);
           triggerEvent('.btn-clipboard');
         })
@@ -123,26 +123,6 @@ describe('DiffFile', () => {
         vm.$nextTick(() => {
           expect(vm.$el.innerText).toContain('This diff is collapsed');
           expect(vm.$el.querySelectorAll('.js-click-to-expand').length).toEqual(1);
-
-          done();
-        });
-      });
-
-      it('should auto-expand collapsed files when viewDiffsFileByFile is true', done => {
-        vm.$destroy();
-        window.gon = {
-          features: { autoExpandCollapsedDiffs: true },
-        };
-        vm = createComponentWithStore(Vue.extend(DiffFileComponent), createStore(), {
-          file: JSON.parse(JSON.stringify(diffFileMockDataUnreadable)),
-          canCurrentUserFork: false,
-          viewDiffsFileByFile: true,
-        }).$mount();
-
-        vm.$nextTick(() => {
-          expect(vm.$el.innerText).not.toContain('This diff is collapsed');
-
-          window.gon = {};
 
           done();
         });

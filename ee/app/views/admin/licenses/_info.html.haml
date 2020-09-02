@@ -1,5 +1,3 @@
-- return unless local_assigns.fetch(:license)
-
 .row
   .col-md-6
     .card
@@ -18,6 +16,12 @@
         %li
           %span.light= _('Plan:')
           %strong= @license.plan.capitalize
+          = ' - '
+          = link_to _('How to upgrade'),
+            help_page_path('subscriptions/index.md', anchor: 'upgrade-your-self-managed-subscription-tier'),
+            class: 'inline-link',
+            target: :_blank,
+            rel: :noreferrer
         %li
           %span.light= _('Uploaded:')
           %strong= time_ago_with_tooltip @license.created_at
@@ -26,18 +30,7 @@
           %strong= time_ago_with_tooltip @license.starts_at
         %li
           %span.light
-            - if @license.expired?
-              = _('Expired:')
-            - else
-              = _('Expires:')
-          - if @license.will_expire? && !@license.expired?
-            - if @license.trial?
-              %strong.has-tooltip{ title: @license.expires_at.to_formatted_s(:long), data: { placement: 'top' } }
-                = _('Free trial will expire in %{days}' % { days: pluralize(@license.remaining_days, 'day') })
-            - else
-              %strong= time_ago_with_tooltip(@license.expires_at)
-          - else
-            %strong= _('Never')
+            = render 'license_status'
 
           - if @license.expired?
             %span.badge.badge-danger.float-right

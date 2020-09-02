@@ -10,6 +10,7 @@ class License < ApplicationRecord
 
   EES_FEATURES = %i[
     audit_events
+    blocked_issues
     burndown_charts
     code_owners
     code_review_analytics
@@ -27,13 +28,13 @@ class License < ApplicationRecord
     ldap_group_sync
     member_lock
     merge_request_approvers
+    milestone_charts
     multiple_issue_assignees
     multiple_ldap_servers
     multiple_merge_request_assignees
     project_merge_request_analytics
     protected_refs_for_users
     push_rules
-    related_issues
     repository_mirrors
     repository_size_limit
     seat_link
@@ -86,7 +87,6 @@ class License < ApplicationRecord
     group_project_templates
     group_saml
     issues_analytics
-    jira_dev_panel_integration
     jira_issues_integration
     ldap_group_sync_filter
     merge_pipelines
@@ -144,6 +144,7 @@ class License < ApplicationRecord
     subepics
     threat_monitoring
     tracing
+    quality_management
   ]
   EEU_FEATURES.freeze
 

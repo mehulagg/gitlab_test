@@ -1,12 +1,12 @@
 <script>
-import { GlDeprecatedButton } from '@gitlab/ui';
+/* eslint-disable vue/no-v-html */
+import { GlDeprecatedButton, GlIcon } from '@gitlab/ui';
 import { escape } from 'lodash';
 import { __, n__, sprintf, s__ } from '~/locale';
-import Icon from '~/vue_shared/components/icon.vue';
 
 export default {
   components: {
-    Icon,
+    GlIcon,
     GlDeprecatedButton,
   },
   props: {
@@ -86,7 +86,7 @@ export default {
         class="commit-edit-toggle square s24 gl-mr-3"
         @click.stop="toggle()"
       >
-        <icon :name="collapseIcon" :size="16" />
+        <gl-icon :name="collapseIcon" :size="16" />
       </gl-deprecated-button>
       <span v-if="expanded">{{ __('Collapse') }}</span>
       <span v-else>

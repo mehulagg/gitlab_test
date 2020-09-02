@@ -11,16 +11,27 @@ class Groups::Analytics::CycleAnalytics::ValueStreamsController < Analytics::App
   end
 
   def index
-    render json: Analytics::GroupValueStreamSerializer.new.represent(value_streams)
+    render json: Analytics::CycleAnalytics::GroupValueStreamSerializer.new.represent(value_streams)
   end
 
   def create
     value_stream = @group.value_streams.build(value_stream_params)
 
     if value_stream.save
-      render json: Analytics::GroupValueStreamSerializer.new.represent(value_stream)
+      render json: Analytics::CycleAnalytics::GroupValueStreamSerializer.new.represent(value_stream)
     else
       render json: { message: 'Invalid parameters', payload: { errors: value_stream.errors } }, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    value_stream = @group.value_streams.find(params[:id])
+
+    if value_stream.custom?
+      value_stream.delete
+      render json: {}, status: :ok
+    else
+      render json: { message: s_('ValueStream|The Default Value Stream cannot be deleted') }, status: :unprocessable_entity
     end
   end
 

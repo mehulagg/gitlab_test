@@ -18,7 +18,6 @@ import { dateFormats } from '../shared/constants';
  *
  * @return {Array} the computed month data
  */
-// eslint-disable-next-line import/prefer-default-export
 export const computeMonthRangeData = (startDate, endDate, format = dateFormats.isoDate) => {
   const monthData = [];
   const monthNames = getMonthNames(true);
@@ -26,7 +25,7 @@ export const computeMonthRangeData = (startDate, endDate, format = dateFormats.i
   for (
     let dateCursor = new Date(endDate);
     dateCursor >= startDate;
-    dateCursor.setMonth(dateCursor.getMonth() - 1)
+    dateCursor.setMonth(dateCursor.getMonth(), 0)
   ) {
     const monthIndex = dateCursor.getMonth();
     const year = dateCursor.getFullYear();

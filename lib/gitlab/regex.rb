@@ -6,11 +6,6 @@ module Gitlab
       CONAN_RECIPE_FILES = %w[conanfile.py conanmanifest.txt conan_sources.tgz conan_export.tgz].freeze
       CONAN_PACKAGE_FILES = %w[conaninfo.txt conanmanifest.txt conan_package.tgz].freeze
 
-      def conan_file_name_regex
-        @conan_file_name_regex ||=
-          %r{\A#{(CONAN_RECIPE_FILES + CONAN_PACKAGE_FILES).join("|")}\z}.freeze
-      end
-
       def conan_package_reference_regex
         @conan_package_reference_regex ||= %r{\A[A-Za-z0-9]+\z}.freeze
       end
@@ -51,6 +46,21 @@ module Gitlab
         maven_app_name_regex
       end
 
+      def pypi_version_regex
+        # See the official regex: https://github.com/pypa/packaging/blob/16.7/packaging/version.py#L159
+
+        @pypi_version_regex ||= %r{
+          \A(?:
+            v?
+            (?:([0-9]+)!)?                                                 (?# epoch)
+            ([0-9]+(?:\.[0-9]+)*)                                          (?# release segment)
+            ([-_\.]?((a|b|c|rc|alpha|beta|pre|preview))[-_\.]?([0-9]+)?)?  (?# pre-release)
+            ((?:-([0-9]+))|(?:[-_\.]?(post|rev|r)[-_\.]?([0-9]+)?))?       (?# post release)
+            ([-_\.]?(dev)[-_\.]?([0-9]+)?)?                                (?# dev release)
+            (?:\+([a-z0-9]+(?:[-_\.][a-z0-9]+)*))?                         (?# local version)
+            )\z}xi.freeze
+      end
+
       def unbounded_semver_regex
         # See the official regex: https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
 
@@ -89,6 +99,10 @@ module Gitlab
           \b (?# word boundary)
         /ix.freeze
       end
+
+      def generic_package_version_regex
+        /\A\d+\.\d+\.\d+\z/
+      end
     end
 
     extend self
@@ -107,7 +121,11 @@ module Gitlab
     end
 
     def group_name_regex
-      @group_name_regex ||= /\A[\p{Alnum}\u{00A9}-\u{1f9ff}_][\p{Alnum}\p{Pd}\u{00A9}-\u{1f9ff}_()\. ]*\z/.freeze
+      @group_name_regex ||= /\A#{group_name_regex_chars}\z/.freeze
+    end
+
+    def group_name_regex_chars
+      @group_name_regex_chars ||= /[\p{Alnum}\u{00A9}-\u{1f9ff}_][\p{Alnum}\p{Pd}\u{00A9}-\u{1f9ff}_()\. ]*/.freeze
     end
 
     def group_name_regex_message

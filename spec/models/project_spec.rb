@@ -1362,6 +1362,36 @@ RSpec.describe Project do
     end
   end
 
+  describe '.with_active_jira_services' do
+    it 'returns the correct project' do
+      active_jira_service = create(:jira_service)
+      active_service = create(:service, active: true)
+
+      expect(described_class.with_active_jira_services).to include(active_jira_service.project)
+      expect(described_class.with_active_jira_services).not_to include(active_service.project)
+    end
+  end
+
+  describe '.with_jira_dvcs_cloud' do
+    it 'returns the correct project' do
+      jira_dvcs_cloud_project = create(:project, :jira_dvcs_cloud)
+      jira_dvcs_server_project = create(:project, :jira_dvcs_server)
+
+      expect(described_class.with_jira_dvcs_cloud).to include(jira_dvcs_cloud_project)
+      expect(described_class.with_jira_dvcs_cloud).not_to include(jira_dvcs_server_project)
+    end
+  end
+
+  describe '.with_jira_dvcs_server' do
+    it 'returns the correct project' do
+      jira_dvcs_server_project = create(:project, :jira_dvcs_server)
+      jira_dvcs_cloud_project = create(:project, :jira_dvcs_cloud)
+
+      expect(described_class.with_jira_dvcs_server).to include(jira_dvcs_server_project)
+      expect(described_class.with_jira_dvcs_server).not_to include(jira_dvcs_cloud_project)
+    end
+  end
+
   describe '.cached_count', :use_clean_rails_memory_store_caching do
     let(:group)     { create(:group, :public) }
     let!(:project1) { create(:project, :public, group: group) }
@@ -5831,32 +5861,57 @@ RSpec.describe Project do
     end
   end
 
-  context 'pages deployed' do
+  describe '#mark_pages_as_deployed' do
     let(:project) { create(:project) }
+    let(:artifacts_archive) { create(:ci_job_artifact, project: project) }
 
-    {
-      mark_pages_as_deployed: true,
-      mark_pages_as_not_deployed: false
-    }.each do |method_name, flag|
-      describe method_name do
-        it "creates new record and sets deployed to #{flag} if none exists yet" do
-          project.pages_metadatum.destroy!
-          project.reload
+    it "works when artifacts_archive is missing" do
+      project.mark_pages_as_deployed
 
-          project.send(method_name)
+      expect(project.pages_metadatum.reload.deployed).to eq(true)
+    end
 
-          expect(project.pages_metadatum.reload.deployed).to eq(flag)
-        end
+    it "creates new record and sets deployed to true if none exists yet" do
+      project.pages_metadatum.destroy!
+      project.reload
 
-        it "updates the existing record and sets deployed to #{flag}" do
-          pages_metadatum = project.pages_metadatum
-          pages_metadatum.update!(deployed: !flag)
+      project.mark_pages_as_deployed(artifacts_archive: artifacts_archive)
 
-          expect { project.send(method_name) }.to change {
-            pages_metadatum.reload.deployed
-          }.from(!flag).to(flag)
-        end
-      end
+      expect(project.pages_metadatum.reload.deployed).to eq(true)
+    end
+
+    it "updates the existing record and sets deployed to true and records artifact archive" do
+      pages_metadatum = project.pages_metadatum
+      pages_metadatum.update!(deployed: false)
+
+      expect do
+        project.mark_pages_as_deployed(artifacts_archive: artifacts_archive)
+      end.to change { pages_metadatum.reload.deployed }.from(false).to(true)
+               .and change { pages_metadatum.reload.artifacts_archive }.from(nil).to(artifacts_archive)
+    end
+  end
+
+  describe '#mark_pages_as_not_deployed' do
+    let(:project) { create(:project) }
+    let(:artifacts_archive) { create(:ci_job_artifact, project: project) }
+
+    it "creates new record and sets deployed to false if none exists yet" do
+      project.pages_metadatum.destroy!
+      project.reload
+
+      project.mark_pages_as_not_deployed
+
+      expect(project.pages_metadatum.reload.deployed).to eq(false)
+    end
+
+    it "updates the existing record and sets deployed to false and clears artifacts_archive" do
+      pages_metadatum = project.pages_metadatum
+      pages_metadatum.update!(deployed: true, artifacts_archive: artifacts_archive)
+
+      expect do
+        project.mark_pages_as_not_deployed
+      end.to change { pages_metadatum.reload.deployed }.from(true).to(false)
+               .and change { pages_metadatum.reload.artifacts_archive }.from(artifacts_archive).to(nil)
     end
   end
 
@@ -6040,6 +6095,18 @@ RSpec.describe Project do
             .to not_change { project.visibility_level }
         end
       end
+    end
+  end
+
+  describe '#jira_subscription_exists?' do
+    let(:project) { create(:project) }
+
+    subject { project.jira_subscription_exists? }
+
+    context 'jira connect subscription exists' do
+      let!(:jira_connect_subscription) { create(:jira_connect_subscription, namespace: project.namespace) }
+
+      it { is_expected.to eq(true) }
     end
   end
 

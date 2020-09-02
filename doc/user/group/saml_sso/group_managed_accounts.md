@@ -8,7 +8,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 # Group Managed Accounts **(PREMIUM)**
 
 CAUTION: **Caution:**
-This [Closed Beta](https://about.gitlab.com/handbook/product/#closed-beta) feature is being re-evaluated in favor of a different
+This [Closed Beta](https://about.gitlab.com/handbook/product/gitlab-the-product/#sts=Closed%20Beta) feature is being re-evaluated in favor of a different
 [identity model](https://gitlab.com/gitlab-org/gitlab/-/issues/218631) that does not require separate accounts.
 We recommend that group administrators who haven't yet implemented this feature wait for
 the new solution.
@@ -76,7 +76,8 @@ This restriction also applies to projects forked from or to those groups.
 
 Groups with group-managed accounts can disallow forking of projects to destinations outside the group.
 To do so, enable the "Prohibit outer forks" option in **Settings > SAML SSO**.
-When enabled, projects within the group can only be forked to other destinations within the group (including its subgroups).
+When enabled **at the parent group level**, projects within the group can be forked
+only to other destinations within the group (including its subgroups).
 
 ## Credentials inventory for Group-managed accounts **(ULTIMATE)**
 

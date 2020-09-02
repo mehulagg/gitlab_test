@@ -57,7 +57,7 @@ exports[`Design management design index page renders design index 1`] = `
      
     <design-discussion-stub
       data-testid="unresolved-discussion"
-      designid="test"
+      designid="design-id"
       discussion="[object Object]"
       discussionwithopenform=""
       markdownpreviewpath="/project-path/preview_markdown?target_type=Issue"
@@ -92,7 +92,7 @@ exports[`Design management design index page renders design index 1`] = `
       </p>
        
       <a
-        href="#"
+        href="https://docs.gitlab.com/ee/user/project/issues/design_management.html#resolve-design-threads"
         rel="noopener noreferrer"
         target="_blank"
       >
@@ -105,7 +105,7 @@ exports[`Design management design index page renders design index 1`] = `
     >
       <design-discussion-stub
         data-testid="resolved-discussion"
-        designid="test"
+        designid="design-id"
         discussion="[object Object]"
         discussionwithopenform=""
         markdownpreviewpath="/project-path/preview_markdown?target_type=Issue"

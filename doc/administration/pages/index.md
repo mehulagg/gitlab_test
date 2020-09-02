@@ -622,7 +622,7 @@ For more details see this [blog post](https://about.gitlab.com/blog/2020/08/03/h
 GitLab Pages can use an API-based configuration. This replaces disk source configuration, which
 was used prior to GitLab 13.0. Follow these steps to enable it:
 
-1. Add the following to your `/etc/gitlab/gitlab.erb` file:
+1. Add the following to your `/etc/gitlab/gitlab.rb` file:
 
    ```ruby
    gitlab_pages['domain_config_source'] = "gitlab"
@@ -718,6 +718,24 @@ sudo mkdir -p /var/opt/gitlab/gitlab-rails/shared/pages/opt/gitlab/embedded/ssl/
 sudo cp /etc/resolv.conf /var/opt/gitlab/gitlab-rails/shared/pages/etc
 sudo cp /opt/gitlab/embedded/ssl/certs/cacert.pem /var/opt/gitlab/gitlab-rails/shared/pages/opt/gitlab/embedded/ssl/certs/
 sudo cp /opt/gitlab/embedded/ssl/certs/cacert.pem /var/opt/gitlab/gitlab-rails/shared/pages/etc/ssl/ca-bundle.pem
+```
+
+### 502 error when connecting to GitLab Pages proxy when server does not listen over IPv6
+
+In some cases, NGINX might default to using IPv6 to connect to the GitLab Pages
+service even when the server does not listen over IPv6. You can identify when
+this is happening if you see something similar to the log entry below in the
+`gitlab_pages_error.log`:
+
+```plaintext
+2020/02/24 16:32:05 [error] 112654#0: *4982804 connect() failed (111: Connection refused) while connecting to upstream, client: 123.123.123.123, server: ~^(?<group>.*)\.pages\.example\.com$, request: "GET /-/group/project/-/jobs/1234/artifacts/artifact.txt HTTP/1.1", upstream: "http://[::1]:8090//-/group/project/-/jobs/1234/artifacts/artifact.txt", host: "group.example.com"
+```
+
+To resolve this, set an explicit IP and port for the GitLab Pages `listen_proxy` setting
+to define the explicit address that the GitLab Pages daemon should listen on:
+
+```ruby
+gitlab_pages['listen_proxy'] = '127.0.0.1:8090'
 ```
 
 ### 404 error after transferring project to a different group or user

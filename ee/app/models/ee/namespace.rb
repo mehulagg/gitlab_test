@@ -31,7 +31,7 @@ module EE
       has_one :gitlab_subscription
       has_one :elasticsearch_indexed_namespace
 
-      accepts_nested_attributes_for :gitlab_subscription
+      accepts_nested_attributes_for :gitlab_subscription, update_only: true
       accepts_nested_attributes_for :namespace_limit
 
       scope :include_gitlab_subscription, -> { includes(:gitlab_subscription) }
@@ -40,6 +40,7 @@ module EE
       scope :eligible_for_trial, -> do
         left_joins(gitlab_subscription: :hosted_plan)
           .where(
+            parent_id: nil,
             gitlab_subscriptions: { trial: [nil, false], trial_ends_on: [nil] },
             plans: { name: [nil, *::Plan::PLANS_ELIGIBLE_FOR_TRIAL] }
           )

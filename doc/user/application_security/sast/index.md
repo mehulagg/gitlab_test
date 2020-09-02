@@ -59,13 +59,14 @@ is **not** `19.03.0`. See [troubleshooting information](#error-response-from-dae
 
 ## Supported languages and frameworks
 
-The following table shows which languages, package managers and frameworks are supported and which tools are used.
+GitLab SAST supports a variety of languages, package managers, and frameworks. Our SAST security scanners also feature automatic language detection which works even for mixed-language projects. If any supported language is detected in project source code we will automatically run the appropriate SAST analyzers.
+
+You can also [view our language roadmap](https://about.gitlab.com/direction/secure/static-analysis/sast/#language-support) and [request other language support by opening an issue](https://gitlab.com/groups/gitlab-org/-/epics/297). 
 
 | Language (package managers) / framework                                                                                                          | Scan tool                                                                                                     | Introduced in GitLab Version                                                                                                                                          |
 |--------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | .NET Core                                                                                                                                        | [Security Code Scan](https://security-code-scan.github.io)                                                    | 11.0, [moved](https://gitlab.com/groups/gitlab-org/-/epics/2098) to [GitLab Core](https://about.gitlab.com/pricing/) in 13.3                                          |
 | .NET Framework                                                                                                                                   | [Security Code Scan](https://security-code-scan.github.io)                                                    | 13.0, [moved](https://gitlab.com/groups/gitlab-org/-/epics/2098) to [GitLab Core](https://about.gitlab.com/pricing/) in 13.3                                          |
-| Any                                                                                                                                              | [Gitleaks](https://github.com/zricethezav/gitleaks) and [TruffleHog](https://github.com/dxa4481/truffleHog)   | 11., [moved](https://gitlab.com/groups/gitlab-org/-/epics/2098) to [GitLab Core](https://about.gitlab.com/pricing/) in 13.3                                           |
 | Apex (Salesforce)                                                                                                                                | [PMD](https://pmd.github.io/pmd/index.html)                                                                   | 12.1, [moved](https://gitlab.com/groups/gitlab-org/-/epics/2098) to [GitLab Core](https://about.gitlab.com/pricing/) in 13.3                                          |
 | C/C++                                                                                                                                            | [Flawfinder](https://github.com/david-a-wheeler/flawfinder)                                                   | 10.7, [moved](https://gitlab.com/groups/gitlab-org/-/epics/2098) to [GitLab Core](https://about.gitlab.com/pricing/) in 13.3                                          |
 | Elixir (Phoenix)                                                                                                                                 | [Sobelow](https://github.com/nccgroup/sobelow)                                                                | 11.10, [moved](https://gitlab.com/groups/gitlab-org/-/epics/2098) to [GitLab Core](https://about.gitlab.com/pricing/) in 13.3                                         |
@@ -135,7 +136,7 @@ Add the following to your `.gitlab-ci.yml` file:
 
 ```yaml
 include:
-  - template: SAST.gitlab-ci.yml
+  - template: Security/SAST.gitlab-ci.yml
 ```
 
 The included template creates SAST jobs in your CI/CD pipeline and scans
@@ -148,17 +149,18 @@ always take the latest SAST artifact available.
 
 ### Configure SAST in the UI
 
-> [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/3659) in GitLab Ultimate 13.3.
+> - [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/3659) in GitLab Ultimate 13.3.
+> - [Improved](https://gitlab.com/gitlab-org/gitlab/-/issues/232862) in GitLab Ultimate 13.4.
 
-For a project that does not have a `.gitlab-ci.yml` file, you can enable SAST with a basic
-configuration using the **SAST Configuration** page:
+You can enable and configure SAST with a basic configuration using the **SAST Configuration**
+page:
 
-1. From the project's home page, go to **Security & Configuration** > **Configuration** in the
+1. From the project's home page, go to **Security & Compliance** > **Configuration** in the
    left sidebar.
-1. Click **Enable via Merge Request** on the Static Application Security Testing (SAST) row.
-1. Enter the appropriate SAST details into the fields on the page. See [Available variables](#available-variables)
-   for a description of these variables.
-1. Click **Create Merge Request**.
+1. If the project does not have a `gitlab-ci.yml` file, click **Enable** in the Static Application Security Testing (SAST) row, otherwise click **Configure**.
+1. Enter the custom SAST values, then click **Create Merge Request**.
+
+    Custom values are stored in the `.gitlab-ci.yml` file. For variables not in the SAST Configuration page, their values are left unchanged. Default values are inherited from the GitLab SAST template.
 1. Review and merge the merge request.
 
 ### Customizing the SAST settings
@@ -340,11 +342,7 @@ Some analyzers make it possible to filter out vulnerabilities under a given thre
 | `SAST_BANDIT_EXCLUDED_PATHS`  |                          | Comma-separated list of paths to exclude from scan. Uses Python's [`fnmatch` syntax](https://docs.python.org/2/library/fnmatch.html); For example: `'*/tests/*, */venv/*'`                                                  |
 | `SAST_BRAKEMAN_LEVEL`         | 1                        | Ignore Brakeman vulnerabilities under given confidence level. Integer, 1=Low 3=High.                                                                                                                                        |
 | `SAST_FLAWFINDER_LEVEL`       | 1                        | Ignore Flawfinder vulnerabilities under given risk level. Integer, 0=No risk, 5=High risk.                                                                                                                                  |
-| `SAST_GITLEAKS_ENTROPY_LEVEL` | 8.0                      | Minimum entropy for secret detection. Float, 0.0 = low, 8.0 = high.                                                                                                                                                         |
 | `SAST_GOSEC_LEVEL`            | 0                        | Ignore Gosec vulnerabilities under given confidence level. Integer, 0=Undefined, 1=Low, 2=Medium, 3=High.                                                                                                                   |
-| `SAST_GITLEAKS_COMMIT_FROM`   |                          | The commit a Gitleaks scan starts at.                                                                                                                                                                                       |
-| `SAST_GITLEAKS_COMMIT_TO`     |                          | The commit a Gitleaks scan ends at.                                                                                                                                                                                         |
-| `SAST_GITLEAKS_HISTORIC_SCAN` | `false`                  | Flag to enable a historic Gitleaks scan.                                                                                                                                                                                    |
 
 #### Docker-in-Docker orchestrator
 
@@ -543,7 +541,6 @@ registry.gitlab.com/gitlab-org/security-products/analyzers/kubesec:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/nodejs-scan:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/phpcs-security-audit:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/pmd-apex:2
-registry.gitlab.com/gitlab-org/security-products/analyzers/secrets:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/security-code-scan:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/sobelow:2
 registry.gitlab.com/gitlab-org/security-products/analyzers/spotbugs:2

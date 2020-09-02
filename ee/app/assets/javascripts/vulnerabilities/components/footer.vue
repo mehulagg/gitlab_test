@@ -4,55 +4,21 @@ import IssueNote from 'ee/vue_shared/security_reports/components/issue_note.vue'
 import SolutionCard from 'ee/vue_shared/security_reports/components/solution_card.vue';
 import MergeRequestNote from 'ee/vue_shared/security_reports/components/merge_request_note.vue';
 import Api from 'ee/api';
+import { VULNERABILITY_STATE_OBJECTS } from 'ee/vulnerabilities/constants';
 import axios from '~/lib/utils/axios_utils';
 import Poll from '~/lib/utils/poll';
-import createFlash from '~/flash';
+import { deprecatedCreateFlash as createFlash } from '~/flash';
 import { s__, __ } from '~/locale';
 import RelatedIssues from './related_issues.vue';
 import HistoryEntry from './history_entry.vue';
-import VulnerabilitiesEventBus from './vulnerabilities_event_bus';
 import initUserPopovers from '~/user_popovers';
 
 export default {
   name: 'VulnerabilityFooter',
   components: { IssueNote, SolutionCard, MergeRequestNote, HistoryEntry, RelatedIssues },
   props: {
-    discussionsUrl: {
-      type: String,
-      required: true,
-    },
-    notesUrl: {
-      type: String,
-      required: true,
-    },
-    project: {
+    vulnerability: {
       type: Object,
-      required: true,
-    },
-    solutionInfo: {
-      type: Object,
-      required: true,
-    },
-    issueFeedback: {
-      type: Object,
-      required: false,
-      default: () => null,
-    },
-    mergeRequestFeedback: {
-      type: Object,
-      required: false,
-      default: () => null,
-    },
-    vulnerabilityId: {
-      type: Number,
-      required: true,
-    },
-    canModifyRelatedIssues: {
-      type: Boolean,
-      required: true,
-    },
-    relatedIssuesHelpPath: {
-      type: String,
       required: true,
     },
   },
@@ -74,18 +40,45 @@ export default {
           return acc;
         }, {});
     },
+    project() {
+      return {
+        url: this.vulnerability.project.full_path,
+        value: this.vulnerability.project.full_name,
+      };
+    },
+    solutionInfo() {
+      const {
+        solution,
+        has_mr: hasMr,
+        vulnerability_feedback_help_path: vulnerabilityFeedbackHelpPath,
+        remediations,
+        state,
+      } = this.vulnerability;
+
+      const remediation = remediations?.[0];
+      const hasDownload = Boolean(
+        state !== VULNERABILITY_STATE_OBJECTS.resolved.state && remediation?.diff?.length && !hasMr,
+      );
+
+      return {
+        solution,
+        remediation,
+        hasDownload,
+        hasMr,
+        vulnerabilityFeedbackHelpPath,
+        isStandaloneVulnerability: true,
+      };
+    },
     hasSolution() {
       return Boolean(this.solutionInfo.solution || this.solutionInfo.remediation);
     },
     issueLinksEndpoint() {
-      return Api.buildUrl(Api.vulnerabilityIssueLinksPath).replace(':id', this.vulnerabilityId);
+      return Api.buildUrl(Api.vulnerabilityIssueLinksPath).replace(':id', this.vulnerability.id);
     },
   },
 
   created() {
     this.fetchDiscussions();
-
-    VulnerabilitiesEventBus.$on('VULNERABILITY_STATE_CHANGE', this.fetchDiscussions);
   },
 
   updated() {
@@ -104,7 +97,7 @@ export default {
     },
     fetchDiscussions() {
       axios
-        .get(this.discussionsUrl)
+        .get(this.vulnerability.discussions_url)
         .then(({ data, headers: { date } }) => {
           this.discussionsDictionary = data.reduce((acc, discussion) => {
             acc[discussion.id] = discussion;
@@ -116,7 +109,8 @@ export default {
           if (!this.poll) this.createNotesPoll();
 
           if (!Visibility.hidden()) {
-            this.poll.makeRequest();
+            // delays the initial request by 6 seconds
+            this.poll.makeDelayedRequest(6 * 1000);
           }
 
           Visibility.change(() => {
@@ -139,7 +133,9 @@ export default {
       this.poll = new Poll({
         resource: {
           fetchNotes: () =>
-            axios.get(this.notesUrl, { headers: { 'X-Last-Fetched-At': this.lastFetchedAt } }),
+            axios.get(this.vulnerability.notes_url, {
+              headers: { 'X-Last-Fetched-At': this.lastFetchedAt },
+            }),
         },
         method: 'fetchNotes',
         successCallback: ({ data: { notes, last_fetched_at: lastFetchedAt } }) => {
@@ -186,7 +182,7 @@ export default {
 
       // Emit an event that tells the header to refresh the vulnerability.
       if (isVulnerabilityStateChanged) {
-        VulnerabilitiesEventBus.$emit('VULNERABILITY_STATE_CHANGED');
+        this.$emit('vulnerability-state-change');
       }
     },
   },
@@ -196,16 +192,19 @@ export default {
   <div data-qa-selector="vulnerability_footer">
     <solution-card v-if="hasSolution" v-bind="solutionInfo" />
 
-    <div v-if="issueFeedback || mergeRequestFeedback" class="card gl-mt-5">
+    <div
+      v-if="vulnerability.issue_feedback || vulnerability.merge_request_feedback"
+      class="card gl-mt-5"
+    >
       <issue-note
-        v-if="issueFeedback"
-        :feedback="issueFeedback"
+        v-if="vulnerability.issue_feedback"
+        :feedback="vulnerability.issue_feedback"
         :project="project"
         class="card-body"
       />
       <merge-request-note
-        v-if="mergeRequestFeedback"
-        :feedback="mergeRequestFeedback"
+        v-if="vulnerability.merge_request_feedback"
+        :feedback="vulnerability.merge_request_feedback"
         :project="project"
         class="card-body"
       />
@@ -213,9 +212,9 @@ export default {
 
     <related-issues
       :endpoint="issueLinksEndpoint"
-      :can-modify-related-issues="canModifyRelatedIssues"
+      :can-modify-related-issues="vulnerability.can_modify_related_issues"
       :project-path="project.url"
-      :help-path="relatedIssuesHelpPath"
+      :help-path="vulnerability.related_issues_help_path"
     />
 
     <hr />
@@ -225,7 +224,7 @@ export default {
         v-for="discussion in discussions"
         :key="discussion.id"
         :discussion="discussion"
-        :notes-url="notesUrl"
+        :notes-url="vulnerability.notes_url"
       />
     </ul>
   </div>

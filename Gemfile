@@ -22,12 +22,12 @@ gem 'rugged', '~> 0.28'
 gem 'grape-path-helpers', '~> 1.3'
 
 gem 'faraday', '~> 0.12'
-gem 'marginalia', '~> 1.8.0'
+gem 'marginalia', '~> 1.9.0'
 
 # Authentication libraries
 gem 'devise', '~> 4.6'
-gem 'doorkeeper', '~> 5.0.3'
-gem 'doorkeeper-openid_connect', '~> 1.6.3'
+gem 'doorkeeper', '~> 5.3.0'
+gem 'doorkeeper-openid_connect', '~> 1.7.4'
 gem 'omniauth', '~> 1.8'
 gem 'omniauth-auth0', '~> 2.0.0'
 gem 'omniauth-azure-oauth2', '~> 0.0.9'
@@ -93,7 +93,7 @@ gem 'graphql', '~> 1.10.5'
 # TODO: remove app/views/graphiql/rails/editors/show.html.erb when https://github.com/rmosolgo/graphiql-rails/pull/71 is released:
 # https://gitlab.com/gitlab-org/gitlab/issues/31747
 gem 'graphiql-rails', '~> 1.4.10'
-gem 'apollo_upload_server', '~> 2.0.0.beta3'
+gem 'apollo_upload_server', '~> 2.0.2'
 gem 'graphql-docs', '~> 1.6.0', group: [:development, :test]
 
 # Disable strong_params so that Mash does not respond to :permitted?
@@ -119,6 +119,7 @@ gem 'fog-local', '~> 0.6'
 gem 'fog-openstack', '~> 1.0'
 gem 'fog-rackspace', '~> 0.1.1'
 gem 'fog-aliyun', '~> 0.3'
+gem 'gitlab-fog-azure-rm', '~> 0.8', require: false
 
 # for Google storage
 gem 'google-api-client', '~> 0.33'
@@ -259,7 +260,7 @@ gem 'ruby-fogbugz', '~> 0.2.1'
 gem 'kubeclient', '~> 4.6.0'
 
 # Sanitize user input
-gem 'sanitize', '~> 4.6'
+gem 'sanitize', '~> 5.2.1'
 gem 'babosa', '~> 1.0.2'
 
 # Sanitizes SVG input
@@ -315,7 +316,7 @@ gem 'ruby_parser', '~> 3.8', require: false
 gem 'rails-i18n', '~> 6.0'
 gem 'gettext_i18n_rails', '~> 1.8.0'
 gem 'gettext_i18n_rails_js', '~> 1.3'
-gem 'gettext', '~> 3.2.2', require: false, group: :development
+gem 'gettext', '~> 3.3', require: false, group: :development
 
 gem 'batch-loader', '~> 1.4.0'
 
@@ -327,7 +328,7 @@ gem 'snowplow-tracker', '~> 0.6.1'
 
 # Metrics
 group :metrics do
-  gem 'method_source', '~> 0.8', require: false
+  gem 'method_source', '~> 1.0', require: false
 
   # Prometheus
   gem 'prometheus-client-mmap', '~> 0.11.0'
@@ -349,8 +350,8 @@ group :development do
 end
 
 group :development, :test do
-  gem 'bullet', '~> 6.0.2'
-  gem 'pry-byebug', '~> 3.5.1', platform: :mri
+  gem 'bullet', '~> 6.1.0'
+  gem 'pry-byebug', '~> 3.9.0', platform: :mri
   gem 'pry-rails', '~> 0.3.9'
 
   gem 'awesome_print', require: false

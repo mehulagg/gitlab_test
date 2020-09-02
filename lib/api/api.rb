@@ -167,6 +167,7 @@ module API
       mount ::API::GroupVariables
       mount ::API::ImportBitbucketServer
       mount ::API::ImportGithub
+      mount ::API::IssueLinks
       mount ::API::Issues
       mount ::API::JobArtifacts
       mount ::API::Jobs
@@ -196,6 +197,7 @@ module API
       mount ::API::ConanPackages
       mount ::API::MavenPackages
       mount ::API::NpmPackages
+      mount ::API::GenericPackages
       mount ::API::GoProxy
       mount ::API::Pages
       mount ::API::PagesDomains
@@ -243,6 +245,16 @@ module API
     mount ::API::Internal::Base
     mount ::API::Internal::Pages
     mount ::API::Internal::Kubernetes
+
+    version 'v3', using: :path do
+      # Although the following endpoints are kept behind V3 namespace,
+      # they're not deprecated neither should be removed when V3 get
+      # removed.  They're needed as a layer to integrate with Jira
+      # Development Panel.
+      namespace '/', requirements: ::API::V3::Github::ENDPOINT_REQUIREMENTS do
+        mount ::API::V3::Github
+      end
+    end
 
     route :any, '*path' do
       error!('404 Not Found', 404)

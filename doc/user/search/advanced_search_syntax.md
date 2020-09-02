@@ -5,12 +5,12 @@ info: "To determine the technical writer assigned to the Stage/Group associated 
 type: reference
 ---
 
-# Advanced Syntax Search **(STARTER)**
+# Advanced Search Syntax **(STARTER)**
 
 > - Introduced in [GitLab Enterprise Starter](https://about.gitlab.com/pricing/) 9.2
 
 NOTE: **GitLab.com availability:**
-Advanced Global Search (powered by Elasticsearch) is enabled for Bronze and above on GitLab.com since 2020-07-10.
+Advanced Search (powered by Elasticsearch) is enabled for Bronze and above on GitLab.com since 2020-07-10.
 
 Use advanced queries for more targeted search results.
 
@@ -19,11 +19,11 @@ visit the [administrator documentation](../../integration/elasticsearch.md).
 
 ## Overview
 
-The Advanced Syntax Search is a subset of the
-[Advanced Global Search](advanced_global_search.md), which you can use if you
+The Advanced Search Syntax is a subset of the
+[Advanced Search](advanced_global_search.md), which you can use if you
 want to have more specific search results.
 
-Advanced Global Search only supports searching the [default branch](../project/repository/branches/index.md#default-branch).
+Advanced Search only supports searching the [default branch](../project/repository/branches/index.md#default-branch).
 
 ## Use cases
 
@@ -38,9 +38,9 @@ not so sure.
 In that case, using the advanced search syntax in your query will yield much
 better results.
 
-## Using the Advanced Syntax Search
+## Using the Advanced Search Syntax
 
-The Advanced Syntax Search supports fuzzy or exact search queries with prefixes,
+The Advanced Search Syntax supports fuzzy or exact search queries with prefixes,
 boolean operators, and much more.
 
 Full details can be found in the [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/5.3/query-dsl-simple-query-string-query.html#_simple_query_string_syntax), but
@@ -57,7 +57,7 @@ here's a quick guide:
 
 ### Syntax search filters
 
-The Advanced Syntax Search also supports the use of filters. The available filters are:
+The Advanced Search Syntax also supports the use of filters. The available filters are:
 
 - filename: Filters by filename. You can use the glob (`*`) operator for fuzzy matching.
 - path: Filters by path. You can use the glob (`*`) operator for fuzzy matching.

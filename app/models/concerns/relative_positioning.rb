@@ -83,9 +83,9 @@ module RelativePositioning
       if gap_width < MIN_GAP
         raise NoSpaceLeft
       elsif gap_width > MAX_GAP
-        if pos_before == MIN_POSITION
+        if pos_before <= MIN_POSITION
           pos_after - IDEAL_DISTANCE
-        elsif pos_after == MAX_POSITION
+        elsif pos_after >= MAX_POSITION
           pos_before + IDEAL_DISTANCE
         else
           midpoint
@@ -137,12 +137,13 @@ module RelativePositioning
     #                          If `true`, then all objects with `null` positions are placed _after_
     #                          all siblings with positions. If `false`, all objects with `null`
     #                          positions are placed _before_ all siblings with positions.
+    # @returns [Number] The number of moved records.
     def move_nulls(objects, at_end:)
       objects = objects.reject(&:relative_position)
-      return if objects.empty?
+      return 0 if objects.empty?
 
       representative = objects.first
-      number_of_gaps = objects.size + 1 # 1 at left, one between each, and one at right
+      number_of_gaps = objects.size # 1 to the nearest neighbour, and one between each
       position = if at_end
                    representative.max_relative_position
                  else
@@ -151,16 +152,21 @@ module RelativePositioning
 
       position ||= START_POSITION # If there are no positioned siblings, start from START_POSITION
 
-      gap, position = gap_size(representative, gaps: number_of_gaps, at_end: at_end, starting_from: position)
+      gap = 0
+      attempts = 10 # consolidate up to 10 gaps to find enough space
+      while gap < 1 && attempts > 0
+        gap, position = gap_size(representative, gaps: number_of_gaps, at_end: at_end, starting_from: position)
+        attempts -= 1
+      end
 
-      # Raise if we could not make enough space
-      raise NoSpaceLeft if gap < MIN_GAP
-
-      indexed = objects.each_with_index.to_a
-      starting_from = at_end ? position : position - (gap * number_of_gaps)
+      # Allow placing items next to each other, if we have to.
+      gap = 1 if gap < MIN_GAP
+      delta = at_end ? gap : -gap
+      indexed = (at_end ? objects : objects.reverse).each_with_index
 
       # Some classes are polymorphic, and not all siblings are in the same table.
       by_model = indexed.group_by { |pair| pair.first.class }
+      lower_bound, upper_bound = at_end ? [position, MAX_POSITION] : [MIN_POSITION, position]
 
       by_model.each do |model, pairs|
         model.transaction do
@@ -168,7 +174,8 @@ module RelativePositioning
             # These are known to be integers, one from the DB, and the other
             # calculated by us, and thus safe to interpolate
             values = batch.map do |obj, i|
-              pos = starting_from + gap * (i + 1)
+              desired_pos = position + delta * (i + 1)
+              pos = desired_pos.clamp(lower_bound, upper_bound)
               obj.relative_position = pos
               "(#{obj.id}, #{pos})"
             end.join(', ')
@@ -186,6 +193,8 @@ module RelativePositioning
           end
         end
       end
+
+      objects.size
     end
   end
 
@@ -292,13 +301,31 @@ module RelativePositioning
   def move_to_end
     max_pos = max_relative_position
 
-    self.relative_position = max_pos.nil? ? START_POSITION : self.class.position_between(max_pos, MAX_POSITION)
+    if max_pos.nil?
+      self.relative_position = START_POSITION
+    elsif gap_too_small?(max_pos, MAX_POSITION + 1)
+      max = relative_siblings.order(Gitlab::Database.nulls_last_order('relative_position', 'DESC')).first
+      max.move_sequence_before(true)
+      max.reset
+      self.relative_position = self.class.position_between(max.relative_position, MAX_POSITION + 1)
+    else
+      self.relative_position = self.class.position_between(max_pos, MAX_POSITION + 1)
+    end
   end
 
   def move_to_start
-    min_pos = max_relative_position
+    min_pos = min_relative_position
 
-    self.relative_position = min_pos.nil? ? START_POSITION : self.class.position_between(MIN_POSITION, min_pos)
+    if min_pos.nil?
+      self.relative_position = START_POSITION
+    elsif gap_too_small?(min_pos, MIN_POSITION - 1)
+      min = relative_siblings.order(Gitlab::Database.nulls_last_order('relative_position', 'ASC')).first
+      min.move_sequence_after(true)
+      min.reset
+      self.relative_position = self.class.position_between(MIN_POSITION - 1, min.relative_position)
+    else
+      self.relative_position = self.class.position_between(MIN_POSITION - 1, min_pos)
+    end
   end
 
   # Moves the sequence before the current item to the middle of the next gap

@@ -15,7 +15,7 @@ import updateRequirement from 'ee/requirements/queries/updateRequirement.mutatio
 import { TEST_HOST } from 'helpers/test_constants';
 import AuthorToken from '~/vue_shared/components/filtered_search_bar/tokens/author_token.vue';
 import FilteredSearchBarRoot from '~/vue_shared/components/filtered_search_bar/filtered_search_bar_root.vue';
-import createFlash from '~/flash';
+import { deprecatedCreateFlash as createFlash } from '~/flash';
 
 import {
   FilterState,
@@ -745,11 +745,11 @@ describe('RequirementsRoot', () => {
     });
 
     it('renders requirements-tabs component', () => {
-      expect(wrapper.contains(RequirementsTabs)).toBe(true);
+      expect(wrapper.find(RequirementsTabs).exists()).toBe(true);
     });
 
     it('renders filtered-search-bar component', () => {
-      expect(wrapper.contains(FilteredSearchBarRoot)).toBe(true);
+      expect(wrapper.find(FilteredSearchBarRoot).exists()).toBe(true);
       expect(wrapper.find(FilteredSearchBarRoot).props('searchInputPlaceholder')).toBe(
         'Search requirements',
       );
@@ -782,7 +782,7 @@ describe('RequirementsRoot', () => {
       });
 
       return wrapper.vm.$nextTick(() => {
-        expect(wrapper.contains(RequirementsEmptyState)).toBe(true);
+        expect(wrapper.find(RequirementsEmptyState).exists()).toBe(true);
       });
     });
 
@@ -795,11 +795,11 @@ describe('RequirementsRoot', () => {
     });
 
     it('renders requirement-create-form component', () => {
-      expect(wrapper.contains('requirement-create-form-stub')).toBe(true);
+      expect(wrapper.find('requirement-create-form-stub').exists()).toBe(true);
     });
 
     it('renders requirement-edit-form component', () => {
-      expect(wrapper.contains('requirement-edit-form-stub')).toBe(true);
+      expect(wrapper.find('requirement-edit-form-stub').exists()).toBe(true);
     });
 
     it('does not render requirement-empty-state component when `showCreateForm` prop is `true`', () => {
@@ -808,7 +808,7 @@ describe('RequirementsRoot', () => {
       });
 
       return wrapper.vm.$nextTick(() => {
-        expect(wrapper.contains(RequirementsEmptyState)).toBe(false);
+        expect(wrapper.find(RequirementsEmptyState).exists()).toBe(false);
       });
     });
 

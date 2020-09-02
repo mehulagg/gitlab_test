@@ -1,6 +1,6 @@
 import { s__, sprintf } from '~/locale';
 import axios from '~/lib/utils/axios_utils';
-import createFlash, { FLASH_TYPES } from '~/flash';
+import { deprecatedCreateFlash as createFlash, FLASH_TYPES } from '~/flash';
 import { joinPaths } from '~/lib/utils/url_utility';
 import * as types from './mutation_types';
 
@@ -44,7 +44,6 @@ export const createPolicy = ({ state, commit }, { environmentId, policy }) => {
     .post(state.policiesEndpoint, {
       environment_id: environmentId,
       manifest: policy.manifest,
-      is_standard: policy.isStandard,
     })
     .then(({ data }) => {
       commit(types.RECEIVE_CREATE_POLICY_SUCCESS, data);
@@ -72,7 +71,6 @@ export const updatePolicy = ({ state, commit }, { environmentId, policy }) => {
       environment_id: environmentId,
       manifest: policy.manifest,
       enabled: policy.isEnabled,
-      is_standard: policy.isStandard,
     })
     .then(({ data }) => {
       commit(types.RECEIVE_UPDATE_POLICY_SUCCESS, {

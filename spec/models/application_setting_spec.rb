@@ -71,6 +71,8 @@ RSpec.describe ApplicationSetting do
     it { is_expected.not_to allow_value('three').for(:push_event_activities_limit) }
     it { is_expected.not_to allow_value(nil).for(:push_event_activities_limit) }
 
+    it { is_expected.to validate_numericality_of(:container_registry_delete_tags_service_timeout).only_integer.is_greater_than_or_equal_to(0) }
+
     it { is_expected.to validate_numericality_of(:snippet_size_limit).only_integer.is_greater_than(0) }
     it { is_expected.to validate_numericality_of(:wiki_page_max_content_bytes).only_integer.is_greater_than_or_equal_to(1024) }
     it { is_expected.to validate_presence_of(:max_artifacts_size) }
@@ -647,6 +649,16 @@ RSpec.describe ApplicationSetting do
 
     it 'returns the current settings' do
       expect(described_class.create_from_defaults).to eq(current_settings)
+    end
+  end
+
+  context 'when ApplicationSettings does not have a primary key' do
+    before do
+      allow(ActiveRecord::Base.connection).to receive(:primary_key).with(described_class.table_name).and_return(nil)
+    end
+
+    it 'raises an exception' do
+      expect { described_class.create_from_defaults }.to raise_error(/table is missing a primary key constraint/)
     end
   end
 

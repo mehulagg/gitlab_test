@@ -70,6 +70,12 @@ export default {
       thAttr: TH_TEST_ID,
     },
     {
+      key: 'commits',
+      label: s__('Commits'),
+      tdClass: 'merge-request-analytics-td',
+      thAttr: TH_TEST_ID,
+    },
+    {
       key: 'pipelines',
       label: s__('MergeRequestAnalytics|Pipelines'),
       tdClass: 'merge-request-analytics-td',
@@ -118,6 +124,9 @@ export default {
       update: data => data.project.mergeRequests.nodes,
       error() {
         this.hasError = true;
+      },
+      context: {
+        isSingleRequest: true,
       },
     },
   },
@@ -194,15 +203,18 @@ export default {
               />
             </li>
             <li
-              v-if="item.labels.nodes.length"
-              class="gl-mr-3"
+              class="gl-mr-3 gl-display-flex gl-align-items-center"
+              :class="{ 'gl-opacity-5': !item.labels.nodes.length }"
               :data-testid="$options.testIds.LABEL_DETAILS"
             >
-              <span class="gl-display-flex gl-align-items-center"
-                ><gl-icon name="label" class="gl-mr-1" /><span>{{
-                  item.labels.nodes.length
-                }}</span></span
-              >
+              <gl-icon name="label" class="gl-mr-1" /><span>{{ item.labels.nodes.length }}</span>
+            </li>
+            <li
+              class="gl-mr-3 gl-display-flex gl-align-items-center"
+              :class="{ 'gl-opacity-5': !item.userNotesCount }"
+              :data-testid="$options.testIds.COMMENT_COUNT"
+            >
+              <gl-icon name="comments" class="gl-mr-2" /><span>{{ item.userNotesCount }}</span>
             </li>
           </ul>
         </div>
@@ -223,6 +235,10 @@ export default {
       <div v-if="item.milestone" :data-testid="$options.testIds.MILESTONE">
         {{ item.milestone.title }}
       </div>
+    </template>
+
+    <template #cell(commits)="{ item }">
+      <div :data-testid="$options.testIds.COMMITS">{{ item.commitCount }}</div>
     </template>
 
     <template #cell(pipelines)="{ item }">

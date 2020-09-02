@@ -1,7 +1,7 @@
 <script>
 import { GlLoadingIcon, GlButton, GlAlert } from '@gitlab/ui';
 import VueDraggable from 'vuedraggable';
-import createFlash from '~/flash';
+import { deprecatedCreateFlash as createFlash } from '~/flash';
 import { s__, sprintf } from '~/locale';
 import UploadButton from '../components/upload/button.vue';
 import DeleteButton from '../components/delete_button.vue';
@@ -281,13 +281,8 @@ export default {
         .mutate({
           mutation: moveDesignMutation,
           variables: this.designMoveVariables(newIndex, element),
-          update: (store, { data: { designManagementMove } }) => {
-            return updateDesignsOnStoreAfterReorder(
-              store,
-              designManagementMove,
-              this.projectQueryBody,
-            );
-          },
+          update: (store, { data: { designManagementMove } }) =>
+            updateDesignsOnStoreAfterReorder(store, designManagementMove, this.projectQueryBody),
           optimisticResponse: moveDesignOptimisticResponse(this.reorderedDesigns),
         })
         .catch(() => {
@@ -327,7 +322,7 @@ export default {
             v-if="isLatestVersion"
             variant="link"
             size="small"
-            class="gl-mr-3 js-select-all"
+            class="gl-mr-4 js-select-all"
             @click="toggleDesignsSelection"
             >{{ selectAllButtonText }}
           </gl-button>

@@ -3,8 +3,6 @@
 require_relative '../support/helpers/test_env'
 
 FactoryBot.define do
-  PAGES_ACCESS_LEVEL_SCHEMA_VERSION ||= 20180423204600
-
   # Project without repository
   #
   # Project does not have bare repository.
@@ -54,12 +52,9 @@ FactoryBot.define do
         issues_access_level: evaluator.issues_access_level,
         forking_access_level: evaluator.forking_access_level,
         merge_requests_access_level: merge_requests_access_level,
-        repository_access_level: evaluator.repository_access_level
+        repository_access_level: evaluator.repository_access_level,
+        pages_access_level: evaluator.pages_access_level
       }
-
-      if ActiveRecord::Migrator.current_version >= PAGES_ACCESS_LEVEL_SCHEMA_VERSION
-        hash.store("pages_access_level", evaluator.pages_access_level)
-      end
 
       project.project_feature.update!(hash)
 
@@ -112,6 +107,18 @@ FactoryBot.define do
 
     trait :import_failed do
       import_status { :failed }
+    end
+
+    trait :jira_dvcs_cloud do
+      before(:create) do |project|
+        create(:project_feature_usage, :dvcs_cloud, project: project)
+      end
+    end
+
+    trait :jira_dvcs_server do
+      before(:create) do |project|
+        create(:project_feature_usage, :dvcs_server, project: project)
+      end
     end
 
     trait :archived do

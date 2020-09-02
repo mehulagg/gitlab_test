@@ -56,7 +56,7 @@ RSpec.describe API::Jobs do
   end
 
   describe 'GET /projects/:id/jobs' do
-    let(:query) { Hash.new }
+    let(:query) { {} }
 
     before do |example|
       unless example.metadata[:skip_before_request]
@@ -167,7 +167,7 @@ RSpec.describe API::Jobs do
   end
 
   describe 'GET /projects/:id/pipelines/:pipeline_id/jobs' do
-    let(:query) { Hash.new }
+    let(:query) { {} }
 
     before do |example|
       unless example.metadata[:skip_before_request]
@@ -240,7 +240,7 @@ RSpec.describe API::Jobs do
       end
 
       context 'when config source not ci' do
-        let(:non_ci_config_source) { ::Ci::PipelineEnums.non_ci_config_source_values.first }
+        let(:non_ci_config_source) { Enums::Ci::Pipeline.non_ci_config_source_values.first }
         let(:pipeline) do
           create(:ci_pipeline, config_source: non_ci_config_source, project: project)
         end
@@ -296,7 +296,7 @@ RSpec.describe API::Jobs do
              project: downstream_pipeline.project)
     end
 
-    let(:query) { Hash.new }
+    let(:query) { {} }
 
     before do |example|
       unless example.metadata[:skip_before_request]

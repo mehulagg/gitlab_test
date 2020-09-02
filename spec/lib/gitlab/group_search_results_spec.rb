@@ -3,10 +3,15 @@
 require 'spec_helper'
 
 RSpec.describe Gitlab::GroupSearchResults do
+  # group creation calls GroupFinder, so need to create the group
+  # before so expect(GroupsFinder) check works
+  let_it_be(:group) { create(:group) }
   let(:user) { create(:user) }
 
+  subject(:results) { described_class.new(user, 'gob', anything, group: group) }
+
   describe 'user search' do
-    let(:group) { create(:group) }
+    subject(:objects) { results.objects('users') }
 
     it 'returns the users belonging to the group matching the search query' do
       user1 = create(:user, username: 'gob_bluth')
@@ -17,9 +22,7 @@ RSpec.describe Gitlab::GroupSearchResults do
 
       create(:user, username: 'gob_2018')
 
-      result = described_class.new(user, anything, group, 'gob').objects('users')
-
-      expect(result).to eq [user1]
+      is_expected.to eq [user1]
     end
 
     it 'returns the user belonging to the subgroup matching the search query' do
@@ -29,9 +32,7 @@ RSpec.describe Gitlab::GroupSearchResults do
 
       create(:user, username: 'gob_2018')
 
-      result = described_class.new(user, anything, group, 'gob').objects('users')
-
-      expect(result).to eq [user1]
+      is_expected.to eq [user1]
     end
 
     it 'returns the user belonging to the parent group matching the search query' do
@@ -41,9 +42,7 @@ RSpec.describe Gitlab::GroupSearchResults do
 
       create(:user, username: 'gob_2018')
 
-      result = described_class.new(user, anything, group, 'gob').objects('users')
-
-      expect(result).to eq [user1]
+      is_expected.to eq [user1]
     end
 
     it 'does not return the user belonging to the private subgroup' do
@@ -53,9 +52,7 @@ RSpec.describe Gitlab::GroupSearchResults do
 
       create(:user, username: 'gob_2018')
 
-      result = described_class.new(user, anything, group, 'gob').objects('users')
-
-      expect(result).to eq []
+      is_expected.to be_empty
     end
 
     it 'does not return the user belonging to an unrelated group' do
@@ -63,15 +60,26 @@ RSpec.describe Gitlab::GroupSearchResults do
       unrelated_group = create(:group)
       create(:group_member, :developer, user: user, group: unrelated_group)
 
-      result = described_class.new(user, anything, group, 'gob').objects('users')
-
-      expect(result).to eq []
+      is_expected.to be_empty
     end
 
-    it 'sets include_subgroups flag by default' do
-      result = described_class.new(user, anything, group, 'gob')
+    it 'does not return the user invited to the group' do
+      user = create(:user, username: 'gob_bluth')
+      create(:group_member, :invited, :developer, user: user, group: group)
 
-      expect(result.issuable_params[:include_subgroups]).to eq(true)
+      is_expected.to be_empty
+    end
+
+    it 'calls GroupFinder during execution' do
+      expect(GroupsFinder).to receive(:new).with(user).and_call_original
+
+      subject
+    end
+  end
+
+  describe "#issuable_params" do
+    it 'sets include_subgroups flag by default' do
+      expect(results.issuable_params[:include_subgroups]).to eq(true)
     end
   end
 end

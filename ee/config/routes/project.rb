@@ -15,6 +15,10 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           resources :requirements, only: [:index]
         end
 
+        namespace :quality do
+          resources :test_cases, only: [:index]
+        end
+
         resources :feature_flags, param: :iid do
           resources :feature_flag_issues, only: [:index, :create, :destroy], as: 'issues', path: 'issues'
         end
@@ -98,6 +102,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           scope :profiles do
             root 'dast_profiles#index', as: 'profiles'
             resources :dast_site_profiles, only: [:new, :edit]
+            resources :dast_scanner_profiles, only: [:new]
           end
         end
 
@@ -107,7 +112,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           end
         end
 
-        resources :iterations, only: [:index, :show], constraints: { id: /\d+/ }
+        resources :iterations, only: [:index]
 
         namespace :iterations do
           resources :inherited, only: [:show], constraints: { id: /\d+/ }
@@ -141,37 +146,3 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
     end
   end
 end
-
-# It's under /-/jira scope but cop is only checking /-/
-# rubocop: disable Cop/PutProjectRoutesUnderScope
-scope path: '(/-/jira)', constraints: ::Constraints::JiraEncodedUrlConstrainer.new, as: :jira do
-  scope path: '*namespace_id/:project_id',
-        namespace_id: Gitlab::Jira::Dvcs::ENCODED_ROUTE_REGEX,
-        project_id: Gitlab::Jira::Dvcs::ENCODED_ROUTE_REGEX do
-    get '/', to: redirect { |params, req|
-      ::Gitlab::Jira::Dvcs.restore_full_path(
-        namespace: params[:namespace_id],
-        project: params[:project_id]
-      )
-    }
-
-    get 'commit/:id', constraints: { id: /\h{7,40}/ }, to: redirect { |params, req|
-      project_full_path = ::Gitlab::Jira::Dvcs.restore_full_path(
-        namespace: params[:namespace_id],
-        project: params[:project_id]
-      )
-
-      "/#{project_full_path}/commit/#{params[:id]}"
-    }
-
-    get 'tree/*id', as: nil, to: redirect { |params, req|
-      project_full_path = ::Gitlab::Jira::Dvcs.restore_full_path(
-        namespace: params[:namespace_id],
-        project: params[:project_id]
-      )
-
-      "/#{project_full_path}/-/tree/#{params[:id]}"
-    }
-  end
-end
-# rubocop: enable Cop/PutProjectRoutesUnderScope

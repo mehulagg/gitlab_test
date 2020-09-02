@@ -1,8 +1,10 @@
 import Api from 'ee/api';
-import createFlash from '~/flash';
+import { deprecatedCreateFlash as createFlash } from '~/flash';
 import { __ } from '~/locale';
 import * as types from './mutation_types';
 import { handleErrorOrRethrow } from '../../../utils';
+
+export const setLoading = ({ commit }, loading) => commit(types.SET_LOADING, loading);
 
 export const receiveTopRankedGroupLabelsSuccess = ({ commit, dispatch }, data) => {
   commit(types.RECEIVE_TOP_RANKED_GROUP_LABELS_SUCCESS, data);

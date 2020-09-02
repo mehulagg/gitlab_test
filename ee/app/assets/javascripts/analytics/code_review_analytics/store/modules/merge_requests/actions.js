@@ -1,7 +1,7 @@
 import API from 'ee/api';
 import * as types from './mutation_types';
 import { __ } from '~/locale';
-import createFlash from '~/flash';
+import { deprecatedCreateFlash as createFlash } from '~/flash';
 import { normalizeHeaders, parseIntPagination } from '~/lib/utils/common_utils';
 
 export const setProjectId = ({ commit }, projectId) => commit(types.SET_PROJECT_ID, projectId);
@@ -12,7 +12,7 @@ export const fetchMergeRequests = ({ commit, state, rootState }) => {
   const { projectId, pageInfo } = state;
 
   const { selected: milestoneTitle } = rootState.filters.milestones;
-  const { selected: labelNames } = rootState.filters.labels;
+  const { selectedList: labelNames } = rootState.filters.labels;
 
   const params = {
     project_id: projectId,

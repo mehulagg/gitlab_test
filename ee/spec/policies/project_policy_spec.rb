@@ -37,12 +37,8 @@ RSpec.describe ProjectPolicy do
   context 'basic permissions' do
     include_context 'ProjectPolicy context'
 
-    let(:additional_guest_permissions) do
-      %i[read_issue_link]
-    end
-
     let(:additional_reporter_permissions) do
-      %i[read_software_license_policy admin_issue_link]
+      %i[read_software_license_policy]
     end
 
     let(:additional_developer_permissions) do
@@ -1241,7 +1237,7 @@ RSpec.describe ProjectPolicy do
       end
     end
 
-    context 'with merge request approvers not available in license' do
+    context 'with merge request approvers rules not available in license' do
       where(:role, :regulated_setting, :admin_mode, :allowed) do
         :guest      | true  | nil    | false
         :reporter   | true  | nil    | false
@@ -1272,29 +1268,19 @@ RSpec.describe ProjectPolicy do
 
   describe ':modify_approvers_rules' do
     it_behaves_like 'merge request rules' do
-      let(:setting_name) { :disable_overriding_approvers_per_merge_request }
       let(:policy) { :modify_approvers_rules }
     end
   end
 
   describe ':modify_merge_request_author_setting' do
     it_behaves_like 'merge request rules' do
-      let(:setting_name) { :prevent_merge_requests_author_approval }
       let(:policy) { :modify_merge_request_author_setting }
     end
   end
 
   describe ':modify_merge_request_committer_setting' do
     it_behaves_like 'merge request rules' do
-      let(:setting_name) { :prevent_merge_requests_committers_approval }
       let(:policy) { :modify_merge_request_committer_setting }
-    end
-  end
-
-  describe ':modify_approvers_list' do
-    it_behaves_like 'merge request rules' do
-      let(:setting_name) { :disable_overriding_approvers_per_merge_request }
-      let(:policy) { :modify_approvers_list }
     end
   end
 

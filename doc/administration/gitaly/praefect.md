@@ -129,7 +129,7 @@ the Omnibus GitLab distribution is not yet supported. Follow this
 Prepare all your new nodes by [installing
 GitLab](https://about.gitlab.com/install/).
 
-- 1 Praefect node (minimal storage required)
+- At least 1 Praefect node (minimal storage required)
 - 3 Gitaly nodes (high CPU, high memory, fast storage)
 - 1 GitLab server
 
@@ -232,18 +232,19 @@ The database used by Praefect is now configured.
 
 #### PgBouncer
 
-To reduce PostgreSQL resource consumption, you should set up and configure
+To reduce PostgreSQL resource consumption, we recommend setting up and configuring
 [PgBouncer](https://www.pgbouncer.org/) in front of the PostgreSQL instance. To do
 this, replace value of the `POSTGRESQL_SERVER_ADDRESS` with corresponding IP or host
 address of the PgBouncer instance.
 
 This documentation doesn't provide PgBouncer installation instructions,
-you can:
+but you can:
 
 - Find instructions on the [official website](https://www.pgbouncer.org/install.html).
 - Use a [Docker image](https://hub.docker.com/r/edoburu/pgbouncer/).
 
-In addition to base PgBouncer configuration options, set the following values:
+In addition to the base PgBouncer configuration options, set the following values in
+your `pgbouncer.ini` file:
 
 - The [Praefect PostgreSQL database](#postgresql) in the `[databases]` section:
 
@@ -274,6 +275,9 @@ PostgreSQL instances. Otherwise you should change the configuration parameter
 `praefect['database_port']` for each Praefect instance to the correct value.
 
 ### Praefect
+
+NOTE: **Note:**
+If there are multiple Praefect nodes, complete these steps for **each** node.
 
 To complete this section you will need:
 
@@ -376,7 +380,7 @@ application server, or a Gitaly node.
    CAUTION: **Caution:**
    If you have data on an already existing storage called
    `default`, you should configure the virtual storage with another name and
-   [migrate the data to the Praefect storage](#migrating-existing-repositories-to-praefect)
+   [migrate the data to the Gitaly Cluster storage](#migrate-existing-repositories-to-gitaly-cluster)
    afterwards.
 
    Replace `PRAEFECT_INTERNAL_TOKEN` with a strong secret, which will be used by
@@ -426,7 +430,7 @@ application server, or a Gitaly node.
 
 1. To ensure that Praefect [has updated its Prometheus listen
    address](https://gitlab.com/gitlab-org/gitaly/-/issues/2734), [restart
-   Gitaly](../restart_gitlab.md#omnibus-gitlab-restart):
+   Praefect](../restart_gitlab.md#omnibus-gitlab-restart):
 
    ```shell
    gitlab-ctl restart praefect
@@ -444,7 +448,7 @@ application server, or a Gitaly node.
 
 **The steps above must be completed for each Praefect node!**
 
-## Enabling TLS support
+#### Enabling TLS support
 
 > [Introduced](https://gitlab.com/gitlab-org/gitaly/-/issues/1698) in GitLab 13.2.
 
@@ -677,7 +681,7 @@ documentation](index.md#configure-gitaly-servers).
 
    # Configure the gitlab-shell API callback URL. Without this, `git push` will
    # fail. This can be your front door GitLab URL or an internal load balancer.
-   # Examples: 'https://example.gitlab.com', 'http://1.2.3.4'
+   # Examples: 'https://gitlab.example.com', 'http://1.2.3.4'
    gitlab_rails['internal_api_url'] = 'http://GITLAB_HOST'
    ```
 
@@ -730,7 +734,7 @@ After all Gitaly nodes are configured, you can run the Praefect connection
 checker to verify Praefect can connect to all Gitaly servers in the Praefect
 config.
 
-1. SSH into the **Praefect** node and run the Praefect connection checker:
+1. SSH into each **Praefect** node and run the Praefect connection checker:
 
    ```shell
    sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml dial-nodes
@@ -774,9 +778,9 @@ application. This is done by updating the `git_data_dirs`.
 Particular attention should be shown to:
 
 - the storage name added to `git_data_dirs` in this section must match the
-  storage name under `praefect['virtual_storages']` on the Praefect node. This
+  storage name under `praefect['virtual_storages']` on the Praefect node(s). This
   was set in the [Praefect](#praefect) section of this guide. This document uses
-  `storage-1` as the Praefect storage name.
+  `default` as the Praefect storage name.
 
 1. SSH into the **GitLab** node and login as root:
 
@@ -799,7 +803,8 @@ Particular attention should be shown to:
 
    CAUTION: **Caution:**
    If you have existing data stored on the default Gitaly storage,
-   you should [migrate the data your Praefect storage first](#migrating-existing-repositories-to-praefect).
+   you should [migrate the data your Gitaly Cluster storage](#migrate-existing-repositories-to-gitaly-cluster)
+   first.
 
    ```ruby
    gitaly['enable'] = false
@@ -833,7 +838,8 @@ Particular attention should be shown to:
    gitlab_shell['secret_token'] = 'GITLAB_SHELL_SECRET_TOKEN'
    ```
 
-1. Add Prometheus monitoring settings by editing `/etc/gitlab/gitlab.rb`.
+1. Add Prometheus monitoring settings by editing `/etc/gitlab/gitlab.rb`. If Prometheus
+   is enabled on a different node, make edits on that node instead.
 
    You will need to replace:
 
@@ -871,7 +877,7 @@ Particular attention should be shown to:
    gitlab-ctl reconfigure
    ```
 
-1. Verify each `gitlab-shell` on each Gitaly instance can reach GitLab. On each Gitaly instance run:
+1. Verify each `gitlab-shell` on each Gitaly node can reach GitLab. On each Gitaly node run:
 
    ```shell
    /opt/gitlab/embedded/service/gitlab-shell/bin/check -config /opt/gitlab/embedded/service/gitlab-shell/config.yml
@@ -901,7 +907,7 @@ for detailed documentation.
 
 To get started quickly:
 
-1. SSH into the **GitLab** node and login as root:
+1. SSH into the **GitLab** node (or whichever node has Grafana enabled) and login as root:
 
    ```shell
    sudo -i
@@ -939,6 +945,9 @@ Congratulations! You've configured an observable highly available Praefect
 cluster.
 
 ## Distributed reads
+
+> - Introduced in GitLab 13.1 in [beta](https://about.gitlab.com/handbook/product/gitlab-the-product/#alpha-beta-ga) with feature flag `gitaly_distributed_reads` set to disabled.
+> - [Made generally available](https://gitlab.com/gitlab-org/gitaly/-/issues/2951) in GitLab 13.3.
 
 Praefect supports distribution of read operations across Gitaly nodes that are
 configured for the virtual node.
@@ -987,8 +996,12 @@ information, see the [strong consistency epic](https://gitlab.com/groups/gitlab-
 
 To enable strong consistency:
 
-- In GitLab 13.3 and later, reference transactions are enabled by default with
-  a primary-wins strategy. This strategy causes all transactions to succeed for
+- In GitLab 13.4 and later, the strong consistency voting strategy has been
+  improved. Instead of requiring all nodes to agree, only the primary and half
+  of the secondaries need to agree. To enable this strategy, disable the
+  `:gitaly_reference_transactions_primary_wins` feature flag.
+- In GitLab 13.3, reference transactions are enabled by default with a
+  primary-wins strategy. This strategy causes all transactions to succeed for
   the primary and thus does not ensure strong consistency. To enable strong
   consistency, disable the `:gitaly_reference_transactions_primary_wins`
   feature flag.
@@ -1172,7 +1185,7 @@ The source must be on a later version than the target storage.
 sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml reconcile -virtual <virtual-storage> -reference <up-to-date-storage> -target <outdated-storage> -f
 ```
 
-Refer to [Backend Node Recovery](#backend-node-recovery) section for more details on the `reconcile` sub-command.
+Refer to [Gitaly node recovery](#gitaly-node-recovery) section for more details on the `reconcile` sub-command.
 
 ### Enable writes or accept data loss
 
@@ -1199,14 +1212,15 @@ CAUTION: **Caution:**
 `accept-dataloss` causes permanent data loss by overwriting other versions of the repository. Data
 [recovery efforts](#recover-missing-data) must be performed before using it.
 
-## Backend Node Recovery
+## Gitaly node recovery
 
-When a Praefect backend node fails and is no longer able to
-replicate changes, the backend node will start to drift from the primary. If
-that node eventually recovers, it will need to be reconciled with the current
-primary. The primary node is considered the single source of truth for the
-state of a shard. The Praefect `reconcile` sub-command allows for the manual
-reconciliation between a backend node and the current primary.
+When a secondary Gitaly node fails and is no longer able to replicate changes, it starts
+to drift from the primary Gitaly node. If the failed Gitaly node eventually recovers,
+it needs to be reconciled with the primary Gitaly node. The primary Gitaly node is considered
+the single source of truth for the state of a shard.
+
+The Praefect `reconcile` sub-command allows for the manual reconciliation between a secondary
+Gitaly node and the current primary Gitaly node.
 
 Run the following command on the Praefect server after all placeholders
 (`<virtual-storage>` and `<target-storage>`) have been replaced:
@@ -1215,24 +1229,37 @@ Run the following command on the Praefect server after all placeholders
 sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml reconcile -virtual <virtual-storage> -target <target-storage>
 ```
 
-- Replace the placeholder `<virtual-storage>` with the virtual storage containing the backend node storage to be checked.
-- Replace the placeholder `<target-storage>` with the backend storage name.
+- Replace the placeholder `<virtual-storage>` with the virtual storage containing the Gitaly node storage to be checked.
+- Replace the placeholder `<target-storage>` with the Gitaly storage name.
 
 The command will return a list of repositories that were found to be
 inconsistent against the current primary. Each of these inconsistencies will
 also be logged with an accompanying replication job ID.
 
-## Migrating existing repositories to Praefect
+## Migrate existing repositories to Gitaly Cluster
 
-If your GitLab instance already has repositories, these won't be migrated
-automatically.
+If your GitLab instance already has repositories on single Gitaly nodes, these aren't migrated to
+Gitaly Cluster automatically.
 
 Repositories may be moved from one storage location using the [Project repository storage moves API](../../api/project_repository_storage_moves.md):
 
-```shell
-curl --request POST --header "Private-Token: <your_access_token>" --header "Content-Type: application/json" \
---data '{"destination_storage_name":"praefect"}' "https://gitlab.example.com/api/v4/projects/123/repository_storage_moves"
-```
+To move repositories to Gitaly Cluster:
+
+1. [Schedule a move](../../api/project_repository_storage_moves.md#schedule-a-repository-storage-move-for-a-project)
+   for the first repository using the API. For example:
+
+   ```shell
+   curl --request POST --header "Private-Token: <your_access_token>" --header "Content-Type: application/json" \
+   --data '{"destination_storage_name":"praefect"}' "https://gitlab.example.com/api/v4/projects/123/repository_storage_moves"
+   ```
+
+1. Using the ID that is returned, [query the repository move](../../api/project_repository_storage_moves.md#get-a-single-repository-storage-move-for-a-project)
+   using the API. The query indicates either:
+   - The move has completed successfully. The `state` field is `finished`.
+   - The move is in progress. Re-query the repository move until it completes successfully.
+   - The move has failed. Most failures are temporary and are solved by rescheduling the move.
+
+1. Once the move is successful, repeat these steps for all repositories for your projects.
 
 ## Debugging Praefect
 

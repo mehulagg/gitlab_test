@@ -8,6 +8,7 @@ class ApplicationSetting < ApplicationRecord
   include IgnorableColumns
 
   ignore_column :namespace_storage_size_limit, remove_with: '13.5', remove_after: '2020-09-22'
+  ignore_column :instance_statistics_visibility_private, remove_with: '13.6', remove_after: '2020-10-22'
 
   GRAFANA_URL_ERROR_MESSAGE = 'Please check your Grafana URL setting in ' \
     'Admin Area > Settings > Metrics and profiling > Metrics - Grafana'
@@ -281,6 +282,9 @@ class ApplicationSetting < ApplicationRecord
 
   validates :hashed_storage_enabled, inclusion: { in: [true], message: _("Hashed storage can't be disabled anymore for new projects") }
 
+  validates :container_registry_delete_tags_service_timeout,
+            numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+
   SUPPORTED_KEY_TYPES.each do |type|
     validates :"#{type}_key_restriction", presence: true, key_restriction: { type: type }
   end
@@ -426,12 +430,30 @@ class ApplicationSetting < ApplicationRecord
   end
 
   def self.create_from_defaults
+    check_schema!
+
     transaction(requires_new: true) do
       super
     end
   rescue ActiveRecord::RecordNotUnique
     # We already have an ApplicationSetting record, so just return it.
     current_without_cache
+  end
+
+  # Due to the frequency with which settings are accessed, it is
+  # likely that during a backup restore a running GitLab process
+  # will insert a new `application_settings` row before the
+  # constraints have been added to the table. This would add an
+  # extra row with ID 1 and prevent the primary key constraint from
+  # being added, which made ActiveRecord throw a
+  # IrreversibleOrderError anytime the settings were accessed
+  # (https://gitlab.com/gitlab-org/gitlab/-/issues/36405).  To
+  # prevent this from happening, we do a sanity check that the
+  # primary key constraint is present before inserting a new entry.
+  def self.check_schema!
+    return if ActiveRecord::Base.connection.primary_key(self.table_name).present?
+
+    raise "The `#{self.table_name}` table is missing a primary key constraint in the database schema"
   end
 
   # By default, the backend is Rails.cache, which uses

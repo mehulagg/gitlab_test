@@ -18,10 +18,6 @@ module Gitlab
         ::Feature.enabled?(:ci_instance_variables_ui, default_enabled: true)
       end
 
-      def self.composite_status?(project)
-        ::Feature.enabled?(:ci_composite_status, project, default_enabled: true)
-      end
-
       def self.pipeline_latest?
         ::Feature.enabled?(:ci_pipeline_latest, default_enabled: true)
       end
@@ -45,11 +41,11 @@ module Gitlab
       end
 
       def self.keep_latest_artifacts_for_ref_enabled?(project)
-        ::Feature.enabled?(:keep_latest_artifacts_for_ref, project, default_enabled: false)
+        ::Feature.enabled?(:keep_latest_artifacts_for_ref, project, default_enabled: true)
       end
 
       def self.destroy_only_unlocked_expired_artifacts_enabled?
-        ::Feature.enabled?(:destroy_only_unlocked_expired_artifacts, default_enabled: false)
+        ::Feature.enabled?(:destroy_only_unlocked_expired_artifacts, default_enabled: true)
       end
 
       def self.bulk_insert_on_create?(project)
@@ -68,10 +64,6 @@ module Gitlab
         ::Feature.enabled?(:ci_plan_needs_size_limit, project, default_enabled: true)
       end
 
-      def self.job_entry_matches_all_keys?
-        ::Feature.enabled?(:ci_job_entry_matches_all_keys)
-      end
-
       def self.lint_creates_pipeline_with_dry_run?(project)
         ::Feature.enabled?(:ci_lint_creates_pipeline_with_dry_run, project, default_enabled: true)
       end
@@ -80,8 +72,20 @@ module Gitlab
         ::Feature.enabled?(:reset_ci_minutes_for_all_namespaces, default_enabled: false)
       end
 
-      def self.expand_names_for_cross_pipeline_artifacts?(project)
-        ::Feature.enabled?(:ci_expand_names_for_cross_pipeline_artifacts, project)
+      def self.project_transactionless_destroy?(project)
+        Feature.enabled?(:project_transactionless_destroy, project, default_enabled: false)
+      end
+
+      def self.new_matrix_job_names_enabled?
+        ::Feature.enabled?(:ci_matrix_job_names, default_enabled: false)
+      end
+
+      def self.coverage_report_view?(project)
+        ::Feature.enabled?(:coverage_report_view, project)
+      end
+
+      def self.expose_mr_description_predefined_variable?
+        ::Feature.enabled?(:ci_expose_mr_description_predefined_variable, default_enabled: true)
       end
     end
   end

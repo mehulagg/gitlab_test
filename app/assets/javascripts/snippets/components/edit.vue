@@ -1,10 +1,10 @@
 <script>
 import { GlButton, GlLoadingIcon } from '@gitlab/ui';
 
-import Flash from '~/flash';
+import { deprecatedCreateFlash as Flash } from '~/flash';
 import { __, sprintf } from '~/locale';
 import TitleField from '~/vue_shared/components/form/title.vue';
-import { redirectTo } from '~/lib/utils/url_utility';
+import { redirectTo, joinPaths } from '~/lib/utils/url_utility';
 import FormFooterActions from '~/vue_shared/components/form/form_footer_actions.vue';
 
 import UpdateSnippetMutation from '../mutations/updateSnippet.mutation.graphql';
@@ -63,7 +63,7 @@ export default {
       return this.actions.length > 0;
     },
     hasValidBlobs() {
-      return this.actions.every(x => x.filePath && x.content);
+      return this.actions.every(x => x.content);
     },
     updatePrevented() {
       return this.snippet.title === '' || !this.hasValidBlobs || this.isUpdating;
@@ -88,7 +88,7 @@ export default {
     },
     cancelButtonHref() {
       if (this.newSnippet) {
-        return this.projectPath ? `/${this.projectPath}/-/snippets` : `/-/snippets`;
+        return joinPaths('/', gon.relative_url_root, this.projectPath, '-/snippets');
       }
       return this.snippet.webUrl;
     },
@@ -202,7 +202,7 @@ export default {
       v-if="isLoading"
       :label="__('Loading snippet')"
       size="lg"
-      class="loading-animation prepend-top-20 append-bottom-20"
+      class="loading-animation prepend-top-20 gl-mb-6"
     />
     <template v-else>
       <title-field

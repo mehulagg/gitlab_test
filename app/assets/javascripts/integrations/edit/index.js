@@ -19,9 +19,11 @@ function parseDatasetToProps(data) {
     projectKey,
     upgradePlanPath,
     editProjectPath,
+    learnMorePath,
     triggerEvents,
     fields,
     inheritFromId,
+    integrationLevel,
     ...booleanAttributes
   } = data;
   const {
@@ -32,12 +34,11 @@ function parseDatasetToProps(data) {
     enableComments,
     showJiraIssuesIntegration,
     enableJiraIssues,
+    gitlabIssuesEnabled,
   } = parseBooleanInData(booleanAttributes);
 
   return {
-    activeToggleProps: {
-      initialActivated: activated,
-    },
+    initialActivated: activated,
     showActive,
     type,
     triggerFieldsProps: {
@@ -50,12 +51,15 @@ function parseDatasetToProps(data) {
       showJiraIssuesIntegration,
       initialEnableJiraIssues: enableJiraIssues,
       initialProjectKey: projectKey,
+      gitlabIssuesEnabled,
       upgradePlanPath,
       editProjectPath,
     },
+    learnMorePath,
     triggerEvents: JSON.parse(triggerEvents),
     fields: JSON.parse(fields),
     inheritFromId: parseInt(inheritFromId, 10),
+    integrationLevel,
     id: parseInt(id, 10),
   };
 }

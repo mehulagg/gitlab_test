@@ -75,7 +75,7 @@ This view allows you to:
 
 ### Control Container Registry for your group
 
-Navigate to your groups's **{package}** **Packages & Registries > Container Registry**.
+Navigate to your group's **{package}** **Packages & Registries > Container Registry**.
 
 ![Container Registry group repositories](img/container_registry_group_repositories_v13_1.png)
 
@@ -533,6 +533,11 @@ The cleanup policy:
 1. Excludes from the list any tags matching the `name_regex_keep` value (tags to preserve).
 1. Finally, the remaining tags in the list are deleted from the Container Registry.
 
+CAUTION: **Warning:**
+On GitLab.com, the execution time for the cleanup policy is limited, and some of the tags may remain in
+the Container Registry after the policy runs. The next time the policy runs, the remaining tags are included,
+so it may take multiple runs for all tags to be deleted.
+
 ### Create a cleanup policy
 
 You can create a cleanup policy in [the API](#use-the-cleanup-policy-api) or the UI.
@@ -677,22 +682,22 @@ the project.
 
 The following procedure uses these sample project names:
 
-- For the current project: `example.gitlab.com/org/build/sample_project/cr:v2.9.1`
-- For the new project: `example.gitlab.com/new_org/build/new_sample_project/cr:v2.9.1`
+- For the current project: `gitlab.example.com/org/build/sample_project/cr:v2.9.1`
+- For the new project: `gitlab.example.com/new_org/build/new_sample_project/cr:v2.9.1`
 
 Use your own URLs to complete the following steps:
 
 1. Download the Docker images on your computer:
 
    ```shell
-   docker login example.gitlab.com
-   docker pull example.gitlab.com/org/build/sample_project/cr:v2.9.1
+   docker login gitlab.example.com
+   docker pull gitlab.example.com/org/build/sample_project/cr:v2.9.1
    ```
 
 1. Rename the images to match the new project name:
 
    ```shell
-   docker tag example.gitlab.com/org/build/sample_project/cr:v2.9.1 example.gitlab.com/new_org/build/new_sample_project/cr:v2.9.1
+   docker tag gitlab.example.com/org/build/sample_project/cr:v2.9.1 gitlab.example.com/new_org/build/new_sample_project/cr:v2.9.1
    ```
 
 1. Delete the images in both projects by using the [UI](#delete-images) or [API](../../../api/packages.md#delete-a-project-package).
@@ -702,7 +707,7 @@ Use your own URLs to complete the following steps:
 1. Restore the images:
 
    ```shell
-   docker push example.gitlab.com/new_org/build/new_sample_project/cr:v2.9.1
+   docker push gitlab.example.com/new_org/build/new_sample_project/cr:v2.9.1
    ```
 
 Follow [this issue](https://gitlab.com/gitlab-org/gitlab/-/issues/18383) for details.
