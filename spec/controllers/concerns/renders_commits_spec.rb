@@ -46,15 +46,17 @@ RSpec.describe RendersCommits do
     it 'avoids N + 1' do
       stub_const("MergeRequestDiff::COMMITS_SAFE_SIZE", 5)
 
-      control_count = ActiveRecord::QueryRecorder.new do
+      control_count = ActiveRecord::QueryRecorder.new(query_recorder_debug: true) do
         go
       end.count
 
       stub_const("MergeRequestDiff::COMMITS_SAFE_SIZE", 15)
 
-      expect do
+      new_count = ActiveRecord::QueryRecorder.new(query_recorder_debug: true) do
         go
-      end.not_to exceed_all_query_limit(control_count)
+      end.count
+
+      expect(new_count).to be <= control_count
     end
   end
 end
