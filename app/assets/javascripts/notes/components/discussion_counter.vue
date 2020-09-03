@@ -8,7 +8,6 @@ export default {
     GlTooltip: GlTooltipDirective,
   },
   components: {
-    GlIcon,
     GlButton,
   },
   mixins: [discussionNavigation],
