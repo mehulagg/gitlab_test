@@ -19,9 +19,13 @@ class JiraConnect::SubscriptionsController < JiraConnect::ApplicationController
   before_action :allow_rendering_in_iframe, only: :index
   before_action :verify_qsh_claim!, only: :index
   before_action :authenticate_user!, only: :create
+  before_action do
+    push_frontend_feature_flag(:new_jira_connect_ui, default_enabled: true)
+  end
 
   def index
     @subscriptions = current_jira_installation.subscriptions.preload_namespace_route
+    @namespaces = authorized_namespaces
   end
 
   def create
@@ -48,6 +52,11 @@ class JiraConnect::SubscriptionsController < JiraConnect::ApplicationController
 
   def create_service
     JiraConnectSubscriptions::CreateService.new(current_jira_installation, current_user, namespace_path: params['namespace_path'])
+  end
+
+  # TODO: Scope down to where the user is maintainer / owner
+  def authorized_namespaces
+    current_user ? current_user.namespaces : []
   end
 
   def allow_rendering_in_iframe

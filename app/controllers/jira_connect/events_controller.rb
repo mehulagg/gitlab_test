@@ -5,6 +5,10 @@ class JiraConnect::EventsController < JiraConnect::ApplicationController
   before_action :verify_qsh_claim!, only: :uninstalled
 
   def installed
+    return head :ok if atlassian_jwt_valid?
+
+    JiraConnectInstallation.find_by_base_url(install_params[:base_url]).destroy
+
     installation = JiraConnectInstallation.new(install_params)
 
     if installation.save

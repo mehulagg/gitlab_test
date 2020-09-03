@@ -1,28 +1,34 @@
 %h1
   GitLab for Jira Configuration
 
-%form#add-subscription-form.subscription-form{ action: jira_connect_subscriptions_path }
-  .ak-field-group
-    %label
-      Namespace
+- if Feature.enabled?(:new_jira_connect_ui, default_enabled: true)
+  .js-jira-connect-app{ data: { subscription_path: jira_connect_subscriptions_path, subscriptions: serialize_subscriptions(@subscriptions), namespaces: @namespaces.to_json } }
+    = loading_icon(size: "md")
+  = webpack_bundle_tag "jira_connect"
 
-  .ak-field-group.field-group-input
-    %input#namespace-input.ak-field-text{ type: 'text', required: true }
-    %button.ak-button.ak-button__appearance-primary{ type: 'submit' }
-      Link namespace to Jira
+- else
+  %form#add-subscription-form.subscription-form{ action: jira_connect_subscriptions_path }
+    .ak-field-group
+      %label
+        Namespace
 
-%table.subscriptions
-  %thead
-    %tr
-      %th Namespace
-      %th Added
-      %th
-  %tbody
-    - @subscriptions.each do |subscription|
+    .ak-field-group.field-group-input
+      %input#namespace-input.ak-field-text{ type: 'text', required: true }
+      %button.ak-button.ak-button__appearance-primary{ type: 'submit' }
+        Link namespace to Jira
+
+  %table.subscriptions
+    %thead
       %tr
-        %td= subscription.namespace.full_path
-        %td= subscription.created_at
-        %td= link_to 'Remove', jira_connect_subscription_path(subscription), class: 'remove-subscription'
+        %th Namespace
+        %th Added
+        %th
+    %tbody
+      - @subscriptions.each do |subscription|
+        %tr
+          %td= subscription.namespace.full_path
+          %td= subscription.created_at
+          %td= link_to 'Remove', jira_connect_subscription_path(subscription), class: 'remove-subscription', :onclick => "removeSubscription"
+  = page_specific_javascript_tag('jira_connect.js')
 
-= page_specific_javascript_tag('jira_connect.js')
 = stylesheet_link_tag 'page_bundles/jira_connect'

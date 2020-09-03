@@ -80,6 +80,7 @@ function generateEntries() {
     default: defaultEntries,
     sentry: './sentry/index.js',
     chrome_84_icon_fix: './lib/chrome_84_icon_fix.js',
+    jira_connect: './jira_connect/index.js',
   };
 
   return Object.assign(manualEntries, autoEntries);
