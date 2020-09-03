@@ -5,7 +5,6 @@ import discussionNavigation from '../mixins/discussion_navigation';
 export default {
   name: 'JumpToNextDiscussionButton',
   components: {
-    GlIcon,
     GlButton,
   },
   directives: {
