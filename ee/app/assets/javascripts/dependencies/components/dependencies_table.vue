@@ -82,7 +82,7 @@ export default {
   fields: [
     { key: 'component', label: s__('Dependencies|Component'), tdClass },
     { key: 'packager', label: s__('Dependencies|Packager'), tdClass },
-    { key: 'location', label: s__('Dependencies|Location'), tdClass },
+    { key: 'location', label: s__('Dependencies|Locations'), tdClass },
     { key: 'license', label: s__('Dependencies|License'), tdClass },
     { key: 'isVulnerable', label: '', tdClass },
   ],
@@ -99,6 +99,9 @@ export default {
     details-td-class="pt-0"
     stacked="md"
   >
+    <!-- <template v-slot:head(location)="data">
+      {{ data.label.toUpperCase() }}
+    </template> -->
     <!-- toggleDetails and detailsShowing are scoped slot props provided by
       GlTable; they mutate/read the item's _showDetails property, which GlTable
       uses to show/hide the row-details slot -->
