@@ -1,6 +1,16 @@
 # frozen_string_literal: true
 
-PATTERNS = File.read('patterns.txt').split
+PATTERNS = %w[
+  createFlash
+  gl-deprecated-button
+  loading-button
+  pagination-button
+  gl-deprecated-dropdown
+  gl-deprecated-dropdown-divider
+  gl-deprecated-dropdown-header
+  gl-deprecated-dropdown-item
+  initDeprecatedJQueryDropdown
+].freeze
 
 def get_changed_lines(files)
   lines = []
