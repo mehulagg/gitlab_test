@@ -2930,9 +2930,9 @@ interface CurrentUserTodos {
     last: Int
 
     """
-    State of the todos
+    States of the todos
     """
-    state: TodoStateEnum
+    states: [TodoStateEnum!]
   ): TodoConnection!
 }
 
@@ -3479,9 +3479,9 @@ type Design implements CurrentUserTodos & DesignFields & Noteable {
     last: Int
 
     """
-    State of the todos
+    States of the todos
     """
-    state: TodoStateEnum
+    states: [TodoStateEnum!]
   ): TodoConnection!
 
   """
@@ -5006,9 +5006,9 @@ type Epic implements CurrentUserTodos & Noteable {
     last: Int
 
     """
-    State of the todos
+    States of the todos
     """
-    state: TodoStateEnum
+    states: [TodoStateEnum!]
   ): TodoConnection!
 
   """
@@ -5531,9 +5531,9 @@ type EpicIssue implements CurrentUserTodos & Noteable {
     last: Int
 
     """
-    State of the todos
+    States of the todos
     """
-    state: TodoStateEnum
+    states: [TodoStateEnum!]
   ): TodoConnection!
 
   """
@@ -7360,9 +7360,9 @@ type Issue implements CurrentUserTodos & Noteable {
     last: Int
 
     """
-    State of the todos
+    States of the todos
     """
-    state: TodoStateEnum
+    states: [TodoStateEnum!]
   ): TodoConnection!
 
   """
@@ -8991,9 +8991,9 @@ type MergeRequest implements CurrentUserTodos & Noteable {
     last: Int
 
     """
-    State of the todos
+    States of the todos
     """
-    state: TodoStateEnum
+    states: [TodoStateEnum!]
   ): TodoConnection!
 
   """

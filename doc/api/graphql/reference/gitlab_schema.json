@@ -7905,12 +7905,20 @@
                   "defaultValue": null
                 },
                 {
-                  "name": "state",
-                  "description": "State of the todos",
+                  "name": "states",
+                  "description": "States of the todos",
                   "type": {
-                    "kind": "ENUM",
-                    "name": "TodoStateEnum",
-                    "ofType": null
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "TodoStateEnum",
+                        "ofType": null
+                      }
+                    }
                   },
                   "defaultValue": null
                 }
@@ -9467,12 +9475,20 @@
                   "defaultValue": null
                 },
                 {
-                  "name": "state",
-                  "description": "State of the todos",
+                  "name": "states",
+                  "description": "States of the todos",
                   "type": {
-                    "kind": "ENUM",
-                    "name": "TodoStateEnum",
-                    "ofType": null
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "TodoStateEnum",
+                        "ofType": null
+                      }
+                    }
                   },
                   "defaultValue": null
                 }
@@ -13977,12 +13993,20 @@
                   "defaultValue": null
                 },
                 {
-                  "name": "state",
-                  "description": "State of the todos",
+                  "name": "states",
+                  "description": "States of the todos",
                   "type": {
-                    "kind": "ENUM",
-                    "name": "TodoStateEnum",
-                    "ofType": null
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "TodoStateEnum",
+                        "ofType": null
+                      }
+                    }
                   },
                   "defaultValue": null
                 }
@@ -15426,12 +15450,20 @@
                   "defaultValue": null
                 },
                 {
-                  "name": "state",
-                  "description": "State of the todos",
+                  "name": "states",
+                  "description": "States of the todos",
                   "type": {
-                    "kind": "ENUM",
-                    "name": "TodoStateEnum",
-                    "ofType": null
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "TodoStateEnum",
+                        "ofType": null
+                      }
+                    }
                   },
                   "defaultValue": null
                 }
@@ -20318,12 +20350,20 @@
                   "defaultValue": null
                 },
                 {
-                  "name": "state",
-                  "description": "State of the todos",
+                  "name": "states",
+                  "description": "States of the todos",
                   "type": {
-                    "kind": "ENUM",
-                    "name": "TodoStateEnum",
-                    "ofType": null
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "TodoStateEnum",
+                        "ofType": null
+                      }
+                    }
                   },
                   "defaultValue": null
                 }
@@ -24999,12 +25039,20 @@
                   "defaultValue": null
                 },
                 {
-                  "name": "state",
-                  "description": "State of the todos",
+                  "name": "states",
+                  "description": "States of the todos",
                   "type": {
-                    "kind": "ENUM",
-                    "name": "TodoStateEnum",
-                    "ofType": null
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "ENUM",
+                        "name": "TodoStateEnum",
+                        "ofType": null
+                      }
+                    }
                   },
                   "defaultValue": null
                 }
