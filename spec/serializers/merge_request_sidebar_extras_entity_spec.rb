@@ -3,21 +3,27 @@
 require 'spec_helper'
 
 RSpec.describe MergeRequestSidebarExtrasEntity do
-  let_it_be(:assignee, reload: true) { create(:user) }
-  let_it_be(:reviewer, reload: true) { create(:user) }
+  let_it_be(:assignee) { build(:user) }
+  let_it_be(:reviewer) { build(:user) }
+  let_it_be(:user) { build(:user) }
+  let_it_be(:project) { create :project, :repository }
 
-  let(:user) { create(:user) }
-  let(:project) { create :project, :repository }
-  let(:merge_request) do
-    create(:merge_request, source_project: project,
-                           target_project: project,
-                           assignees: [assignee],
-                           reviewers: [reviewer])
+  let(:params) do
+    {
+      source_project: project,
+      target_project: project,
+      assignees: [assignee],
+      reviewers: [reviewer]
+    }
+  end
+
+  let(:resource) do
+    build(:merge_request, params)
   end
 
   let(:request) { double('request', current_user: user, project: project) }
 
-  let(:entity) { described_class.new(merge_request, request: request).as_json }
+  let(:entity) { described_class.new(resource, request: request).as_json }
 
   describe '#assignees' do
     it 'contains assignees attributes' do
@@ -30,7 +36,7 @@ RSpec.describe MergeRequestSidebarExtrasEntity do
 
   describe '#reviewers' do
     context 'when merge_request_reviewers feature is disabled' do
-      it 'does not contain assignees attributes' do
+      it 'does not contain reviewers attributes' do
         stub_feature_flags(merge_request_reviewers: false)
 
         expect(entity[:reviewers]).to be_nil
@@ -38,7 +44,7 @@ RSpec.describe MergeRequestSidebarExtrasEntity do
     end
 
     context 'when merge_request_reviewers feature is enabled' do
-      it 'does not include code navigation properties' do
+      it 'contains reviewers attributes' do
         stub_feature_flags(merge_request_reviewers: true)
 
         expect(entity[:reviewers].count).to be 1

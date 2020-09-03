@@ -58,14 +58,14 @@ class IssuableBaseService < BaseService
   end
 
   def user_can_read?(issuable, user_id)
-    new_user = User.find_by_id(user_id)
+    user = User.find_by_id(user_id)
 
-    return false unless new_user
+    return false unless user
 
     ability_name = :"read_#{issuable.to_ability_name}"
     resource     = issuable.persisted? ? issuable : project
 
-    can?(new_user, ability_name, resource)
+    can?(user, ability_name, resource)
   end
 
   def filter_milestone
