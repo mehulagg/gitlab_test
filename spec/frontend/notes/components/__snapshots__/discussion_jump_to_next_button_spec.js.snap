@@ -5,17 +5,16 @@ exports[`JumpToNextDiscussionButton matches the snapshot 1`] = `
   class="btn-group"
   role="group"
 >
-  <button
-    class="btn btn-default discussion-next-btn"
+  <gl-button-stub
+    category="primary"
+    class="discussion-next-btn"
     data-track-event="click_button"
     data-track-label="mr_next_unresolved_thread"
     data-track-property="click_next_unresolved_thread"
+    icon="comment-next"
+    size="medium"
     title="Jump to next unresolved thread"
-  >
-    <gl-icon-stub
-      name="comment-next"
-      size="16"
-    />
-  </button>
+    variant="default"
+  />
 </div>
 `;
