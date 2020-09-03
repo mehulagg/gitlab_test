@@ -1445,6 +1445,11 @@ Alert boxes render only on the GitLab documentation site (<https://docs.gitlab.c
 Within GitLab itself, they will appear as plain Markdown text (like the examples
 above the rendered versions, below).
 
+NOTE: **Note:**
+When appropriate, you can use descriptive wording instead of `**Note:**`, `**Tip:**`,
+`**Alert:**`, or `**Danger**`. For example, it's common to specify `**Deprecation:**`
+in `CAUTION:` alert boxes.
+
 ### Note
 
 Notes catch the eye of most readers, and therefore should be used very sparingly.

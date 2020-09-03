@@ -1,0 +1,10 @@
+prefix=/home/mike/dev/gitlab/gitlab/vendor/ruby/2.6.0/gems/rbtrace-0.4.14/ext/dst
+exec_prefix=${prefix}
+libdir=/home/mike/dev/gitlab/gitlab/vendor/ruby/2.6.0/gems/rbtrace-0.4.14/ext/dst/lib
+includedir=${prefix}/include
+
+Name: MessagePack
+Description: Binary-based efficient object serialization library
+Version: 1.1.0
+Libs: -L${libdir} -lmsgpack
+Cflags: -I${includedir}
