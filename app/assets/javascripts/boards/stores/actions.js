@@ -15,6 +15,7 @@ import projectListsIssuesQuery from '../queries/project_lists_issues.query.graph
 import projectBoardQuery from '../queries/project_board.query.graphql';
 import groupBoardQuery from '../queries/group_board.query.graphql';
 import createBoardListMutation from '../queries/board_list_create.mutation.graphql';
+import issueMoveListMutation from '../queries/issue_move_list.mutation.graphql';
 
 const notImplemented = () => {
   /* eslint-disable-next-line @gitlab/require-i18n-strings */
@@ -185,8 +186,40 @@ export default {
       .catch(() => commit(types.RECEIVE_ISSUES_FOR_ALL_LISTS_FAILURE));
   },
 
-  moveIssue: () => {
-    notImplemented();
+  moveIssue: ({ state, commit }, { issueId, issueIid, issuePath, fromListId, toListId, moveBeforeId, moveAfterId, oldIndex, newIndex }) => {
+    const originalIssue = state.issues[issueId];
+    commit(types.MOVE_ISSUE, { originalIssue, fromListId, toListId, moveBeforeId, moveAfterId });
+
+    const { boardId } = state.endpoints;
+    const [groupPath, project] = issuePath.split(/[/#]/);
+    console.log('BEFORE', 'AFTER', moveBeforeId, moveAfterId);
+
+    gqlClient
+      .mutate({
+        mutation: issueMoveListMutation,
+        variables: {
+          projectPath: `${groupPath}/${project}`,
+          boardId: fullBoardId(boardId),
+          iid: issueIid,
+          fromListId: getIdFromGraphQLId(fromListId),
+          toListId: getIdFromGraphQLId(toListId),
+          moveBeforeId,
+          moveAfterId,
+        },
+      })
+      .then(({ data }) => {
+        console.log('DATA', data);
+        if (data?.issueMoveList?.errors.length) {
+          commit(types.MOVE_ISSUE_FAILURE);
+        } else {
+          const issue = data.issueMoveList?.issue;
+          commit(types.MOVE_ISSUE_SUCCESS, { issue });
+        }
+      })
+      .catch((e) => {
+        console.log('ERROR', e);
+        commit(types.MOVE_ISSUE_FAILURE, { originalIssue, fromListId, toListId, moveBeforeId, moveAfterId });
+      });
   },
 
   createNewIssue: () => {

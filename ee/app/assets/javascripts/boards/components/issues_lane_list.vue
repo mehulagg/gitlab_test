@@ -1,6 +1,8 @@
 <script>
+import Draggable from 'vuedraggable';
 import { mapState, mapActions } from 'vuex';
 import { GlLoadingIcon } from '@gitlab/ui';
+import defaultSortableConfig from '~/sortable/sortable_config';
 import BoardCardLayout from '~/boards/components/board_card_layout.vue';
 import eventHub from '~/boards/eventhub';
 import BoardNewIssue from '~/boards/components/board_new_issue.vue';
@@ -45,6 +47,11 @@ export default {
       type: String,
       required: true,
     },
+    canAdminList: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   data() {
     return {
@@ -53,6 +60,22 @@ export default {
   },
   computed: {
     ...mapState(['activeId']),
+    treeRootWrapper() {
+      return this.canAdminList ? Draggable : 'ul';
+    },
+    treeRootOptions() {
+      const options = {
+        ...defaultSortableConfig,
+        fallbackOnBody: false,
+        group: 'board-epics-swimlanes',
+        tag: 'ul',
+        'ghost-class': 'board-card-drag-active',
+        'data-list-id': this.list.id,
+        value: this.issues,
+      };
+
+      return this.canAdminList ? options : {};
+    },
   },
   created() {
     eventHub.$on(`toggle-issue-form-${this.list.id}`, this.toggleForm);
@@ -61,7 +84,7 @@ export default {
     eventHub.$off(`toggle-issue-form-${this.list.id}`, this.toggleForm);
   },
   methods: {
-    ...mapActions(['setActiveId']),
+    ...mapActions(['setActiveId', 'moveIssue']),
     toggleForm() {
       this.showIssueForm = !this.showIssueForm;
       if (this.showIssueForm && this.isUnassignedIssuesLane) {
@@ -73,6 +96,37 @@ export default {
     },
     showIssue(issue) {
       this.setActiveId({ id: issue.id, sidebarType: ISSUABLE });
+    },
+    handleDragOnEnd(params) {
+      const { newIndex, oldIndex, from, to, item } = params;
+      const { issueId, issueIid, issuePath } = item.dataset;
+      const { children } = to;
+      let moveBeforeId = null;
+      let moveAfterId = null;
+      console.log('NEW INDEX', newIndex);
+      Array.from(children).forEach((c, index) => {
+        console.log('CHILD', c.dataset.issueId, c.dataset.issuePath, index);
+      });
+
+      if (children[newIndex - 1]) {
+        moveAfterId = children[newIndex - 1].dataset.issueId;
+      }
+
+      if (children[newIndex]) {
+        moveBeforeId = children[newIndex].dataset.issueId;
+      }
+
+      this.moveIssue({
+        issueId,
+        issueIid,
+        issuePath,
+        fromListId: from.dataset.listId,
+        toListId: to.dataset.listId,
+        moveBeforeId,
+        moveAfterId,
+        oldIndex,
+        newIndex,
+      });
     },
   },
 };
@@ -90,7 +144,13 @@ export default {
         :group-id="groupId"
         :list="list"
       />
-      <ul v-if="list.isExpanded" class="gl-p-2 gl-m-0">
+      <component
+        :is="treeRootWrapper"
+        v-if="list.isExpanded"
+        v-bind="treeRootOptions"
+        class="gl-p-2 gl-m-0"
+        @end="handleDragOnEnd"
+      >
         <board-card-layout
           v-for="(issue, index) in issues"
           ref="issue"
@@ -102,7 +162,7 @@ export default {
           :is-active="isActiveIssue(issue)"
           @show="showIssue(issue)"
         />
-      </ul>
+      </component>
     </div>
   </div>
 </template>
