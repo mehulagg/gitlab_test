@@ -45,9 +45,9 @@ RSpec.describe SubmitUsagePingService do
     }
   end
 
-  let(:with_dev_ops_score_params) { { dev_ops_score: score_params[:score] } }
+  let(:with_dev_ops_report_params) { { dev_ops_report: score_params[:score] } }
   let(:with_conv_index_params) { { conv_index: score_params[:score] } }
-  let(:without_dev_ops_score_params) { { dev_ops_score: {} } }
+  let(:without_dev_ops_report_params) { { dev_ops_report: {} } }
 
   shared_examples 'does not run' do
     it do
@@ -71,12 +71,12 @@ RSpec.describe SubmitUsagePingService do
   shared_examples 'saves DevOps report data from the response' do
     it do
       expect { subject.execute }
-        .to change { DevOpsScore::Metric.count }
+        .to change { DevOpsReport::Metric.count }
         .by(1)
 
-      expect(DevOpsScore::Metric.last.leader_issues).to eq 10.2
-      expect(DevOpsScore::Metric.last.instance_issues).to eq 3.2
-      expect(DevOpsScore::Metric.last.percentage_issues).to eq 31.37
+      expect(DevOpsReport::Metric.last.leader_issues).to eq 10.2
+      expect(DevOpsReport::Metric.last.instance_issues).to eq 3.2
+      expect(DevOpsReport::Metric.last.percentage_issues).to eq 31.37
     end
   end
 
@@ -103,7 +103,7 @@ RSpec.describe SubmitUsagePingService do
     end
 
     it 'sends a POST request' do
-      response = stub_response(body: without_dev_ops_score_params)
+      response = stub_response(body: without_dev_ops_report_params)
 
       subject.execute
 
@@ -111,7 +111,7 @@ RSpec.describe SubmitUsagePingService do
     end
 
     it 'forces a refresh of usage data statistics before submitting' do
-      stub_response(body: without_dev_ops_score_params)
+      stub_response(body: without_dev_ops_report_params)
 
       expect(Gitlab::UsageData).to receive(:data).with(force_refresh: true).and_call_original
 
@@ -128,7 +128,7 @@ RSpec.describe SubmitUsagePingService do
 
     context 'when DevOps report data is passed' do
       before do
-        stub_response(body: with_dev_ops_score_params)
+        stub_response(body: with_dev_ops_report_params)
       end
 
       it_behaves_like 'saves DevOps report data from the response'
@@ -136,7 +136,7 @@ RSpec.describe SubmitUsagePingService do
 
     context 'with save_raw_usage_data feature enabled' do
       before do
-        stub_response(body: with_dev_ops_score_params)
+        stub_response(body: with_dev_ops_report_params)
         stub_feature_flags(save_raw_usage_data: true)
       end
 
@@ -161,7 +161,7 @@ RSpec.describe SubmitUsagePingService do
 
     context 'with save_raw_usage_data feature disabled' do
       before do
-        stub_response(body: with_dev_ops_score_params)
+        stub_response(body: with_dev_ops_report_params)
       end
 
       it 'does not create a raw_usage_data record' do
