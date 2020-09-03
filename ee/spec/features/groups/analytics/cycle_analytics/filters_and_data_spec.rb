@@ -8,10 +8,16 @@ RSpec.describe 'Group value stream analytics filters and data', :js do
   let_it_be(:project) { create(:project, :repository, namespace: group, group: group, name: 'Cool fun project') }
   let_it_be(:sub_group) { create(:group, name: 'CA-sub-group', parent: group) }
 
+  let(:milestone) { create(:milestone, project: project) }
+  let(:mr) { create_merge_request_closing_issue(user, project, issue, commit_message: "References #{issue.to_reference}") }
+  let(:pipeline) { create(:ci_empty_pipeline, status: 'created', project: project, ref: mr.source_branch, sha: mr.source_branch_sha, head_pipeline_of: mr) }
+
   stage_nav_selector = '.stage-nav'
   path_nav_selector = '.js-path-navigation'
+  card_metric_selector = '.js-recent-activity .js-metric-card-item'
+  new_issues_count = 3
 
-  3.times do |i|
+  new_issues_count.times do |i|
     let_it_be("issue_#{i}".to_sym) { create(:issue, title: "New Issue #{i}", project: project, created_at: 2.days.ago) }
   end
 
@@ -30,6 +36,7 @@ RSpec.describe 'Group value stream analytics filters and data', :js do
     stub_licensed_features(cycle_analytics_for_groups: true, type_of_work_analytics: true)
 
     group.add_owner(user)
+    project.add_maintainer(user)
 
     sign_in(user)
   end
@@ -54,50 +61,41 @@ RSpec.describe 'Group value stream analytics filters and data', :js do
     end
   end
 
-  shared_examples 'has overview metrics' do
-    card_metric_selector = '.js-recent-activity .js-metric-card-item'
-
-    it 'will display recent activity' do
-      page.within(find('.js-recent-activity')) do
-        expect(page).to have_content(_('Recent Activity'))
-      end
+  shared_examples 'has overview metrics', :js do
+    before do
+      wait_for_requests
     end
 
-    it 'will display time metrics' do
+    it 'will display activity metrics' do
       page.within(find('.js-recent-activity')) do
+        expect(page).to have_content(_('Recent Activity'))
         expect(page).to have_content(_('Time'))
       end
     end
 
-    it 'displays the number of issues' do
-      issue_count = page.all(card_metric_selector)[2]
-
-      expect(issue_count).to have_content(n_('New Issue', 'New Issues', 3))
-      expect(issue_count).to have_content('3')
-    end
-
-    it 'displays the number of deploys' do
+    it 'displays the recent activity' do
       deploys_count = page.all(card_metric_selector)[3]
 
       expect(deploys_count).to have_content(n_('Deploy', 'Deploys', 0))
       expect(deploys_count).to have_content('-')
-    end
 
-    it 'displays the deployment frequency' do
       deployment_frequency = page.all(card_metric_selector).last
 
       expect(deployment_frequency).to have_content(_('Deployment Frequency'))
       expect(deployment_frequency).to have_content('-')
+
+      issue_count = page.all(card_metric_selector)[2]
+
+      expect(issue_count).to have_content(n_('New Issue', 'New Issues', 3))
+      expect(issue_count).to have_content(new_issues_count)
     end
 
-    it 'displays the lead time' do
+    it 'displays time metrics' do
       lead_time = page.all(card_metric_selector).first
 
       expect(lead_time).to have_content(_('Lead Time'))
       expect(lead_time).to have_content('-')
-    end
 
-    it 'displays the cycle time' do
       cycle_time = page.all(card_metric_selector)[1]
 
       expect(cycle_time).to have_content(_('Cycle Time'))
@@ -105,7 +103,7 @@ RSpec.describe 'Group value stream analytics filters and data', :js do
     end
   end
 
-  shared_examples 'group value stream analytics' do
+  shared_examples 'group value stream analytics' do |selected_group|
     context 'stage panel' do
       it 'displays the stage table headers' do
         expect(page).to have_selector('.stage-header', visible: true)
@@ -133,6 +131,8 @@ RSpec.describe 'Group value stream analytics filters and data', :js do
     context 'path nav' do
       before do
         stub_feature_flags(value_stream_analytics_path_navigation: true)
+
+        select_group(selected_group)
       end
 
       it 'displays the default list of stages' do
@@ -200,7 +200,7 @@ RSpec.describe 'Group value stream analytics filters and data', :js do
       select_group
     end
 
-    it_behaves_like 'group value stream analytics'
+    it_behaves_like 'group value stream analytics', group
 
     it_behaves_like 'has overview metrics'
   end
@@ -210,7 +210,7 @@ RSpec.describe 'Group value stream analytics filters and data', :js do
       select_group(sub_group)
     end
 
-    it_behaves_like 'group value stream analytics'
+    it_behaves_like 'group value stream analytics', sub_group
 
     it_behaves_like 'has overview metrics'
   end
