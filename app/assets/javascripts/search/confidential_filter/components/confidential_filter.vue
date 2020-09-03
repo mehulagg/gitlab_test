@@ -3,6 +3,8 @@ import { GlDropdown, GlDropdownItem, GlDropdownDivider } from '@gitlab/ui';
 import { FILTER_STATES, FILTER_HEADER, FILTER_TEXT } from '../constants';
 import { setUrlParams, visitUrl } from '~/lib/utils/url_utility';
 
+const FILTERS_ARRAY = Object.values(FILTER_STATES);
+
 export default {
   name: 'ConfidentialFilter',
   components: {
@@ -19,7 +21,7 @@ export default {
       type: String,
       required: false,
       default: FILTER_STATES.ANY.value,
-      validator: v => Object.values(FILTER_STATES).some(({ value }) => value === v),
+      validator: v => FILTERS_ARRAY.some(({ value }) => value === v),
     },
   },
   computed: {
@@ -34,14 +36,13 @@ export default {
     },
     selectedFilter: {
       get() {
-        return this.confidential;
+        if (FILTERS_ARRAY.some(({ value }) => value === this.confidential)) {
+          return this.confidential;
+        }
+
+        return FILTER_STATES.ANY.value;
       },
       set(confidential) {
-        // let confidential = value;
-        // if (value === FILTER_STATES.ANY.value) {
-        //   confidential = null;
-        // }
-
         visitUrl(setUrlParams({ confidential }));
       },
     },
@@ -62,7 +63,7 @@ export default {
   },
   filterStates: FILTER_STATES,
   filterHeader: FILTER_HEADER,
-  filtersArray: Object.values(FILTER_STATES),
+  filtersArray: FILTERS_ARRAY,
 };
 </script>
 

@@ -23,7 +23,8 @@
   = render_if_exists 'shared/promotions/promote_advanced_search'
 
   #js-search-filter-by-state{ 'v-cloak': true, data: { scope: @scope, state: params[:state] } }
-  #js-search-filter-by-confidential{ 'v-cloak': true, data: { scope: @scope, confidential: params[:confidential] } }
+  - if Feature.enabled?(:search_filter_by_confidential)
+    #js-search-filter-by-confidential{ 'v-cloak': true, data: { scope: @scope, confidential: params[:confidential] } }
 
   .results.gl-mt-3
     - if @scope == 'commits'
