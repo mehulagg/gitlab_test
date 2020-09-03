@@ -15,6 +15,14 @@ $search-avatar-size: 16px;
   .blob-result {
     margin: 5px 0;
   }
+
+  mark {
+    color: $black;
+    font-weight: $gl-font-weight-bold;
+    // Overrides browser defined styling
+    padding: 0;
+    background-color: transparent;
+  }
 }
 
 .search form:hover,

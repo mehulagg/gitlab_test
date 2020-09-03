@@ -11,4 +11,4 @@
     = sprintf(s_(' %{project_name}#%{issue_iid} &middot; opened %{issue_created} by %{author}'), { project_name: issue.project.full_name, issue_iid: issue.iid, issue_created: time_ago_with_tooltip(issue.created_at, placement: 'bottom'), author: link_to_member(@project, issue.author, avatar: false) }).html_safe
   - if issue.description.present?
     .description.term.col-sm-10.gl-px-0
-      = truncate(issue.description, length: 200)
+      = search_bold_and_truncate(issue.description, @search_term, truncate: true)
