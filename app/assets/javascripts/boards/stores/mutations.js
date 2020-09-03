@@ -77,7 +77,6 @@ export default {
 
   [mutationTypes.RECEIVE_ISSUES_FOR_ALL_LISTS_SUCCESS]: (state, { listData, issues }) => {
     state.issuesByListId = listData;
-    console.log(issues);
     state.issues = issues;
     state.isLoadingIssues = false;
   },
