@@ -1,5 +1,6 @@
 <script>
-/* eslint-disable @gitlab/vue-require-i18n-strings, vue/no-v-html */
+/* eslint-disable @gitlab/vue-require-i18n-strings */
+import { GlSafeHtmlDirective as SafeHtml } from '@gitlab/ui';
 import { __ } from '~/locale';
 import { deprecatedCreateFlash as Flash } from '~/flash';
 import { redirectTo } from '~/lib/utils/url_utility';
@@ -8,6 +9,10 @@ import { spriteIcon } from '~/lib/utils/common_utils';
 import GitlabSlackService from '../services/gitlab_slack_service';
 
 export default {
+  directives: {
+    SafeHtml,
+  },
+
   props: {
     projects: {
       type: Array,
@@ -94,8 +99,8 @@ export default {
     <div v-once class="prepend-top-20 append-bottom-20">
       <img :src="gitlabLogoPath" class="gitlab-slack-logo" />
       <div
+        v-safe-html="doubleHeadedArrowSvg"
         class="gitlab-slack-double-headed-arrow inline prepend-left-20 append-right-20"
-        v-html="doubleHeadedArrowSvg"
       ></div>
       <img :src="slackLogoPath" class="gitlab-slack-logo" />
     </div>
@@ -144,7 +149,7 @@ export default {
           >/gitlab &lt;project-alias&gt; issue show &lt;id&gt;</code
         >
         <span>
-          <div class="gitlab-slack-right-arrow inline gl-mr-2" v-html="arrowRightSvg"></div>
+          <div v-safe-html="arrowRightSvg" class="gitlab-slack-right-arrow inline gl-mr-2"></div>
           Shows the issue with id <strong>&lt;id&gt;</strong>
         </span>
 
