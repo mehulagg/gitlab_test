@@ -5,6 +5,7 @@ import { s__ } from '~/locale';
 import { parseBoolean } from '~/lib/utils/common_utils';
 import updateActiveDiscussionMutation from '../graphql/mutations/update_active_discussion.mutation.graphql';
 import createDesignTodoMutation from '../graphql/mutations/create_design_todo.mutation.graphql';
+import todoMarkDoneMutation from '~/graphql_shared/mutations/todo_mark_done.mutation.graphql';
 import {
   extractDiscussions,
   extractParticipants,
@@ -104,8 +105,9 @@ export default {
         'gl-pt-0': this.showTodoButton,
       };
     },
-    hasPendingTodo() {
-      return this.design.currentUserTodos?.nodes.length > 0;
+    pendingTodo() {
+      // TODO data structure pending BE MR: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/40555#note_405732940
+      return this.design.currentUserTodos?.nodes[0];
     },
   },
   watch: {
@@ -167,18 +169,26 @@ export default {
       this.$emit('error', { message });
     },
     deleteTodo() {
-      // TODO delete the todo here
+      if (!this.pendingTodo) return Promise.reject();
+
+      const { id } = this.pendingTodo;
+      return this.$apollo.mutate({
+        mutation: todoMarkDoneMutation,
+        variables: {
+          id,
+        },
+      });
     },
     toggleTodo() {
       if (this.hasPendingTodo) {
-        this.deleteTodo().catch(() => {
+        return this.deleteTodo().catch(() => {
           this.emitError(DELETE_DESIGN_TODO_ERROR);
         });
-      } else {
-        this.createTodo().catch(() => {
-          this.emitError(CREATE_DESIGN_TODO_ERROR);
-        });
       }
+
+      return this.createTodo().catch(() => {
+        this.emitError(CREATE_DESIGN_TODO_ERROR);
+      });
     },
   },
   resolveCommentsToggleText: s__('DesignManagement|Resolved Comments'),
