@@ -8,7 +8,9 @@ module Packages
       project
         .packages
         .with_package_type(package_type)
-        .safe_find_or_create_by!(name: name, version: version)
+        .safe_find_or_create_by!(name: name, version: version) do |pkg|
+          pkg.creator = current_user
+        end
     end
 
     def create_package!(package_type, attrs = {})
@@ -22,6 +24,7 @@ module Packages
 
     def package_attrs(attrs)
       {
+        creator: current_user,
         name: params[:name],
         version: params[:version]
       }.merge(attrs)

@@ -6,6 +6,7 @@ RSpec.describe Packages::Package, type: :model do
 
   describe 'relationships' do
     it { is_expected.to belong_to(:project) }
+    it { is_expected.to belong_to(:creator) }
     it { is_expected.to have_many(:package_files).dependent(:destroy) }
     it { is_expected.to have_many(:dependency_links).inverse_of(:package) }
     it { is_expected.to have_many(:tags).inverse_of(:package) }
@@ -87,6 +88,7 @@ RSpec.describe Packages::Package, type: :model do
     subject { build(:package) }
 
     it { is_expected.to validate_presence_of(:project) }
+    it { is_expected.to validate_presence_of(:creator) }
     it { is_expected.to validate_uniqueness_of(:name).scoped_to(:project_id, :version, :package_type) }
 
     describe '#name' do
