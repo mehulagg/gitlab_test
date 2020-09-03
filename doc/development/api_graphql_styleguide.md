@@ -763,6 +763,49 @@ to advertise the need for lookahead:
 For an example of real world use, please
 see [`ResolvesMergeRequests`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/app/graphql/resolvers/concerns/resolves_merge_requests.rb).
 
+### Negated arguments
+
+Some resources can be filtered by negated filters (e.g. find all issues which
+have `bug' label, but don't have label `bug2` assigned).  The preferred syntax
+to pass negated arguments is usage of `not` argument:
+
+```ruby
+issues(labelName: "bug", not: {labelName: "bug2"}) {
+  nodes {
+    id
+    title
+  }
+}
+```
+
+To avoid duplicated argument definitions, these arguments can be placed into a reusable module:
+
+```ruby
+module NegatableIssueArguments
+  extend ActiveSupport::Concern
+
+  included do
+    argument :label_name, GraphQL::STRING_TYPE.to_list_type,
+              required: false,
+              description: 'Labels applied to this issue'
+  end
+end
+
+class NegatedIssueArguments < Types::BaseInputObject
+  include NegatableIssueArguments
+end
+
+class IssuesResolver < BaseResolver
+  include NegatableIssueArguments
+
+  argument :not, NegatedIssueArguments,
+           resuired: false,
+           desription: 'Negated issue arguments'
+
+  # additional not negatable arguments
+end
+```
+
 ## Pass a parent object into a child Presenter
 
 Sometimes you need to access the resolved query parent in a child context to compute fields. Usually the parent is only
