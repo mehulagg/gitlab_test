@@ -1,7 +1,7 @@
 <script>
-/* eslint-disable vue/no-v-html */
 import Vue from 'vue';
 import Cookies from 'js-cookie';
+import { GlSafeHtmlDirective as SafeHtml } from '@gitlab/ui';
 import Translate from '../../../../../vue_shared/translate';
 // Full path is needed for Jest to be able to correctly mock this file
 import illustrationSvg from '~/pages/projects/pipeline_schedules/shared/icons/intro_illustration.svg';
@@ -13,6 +13,9 @@ const cookieKey = 'pipeline_schedules_callout_dismissed';
 
 export default {
   name: 'PipelineSchedulesCallout',
+  directives: {
+    SafeHtml,
+  },
   data() {
     return {
       docsUrl: document.getElementById('pipeline-schedules-callout').dataset.docsUrl,
@@ -36,7 +39,7 @@ export default {
       <button id="dismiss-callout-btn" class="btn btn-default close" @click="dismissCallout">
         <i aria-hidden="true" class="fa fa-times"> </i>
       </button>
-      <div class="svg-container" v-html="illustrationSvg"></div>
+      <div v-safe-html="illustrationSvg" class="svg-container"></div>
       <div class="user-callout-copy">
         <h4>{{ __('Scheduling Pipelines') }}</h4>
         <p>
