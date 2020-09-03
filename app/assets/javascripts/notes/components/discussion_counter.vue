@@ -100,10 +100,8 @@ export default {
           :title="__('Toggle all threads')"
           class="toggle-all-discussions-btn"
           @click="handleExpandDiscussions"
-        >
-          <gl-icon :name="allExpanded ? 'angle-up' : 'angle-down'" />
-            :icon="comment-next"
-        </gl-button>
+          :icon="allExpanded ? 'angle-up' : 'angle-down'"
+        />
       </div>
     </div>
   </div>
