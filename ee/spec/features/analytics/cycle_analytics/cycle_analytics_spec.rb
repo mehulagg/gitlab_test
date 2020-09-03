@@ -49,6 +49,26 @@ RSpec.describe 'Group Value Stream Analytics', :js do
     dropdown.click
   end
 
+  def select_stage(name)
+    string_id = "CycleAnalyticsStage|#{name}"
+    page.find('.stage-nav .stage-nav-item .stage-name', text: s_(string_id), match: :prefer_exact).click
+
+    wait_for_requests
+  end
+
+  def create_merge_request(id, extra_params = {})
+    params = {
+      id: id,
+      target_branch: 'master',
+      source_project: project2,
+      source_branch: "feature-branch-#{id}",
+      title: "mr name#{id}",
+      created_at: 2.days.ago
+    }.merge(extra_params)
+
+    create(:merge_request, params)
+  end
+
   shared_examples 'empty state' do
     it 'displays an empty state' do
       element = page.find('.row.empty-state')
@@ -69,74 +89,7 @@ RSpec.describe 'Group Value Stream Analytics', :js do
     end
   end
 
-  before do
-    stub_licensed_features(cycle_analytics_for_groups: true, type_of_work_analytics: true)
-
-    group.add_owner(user)
-    project.add_maintainer(user)
-
-    sign_in(user)
-  end
-
-  it_behaves_like 'empty state'
-
-  context 'deep linked url parameters' do
-    projects_dropdown = '.js-projects-dropdown-filter'
-
-    context 'without valid query parameters set' do
-      context 'with created_after date > created_before date' do
-        before do
-          visit "#{group_analytics_cycle_analytics_path(group)}?created_after=2019-12-31&created_before=2019-11-01"
-        end
-
-        it_behaves_like 'no group available'
-      end
-
-      context 'with fake parameters' do
-        # TODO: problematic
-        before do
-          visit "#{group_analytics_cycle_analytics_path(group)}?beans=not-cool"
-        end
-
-        it_behaves_like 'empty state'
-      end
-    end
-
-    context 'with valid query parameters set' do
-      context 'with project_ids set' do
-        before do
-          visit "#{group_analytics_cycle_analytics_path(group)}?project_ids[]=#{project.id}"
-        end
-
-        it 'has the projects dropdown prepopulated' do
-          element = page.find(projects_dropdown)
-
-          expect(element).to have_content project.name
-        end
-      end
-
-      context 'with created_before and created_after set' do
-        date_range = '.js-daterange-picker'
-
-        before do
-          visit "#{group_analytics_cycle_analytics_path(group)}?created_before=2019-12-31&created_after=2019-11-01"
-        end
-
-        it 'has the date range prepopulated' do
-          element = page.find(date_range)
-
-          expect(element.find('.js-daterange-picker-from input').value).to eq '2019-11-01'
-          expect(element.find('.js-daterange-picker-to input').value).to eq '2019-12-31'
-        end
-      end
-    end
-  end
-
-  context 'displays correct fields after group selection' do
-    before do
-      select_group
-    end
-
+  shared_examples 'has default filters' do
     it 'hides the empty state' do
       expect(page).to have_selector('.row.empty-state', visible: false)
     end
@@ -149,110 +102,23 @@ RSpec.describe 'Group Value Stream Analytics', :js do
       expect(page).to have_selector('.js-daterange-picker', visible: true)
     end
 
-    it 'shows the path navigation' do
-      expect(page).to have_selector(path_nav_selector)
-    end
-
     it 'shows the filter bar' do
       expect(page).to have_selector(filter_bar_selector, visible: false)
     end
   end
 
-  context 'with path navigation feature flag disabled' do
-    before do
-      stub_feature_flags(value_stream_analytics_path_navigation: false)
-
-      select_group
-    end
-
-    it 'shows the path navigation' do
-      expect(page).not_to have_selector(path_nav_selector)
-    end
-  end
-
-  # Adding this context as part of a fix for https://gitlab.com/gitlab-org/gitlab/-/issues/233439
-  # This can be removed when the feature flag is removed
-  context 'create multiple value streams disabled' do
-    before do
-      stub_feature_flags(value_stream_analytics_create_multiple_value_streams: false)
-
-      select_group
-    end
-
-    it 'displays the list of stages' do
-      expect(page).to have_selector(stage_nav_selector, visible: true)
-    end
-
-    it 'displays the duration chart' do
-      expect(page).to have_selector(duration_stage_selector, visible: true)
-    end
-  end
-
-  shared_examples 'group value stream analytics' do
-    context 'summary table', :js do
-      it 'will display recent activity' do
-        page.within(find('.js-recent-activity')) do
-          expect(page).to have_content(_('Recent Activity'))
-        end
-      end
-
-      it 'will display time metrics' do
-        page.within(find('.js-recent-activity')) do
-          expect(page).to have_content(_('Time'))
-        end
+  shared_examples 'has overview metrics' do
+    it 'will display recent activity' do
+      page.within(find('.js-recent-activity')) do
+        expect(page).to have_content(_('Recent Activity'))
       end
     end
 
-    context 'stage panel' do
-      it 'displays the stage table headers' do
-        expect(page).to have_selector('.stage-header', visible: true)
-        expect(page).to have_selector('.median-header', visible: true)
-        expect(page).to have_selector('.event-header', visible: true)
-        expect(page).to have_selector('.total-time-header', visible: true)
+    it 'will display time metrics' do
+      page.within(find('.js-recent-activity')) do
+        expect(page).to have_content(_('Time'))
       end
     end
-
-    context 'stage nav' do
-      it 'displays the list of stages' do
-        expect(page).to have_selector(stage_nav_selector, visible: true)
-      end
-
-      it 'displays the default list of stages' do
-        stage_nav = page.find(stage_nav_selector)
-
-        %w[Issue Plan Code Test Review Staging Total].each do |item|
-          string_id = "CycleAnalytics|#{item}"
-          expect(stage_nav).to have_content(s_(string_id))
-        end
-      end
-    end
-
-    context 'path nav' do
-      before do
-        stub_feature_flags(value_stream_analytics_path_navigation: true)
-      end
-
-      it 'displays the default list of stages' do
-        path_nav = page.find(path_nav_selector)
-
-        %w[Issue Plan Code Test Review Staging Overview].each do |item|
-          string_id = "CycleAnalytics|#{item}"
-          expect(path_nav).to have_content(s_(string_id))
-        end
-      end
-    end
-  end
-
-  context 'with a group selected' do
-    card_metric_selector = '.js-recent-activity .js-metric-card-item'
-
-    before do
-      select_group
-
-      expect(page).to have_css(card_metric_selector)
-    end
-
-    it_behaves_like 'group value stream analytics'
 
     it 'displays the number of issues' do
       issue_count = page.all(card_metric_selector)[2]
@@ -290,32 +156,57 @@ RSpec.describe 'Group Value Stream Analytics', :js do
     end
   end
 
-  context 'with a sub group selected' do
+  before do
+    stub_licensed_features(cycle_analytics_for_groups: true, type_of_work_analytics: true)
+
+    group.add_owner(user)
+    project.add_maintainer(user)
+
+    sign_in(user)
+  end
+
+  it_behaves_like 'empty state'
+
+  context 'displays correct fields after group selection' do
     before do
-      select_group(sub_group)
+      select_group
     end
 
-    it_behaves_like 'group value stream analytics'
+    it 'shows the path navigation' do
+      expect(page).to have_selector(path_nav_selector)
+    end
+
+    it_behaves_like 'has default filters'
   end
 
-  def select_stage(name)
-    string_id = "CycleAnalyticsStage|#{name}"
-    page.find('.stage-nav .stage-nav-item .stage-name', text: s_(string_id), match: :prefer_exact).click
+  context 'with path navigation feature flag disabled' do
+    before do
+      stub_feature_flags(value_stream_analytics_path_navigation: false)
 
-    wait_for_requests
+      select_group
+    end
+
+    it 'shows the path navigation' do
+      expect(page).not_to have_selector(path_nav_selector)
+    end
   end
 
-  def create_merge_request(id, extra_params = {})
-    params = {
-      id: id,
-      target_branch: 'master',
-      source_project: project2,
-      source_branch: "feature-branch-#{id}",
-      title: "mr name#{id}",
-      created_at: 2.days.ago
-    }.merge(extra_params)
+  # Adding this context as part of a fix for https://gitlab.com/gitlab-org/gitlab/-/issues/233439
+  # This can be removed when the feature flag is removed
+  context 'create multiple value streams disabled' do
+    before do
+      stub_feature_flags(value_stream_analytics_create_multiple_value_streams: false)
 
-    create(:merge_request, params)
+      select_group
+    end
+
+    it 'displays the list of stages' do
+      expect(page).to have_selector(stage_nav_selector, visible: true)
+    end
+
+    it 'displays the duration chart' do
+      expect(page).to have_selector(duration_stage_selector, visible: true)
+    end
   end
 
   context 'with lots of data', :js do

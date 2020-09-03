@@ -5,6 +5,7 @@ require 'spec_helper'
 RSpec.describe 'Group value stream analytics' do
   let_it_be(:group) { create(:group) }
   let_it_be(:user) { create(:user) }
+  let_it_be(:project) { create(:project, :repository, namespace: group, group: group, name: 'Cool fun project') }
 
   before do
     stub_licensed_features(cycle_analytics_for_groups: true)
