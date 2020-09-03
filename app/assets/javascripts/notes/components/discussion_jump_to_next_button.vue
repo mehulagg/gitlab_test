@@ -26,14 +26,12 @@ export default {
     <gl-button
       v-gl-tooltip
       class="discussion-next-btn"
+      icon="comment-next"
       :title="s__('MergeRequests|Jump to next unresolved thread')"
       data-track-event="click_button"
       data-track-label="mr_next_unresolved_thread"
       data-track-property="click_next_unresolved_thread"
       @click="jumpToNextRelativeDiscussion(fromDiscussionId)"
-    >
-      <gl-icon name="comment-next" />
-          :icon="comment-next"
-    </gl-button>
+    />
   </div>
 </template>
