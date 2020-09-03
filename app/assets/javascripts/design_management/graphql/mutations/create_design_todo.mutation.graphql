@@ -1,10 +1,12 @@
 mutation createDesignTodo(
   $project_path: String!
-  $issuable_id: String!
+  $issue_id: Int!
+  $issuable_id: Int!
   $target_design_id: String!
 ) {
   createDesignTodo(
     project_path: $project_path
+    issue_id: $issue_id
     issuable_id: $issuable_id
     target_design_id: $target_design_id
   ) @client

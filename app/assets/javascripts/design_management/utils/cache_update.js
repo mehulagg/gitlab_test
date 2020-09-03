@@ -8,6 +8,7 @@ import {
   ADD_IMAGE_DIFF_NOTE_ERROR,
   UPDATE_IMAGE_DIFF_NOTE_ERROR,
   ADD_DISCUSSION_COMMENT_ERROR,
+  CREATE_DESIGN_TODO_ERROR,
   designDeletionError,
 } from './error_messages';
 
@@ -63,18 +64,16 @@ export const addPendingTodoToStore = (store, pendingTodo, query, queryVariables)
     variables: queryVariables,
   });
 
-  const design = extractDesign(data);
-  store.writeQuery({
-    query,
-    variables: queryVariables,
-    data: {
-      ...data,
-      design: {
-        ...design,
-        pendingTodo,
-      },
-    },
-  });
+  // // const data = produce(sourceData, draftData => {
+  // //   // eslint-disable-next-line no-param-reassign
+  // //   draftData.project.issue.designCollection.versions.nodes = [
+  // //     version,
+  // //     ...draftData.project.issue.designCollection.versions.nodes,
+  // //   ];
+  // // });
+
+  // const design = extractDesign(data);
+  store.writeQuery({ query, variables: queryVariables, data });
 };
 
 const addDiscussionCommentToStore = (store, createNote, query, queryVariables, discussionId) => {
@@ -293,6 +292,14 @@ export const updateStoreAfterUpdateImageDiffNote = (store, data, query, queryVar
     onError(data, UPDATE_IMAGE_DIFF_NOTE_ERROR);
   } else {
     updateImageDiffNoteInStore(store, data, query, queryVariables);
+  }
+};
+
+export const updateStoreAfterCreateDesignTodo = (store, data, query, queryVariables) => {
+  if (hasErrors(data)) {
+    onError(data, CREATE_DESIGN_TODO_ERROR);
+  } else {
+    addPendingTodoToStore(store, data, query, queryVariables);
   }
 };
 

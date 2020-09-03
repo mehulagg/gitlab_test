@@ -1,18 +1,24 @@
 <script>
 import Cookies from 'js-cookie';
 import { GlCollapse, GlButton, GlPopover } from '@gitlab/ui';
-import { s__, __ } from '~/locale';
+import { s__ } from '~/locale';
 import { parseBoolean } from '~/lib/utils/common_utils';
 import updateActiveDiscussionMutation from '../graphql/mutations/update_active_discussion.mutation.graphql';
 import createDesignTodoMutation from '../graphql/mutations/create_design_todo.mutation.graphql';
-import { extractDiscussions, extractParticipants } from '../utils/design_management_utils';
+import {
+  extractDiscussions,
+  extractParticipants,
+  findIssueId,
+  findDesignIssuableId,
+} from '../utils/design_management_utils';
 import { ACTIVE_DISCUSSION_SOURCE_TYPES } from '../constants';
+import { CREATE_DESIGN_TODO_ERROR, DELETE_DESIGN_TODO_ERROR } from '../utils/error_messages';
 import DesignDiscussion from './design_notes/design_discussion.vue';
 import Participants from '~/sidebar/components/participants/participants.vue';
 import TodoButton from '~/vue_shared/components/todo_button.vue';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import allVersionsMixin from '../mixins/all_versions';
-import { addPendingTodoToStore } from '../utils/cache_update';
+import { updateStoreAfterCreateDesignTodo } from '../utils/cache_update';
 import getDesignQuery from '../graphql/queries/get_design.query.graphql';
 
 export default {
@@ -65,8 +71,8 @@ export default {
     designTodoVariables() {
       return {
         project_path: this.projectPath,
-        issuable_id: this.issueIid,
-        target_design_id: this.design.id,
+        issuable_id: parseInt(findDesignIssuableId(this.design.id), 10),
+        issue_id: parseInt(findIssueId(this.design.issue.id), 10),
       };
     },
     discussions() {
@@ -137,6 +143,8 @@ export default {
       this.discussionWithOpenForm = id;
     },
     createTodo() {
+      const { designVariables } = this;
+
       return this.$apollo.mutate({
         mutation: createDesignTodoMutation,
         variables: this.designTodoVariables,
@@ -146,12 +154,11 @@ export default {
             data: { createDesignTodo },
           },
         ) {
-          const { pendingTodo } = createDesignTodo;
-          addPendingTodoToStore(
-            this.$apollo.getClient().cache,
-            pendingTodo,
+          updateStoreAfterCreateDesignTodo(
+            store,
+            createDesignTodo,
             getDesignQuery,
-            this.designVariables,
+            designVariables,
           );
         },
       });
@@ -165,11 +172,11 @@ export default {
     toggleTodo() {
       if (this.hasPendingTodo) {
         this.deleteTodo().catch(() => {
-          this.emitError(__('Failed to remove To-Do for the design.'));
+          this.emitError(DELETE_DESIGN_TODO_ERROR);
         });
       } else {
         this.createTodo().catch(() => {
-          this.emitError(__('Failed to create To-Do for the design.'));
+          this.emitError(CREATE_DESIGN_TODO_ERROR);
         });
       }
     },

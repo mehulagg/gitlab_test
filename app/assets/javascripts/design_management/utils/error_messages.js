@@ -44,6 +44,10 @@ export const MOVE_DESIGN_ERROR = __(
   'Something went wrong when reordering designs. Please try again',
 );
 
+export const CREATE_DESIGN_TODO_ERROR = __('Failed to create To-Do for the design.');
+
+export const DELETE_DESIGN_TODO_ERROR = __('Failed to remove To-Do for the design.');
+
 const MAX_SKIPPED_FILES_LISTINGS = 5;
 
 const oneDesignSkippedMessage = filename =>

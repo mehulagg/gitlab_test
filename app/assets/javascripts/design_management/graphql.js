@@ -29,10 +29,11 @@ const resolvers = {
     },
     createDesignTodo: (
       _,
-      { project_path: projectPath, issuable_id, target_design_id: targetDesignId },
+      { project_path: projectPath, issue_id, issuable_id, target_design_id: targetDesignId },
     ) => {
       return axios
         .post(`/${projectPath}/todos`, {
+          issue_id,
           issuable_id,
           issuable_type: 'design',
           target_design_id: targetDesignId,

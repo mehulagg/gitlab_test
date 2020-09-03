@@ -30,6 +30,10 @@ export const findVersionId = id => (id.match('::Version/(.+$)') || [])[1];
 
 export const findNoteId = id => (id.match('DiffNote/(.+$)') || [])[1];
 
+export const findIssueId = id => (id.match('Issue/(.+$)') || [])[1];
+
+export const findDesignIssuableId = id => (id.match('Design/(.+$)') || [])[1];
+
 export const extractDesigns = data => data.project.issue.designCollection.designs.nodes;
 
 export const extractDesign = data => (extractDesigns(data) || [])[0];
@@ -149,7 +153,7 @@ export const getPageLayoutElement = () => document.querySelector('.layout-page')
 
 /**
  * Extract the ID of the To-Do for a given 'delete' path
- * Example of todoDeletePath: /delete/1234 
+ * Example of todoDeletePath: /delete/1234
  * @param {String} todoDeletePath delete_path from REST API response
  */
 export const extractTodoIdFromDeletePath = todoDeletePath => {
