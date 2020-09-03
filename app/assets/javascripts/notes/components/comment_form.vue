@@ -372,22 +372,23 @@ export default {
               :quick-actions-docs-path="quickActionsDocsPath"
               :add-spacing-classes="false"
             >
-              <textarea
-                id="note-body"
-                ref="textarea"
-                slot="textarea"
-                v-model="note"
-                dir="auto"
-                :disabled="isSubmitting"
-                name="note[note]"
-                class="note-textarea js-vue-comment-form js-note-text js-gfm-input js-autosize markdown-area js-vue-textarea qa-comment-input"
-                data-supports-quick-actions="true"
-                :aria-label="__('Description')"
-                :placeholder="__('Write a comment or drag your files here…')"
-                @keydown.up="editCurrentUserLastNote()"
-                @keydown.meta.enter="handleSave()"
-                @keydown.ctrl.enter="handleSave()"
-              ></textarea>
+              <template #textarea>
+                <textarea
+                  id="note-body"
+                  ref="textarea"
+                  v-model="note"
+                  dir="auto"
+                  :disabled="isSubmitting"
+                  name="note[note]"
+                  class="note-textarea js-vue-comment-form js-note-text js-gfm-input js-autosize markdown-area js-vue-textarea qa-comment-input"
+                  data-supports-quick-actions="true"
+                  :aria-label="__('Description')"
+                  :placeholder="__('Write a comment or drag your files here…')"
+                  @keydown.up="editCurrentUserLastNote()"
+                  @keydown.meta.enter="handleSave()"
+                  @keydown.ctrl.enter="handleSave()"
+                ></textarea>
+              </template>
             </markdown-field>
             <gl-alert
               v-if="isToggleBlockedIssueWarning"
