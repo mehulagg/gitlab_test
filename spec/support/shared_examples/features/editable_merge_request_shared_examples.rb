@@ -38,6 +38,10 @@ RSpec.shared_examples 'an editable merge request' do
         expect(page).to have_content user.name
       end
 
+      page.within '.reviewer' do
+        expect(page).to have_content user.name
+      end
+
       page.within '.milestone' do
         expect(page).to have_content milestone.title
       end
