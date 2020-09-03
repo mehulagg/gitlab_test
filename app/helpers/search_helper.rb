@@ -294,6 +294,11 @@ module SearchHelper
     sanitize(html, tags: %w(a p ol ul li pre code))
   end
 
+  def search_bold_and_truncate(text, phrase, options = {})
+    text = truncate(text, length: 200) if options.fetch(:truncate, true)
+    ActionView::Helpers::TextHelper.instance_method(:highlight).bind(self).call(text, phrase, options)
+  end
+
   def show_user_search_tab?
     return false if Feature.disabled?(:users_search, default_enabled: true)
 
