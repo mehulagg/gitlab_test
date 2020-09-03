@@ -1,5 +1,10 @@
 <script>
+import { GlButton } from '@gitlab/ui';
+
 export default {
+  components: {
+    GlButton,
+  },
   name: 'ReplyPlaceholder',
   props: {
     buttonText: {
@@ -11,13 +16,13 @@ export default {
 </script>
 
 <template>
-  <button
+  <gl-button
     ref="button"
     type="button"
-    class="js-vue-discussion-reply btn btn-text-field"
+    class="js-vue-discussion-reply btn-text-field"
     :title="s__('MergeRequests|Add a reply')"
     @click="$emit('onClick')"
   >
     {{ buttonText }}
-  </button>
+  </gl-button>
 </template>
