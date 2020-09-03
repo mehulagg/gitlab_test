@@ -137,19 +137,18 @@
   background: transparent;
   border: 0;
   outline: 0;
+  color: $gl-text-color-secondary;
 
   svg {
     width: 14px;
     height: 14px;
     vertical-align: middle;
-    fill: $gl-text-color-secondary;
+    fill: currentColor;
   }
 
   &:hover,
   &:focus {
-    svg {
-      fill: $blue-600;
-    }
+    color: $blue-600;
   }
 }
 

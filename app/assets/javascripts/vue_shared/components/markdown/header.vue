@@ -1,6 +1,6 @@
 <script>
 import $ from 'jquery';
-import { GlTooltipDirective, GlIcon } from '@gitlab/ui';
+import { GlTooltipDirective, GlIcon, GlPopover, GlButton } from '@gitlab/ui';
 import { getSelectedFragment } from '~/lib/utils/common_utils';
 import { CopyAsGFM } from '../../../behaviors/markdown/copy_as_gfm';
 import ToolbarButton from './toolbar_button.vue';
@@ -9,6 +9,8 @@ export default {
   components: {
     ToolbarButton,
     GlIcon,
+    GlPopover,
+    GlButton,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -17,6 +19,21 @@ export default {
     previewMarkdown: {
       type: Boolean,
       required: true,
+    },
+    lineContent: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    canSuggest: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
+    showSuggestPopover: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
   },
   data() {
@@ -83,6 +100,7 @@ export default {
         .catch(() => {});
     },
   },
+  mdSuggestion: ['```suggestion:-0+0', `{text}`, '```'].join('\n'),
 };
 </script>
 
@@ -104,6 +122,41 @@ export default {
         </button>
       </li>
       <li :class="{ active: !previewMarkdown }" class="md-header-toolbar">
+        <div v-if="canSuggest" class="d-inline-block">
+          <toolbar-button
+            ref="suggestButton"
+            :tag="$options.mdSuggestion"
+            :prepend="true"
+            :button-title="__('Insert suggestion')"
+            :cursor-offset="4"
+            :tag-content="lineContent"
+            icon="doc-code"
+            class="js-suggestion-btn"
+            @click="() => $emit('handleSuggestDismissed')"
+          >
+            <span>{{ __('Suggest changes') }}</span>
+          </toolbar-button>
+          <gl-popover
+            v-if="showSuggestPopover"
+            show
+            :target="() => $refs.suggestButton.$el"
+            :css-classes="['diff-suggest-popover']"
+            placement="top"
+            triggers="manual"
+          >
+            <strong>{{ __('New! Suggest changes directly') }}</strong>
+            <p class="mb-2">
+              {{
+                __(
+                  'Suggest code changes which can be immediately applied in one click. Try it out!',
+                )
+              }}
+            </p>
+            <gl-button variant="info" size="small" @click="() => $emit('handleSuggestDismissed')">
+              {{ __('Got it') }}
+            </gl-button>
+          </gl-popover>
+        </div>
         <div class="d-inline-block">
           <toolbar-button tag="**" :button-title="__('Add bold text')" icon="bold" />
           <toolbar-button tag="_" :button-title="__('Add italic text')" icon="italic" />

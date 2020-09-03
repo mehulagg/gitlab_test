@@ -67,5 +67,6 @@ export default {
     @click="() => $emit('click')"
   >
     <gl-icon :name="icon" />
+    <slot></slot>
   </button>
 </template>
