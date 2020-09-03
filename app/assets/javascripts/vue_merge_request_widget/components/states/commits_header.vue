@@ -1,12 +1,14 @@
 <script>
-/* eslint-disable vue/no-v-html */
-import { GlButton } from '@gitlab/ui';
+import { GlButton, GlSafeHtmlDirective as SafeHtml } from '@gitlab/ui';
 import { escape } from 'lodash';
 import { __, n__, sprintf, s__ } from '~/locale';
 
 export default {
   components: {
     GlButton,
+  },
+  directives: {
+    SafeHtml,
   },
   props: {
     isSquashEnabled: {
@@ -88,7 +90,7 @@ export default {
       />
       <span v-if="expanded">{{ __('Collapse') }}</span>
       <span v-else>
-        <span class="vertical-align-middle" v-html="message"></span>
+        <span v-safe-html="message" class="vertical-align-middle"></span>
         <gl-button variant="link" class="modify-message-button">
           {{ modifyLinkMessage }}
         </gl-button>
