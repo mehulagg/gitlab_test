@@ -1,0 +1,5 @@
+---
+title: Fix autosize issue in textareas under StartupCSS optimized mode
+merge_request: 41339
+author:
+type: fixed
