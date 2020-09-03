@@ -4,12 +4,16 @@ import { GlCollapse, GlButton, GlPopover } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import { parseBoolean } from '~/lib/utils/common_utils';
 import updateActiveDiscussionMutation from '../graphql/mutations/update_active_discussion.mutation.graphql';
+import createDesignTodoMutation from '../graphql/mutations/create_design_todo.mutation.graphql';
 import { extractDiscussions, extractParticipants } from '../utils/design_management_utils';
 import { ACTIVE_DISCUSSION_SOURCE_TYPES } from '../constants';
 import DesignDiscussion from './design_notes/design_discussion.vue';
 import Participants from '~/sidebar/components/participants/participants.vue';
 import TodoButton from '~/vue_shared/components/todo_button.vue';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
+import allVersionsMixin from '../mixins/all_versions';
+import { addPendingTodoToStore } from '../utils/cache_update';
+import getDesignQuery from '../graphql/queries/get_design.query.graphql';
 
 export default {
   components: {
@@ -20,7 +24,7 @@ export default {
     GlPopover,
     TodoButton,
   },
-  mixins: [glFeatureFlagsMixin()],
+  mixins: [glFeatureFlagsMixin(), allVersionsMixin],
   props: {
     design: {
       type: Object,
@@ -41,7 +45,30 @@ export default {
       discussionWithOpenForm: '',
     };
   },
+  inject: {
+    projectPath: {
+      default: '',
+    },
+    issueIid: {
+      default: '',
+    },
+  },
   computed: {
+    designVariables() {
+      return {
+        fullPath: this.projectPath,
+        iid: this.issueIid,
+        filenames: [this.$route.params.id],
+        atVersion: this.designsVersion,
+      };
+    },
+    designTodoVariables() {
+      return {
+        project_path: this.projectPath,
+        issuable_id: this.issueIid,
+        target_design_id: this.design.id,
+      };
+    },
     discussions() {
       return extractDiscussions(this.design.discussions);
     },
@@ -70,6 +97,9 @@ export default {
       return {
         'gl-pt-0': this.showTodoButton,
       };
+    },
+    hasPendingTodo() {
+      return this.design.currentUserTodos?.nodes.length > 0;
     },
   },
   watch: {
@@ -106,6 +136,36 @@ export default {
     updateDiscussionWithOpenForm(id) {
       this.discussionWithOpenForm = id;
     },
+    createTodo() {
+      return this.$apollo.mutate({
+        mutation: createDesignTodoMutation,
+        variables: this.designTodoVariables,
+        update(
+          store,
+          {
+            data: { createDesignTodo },
+          },
+        ) {
+          const { pendingTodo } = createDesignTodo;
+          addPendingTodoToStore(
+            this.$apollo.getClient().cache,
+            pendingTodo,
+            getDesignQuery,
+            this.designVariables,
+          );
+        },
+      });
+    },
+    deleteTodo() {
+      // TODO delete the todo here
+    },
+    toggleTodo() {
+      if (this.hasPendingTodo) {
+        this.deleteTodo();
+      } else {
+        this.createTodo();
+      }
+    },
   },
   resolveCommentsToggleText: s__('DesignManagement|Resolved Comments'),
   cookieKey: 'hide_design_resolved_comments_popover',
@@ -119,7 +179,12 @@ export default {
       class="gl-py-4 gl-mb-4 gl-display-flex gl-justify-content-space-between gl-align-items-center gl-border-b-1 gl-border-b-solid gl-border-b-gray-100"
     >
       <span>{{ __('To-Do') }}</span>
-      <todo-button issuable-type="design" :issuable-id="design.iid" />
+      <todo-button
+        issuable-type="design"
+        :issuable-id="design.iid"
+        :is-todo="hasPendingTodo"
+        @toggleTodo="toggleTodo"
+      />
     </div>
     <h2 class="gl-font-weight-bold gl-mt-0">
       {{ issue.title }}
