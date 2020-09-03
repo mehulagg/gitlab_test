@@ -1,0 +1,1 @@
+/usr/lib/postgresql/12/bin/postgres "-D" "/home/mike/Repos2/gitlab-development-kit/gdk/postgresql/data" "-k" "/home/mike/Repos2/gitlab-development-kit/gdk/postgresql" "-h" ""

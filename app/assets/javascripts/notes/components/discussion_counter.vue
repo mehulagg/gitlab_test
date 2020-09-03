@@ -92,8 +92,7 @@ export default {
           data-track-label="mr_next_unresolved_thread"
           data-track-property="click_next_unresolved_thread_top"
           @click="jumpToNextDiscussion"
-        >
-        </gl-button>
+        />
       </div>
       <div class="btn-group btn-group-sm" role="group">
         <gl-button
