@@ -226,7 +226,7 @@ export default {
     },
     onError(message, e) {
       this.errorMessage = message;
-      throw e;
+      if (e) throw e;
     },
     onCreateImageDiffNoteError(e) {
       this.onError(ADD_IMAGE_DIFF_NOTE_ERROR, e);
@@ -349,6 +349,7 @@ export default {
         @updateNoteError="onUpdateNoteError"
         @resolveDiscussionError="onResolveDiscussionError"
         @toggleResolvedComments="toggleResolvedComments"
+        @error="onError($event.message)"
       >
         <template #replyForm>
           <apollo-mutation

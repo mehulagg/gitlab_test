@@ -1,7 +1,7 @@
 <script>
 import Cookies from 'js-cookie';
 import { GlCollapse, GlButton, GlPopover } from '@gitlab/ui';
-import { s__ } from '~/locale';
+import { s__, __ } from '~/locale';
 import { parseBoolean } from '~/lib/utils/common_utils';
 import updateActiveDiscussionMutation from '../graphql/mutations/update_active_discussion.mutation.graphql';
 import createDesignTodoMutation from '../graphql/mutations/create_design_todo.mutation.graphql';
@@ -156,14 +156,21 @@ export default {
         },
       });
     },
+    emitError(message) {
+      this.$emit('error', { message });
+    },
     deleteTodo() {
       // TODO delete the todo here
     },
     toggleTodo() {
       if (this.hasPendingTodo) {
-        this.deleteTodo();
+        this.deleteTodo().catch(() => {
+          this.emitError(__('Failed to remove To-Do for the design.'));
+        });
       } else {
-        this.createTodo();
+        this.createTodo().catch(() => {
+          this.emitError(__('Failed to create To-Do for the design.'));
+        });
       }
     },
   },
@@ -183,7 +190,7 @@ export default {
         issuable-type="design"
         :issuable-id="design.iid"
         :is-todo="hasPendingTodo"
-        @toggleTodo="toggleTodo"
+        @click.prevent.stop="toggleTodo"
       />
     </div>
     <h2 class="gl-font-weight-bold gl-mt-0">
