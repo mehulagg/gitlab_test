@@ -508,7 +508,7 @@ rspec-ee system pg12 geo:
 rspec-impact:
   extends:
     - .rspec-base-pg11
-    - .rails:rules:detect-tests
+    - .rails:rules:rspec-impact
   stage: test
   needs: ["setup-test-env", "retrieve-tests-metadata", "compile-test-assets", "detect-tests"]
   script:

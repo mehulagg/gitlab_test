@@ -67,6 +67,9 @@
 .if-cache-credentials-schedule: &if-cache-credentials-schedule
   if: '$CI_REPO_CACHE_CREDENTIALS && $CI_PIPELINE_SOURCE == "schedule"'
 
+.if-rspec-impact-not-enabled: &if-rspec-impact-not-enabled
+  if: '$RSPEC_IMPACT_ENABLED != "true"'
+
 ####################
 # Changes patterns #
 ####################
@@ -575,8 +578,21 @@
     - <<: *if-dot-com-gitlab-org-merge-request
       changes: *code-backstage-patterns
 
+.rails:rules:rspec-impact:
+  rules:
+    - <<: *if-rspec-impact-not-enabled
+      when: never
+    - <<: *if-not-ee
+      when: never
+    - <<: *if-security-merge-request
+      changes: *code-backstage-patterns
+    - <<: *if-dot-com-gitlab-org-merge-request
+      changes: *code-backstage-patterns
+
 .rails:rules:fail-pipeline-early:
   rules:
+    - <<: *if-rspec-impact-not-enabled
+      when: never
     - <<: *if-not-ee
       when: never
     - <<: *if-security-merge-request
