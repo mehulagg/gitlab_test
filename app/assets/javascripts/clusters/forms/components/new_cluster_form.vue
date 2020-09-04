@@ -25,13 +25,14 @@ export default {
       apiUrl: '',
       certificate: '',
       clusterEnvironment: '*',
+      clusterManaged: true,
       clusterName: '',
       rbacEnabled: true,
       token: '',
     };
   },
   computed: {
-    ...mapState(['clusterConnectHelpPath', 'rbacHelpLink']),
+    ...mapState(['clusterConnectHelpPath', 'managedClustersHelpLink', 'rbacHelpLink']),
   },
   methods: {
     onSubmit() {
@@ -194,6 +195,31 @@ export default {
             >
             <template #link="{ content }">
               <gl-link :href="rbacHelpLink" target="_blank">{{ content }}</gl-link>
+            </template>
+            </gl-sprintf>
+          </template>
+        </gl-form-checkbox>
+      </gl-form-group>
+
+      <gl-form-group
+        id="cluster_managed_group"
+      >
+        <gl-form-checkbox v-model="clusterManaged">
+          <label
+            for="cluster_managed"
+          >
+            {{ s__('ClusterIntegration|GitLab-managed cluster') }}
+          </label>
+
+          <template #help>
+            <gl-sprintf
+              :message="s__(
+                  'ClusterIntegration|Allow GitLab to manage namespace and service accounts for this cluster. %{linkStart}More Information%{linkEnd}'
+                )
+              "
+            >
+            <template #link="{ content }">
+              <gl-link :href="managedClustersHelpLink" target="_blank">{{ content }}</gl-link>
             </template>
             </gl-sprintf>
           </template>
