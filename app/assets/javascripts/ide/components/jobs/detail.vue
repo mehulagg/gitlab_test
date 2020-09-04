@@ -2,7 +2,7 @@
 /* eslint-disable vue/no-v-html */
 import { mapActions, mapState } from 'vuex';
 import { throttle } from 'lodash';
-import { GlIcon } from '@gitlab/ui';
+import { GlIcon, GlButton } from '@gitlab/ui';
 import { __ } from '../../../locale';
 import tooltip from '../../../vue_shared/directives/tooltip';
 import ScrollButton from './detail/scroll_button.vue';
@@ -19,6 +19,7 @@ export default {
   },
   components: {
     GlIcon,
+    GlButton,
     ScrollButton,
     JobDescription,
   },
@@ -76,9 +77,9 @@ export default {
 <template>
   <div class="ide-pipeline build-page d-flex flex-column flex-fill">
     <header class="ide-job-header d-flex align-items-center">
-      <button class="btn btn-default btn-sm d-flex" @click="setDetailJob(null)">
-        <gl-icon name="chevron-left" /> {{ __('View jobs') }}
-      </button>
+      <gl-button category="secondary" icon="chevron-left" @click="setDetailJob(null)">
+        {{ __('View jobs') }}
+      </gl-button>
     </header>
     <div class="top-bar d-flex border-left-0 mr-3">
       <job-description :job="detailJob" />

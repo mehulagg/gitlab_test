@@ -1,9 +1,11 @@
 <script>
 import JobDescription from './detail/description.vue';
+import { GlButton } from '@gitlab/ui';
 
 export default {
   components: {
     JobDescription,
+    GlButton,
   },
   props: {
     job: {
@@ -28,9 +30,9 @@ export default {
   <div class="ide-job-item">
     <job-description :job="job" class="gl-mr-3" />
     <div class="ml-auto align-self-center">
-      <button v-if="job.started" type="button" class="btn btn-default btn-sm" @click="clickViewLog">
+      <gl-button v-if="job.started" category="secondary" @click="clickViewLog">
         {{ __('View log') }}
-      </button>
+      </gl-button>
     </div>
   </div>
 </template>
