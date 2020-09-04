@@ -1,6 +1,6 @@
 <script>
-import JobDescription from './detail/description.vue';
 import { GlButton } from '@gitlab/ui';
+import JobDescription from './detail/description.vue';
 
 export default {
   components: {

@@ -2,7 +2,7 @@
 /* eslint-disable vue/no-v-html */
 import { mapActions, mapState } from 'vuex';
 import { throttle } from 'lodash';
-import { GlIcon, GlButton } from '@gitlab/ui';
+import { GlButton } from '@gitlab/ui';
 import { __ } from '../../../locale';
 import tooltip from '../../../vue_shared/directives/tooltip';
 import ScrollButton from './detail/scroll_button.vue';
@@ -18,7 +18,6 @@ export default {
     tooltip,
   },
   components: {
-    GlIcon,
     GlButton,
     ScrollButton,
     JobDescription,
