@@ -6,8 +6,7 @@ module QA
       @cluster = Service::KubernetesCluster.new(provider_class: Service::ClusterProvider::K3s).create!
       @project = Resource::Project.fabricate_via_api! do |project|
         project.name = 'monitoring-project'
-        project.auto_devops_enabled = true
-        project.template_name = 'express'
+        project.auto_devops_enabled = false
       end
 
       deploy_project_with_prometheus
@@ -29,26 +28,35 @@ module QA
 
       Flow::Login.sign_in
 
-      Resource::KubernetesCluster::ProjectCluster.fabricate! do |cluster_settings|
+      cluster_props = Resource::KubernetesCluster::ProjectCluster.fabricate! do |cluster_settings|
         cluster_settings.project = @project
         cluster_settings.cluster = @cluster
-        cluster_settings.install_runner = true
         cluster_settings.install_ingress = true
+        cluster_settings.install_runner = true
         cluster_settings.install_prometheus = true
+      end
+
+      Resource::CiVariable.fabricate_via_api! do |resource|
+        resource.project = @project
+        resource.key = 'AUTO_DEVOPS_DOMAIN'
+        resource.value = cluster_props.ingress_ip
+        resource.masked = false
+      end
+
+      ci_file = Pathname
+                    .new(__dir__)
+                    .join('../../../../fixtures/.gitlab-ci.yml')
+
+      Resource::Repository::ProjectPush.fabricate! do |push|
+        push.project = @project
+        push.file_name = '.gitlab-ci.yml'
+        push.file_content = File.read(ci_file)
+        push.commit_message = 'Add ci-yml file'
       end
 
       Resource::Pipeline.fabricate_via_api! do |pipeline|
         pipeline.project = @project
       end.visit!
-
-      Page::Project::Pipeline::Show.perform do |pipeline|
-        pipeline.click_job('build')
-      end
-      Page::Project::Job::Show.perform do |job|
-        expect(job).to be_successful(timeout: 600)
-
-        job.click_element(:pipeline_path)
-      end
 
       Page::Project::Pipeline::Show.perform do |pipeline|
         pipeline.click_job('production')

@@ -3,7 +3,7 @@ require 'pathname'
 require_relative '../../../browser_ui/8_monitor/cluster_with_prometheus.rb'
 
 module QA
-  RSpec.describe 'Monitor', :orchestrated, :kubernetes, :requires_admin, quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/241448', type: :investigating } do
+  RSpec.describe 'Monitor', :skip_live_env, :requires_admin do
     include_context "cluster with Prometheus installed"
 
     before do
