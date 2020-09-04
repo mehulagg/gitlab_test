@@ -10393,6 +10393,9 @@ msgstr ""
 msgid "Failed to create Merge Request. Please try again."
 msgstr ""
 
+msgid "Failed to create To-Do for the design."
+msgstr ""
+
 msgid "Failed to create a branch for this issue. Please try again."
 msgstr ""
 
@@ -10481,6 +10484,9 @@ msgid "Failed to protect the environment"
 msgstr ""
 
 msgid "Failed to publish issue on status page."
+msgstr ""
+
+msgid "Failed to remove To-Do for the design."
 msgstr ""
 
 msgid "Failed to remove a Zoom meeting"
