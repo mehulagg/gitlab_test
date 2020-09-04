@@ -28,5 +28,4 @@
             = render "clusters/clusters/#{provider}/new"
 
       .tab-pane{ id: 'add-cluster-pane', class: active_when(active_tab == 'add'), role: 'tabpanel' }
-        #js-cluster-new{ data: js_cluster_new(@user_cluster) }
-        = render 'clusters/clusters/user/form'
+        #js-cluster-new{ data: js_cluster_new(clusterable.create_user_clusters_path, @user_cluster) }
