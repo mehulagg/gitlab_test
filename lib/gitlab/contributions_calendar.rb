@@ -96,7 +96,8 @@ module Gitlab
 
         date_interval = "INTERVAL '#{Time.zone.now.utc_offset} seconds'"
 
-        q = Event.reorder(nil)
+        q = Event.contributions
+          .reorder(nil)
           .select(:id, :project_id, :target_type, :target_id, :action, "date(events.created_at + #{date_interval}) as date")
           .where(conditions)
 
