@@ -6,6 +6,7 @@ import SetStatusModalTrigger from './set_status_modal/set_status_modal_trigger.v
 import SetStatusModalWrapper from './set_status_modal/set_status_modal_wrapper.vue';
 import { parseBoolean } from '~/lib/utils/common_utils';
 import Tracking from '~/tracking';
+import { initDarkModeToggle } from '~/dark_mode_toggle';
 
 /**
  * Updates todo counter when todos are toggled.
@@ -102,4 +103,5 @@ export function initNavUserDropdownTracking() {
 document.addEventListener('DOMContentLoaded', () => {
   requestIdleCallback(initStatusTriggers);
   initNavUserDropdownTracking();
+  initDarkModeToggle();
 });
