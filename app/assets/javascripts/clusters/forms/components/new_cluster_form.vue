@@ -9,6 +9,7 @@ import {
   GlFormTextarea
 } from '@gitlab/ui';
 import { mapState } from 'vuex';
+import { s__ } from '~/locale';
 
 export default {
   components: {
@@ -39,6 +40,20 @@ export default {
       'managedClustersHelpLink',
       'rbacHelpLink'
     ]),
+    namespaceDescription() {
+      if (this.clusterManaged) {
+        return s__('ClusterIntgegration|Set a prefix for your namespaces. If not set, defaults to your project path. If modified, existing environments will use their current namespaces until the cluster cache is cleared. %{linkStart}More Information%{linkEnd}')
+      } else {
+        return s__('ClusterIntegration|The namespace associated with your project. This will be used for deploy boards, logs, and Web terminals.')
+      }
+    },
+    namespaceLabel() {
+      if (this.clusterManaged) {
+        return s__('ClusterIntegration|Project namespace prefix (optional, unique)')
+      } else {
+        return s__('ClusterIntegration|Project namespace (optional, unique)')
+      }
+    }
   },
   methods: {
     onSubmit() {
@@ -234,7 +249,7 @@ export default {
 
       <gl-form-group
         v-if="allowUserDefinedNamespace"
-        :label="s__('ClusterIntegration|Project namespace prefix (optional, unique)')"
+        :label="namespaceLabel"
       >
         <gl-form-input
           id="cluster_platform_kubernetes_attributes_namespace"
@@ -246,11 +261,7 @@ export default {
 
         <template #description>
           <gl-sprintf
-            :message="
-              s__(
-                'ClusterIntegration|Set a prefix for your namespaces. If not set, defaults to your project path. If modified, existing environments will use their current namespaces until the cluster cache is cleared. %{linkStart}More Information%{linkEnd}',
-              )
-            "
+            :message="namespaceDescription"
           >
             <template #link="{ content }">
               <gl-link :href="managedClustersHelpLink" target="_blank">{{ content }}</gl-link>
