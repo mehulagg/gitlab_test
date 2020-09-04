@@ -391,6 +391,19 @@ In order to prevent Path Traversal vulnerabilities, user-controlled filenames or
 - After validating the user supplied input, it should be appended to the base directory and the path should be canonicalized using the filesystem API.
 
 #### GitLab specific validations
+The methods `Gitlab::Utils.check_path_traversal!()` and `Gitlab::Utils.check_allowed_absolute_path!()` can be used to validate user-supplied paths and prevent Path Traversal vulnerabilities. `check_path_traversal!()` will detect Path Traversal payloads included on relative paths, and `check_allowed_absolute_path!()` will detect payloads included on absolute paths. By default, absolute paths are not allowed, so you will need to pass a list of allowed absolute paths to the `path_allowlist` parameter when using `check_allowed_absolute_path!()`.
 
-- [`Gitlab::Utils.check_path_traversal`](https://gitlab.com/gitlab-org/security/gitlab/-/blob/master/lib/gitlab/utils.rb#L12-24) can be used to validate user input against Path Traversal vulnerabilities. Remember to add further validation when setting the `allowed_absolute` option to `true`.
-- [`file_path` API validator](https://gitlab.com/gitlab-org/security/gitlab/-/blob/master/lib/api/validations/validators/file_path.rb) to validate user input when working with the Grape gem.
+In order to use a combination of both checks, follow the example below:
+
+```ruby
+path = Gitlab::Utils.check_path_traversal!(path)
+Gitlab::Utils.check_allowed_absolute_path!(path, path_allowlist)
+```
+
+In case the checks have to be done on the API side, there's also the [`FilePath`](https://gitlab.com/gitlab-org/security/gitlab/-/blob/master/lib/api/validations/validators/file_path.rb) Grape validator, which is based on `check_path_traversal!()` and `check_allowed_absolute_path!()`. It can be used as follows:
+
+```ruby
+requires :file_path, type: String, file_path: { allowlist: ['/foo/bar/', '/home/foo/', '/app/home'] }
+```
+
+Remember that absolute paths are not allowed by default. If allowing an absolute path is required, you will need to provide an array of paths to the parameter `allowlist`.  
