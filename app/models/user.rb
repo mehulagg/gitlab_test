@@ -1463,11 +1463,6 @@ class User < ApplicationRecord
     end
   end
 
-  def notification_settings_for_groups(groups)
-    ids = groups.is_a?(ActiveRecord::Relation) ? groups.select(:id) : groups.map(&:id)
-    notification_settings.for_groups.where(source_id: ids)
-  end
-
   # Lazy load global notification setting
   # Initializes User setting with Participating level if setting not persisted
   def global_notification_setting
