@@ -59,7 +59,6 @@ export default {
           :class="{ 'line-resolve-btn is-active': allResolved, 'line-resolve-text': !allResolved }"
         >
           <template v-if="allResolved">
-            <gl-icon name="check-circle-filled" />
             {{ __('All threads resolved') }}
           </template>
           <template v-else>
@@ -78,7 +77,6 @@ export default {
           :title="s__('Resolve all threads in new issue')"
           class="new-issue-for-discussion btn btn-default discussion-create-issue-btn"
         >
-          <gl-icon name="issue-new" />
         </a>
       </div>
       <div v-if="isLoggedIn && !allResolved" class="btn-group btn-group-sm" role="group">
