@@ -27,6 +27,7 @@ export default {
       clusterEnvironment: '*',
       clusterManaged: true,
       clusterName: '',
+      namespace: '',
       rbacEnabled: true,
       token: '',
     };
@@ -231,8 +232,31 @@ export default {
         </gl-form-checkbox>
       </gl-form-group>
 
-      <gl-form-group v-if="allowUserDefinedNamespace">
-        <h1>Namespace Allowed</h1>
+      <gl-form-group
+        v-if="allowUserDefinedNamespace"
+        :label="s__('ClusterIntegration|Project namespace prefix (optional, unique)')"
+      >
+        <gl-form-input
+          id="cluster_platform_kubernetes_attributes_namespace"
+          v-model="namespace"
+          name="cluster[platform_kubernetes_attributes][namespace]"
+          type="text"
+          invalid-feedback="error message"
+        />
+
+        <template #description>
+          <gl-sprintf
+            :message="
+              s__(
+                'ClusterIntegration|Set a prefix for your namespaces. If not set, defaults to your project path. If modified, existing environments will use their current namespaces until the cluster cache is cleared. %{linkStart}More Information%{linkEnd}',
+              )
+            "
+          >
+            <template #link="{ content }">
+              <gl-link :href="managedClustersHelpLink" target="_blank">{{ content }}</gl-link>
+            </template>
+          </gl-sprintf>
+        </template>
       </gl-form-group>
     </gl-form>
   </div>
