@@ -32,7 +32,12 @@ export default {
     };
   },
   computed: {
-    ...mapState(['clusterConnectHelpPath', 'managedClustersHelpLink', 'rbacHelpLink']),
+    ...mapState([
+      'allowUserDefinedNamespace',
+      'clusterConnectHelpPath',
+      'managedClustersHelpLink',
+      'rbacHelpLink'
+    ]),
   },
   methods: {
     onSubmit() {
@@ -47,7 +52,7 @@ export default {
 
 <template>
   <div>
-    <gl-form @submit="onSubmit" @reset="onReset">
+    <gl-form @submit="onSubmit">
       <gl-form-group
         id="cluster_name_group"
         label-for="cluster_name"
@@ -224,6 +229,10 @@ export default {
             </gl-sprintf>
           </template>
         </gl-form-checkbox>
+      </gl-form-group>
+
+      <gl-form-group v-if="allowUserDefinedNamespace">
+        <h1>Namespace Allowed</h1>
       </gl-form-group>
     </gl-form>
   </div>

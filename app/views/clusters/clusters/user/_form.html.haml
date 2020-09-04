@@ -1,14 +1,3 @@
-- more_info_link = link_to _('More information'), help_page_path('user/project/clusters/add_remove_clusters.md',
-  anchor: 'add-existing-cluster'), target: '_blank'
-- rbac_help_link = link_to _('More information'), help_page_path('user/project/clusters/add_remove_clusters.md',
-  anchor: 'access-controls'), target: '_blank'
-
-- api_url_help_text = s_('ClusterIntegration|The URL used to access the Kubernetes API.')
-- ca_cert_help_text = s_('ClusterIntegration|The Kubernetes certificate used to authenticate to the cluster.')
-- token_help_text = s_('ClusterIntegration|A service token scoped to %{code}kube-system%{end_code} with %{code}cluster-admin%{end_code} privileges.').html_safe % { code: '<code>'.html_safe, end_code: '</code>'.html_safe }
-- rbac_help_text = s_('ClusterIntegration|Enable this setting if using role-based access control (RBAC).') + ' '
-- rbac_help_text << s_('ClusterIntegration|This option will allow you to install applications on RBAC clusters.')
-
 = bootstrap_form_for @user_cluster, html: { class: 'gl-show-field-errors' },
   url: clusterable.create_user_clusters_path, as: :cluster do |field|
 

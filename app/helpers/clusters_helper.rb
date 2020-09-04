@@ -36,8 +36,9 @@ module ClustersHelper
     }
   end
 
-  def js_cluster_new
+  def js_cluster_new(user_cluster)
     {
+      allow_user_defined_namespace: user_cluster.allow_user_defined_namespace?.to_s,
       cluster_connect_help_path: help_page_path('user/project/clusters/add_remove_clusters', anchor: 'add-existing-cluster'),
       managed_clusters_help_link: help_page_path('user/project/clusters/index.md', anchor: 'gitlab-managed-clusters'),
       rbac_help_link: help_page_path('user/project/clusters/add_remove_clusters.md', anchor: 'access-controls')
