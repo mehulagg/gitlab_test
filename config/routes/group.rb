@@ -2,7 +2,7 @@
 
 constraints(::Constraints::GroupUrlConstrainer.new) do
   scope(path: 'groups/*id',
-        controller: :groups,
+        controller: :lab_groups,
         constraints: { id: Gitlab::PathRegex.full_namespace_route_regex, format: /(html|json|atom|ics)/ }) do
     scope(path: '-') do
       # These routes are legit and the cop rule will be improved in
@@ -11,7 +11,7 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
       get :issues, as: :issues_group_calendar, action: :issues_calendar, constraints: lambda { |req| req.format == :ics } # rubocop:disable Cop/PutGroupRoutesUnderScope
       get :issues, as: :issues_group # rubocop:disable Cop/PutGroupRoutesUnderScope
       get :merge_requests, as: :merge_requests_group # rubocop:disable Cop/PutGroupRoutesUnderScope
-      get :projects, as: :projects_group # rubocop:disable Cop/PutGroupRoutesUnderScope
+      get :projects, as: :projects_group, controller: :lab_projects # rubocop:disable Cop/PutGroupRoutesUnderScope
       get :details, as: :details_group # rubocop:disable Cop/PutGroupRoutesUnderScope
       get :activity, as: :activity_group # rubocop:disable Cop/PutGroupRoutesUnderScope
       put :transfer, as: :transfer_group # rubocop:disable Cop/PutGroupRoutesUnderScope
@@ -109,7 +109,7 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
   scope(path: '*id',
         as: :group,
         constraints: { id: Gitlab::PathRegex.full_namespace_route_regex, format: /(html|json|atom)/ },
-        controller: :groups) do
+        controller: :lab_groups) do
     get '/', action: :show
     patch '/', action: :update
     put '/', action: :update

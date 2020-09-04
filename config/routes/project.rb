@@ -16,11 +16,13 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
   # See https://github.com/rails/rails/blob/v4.2.8/actionpack/lib/action_dispatch/routing/mapper.rb#L155
   scope(path: '*namespace_id',
         as: :namespace,
-        namespace_id: Gitlab::PathRegex.full_namespace_route_regex) do
+        namespace_id: Gitlab::PathRegex.full_namespace_route_regex,
+        controller: :lab_projects) do
     scope(path: ':project_id',
           constraints: { project_id: Gitlab::PathRegex.project_route_regex },
           module: :projects,
-          as: :project) do
+          as: :project,
+          controller: :lab_projects) do
       # Begin of the /-/ scope.
       # Use this scope for all new project routes.
       scope '-' do
@@ -559,6 +561,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
     resources(:projects,
               path: '/',
               constraints: { id: Gitlab::PathRegex.project_route_regex },
+              controller: :lab_projects,
               only: [:edit, :show, :update, :destroy]) do
       member do
         put :transfer

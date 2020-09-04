@@ -12944,6 +12944,23 @@ CREATE SEQUENCE public.labels_id_seq
 
 ALTER SEQUENCE public.labels_id_seq OWNED BY public.labels.id;
 
+CREATE TABLE public.labs (
+    id bigint NOT NULL,
+    group_id bigint NOT NULL,
+    project_id bigint,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+CREATE SEQUENCE public.labs_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.labs_id_seq OWNED BY public.labs.id;
+
 CREATE TABLE public.ldap_group_links (
     id integer NOT NULL,
     cn character varying,
@@ -17327,6 +17344,8 @@ ALTER TABLE ONLY public.label_priorities ALTER COLUMN id SET DEFAULT nextval('pu
 
 ALTER TABLE ONLY public.labels ALTER COLUMN id SET DEFAULT nextval('public.labels_id_seq'::regclass);
 
+ALTER TABLE ONLY public.labs ALTER COLUMN id SET DEFAULT nextval('public.labs_id_seq'::regclass);
+
 ALTER TABLE ONLY public.ldap_group_links ALTER COLUMN id SET DEFAULT nextval('public.ldap_group_links_id_seq'::regclass);
 
 ALTER TABLE ONLY public.lfs_file_locks ALTER COLUMN id SET DEFAULT nextval('public.lfs_file_locks_id_seq'::regclass);
@@ -18451,6 +18470,9 @@ ALTER TABLE ONLY public.label_priorities
 
 ALTER TABLE ONLY public.labels
     ADD CONSTRAINT labels_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.labs
+    ADD CONSTRAINT labs_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY public.ldap_group_links
     ADD CONSTRAINT ldap_group_links_pkey PRIMARY KEY (id);
@@ -20268,6 +20290,10 @@ CREATE INDEX index_labels_on_title ON public.labels USING btree (title);
 
 CREATE INDEX index_labels_on_type_and_project_id ON public.labels USING btree (type, project_id);
 
+CREATE INDEX index_labs_on_group_id ON public.labs USING btree (group_id);
+
+CREATE INDEX index_labs_on_project_id ON public.labs USING btree (project_id);
+
 CREATE UNIQUE INDEX index_lfs_file_locks_on_project_id_and_path ON public.lfs_file_locks USING btree (project_id, path);
 
 CREATE INDEX index_lfs_file_locks_on_user_id ON public.lfs_file_locks USING btree (user_id);
@@ -20473,6 +20499,8 @@ CREATE UNIQUE INDEX index_namespaces_on_runners_token ON public.namespaces USING
 CREATE UNIQUE INDEX index_namespaces_on_runners_token_encrypted ON public.namespaces USING btree (runners_token_encrypted);
 
 CREATE INDEX index_namespaces_on_shared_and_extra_runners_minutes_limit ON public.namespaces USING btree (shared_runners_minutes_limit, extra_shared_runners_minutes_limit);
+
+CREATE INDEX index_namespaces_on_traversal_ids ON public.namespaces USING gin (traversal_ids);
 
 CREATE INDEX index_namespaces_on_type_partial ON public.namespaces USING btree (type) WHERE (type IS NOT NULL);
 
@@ -22392,6 +22420,9 @@ ALTER TABLE ONLY public.trending_projects
 ALTER TABLE ONLY public.project_deploy_tokens
     ADD CONSTRAINT fk_rails_0aca134388 FOREIGN KEY (deploy_token_id) REFERENCES public.deploy_tokens(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY public.labs
+    ADD CONSTRAINT fk_rails_0acdb0996b FOREIGN KEY (group_id) REFERENCES public.namespaces(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY public.packages_conan_file_metadata
     ADD CONSTRAINT fk_rails_0afabd9328 FOREIGN KEY (package_file_id) REFERENCES public.packages_package_files(id) ON DELETE CASCADE;
 
@@ -22634,6 +22665,9 @@ ALTER TABLE ONLY public.cluster_groups
 
 ALTER TABLE ONLY public.note_diff_files
     ADD CONSTRAINT fk_rails_3d66047aeb FOREIGN KEY (diff_note_id) REFERENCES public.notes(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.labs
+    ADD CONSTRAINT fk_rails_3dc1930045 FOREIGN KEY (project_id) REFERENCES public.projects(id);
 
 ALTER TABLE ONLY public.snippet_user_mentions
     ADD CONSTRAINT fk_rails_3e00189191 FOREIGN KEY (snippet_id) REFERENCES public.snippets(id) ON DELETE CASCADE;

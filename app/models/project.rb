@@ -130,6 +130,8 @@ class Project < ApplicationRecord
   alias_attribute :title, :name
 
   # Relations
+  has_one :lab
+
   belongs_to :pool_repository
   belongs_to :creator, class_name: 'User'
   belongs_to :group, -> { where(type: 'Group') }, foreign_key: 'namespace_id'

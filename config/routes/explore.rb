@@ -1,5 +1,5 @@
 namespace :explore do
-  resources :projects, only: [:index] do
+  resources :projects, controller: :lab_projects, only: [:index] do
     collection do
       get :trending
       get :starred
@@ -12,5 +12,5 @@ namespace :explore do
 end
 
 # Compatibility with old routing
-get 'public' => 'explore/projects#index'
-get 'public/projects' => 'explore/projects#index'
+get 'public' => 'explore/lab_projects#index'
+get 'public/projects' => 'explore/lab_projects#index'

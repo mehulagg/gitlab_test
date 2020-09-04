@@ -246,15 +246,15 @@ Rails.application.routes.draw do
     resources :abuse_reports, only: [:new, :create]
   end
 
-  resources :groups, only: [:index, :new, :create] do
+  resources :groups, controller: :lab_groups, only: [:index, :new, :create] do
     post :preview_markdown
   end
 
   draw :group
 
-  resources :projects, only: [:index, :new, :create]
+  resources :projects, controller: :lab_projects, only: [:index, :new, :create]
 
-  get '/projects/:id' => 'projects#resolve'
+  get '/projects/:id' => 'lab_projects#resolve'
 
   draw :git_http
   draw :api
@@ -269,6 +269,7 @@ Rails.application.routes.draw do
   draw :dashboard
   draw :user
   draw :project
+  resources :labs
 
   # Issue https://gitlab.com/gitlab-org/gitlab/-/issues/210024
   scope as: 'deprecated' do

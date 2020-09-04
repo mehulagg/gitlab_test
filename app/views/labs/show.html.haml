@@ -1,0 +1,71 @@
+%h1= @lab.group.name
+
+%h2 Lab Hierarchy
+%h3 Parent Lab
+- if @lab.group.parent
+  = link_to @lab.group.parent.name, @lab.group.parent
+
+%h3 Child Labs
+%ul
+  - @lab.group.children.each do |sublab|
+    %li= link_to sublab.name, sublab
+
+%h2
+  %span Milestones
+  %small= link_to '[+]', new_group_milestone_path(@lab.group)
+%ul
+  - @lab.group.milestones.each do |m|
+    %li= link_to m.name, m
+  - @lab.project.milestones.each do |m|
+    %li= link_to m.name, m
+
+%h2
+  %span Iterations
+  %small= link_to '[+]', new_group_iteration_path(@lab.group)
+%ul
+  - @lab.group.iterations.each do |m|
+    %li= link_to m.name, m
+
+%h2
+  %span Epics
+  %small= link_to '[+]', new_group_epic_path(@lab.group)
+%ul
+  - @lab.group.epics.each do |m|
+    %li= link_to m.title, m
+
+%h2
+  %span Boards
+%ul
+  - @lab.project.boards.each do |d|
+    %li= link_to project_boards_path(@lab.project)
+
+%h2
+  %span Issues
+  %small= link_to '[+]', new_project_issue_path(@lab.project)
+%ul
+  - @lab.project.issues.each do |issue|
+    %li= link_to issue.title, issue
+
+%h2= link_to 'Repository', project_tree_path(@lab.project, 'master')
+%h2= link_to 'Commits', project_commits_path(@lab.project, 'master')
+%h2= link_to 'Wiki', wiki_path(@lab.project.wiki)
+
+%h2
+  %span Snippets
+  %small= link_to '[+]', new_project_snippet_path(@lab.project)
+%ul
+  - @lab.project.snippets.each do |s|
+    %li= link_to s.title, project_snippet_path(@lab.project, s)
+
+%h2
+  %span Labels
+  %small= link_to '[+]', new_group_label_path(@lab.group)
+%ul
+  - @lab.group.labels.each do |s|
+    %li
+      %span group
+      = link_to s.title, group_label_path(@lab.group, s)
+  - @lab.project.labels.each do |s|
+    %li
+      %span project
+      = link_to s.title, project_label_path(@lab.project, s)
