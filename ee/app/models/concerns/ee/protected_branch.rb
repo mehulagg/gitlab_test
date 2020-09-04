@@ -6,6 +6,8 @@ module EE
 
     prepended do
       protected_ref_access_levels :unprotect
+
+      has_one :code_owners_file, class_name: "ProtectedBranch::CodeOwners::File"
     end
 
     class_methods do

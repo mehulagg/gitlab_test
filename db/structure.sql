@@ -10939,6 +10939,58 @@ CREATE SEQUENCE public.clusters_kubernetes_namespaces_id_seq
 
 ALTER SEQUENCE public.clusters_kubernetes_namespaces_id_seq OWNED BY public.clusters_kubernetes_namespaces.id;
 
+CREATE TABLE public.code_owners_entries (
+    id bigint NOT NULL,
+    section_id bigint NOT NULL,
+    pattern text NOT NULL,
+    owners text NOT NULL,
+    CONSTRAINT check_263365866e CHECK ((char_length(owners) <= 4096)),
+    CONSTRAINT check_ef5d673d3e CHECK ((char_length(pattern) <= 1024))
+);
+
+CREATE SEQUENCE public.code_owners_entries_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.code_owners_entries_id_seq OWNED BY public.code_owners_entries.id;
+
+CREATE TABLE public.code_owners_files (
+    id bigint NOT NULL,
+    protected_branch_id bigint NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    path text NOT NULL,
+    CONSTRAINT check_2c9a35aecd CHECK ((char_length(path) <= 1024))
+);
+
+CREATE SEQUENCE public.code_owners_files_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.code_owners_files_id_seq OWNED BY public.code_owners_files.id;
+
+CREATE TABLE public.code_owners_sections (
+    id bigint NOT NULL,
+    file_id bigint NOT NULL,
+    optional boolean DEFAULT false NOT NULL,
+    name text NOT NULL,
+    CONSTRAINT check_fe619751c0 CHECK ((char_length(name) <= 1024))
+);
+
+CREATE SEQUENCE public.code_owners_sections_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.code_owners_sections_id_seq OWNED BY public.code_owners_sections.id;
+
 CREATE TABLE public.commit_user_mentions (
     id bigint NOT NULL,
     note_id integer NOT NULL,
@@ -16943,6 +16995,12 @@ ALTER TABLE ONLY public.clusters_applications_runners ALTER COLUMN id SET DEFAUL
 
 ALTER TABLE ONLY public.clusters_kubernetes_namespaces ALTER COLUMN id SET DEFAULT nextval('public.clusters_kubernetes_namespaces_id_seq'::regclass);
 
+ALTER TABLE ONLY public.code_owners_entries ALTER COLUMN id SET DEFAULT nextval('public.code_owners_entries_id_seq'::regclass);
+
+ALTER TABLE ONLY public.code_owners_files ALTER COLUMN id SET DEFAULT nextval('public.code_owners_files_id_seq'::regclass);
+
+ALTER TABLE ONLY public.code_owners_sections ALTER COLUMN id SET DEFAULT nextval('public.code_owners_sections_id_seq'::regclass);
+
 ALTER TABLE ONLY public.commit_user_mentions ALTER COLUMN id SET DEFAULT nextval('public.commit_user_mentions_id_seq'::regclass);
 
 ALTER TABLE ONLY public.container_repositories ALTER COLUMN id SET DEFAULT nextval('public.container_repositories_id_seq'::regclass);
@@ -17942,6 +18000,15 @@ ALTER TABLE ONLY public.clusters_kubernetes_namespaces
 
 ALTER TABLE ONLY public.clusters
     ADD CONSTRAINT clusters_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.code_owners_entries
+    ADD CONSTRAINT code_owners_entries_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.code_owners_files
+    ADD CONSTRAINT code_owners_files_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.code_owners_sections
+    ADD CONSTRAINT code_owners_sections_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY public.commit_user_mentions
     ADD CONSTRAINT commit_user_mentions_pkey PRIMARY KEY (id);
@@ -19501,6 +19568,12 @@ CREATE INDEX index_clusters_on_enabled_cluster_type_id_and_created_at ON public.
 CREATE INDEX index_clusters_on_management_project_id ON public.clusters USING btree (management_project_id) WHERE (management_project_id IS NOT NULL);
 
 CREATE INDEX index_clusters_on_user_id ON public.clusters USING btree (user_id);
+
+CREATE INDEX index_code_owners_entries_on_section_id ON public.code_owners_entries USING btree (section_id);
+
+CREATE INDEX index_code_owners_files_on_protected_branch_id ON public.code_owners_files USING btree (protected_branch_id);
+
+CREATE INDEX index_code_owners_sections_on_file_id ON public.code_owners_sections USING btree (file_id);
 
 CREATE UNIQUE INDEX index_commit_user_mentions_on_note_id ON public.commit_user_mentions USING btree (note_id);
 
@@ -22254,6 +22327,9 @@ ALTER TABLE ONLY public.merge_request_diff_commits
 ALTER TABLE ONLY public.group_import_states
     ADD CONSTRAINT fk_rails_31c3e0503a FOREIGN KEY (group_id) REFERENCES public.namespaces(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY public.code_owners_files
+    ADD CONSTRAINT fk_rails_31cb0e5b70 FOREIGN KEY (protected_branch_id) REFERENCES public.protected_branches(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY public.zoom_meetings
     ADD CONSTRAINT fk_rails_3263f29616 FOREIGN KEY (issue_id) REFERENCES public.issues(id) ON DELETE CASCADE;
 
@@ -23057,6 +23133,12 @@ ALTER TABLE ONLY public.alert_management_alert_assignees
 
 ALTER TABLE ONLY public.geo_hashed_storage_attachments_events
     ADD CONSTRAINT fk_rails_d496b088e9 FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.code_owners_sections
+    ADD CONSTRAINT fk_rails_d70cb8887d FOREIGN KEY (file_id) REFERENCES public.code_owners_files(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.code_owners_entries
+    ADD CONSTRAINT fk_rails_d919776689 FOREIGN KEY (section_id) REFERENCES public.code_owners_sections(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.jira_imports
     ADD CONSTRAINT fk_rails_da617096ce FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE SET NULL;

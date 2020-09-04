@@ -291,6 +291,7 @@ protected_branches:
 - merge_access_levels
 - push_access_levels
 - unprotect_access_levels
+- code_owners_file
 protected_tags:
 - project
 - create_access_levels
