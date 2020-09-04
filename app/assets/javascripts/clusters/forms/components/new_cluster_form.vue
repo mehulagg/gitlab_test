@@ -1,5 +1,6 @@
 <script>
 import {
+  GlButton,
   GlForm,
   GlFormCheckbox,
   GlFormGroup,
@@ -13,6 +14,7 @@ import { s__ } from '~/locale';
 
 export default {
   components: {
+    GlButton,
     GlForm,
     GlFormCheckbox,
     GlFormGroup,
@@ -269,6 +271,14 @@ export default {
           </gl-sprintf>
         </template>
       </gl-form-group>
+
+      <gl-button
+        type="submit"
+        variant="success"
+        data-qa-selector="add_kubernetes_cluster_button"
+      >
+        {{ s__('ClusterIntegration|Add Kubernetes cluster') }}
+      </gl-button>
     </gl-form>
   </div>
 </template>
