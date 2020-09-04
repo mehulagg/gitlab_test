@@ -190,7 +190,7 @@ describe('Board Store Mutations', () => {
     });
   });
 
-  describe.only('UPDATE_ISSUE_BY_ID', () => {
+  describe('UPDATE_ISSUE_BY_ID', () => {
     const issueId = '1';
     const prop = 'id';
     const value = '2';
