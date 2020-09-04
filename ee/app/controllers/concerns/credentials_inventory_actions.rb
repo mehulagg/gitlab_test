@@ -14,6 +14,16 @@ module CredentialsInventoryActions
     end
   end
 
+  def destroy
+    key = KeysFinder.new({ users: users, key_type: 'ssh' }).find_by_id(params[:id])
+    Keys::DestroyService.new(current_user).execute(key)
+
+    respond_to do |format|
+      format.html { redirect_to credentials_inventory_path(filter: 'ssh_keys'), status: :found }
+      format.js { head :ok }
+    end
+  end
+
   private
 
   def filter_credentials

@@ -20,7 +20,7 @@ namespace :admin do
   resource :push_rule, only: [:show, :update]
   resource :email, only: [:show, :create]
   resources :audit_logs, controller: 'audit_logs', only: [:index]
-  resources :credentials, only: [:index]
+  resources :credentials, only: [:index, :destroy]
 
   resource :license, only: [:show, :new, :create, :destroy] do
     get :download, on: :member

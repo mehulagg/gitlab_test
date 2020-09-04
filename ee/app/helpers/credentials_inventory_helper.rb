@@ -17,7 +17,15 @@ module CredentialsInventoryHelper
     License.feature_available?(:credentials_inventory)
   end
 
+  def delete_ssh_button_available?
+    false
+  end
+
   def credentials_inventory_path(args)
+    raise NotImplementedError, "#{self.class} does not implement #{__method__}"
+  end
+
+  def ssh_key_delete_path(key)
     raise NotImplementedError, "#{self.class} does not implement #{__method__}"
   end
 
