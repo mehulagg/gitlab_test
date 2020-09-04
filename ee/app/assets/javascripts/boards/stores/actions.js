@@ -8,9 +8,10 @@ import actionsCE from '~/boards/stores/actions';
 import { BoardType, ListType } from '~/boards/constants';
 import boardsStoreEE from './boards_store_ee';
 import * as types from './mutation_types';
+import { fullEpicId } from '../boards_util';
 
 import createDefaultClient from '~/lib/graphql';
-import groupEpicsSwimlanesQuery from '../queries/group_epics_swimlanes.query.graphql';
+import epicsSwimlanesQuery from '../queries/epics_swimlanes.query.graphql';
 
 const notImplemented = () => {
   /* eslint-disable-next-line @gitlab/require-i18n-strings */
@@ -21,6 +22,14 @@ const gqlClient = createDefaultClient();
 
 export default {
   ...actionsCE,
+
+  setFilters: ({ commit }, filters) => {
+    const { scope, utf8, state, includeSubepics, epicId, ...filterParams } = filters;
+    if (epicId) {
+      filterParams.epicId = fullEpicId(epicId);
+    }
+    commit(types.SET_FILTERS, filterParams);
+  },
 
   fetchEpicsSwimlanes({ state, commit }, withLists = true) {
     const { endpoints, boardType, filterParams } = state;
@@ -37,7 +46,7 @@ export default {
 
     return gqlClient
       .query({
-        query: groupEpicsSwimlanesQuery,
+        query: epicsSwimlanesQuery,
         variables,
       })
       .then(({ data }) => {
