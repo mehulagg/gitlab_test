@@ -1,8 +1,8 @@
 - return unless show_trial_banner?(namespace)
 .user-callout
-  .alert.bordered-box.landing.justify-content-start.pl-md-8
-    %button{ type:"button", class:"btn btn-default close", "data-dismiss":"alert", "aria-label": _("Close") }
-      = sprite_icon('close')
+  .gl-alert.bordered-box.landing.justify-content-start.pl-md-8{ role: 'alert' }
+    %button.js-close.gl-alert-dismiss{ type: 'button', 'aria-label': _('Dismiss') }
+      = sprite_icon('close', size: 16, css_class: 'gl-icon')
     .svg-container
       = custom_icon('trial_activated_banner')
     .user-callout-copy
