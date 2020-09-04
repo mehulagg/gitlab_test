@@ -194,7 +194,7 @@ The following metrics are available:
 |:--------------------------------- |:--------- |:------------------------------------------------------------- |:-------------------------------------- |
 | `db_load_balancing_hosts`         | Gauge     | [12.3](https://gitlab.com/gitlab-org/gitlab/-/issues/13630)     | Current number of load balancing hosts |
 
-## Database partitioning metrics **(PREMIUM ONLY)**
+## Database partitioning metrics
 
 The following metrics are available:
 
