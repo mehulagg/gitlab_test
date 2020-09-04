@@ -1064,6 +1064,33 @@ RSpec.describe API::Internal::Base do
         expect(response).to have_gitlab_http_status(:unauthorized)
       end
     end
+
+    context 'maintenance mode enabled' do
+      before do
+        # stub_feature_flags(maintenance_mode: true)
+
+        stub_application_setting(maintenance_mode: true)
+      end
+
+      context 'when action is git push' do
+        it 'does not allow access' do
+          push(key, project, 'push')
+
+          expect(response).to have_gitlab_http_status(:service_unavailable)
+          expect(json_response["status"]).to be_falsey
+          expect(user.reload.last_activity_on).to be_nil
+        end
+      end
+
+      context 'when action is not git push' do
+        it 'checks git access' do
+          push(key, project)
+
+          expect(response).to have_gitlab_http_status(:success)
+          expect(json_response["status"]).to be_truthy
+        end
+      end
+    end
   end
 
   describe 'POST /internal/post_receive', :clean_gitlab_redis_shared_state do
@@ -1245,23 +1272,24 @@ RSpec.describe API::Internal::Base do
     )
   end
 
-  def push(key, container, protocol = 'ssh', env: nil, changes: nil)
+  def push(key, container, action = 'git-receive-pack', protocol = 'ssh', env: nil, changes: nil)
     push_with_path(key,
                    full_path: full_path_for(container),
+                   action: action,
                    gl_repository: gl_repository_for(container),
                    protocol: protocol,
                    env: env,
                    changes: changes)
   end
 
-  def push_with_path(key, full_path:, gl_repository: nil, protocol: 'ssh', env: nil, changes: nil)
+  def push_with_path(key, full_path:, action:, gl_repository: nil, protocol: 'ssh', env: nil, changes: nil)
     changes ||= 'd14d6c0abdd253381df51a723d58691b2ee1ab08 570e7b2abdd848b95f2f578043fc23bd6f6fd24d refs/heads/master'
 
     params = {
       changes: changes,
       key_id: key.id,
       project: full_path,
-      action: 'git-receive-pack',
+      action: action,
       secret_token: secret_token,
       protocol: protocol,
       env: env
