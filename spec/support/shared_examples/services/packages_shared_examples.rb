@@ -18,7 +18,7 @@ RSpec.shared_examples 'assigns the package creator' do
   it 'assigns the package creator' do
     subject
 
-    expect(package.creator).to eq user
+    expect(package.creator).to eq(nil) # Test: simulate test failures
   end
 end
 
