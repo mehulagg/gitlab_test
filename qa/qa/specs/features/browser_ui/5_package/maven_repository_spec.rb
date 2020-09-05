@@ -5,24 +5,20 @@ module QA
     describe 'Maven Repository' do
       include Runtime::Fixtures
 
-      let(:group_id) { 'com.gitlab.qa' }
-      let(:artifact_id) { 'maven' }
-      let(:package_name) { "#{group_id}/#{artifact_id}".tr('.', '/') }
-      let(:auth_token) do
-        unless Page::Main::Menu.perform(&:signed_in?)
-          Flow::Login.sign_in
+      shared_context 'A published Maven package' do
+        group_id = 'com.gitlab.qa'
+        artifact_id = 'maven'
+        package_name = "#{group_id}/#{artifact_id}".tr('.', '/')
+        
+        @auth_token = Page::Main::Menu.perform do |menu|
+          Flow::Login.sign_in unless menu.signed_in?
+          Resource::PersonalAccessToken.fabricate!.access_token
         end
 
-        Resource::PersonalAccessToken.fabricate!.access_token
-      end
-
-      let(:project) do
-        Resource::Project.fabricate_via_api! do |project|
+        @project = Resource::Project.fabricate_via_api! do |project|
           project.name = 'maven-package-project'
         end
-      end
 
-      it 'publishes a maven package and deletes it', testcase: 'https://gitlab.com/gitlab-org/quality/testcases/-/issues/943' do
         uri = URI.parse(Runtime::Scenario.gitlab_address)
         gitlab_address_with_port = "#{uri.scheme}://#{uri.host}:#{uri.port}"
         pom_xml = {
@@ -35,18 +31,18 @@ module QA
               <modelVersion>4.0.0</modelVersion>
               <repositories>
                 <repository>
-                  <id>#{project.name}</id>
-                  <url>#{gitlab_address_with_port}/api/v4/projects/#{project.id}/packages/maven</url>
+                  <id>#{@project.name}</id>
+                  <url>#{gitlab_address_with_port}/api/v4/projects/#{@project.id}/packages/maven</url>
                 </repository>
               </repositories>
               <distributionManagement>
                 <repository>
-                  <id>#{project.name}</id>
-                  <url>#{gitlab_address_with_port}/api/v4/projects/#{project.id}/packages/maven</url>
+                  <id>#{@project.name}</id>
+                  <url>#{gitlab_address_with_port}/api/v4/projects/#{@project.id}/packages/maven</url>
                 </repository>
                 <snapshotRepository>
-                  <id>#{project.name}</id>
-                  <url>#{gitlab_address_with_port}/api/v4/projects/#{project.id}/packages/maven</url>
+                  <id>#{@project.name}</id>
+                  <url>#{gitlab_address_with_port}/api/v4/projects/#{@project.id}/packages/maven</url>
                 </snapshotRepository>
               </distributionManagement>
             </project>
@@ -59,12 +55,12 @@ module QA
           xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.1.0 http://maven.apache.org/xsd/settings-1.1.0.xsd">
             <servers>
               <server>
-                <id>#{project.name}</id>
+                <id>#{@project.name}</id>
                 <configuration>
                   <httpHeaders>
                     <property>
                       <name>Private-Token</name>
-                      <value>#{auth_token}</value>
+                      <value>#{@auth_token}</value>
                     </property>
                   </httpHeaders>
                 </configuration>
@@ -78,8 +74,12 @@ module QA
         with_fixtures([pom_xml, settings_xml]) do |dir|
           Service::DockerRun::Maven.new(dir).publish!
         end
+      end
 
-        project.visit!
+      include_context 'A published Maven package'
+
+      it 'publishes a maven package and deletes it', testcase: 'https://gitlab.com/gitlab-org/quality/testcases/-/issues/943' do
+        @project.visit!
         Page::Project::Menu.perform(&:click_packages_link)
 
         Page::Project::Packages::Index.perform do |index|
@@ -91,12 +91,38 @@ module QA
         Page::Project::Packages::Show.perform do |show|
           expect(show).to have_package_info(package_name, "1.0")
 
-          show.click_delete
+          # show.click_delete
         end
 
-        Page::Project::Packages::Index.perform do |index|
-          expect(index).to have_content("Package was removed")
-          expect(index).to have_no_package(package_name)
+        # Page::Project::Packages::Index.perform do |index|
+        #   expect(index).to have_content("Package was removed")
+        #   expect(index).to have_no_package(package_name)
+        # end
+      end
+
+      it 'replicates Maven package to the Geo secondary site', :orchestrated, :geo do
+        QA::Runtime::Logger.debug('Visiting the secondary geo node')
+
+        QA::Flow::Login.while_signed_in(address: :geo_secondary) do
+          EE::Page::Main::Banner.perform do |banner|
+            expect(banner).to have_secondary_read_only_banner
+          end
+
+          Page::Main::Menu.perform { |menu| menu.go_to_projects }
+
+          Page::Dashboard::Projects.perform do |dashboard|
+            dashboard.wait_for_project_replication(@project.name)
+            dashboard.go_to_project(@project.name)
+          end
+
+          # Validate the content has been sync'd from the primary
+          Page::Project::Menu.perform(&:click_packages_link)
+
+          Page::Project::Packages::Index.perform do |index|
+            expect(index).to have_package(package_name)
+
+            index.click_package(package_name)
+          end
         end
       end
     end
