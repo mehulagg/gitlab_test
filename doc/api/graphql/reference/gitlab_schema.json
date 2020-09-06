@@ -47996,11 +47996,23 @@
             {
               "name": "pending",
               "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "Use PENDING. Deprecated in 13.4"
+            },
+            {
+              "name": "done",
+              "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "Use DONE. Deprecated in 13.4"
+            },
+            {
+              "name": "PENDING",
+              "description": null,
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "done",
+              "name": "DONE",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null

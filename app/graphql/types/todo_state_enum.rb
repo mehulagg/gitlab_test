@@ -2,7 +2,9 @@
 
 module Types
   class TodoStateEnum < BaseEnum
-    value 'pending'
-    value 'done'
+    value 'pending', deprecated: { reason: 'Use PENDING', milestone: '13.4' }
+    value 'done', deprecated: { reason: 'Use DONE', milestone: '13.4' }
+    value 'PENDING', value: 'pending'
+    value 'DONE', value: 'done'
   end
 end

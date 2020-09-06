@@ -16254,8 +16254,10 @@ type TodoRestorePayload {
 }
 
 enum TodoStateEnum {
-  done
-  pending
+  DONE
+  PENDING
+  done @deprecated(reason: "Use DONE. Deprecated in 13.4")
+  pending @deprecated(reason: "Use PENDING. Deprecated in 13.4")
 }
 
 enum TodoTargetEnum {
