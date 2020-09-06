@@ -1225,28 +1225,52 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "updated_desc",
+              "name": "UPDATED_DESC",
               "description": "Updated at descending order",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "updated_asc",
+              "name": "UPDATED_ASC",
               "description": "Updated at ascending order",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "created_desc",
+              "name": "CREATED_DESC",
               "description": "Created at descending order",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "created_asc",
+              "name": "CREATED_ASC",
               "description": "Created at ascending order",
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "updated_desc",
+              "description": "Updated at descending order",
+              "isDeprecated": true,
+              "deprecationReason": "Use UPDATED_DESC. Deprecated in 13.4"
+            },
+            {
+              "name": "updated_asc",
+              "description": "Updated at ascending order",
+              "isDeprecated": true,
+              "deprecationReason": "Use UPDATED_ASC. Deprecated in 13.4"
+            },
+            {
+              "name": "created_desc",
+              "description": "Created at descending order",
+              "isDeprecated": true,
+              "deprecationReason": "Use CREATED_DESC. Deprecated in 13.4"
+            },
+            {
+              "name": "created_asc",
+              "description": "Created at ascending order",
+              "isDeprecated": true,
+              "deprecationReason": "Use CREATED_ASC. Deprecated in 13.4"
             },
             {
               "name": "STARTED_AT_ASC",
@@ -2668,22 +2692,40 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "rich",
+              "name": "RICH",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "SIMPLE",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "AUXILIARY",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "rich",
+              "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "Use RICH. Deprecated in 13.4"
             },
             {
               "name": "simple",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use SIMPLE. Deprecated in 13.4"
             },
             {
               "name": "auxiliary",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use AUXILIARY. Deprecated in 13.4"
             }
           ],
           "possibleTypes": null
@@ -12591,16 +12633,28 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "text",
+              "name": "TEXT",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "image",
+              "name": "IMAGE",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "text",
+              "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "Use TEXT. Deprecated in 13.4"
+            },
+            {
+              "name": "image",
+              "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "Use IMAGE. Deprecated in 13.4"
             }
           ],
           "possibleTypes": null
@@ -13496,22 +13550,40 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "tree",
+              "name": "TREE",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "BLOB",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "COMMIT",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "tree",
+              "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "Use TREE. Deprecated in 13.4"
             },
             {
               "name": "blob",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use BLOB. Deprecated in 13.4"
             },
             {
               "name": "commit",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use COMMIT. Deprecated in 13.4"
             }
           ],
           "possibleTypes": null
@@ -16554,28 +16626,52 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "start_date_desc",
+              "name": "START_DATE_DESC",
               "description": "Start date at descending order",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "start_date_asc",
+              "name": "START_DATE_ASC",
               "description": "Start date at ascending order",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "end_date_desc",
+              "name": "END_DATE_DESC",
               "description": "End date at descending order",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "end_date_asc",
+              "name": "END_DATE_ASC",
               "description": "End date at ascending order",
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "start_date_desc",
+              "description": "Start date at descending order",
+              "isDeprecated": true,
+              "deprecationReason": "Use START_DATE_DESC. Deprecated in 13.4"
+            },
+            {
+              "name": "start_date_asc",
+              "description": "Start date at ascending order",
+              "isDeprecated": true,
+              "deprecationReason": "Use START_DATE_ASC. Deprecated in 13.4"
+            },
+            {
+              "name": "end_date_desc",
+              "description": "End date at descending order",
+              "isDeprecated": true,
+              "deprecationReason": "Use END_DATE_DESC. Deprecated in 13.4"
+            },
+            {
+              "name": "end_date_asc",
+              "description": "End date at ascending order",
+              "isDeprecated": true,
+              "deprecationReason": "Use END_DATE_ASC. Deprecated in 13.4"
             }
           ],
           "possibleTypes": null
@@ -16589,22 +16685,40 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "all",
+              "name": "ALL",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "OPENED",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "CLOSED",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "all",
+              "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "Use ALL. Deprecated in 13.4"
             },
             {
               "name": "opened",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use OPENED. Deprecated in 13.4"
             },
             {
               "name": "closed",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use CLOSED. Deprecated in 13.4"
             }
           ],
           "possibleTypes": null
@@ -19773,22 +19887,40 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "onTrack",
+              "name": "ON_TRACK",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "NEEDS_ATTENTION",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "AT_RISK",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "onTrack",
+              "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "Use ON_TRACK. Deprecated in 13.4"
             },
             {
               "name": "needsAttention",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use NEEDS_ATTENTION. Deprecated in 13.4"
             },
             {
               "name": "atRisk",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use AT_RISK. Deprecated in 13.4"
             }
           ],
           "possibleTypes": null
@@ -20084,28 +20216,52 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "opened",
+              "name": "OPENED",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "CLOSED",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "LOCKED",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ALL",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "opened",
+              "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "Use OPENED. Deprecated in 13.4"
             },
             {
               "name": "closed",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use CLOSED. Deprecated in 13.4"
             },
             {
               "name": "locked",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use LOCKED. Deprecated in 13.4"
             },
             {
               "name": "all",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use ALL. Deprecated in 13.4"
             }
           ],
           "possibleTypes": null
@@ -22537,28 +22693,52 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "updated_desc",
+              "name": "UPDATED_DESC",
               "description": "Updated at descending order",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "updated_asc",
+              "name": "UPDATED_ASC",
               "description": "Updated at ascending order",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "created_desc",
+              "name": "CREATED_DESC",
               "description": "Created at descending order",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "created_asc",
+              "name": "CREATED_ASC",
               "description": "Created at ascending order",
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "updated_desc",
+              "description": "Updated at descending order",
+              "isDeprecated": true,
+              "deprecationReason": "Use UPDATED_DESC. Deprecated in 13.4"
+            },
+            {
+              "name": "updated_asc",
+              "description": "Updated at ascending order",
+              "isDeprecated": true,
+              "deprecationReason": "Use UPDATED_ASC. Deprecated in 13.4"
+            },
+            {
+              "name": "created_desc",
+              "description": "Created at descending order",
+              "isDeprecated": true,
+              "deprecationReason": "Use CREATED_DESC. Deprecated in 13.4"
+            },
+            {
+              "name": "created_asc",
+              "description": "Created at ascending order",
+              "isDeprecated": true,
+              "deprecationReason": "Use CREATED_ASC. Deprecated in 13.4"
             },
             {
               "name": "PRIORITY_ASC",
@@ -22638,28 +22818,52 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "opened",
+              "name": "OPENED",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "CLOSED",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "LOCKED",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ALL",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "opened",
+              "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "Use OPENED. Deprecated in 13.4"
             },
             {
               "name": "closed",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use CLOSED. Deprecated in 13.4"
             },
             {
               "name": "locked",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use LOCKED. Deprecated in 13.4"
             },
             {
               "name": "all",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use ALL. Deprecated in 13.4"
             }
           ],
           "possibleTypes": null
@@ -23120,34 +23324,64 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "upcoming",
+              "name": "UPCOMING",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "STARTED",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "OPENED",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "CLOSED",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ALL",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "upcoming",
+              "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "Use UPCOMING. Deprecated in 13.4"
             },
             {
               "name": "started",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use STARTED. Deprecated in 13.4"
             },
             {
               "name": "opened",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use OPENED. Deprecated in 13.4"
             },
             {
               "name": "closed",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use CLOSED. Deprecated in 13.4"
             },
             {
               "name": "all",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use ALL. Deprecated in 13.4"
             }
           ],
           "possibleTypes": null
@@ -24332,22 +24566,40 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "all_metrics",
+              "name": "ALL_METRICS",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "ISSUE_COUNT",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ISSUE_WEIGHTS",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "all_metrics",
+              "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "Use ALL_METRICS. Deprecated in 13.4"
             },
             {
               "name": "issue_count",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use ISSUE_COUNT. Deprecated in 13.4"
             },
             {
               "name": "issue_weights",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use ISSUE_WEIGHTS. Deprecated in 13.4"
             }
           ],
           "possibleTypes": null
@@ -27326,28 +27578,52 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "updated_desc",
+              "name": "UPDATED_DESC",
               "description": "Updated at descending order",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "updated_asc",
+              "name": "UPDATED_ASC",
               "description": "Updated at ascending order",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "created_desc",
+              "name": "CREATED_DESC",
               "description": "Created at descending order",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "created_asc",
+              "name": "CREATED_ASC",
               "description": "Created at ascending order",
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "updated_desc",
+              "description": "Updated at descending order",
+              "isDeprecated": true,
+              "deprecationReason": "Use UPDATED_DESC. Deprecated in 13.4"
+            },
+            {
+              "name": "updated_asc",
+              "description": "Updated at ascending order",
+              "isDeprecated": true,
+              "deprecationReason": "Use UPDATED_ASC. Deprecated in 13.4"
+            },
+            {
+              "name": "created_desc",
+              "description": "Created at descending order",
+              "isDeprecated": true,
+              "deprecationReason": "Use CREATED_DESC. Deprecated in 13.4"
+            },
+            {
+              "name": "created_asc",
+              "description": "Created at ascending order",
+              "isDeprecated": true,
+              "deprecationReason": "Use CREATED_ASC. Deprecated in 13.4"
             },
             {
               "name": "PRIORITY_ASC",
@@ -27409,28 +27685,52 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "opened",
+              "name": "OPENED",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "CLOSED",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "LOCKED",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "ALL",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "opened",
+              "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "Use OPENED. Deprecated in 13.4"
             },
             {
               "name": "closed",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use CLOSED. Deprecated in 13.4"
             },
             {
               "name": "locked",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use LOCKED. Deprecated in 13.4"
             },
             {
               "name": "all",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use ALL. Deprecated in 13.4"
             },
             {
               "name": "merged",
@@ -28345,16 +28645,28 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "active",
+              "name": "ACTIVE",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "closed",
+              "name": "CLOSED",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "active",
+              "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "Use ACTIVE. Deprecated in 13.4"
+            },
+            {
+              "name": "closed",
+              "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "Use CLOSED. Deprecated in 13.4"
             }
           ],
           "possibleTypes": null
@@ -28409,16 +28721,28 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "before",
+              "name": "BEFORE",
               "description": "The adjacent object will be moved before the object that is being moved",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "after",
+              "name": "AFTER",
               "description": "The adjacent object will be moved after the object that is being moved",
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "before",
+              "description": "The adjacent object will be moved before the object that is being moved",
+              "isDeprecated": true,
+              "deprecationReason": "Use BEFORE. Deprecated in 13.4"
+            },
+            {
+              "name": "after",
+              "description": "The adjacent object will be moved after the object that is being moved",
+              "isDeprecated": true,
+              "deprecationReason": "Use AFTER. Deprecated in 13.4"
             }
           ],
           "possibleTypes": null
@@ -38530,34 +38854,64 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "gdpr",
+              "name": "GDPR",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "HIPAA",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "PCI_DSS",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "SOC_2",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "SOX",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "gdpr",
+              "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "Use GDPR. Deprecated in 13.4"
             },
             {
               "name": "hipaa",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use HIPAA. Deprecated in 13.4"
             },
             {
               "name": "pci_dss",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use PCI_DSS. Deprecated in 13.4"
             },
             {
               "name": "soc_2",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use SOC_2. Deprecated in 13.4"
             },
             {
               "name": "sox",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use SOX. Deprecated in 13.4"
             }
           ],
           "possibleTypes": null
@@ -45803,28 +46157,52 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "create",
+              "name": "CREATE",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "UPDATE",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "DELETE",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "MOVE",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "create",
+              "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "Use CREATE. Deprecated in 13.4"
             },
             {
               "name": "update",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use UPDATE. Deprecated in 13.4"
             },
             {
               "name": "delete",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use DELETE. Deprecated in 13.4"
             },
             {
               "name": "move",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use MOVE. Deprecated in 13.4"
             }
           ],
           "possibleTypes": null
@@ -46265,28 +46643,52 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "updated_desc",
+              "name": "UPDATED_DESC",
               "description": "Updated at descending order",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "updated_asc",
+              "name": "UPDATED_ASC",
               "description": "Updated at ascending order",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "created_desc",
+              "name": "CREATED_DESC",
               "description": "Created at descending order",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "created_asc",
+              "name": "CREATED_ASC",
               "description": "Created at ascending order",
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "updated_desc",
+              "description": "Updated at descending order",
+              "isDeprecated": true,
+              "deprecationReason": "Use UPDATED_DESC. Deprecated in 13.4"
+            },
+            {
+              "name": "updated_asc",
+              "description": "Updated at ascending order",
+              "isDeprecated": true,
+              "deprecationReason": "Use UPDATED_ASC. Deprecated in 13.4"
+            },
+            {
+              "name": "created_desc",
+              "description": "Created at descending order",
+              "isDeprecated": true,
+              "deprecationReason": "Use CREATED_DESC. Deprecated in 13.4"
+            },
+            {
+              "name": "created_asc",
+              "description": "Created at ascending order",
+              "isDeprecated": true,
+              "deprecationReason": "Use CREATED_ASC. Deprecated in 13.4"
             }
           ],
           "possibleTypes": null
@@ -47469,46 +47871,88 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "assigned",
+              "name": "ASSIGNED",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "MENTIONED",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "BUILD_FAILED",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "MARKED",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "APPROVAL_REQUIRED",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "UNMERGEABLE",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "DIRECTLY_ADDRESSED",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "assigned",
+              "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "Use ASSIGNED. Deprecated in 13.4"
             },
             {
               "name": "mentioned",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use MENTIONED. Deprecated in 13.4"
             },
             {
               "name": "build_failed",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use BUILD_FAILED. Deprecated in 13.4"
             },
             {
               "name": "marked",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use MARKED. Deprecated in 13.4"
             },
             {
               "name": "approval_required",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use APPROVAL_REQUIRED. Deprecated in 13.4"
             },
             {
               "name": "unmergeable",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use UNMERGEABLE. Deprecated in 13.4"
             },
             {
               "name": "directly_addressed",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use DIRECTLY_ADDRESSED. Deprecated in 13.4"
             }
           ],
           "possibleTypes": null
@@ -47994,18 +48438,6 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "pending",
-              "description": null,
-              "isDeprecated": true,
-              "deprecationReason": "Use PENDING. Deprecated in 13.4"
-            },
-            {
-              "name": "done",
-              "description": null,
-              "isDeprecated": true,
-              "deprecationReason": "Use DONE. Deprecated in 13.4"
-            },
-            {
               "name": "PENDING",
               "description": null,
               "isDeprecated": false,
@@ -48016,6 +48448,18 @@
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "pending",
+              "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "Use PENDING. Deprecated in 13.4"
+            },
+            {
+              "name": "done",
+              "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "Use DONE. Deprecated in 13.4"
             }
           ],
           "possibleTypes": null
@@ -48799,16 +49243,28 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "personal",
+              "name": "PERSONAL",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "project",
+              "name": "PROJECT",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "personal",
+              "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "Use PERSONAL. Deprecated in 13.4"
+            },
+            {
+              "name": "project",
+              "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "Use PROJECT. Deprecated in 13.4"
             }
           ],
           "possibleTypes": null
@@ -51733,22 +52189,40 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "active",
+              "name": "ACTIVE",
               "description": "The user is active and is able to use the system",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "blocked",
+              "name": "BLOCKED",
               "description": "The user has been blocked and is prevented from using the system",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
-              "name": "deactivated",
+              "name": "DEACTIVATED",
               "description": "The user is no longer active and is unable to use the system",
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "active",
+              "description": "The user is active and is able to use the system",
+              "isDeprecated": true,
+              "deprecationReason": "Use ACTIVE. Deprecated in 13.4"
+            },
+            {
+              "name": "blocked",
+              "description": "The user has been blocked and is prevented from using the system",
+              "isDeprecated": true,
+              "deprecationReason": "Use BLOCKED. Deprecated in 13.4"
+            },
+            {
+              "name": "deactivated",
+              "description": "The user is no longer active and is unable to use the system",
+              "isDeprecated": true,
+              "deprecationReason": "Use DEACTIVATED. Deprecated in 13.4"
             }
           ],
           "possibleTypes": null
@@ -51817,22 +52291,40 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "private",
+              "name": "PRIVATE",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "INTERNAL",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "PUBLIC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "private",
+              "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "Use PRIVATE. Deprecated in 13.4"
             },
             {
               "name": "internal",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use INTERNAL. Deprecated in 13.4"
             },
             {
               "name": "public",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use PUBLIC. Deprecated in 13.4"
             }
           ],
           "possibleTypes": null
@@ -51846,22 +52338,40 @@
           "interfaces": null,
           "enumValues": [
             {
-              "name": "private",
+              "name": "PRIVATE",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "INTERNAL",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "PUBLIC",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "private",
+              "description": null,
+              "isDeprecated": true,
+              "deprecationReason": "Use PRIVATE. Deprecated in 13.4"
             },
             {
               "name": "internal",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use INTERNAL. Deprecated in 13.4"
             },
             {
               "name": "public",
               "description": null,
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use PUBLIC. Deprecated in 13.4"
             }
           ],
           "possibleTypes": null

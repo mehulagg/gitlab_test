@@ -435,6 +435,16 @@ Values for sorting alerts
 """
 enum AlertManagementAlertSort {
   """
+  Created at ascending order
+  """
+  CREATED_ASC
+
+  """
+  Created at descending order
+  """
+  CREATED_DESC
+
+  """
   Created time by ascending order
   """
   CREATED_TIME_ASC
@@ -495,6 +505,16 @@ enum AlertManagementAlertSort {
   STATUS_DESC
 
   """
+  Updated at ascending order
+  """
+  UPDATED_ASC
+
+  """
+  Updated at descending order
+  """
+  UPDATED_DESC
+
+  """
   Created time by ascending order
   """
   UPDATED_TIME_ASC
@@ -507,22 +527,22 @@ enum AlertManagementAlertSort {
   """
   Created at ascending order
   """
-  created_asc
+  created_asc @deprecated(reason: "Use CREATED_ASC. Deprecated in 13.4")
 
   """
   Created at descending order
   """
-  created_desc
+  created_desc @deprecated(reason: "Use CREATED_DESC. Deprecated in 13.4")
 
   """
   Updated at ascending order
   """
-  updated_asc
+  updated_asc @deprecated(reason: "Use UPDATED_ASC. Deprecated in 13.4")
 
   """
   Updated at descending order
   """
-  updated_desc
+  updated_desc @deprecated(reason: "Use UPDATED_DESC. Deprecated in 13.4")
 }
 
 """
@@ -993,9 +1013,12 @@ type BlobEdge {
 Types of blob viewers
 """
 enum BlobViewersType {
-  auxiliary
-  rich
-  simple
+  AUXILIARY
+  RICH
+  SIMPLE
+  auxiliary @deprecated(reason: "Use AUXILIARY. Deprecated in 13.4")
+  rich @deprecated(reason: "Use RICH. Deprecated in 13.4")
+  simple @deprecated(reason: "Use SIMPLE. Deprecated in 13.4")
 }
 
 """
@@ -4534,8 +4557,10 @@ input DiffPositionInput {
 Type of file the position refers to
 """
 enum DiffPositionType {
-  image
-  text
+  IMAGE
+  TEXT
+  image @deprecated(reason: "Use IMAGE. Deprecated in 13.4")
+  text @deprecated(reason: "Use TEXT. Deprecated in 13.4")
 }
 
 type DiffRefs {
@@ -4813,9 +4838,12 @@ interface Entry {
 Type of a tree entry
 """
 enum EntryType {
-  blob
-  commit
-  tree
+  BLOB
+  COMMIT
+  TREE
+  blob @deprecated(reason: "Use BLOB. Deprecated in 13.4")
+  commit @deprecated(reason: "Use COMMIT. Deprecated in 13.4")
+  tree @deprecated(reason: "Use TREE. Deprecated in 13.4")
 }
 
 """
@@ -5897,31 +5925,54 @@ enum EpicSort {
   """
   End date at ascending order
   """
-  end_date_asc
+  END_DATE_ASC
 
   """
   End date at descending order
   """
-  end_date_desc
+  END_DATE_DESC
 
   """
   Start date at ascending order
   """
-  start_date_asc
+  START_DATE_ASC
 
   """
   Start date at descending order
   """
-  start_date_desc
+  START_DATE_DESC
+
+  """
+  End date at ascending order
+  """
+  end_date_asc @deprecated(reason: "Use END_DATE_ASC. Deprecated in 13.4")
+
+  """
+  End date at descending order
+  """
+  end_date_desc @deprecated(reason: "Use END_DATE_DESC. Deprecated in 13.4")
+
+  """
+  Start date at ascending order
+  """
+  start_date_asc @deprecated(reason: "Use START_DATE_ASC. Deprecated in 13.4")
+
+  """
+  Start date at descending order
+  """
+  start_date_desc @deprecated(reason: "Use START_DATE_DESC. Deprecated in 13.4")
 }
 
 """
 State of an epic.
 """
 enum EpicState {
-  all
-  closed
-  opened
+  ALL
+  CLOSED
+  OPENED
+  all @deprecated(reason: "Use ALL. Deprecated in 13.4")
+  closed @deprecated(reason: "Use CLOSED. Deprecated in 13.4")
+  opened @deprecated(reason: "Use OPENED. Deprecated in 13.4")
 }
 
 """
@@ -7166,9 +7217,12 @@ type GroupPermissions {
 Health status of an issue or epic
 """
 enum HealthStatus {
-  atRisk
-  needsAttention
-  onTrack
+  AT_RISK
+  NEEDS_ATTENTION
+  ON_TRACK
+  atRisk @deprecated(reason: "Use AT_RISK. Deprecated in 13.4")
+  needsAttention @deprecated(reason: "Use NEEDS_ATTENTION. Deprecated in 13.4")
+  onTrack @deprecated(reason: "Use ON_TRACK. Deprecated in 13.4")
 }
 
 """
@@ -7267,10 +7321,14 @@ type InstanceSecurityDashboard {
 State of a GitLab issue or merge request
 """
 enum IssuableState {
-  all
-  closed
-  locked
-  opened
+  ALL
+  CLOSED
+  LOCKED
+  OPENED
+  all @deprecated(reason: "Use ALL. Deprecated in 13.4")
+  closed @deprecated(reason: "Use CLOSED. Deprecated in 13.4")
+  locked @deprecated(reason: "Use LOCKED. Deprecated in 13.4")
+  opened @deprecated(reason: "Use OPENED. Deprecated in 13.4")
 }
 
 type Issue implements Noteable {
@@ -8115,6 +8173,16 @@ Values for sorting issues
 """
 enum IssueSort {
   """
+  Created at ascending order
+  """
+  CREATED_ASC
+
+  """
+  Created at descending order
+  """
+  CREATED_DESC
+
+  """
   Due date by ascending order
   """
   DUE_DATE_ASC
@@ -8160,6 +8228,16 @@ enum IssueSort {
   RELATIVE_POSITION_ASC
 
   """
+  Updated at ascending order
+  """
+  UPDATED_ASC
+
+  """
+  Updated at descending order
+  """
+  UPDATED_DESC
+
+  """
   Weight by ascending order
   """
   WEIGHT_ASC
@@ -8172,32 +8250,36 @@ enum IssueSort {
   """
   Created at ascending order
   """
-  created_asc
+  created_asc @deprecated(reason: "Use CREATED_ASC. Deprecated in 13.4")
 
   """
   Created at descending order
   """
-  created_desc
+  created_desc @deprecated(reason: "Use CREATED_DESC. Deprecated in 13.4")
 
   """
   Updated at ascending order
   """
-  updated_asc
+  updated_asc @deprecated(reason: "Use UPDATED_ASC. Deprecated in 13.4")
 
   """
   Updated at descending order
   """
-  updated_desc
+  updated_desc @deprecated(reason: "Use UPDATED_DESC. Deprecated in 13.4")
 }
 
 """
 State of a GitLab issue
 """
 enum IssueState {
-  all
-  closed
-  locked
-  opened
+  ALL
+  CLOSED
+  LOCKED
+  OPENED
+  all @deprecated(reason: "Use ALL. Deprecated in 13.4")
+  closed @deprecated(reason: "Use CLOSED. Deprecated in 13.4")
+  locked @deprecated(reason: "Use LOCKED. Deprecated in 13.4")
+  opened @deprecated(reason: "Use OPENED. Deprecated in 13.4")
 }
 
 """
@@ -8359,11 +8441,16 @@ scalar IterationID
 State of a GitLab iteration
 """
 enum IterationState {
-  all
-  closed
-  opened
-  started
-  upcoming
+  ALL
+  CLOSED
+  OPENED
+  STARTED
+  UPCOMING
+  all @deprecated(reason: "Use ALL. Deprecated in 13.4")
+  closed @deprecated(reason: "Use CLOSED. Deprecated in 13.4")
+  opened @deprecated(reason: "Use OPENED. Deprecated in 13.4")
+  started @deprecated(reason: "Use STARTED. Deprecated in 13.4")
+  upcoming @deprecated(reason: "Use UPCOMING. Deprecated in 13.4")
 }
 
 """
@@ -8747,9 +8834,12 @@ scalar LabelID
 List limit metric setting
 """
 enum ListLimitMetric {
-  all_metrics
-  issue_count
-  issue_weights
+  ALL_METRICS
+  ISSUE_COUNT
+  ISSUE_WEIGHTS
+  all_metrics @deprecated(reason: "Use ALL_METRICS. Deprecated in 13.4")
+  issue_count @deprecated(reason: "Use ISSUE_COUNT. Deprecated in 13.4")
+  issue_weights @deprecated(reason: "Use ISSUE_WEIGHTS. Deprecated in 13.4")
 }
 
 """
@@ -9771,6 +9861,16 @@ Values for sorting merge requests
 """
 enum MergeRequestSort {
   """
+  Created at ascending order
+  """
+  CREATED_ASC
+
+  """
+  Created at descending order
+  """
+  CREATED_DESC
+
+  """
   Label priority by ascending order
   """
   LABEL_PRIORITY_ASC
@@ -9811,35 +9911,49 @@ enum MergeRequestSort {
   PRIORITY_DESC
 
   """
-  Created at ascending order
-  """
-  created_asc
-
-  """
-  Created at descending order
-  """
-  created_desc
-
-  """
   Updated at ascending order
   """
-  updated_asc
+  UPDATED_ASC
 
   """
   Updated at descending order
   """
-  updated_desc
+  UPDATED_DESC
+
+  """
+  Created at ascending order
+  """
+  created_asc @deprecated(reason: "Use CREATED_ASC. Deprecated in 13.4")
+
+  """
+  Created at descending order
+  """
+  created_desc @deprecated(reason: "Use CREATED_DESC. Deprecated in 13.4")
+
+  """
+  Updated at ascending order
+  """
+  updated_asc @deprecated(reason: "Use UPDATED_ASC. Deprecated in 13.4")
+
+  """
+  Updated at descending order
+  """
+  updated_desc @deprecated(reason: "Use UPDATED_DESC. Deprecated in 13.4")
 }
 
 """
 State of a GitLab merge request
 """
 enum MergeRequestState {
-  all
-  closed
-  locked
+  ALL
+  CLOSED
+  LOCKED
+  OPENED
+  all @deprecated(reason: "Use ALL. Deprecated in 13.4")
+  closed @deprecated(reason: "Use CLOSED. Deprecated in 13.4")
+  locked @deprecated(reason: "Use LOCKED. Deprecated in 13.4")
   merged
-  opened
+  opened @deprecated(reason: "Use OPENED. Deprecated in 13.4")
 }
 
 """
@@ -10134,8 +10248,10 @@ Identifier of Milestone
 scalar MilestoneID
 
 enum MilestoneStateEnum {
-  active
-  closed
+  ACTIVE
+  CLOSED
+  active @deprecated(reason: "Use ACTIVE. Deprecated in 13.4")
+  closed @deprecated(reason: "Use CLOSED. Deprecated in 13.4")
 }
 
 """
@@ -10160,12 +10276,22 @@ enum MoveType {
   """
   The adjacent object will be moved after the object that is being moved
   """
-  after
+  AFTER
 
   """
   The adjacent object will be moved before the object that is being moved
   """
-  before
+  BEFORE
+
+  """
+  The adjacent object will be moved after the object that is being moved
+  """
+  after @deprecated(reason: "Use AFTER. Deprecated in 13.4")
+
+  """
+  The adjacent object will be moved before the object that is being moved
+  """
+  before @deprecated(reason: "Use BEFORE. Deprecated in 13.4")
 }
 
 type Mutation {
@@ -13097,11 +13223,16 @@ type ProjectPermissions {
 Names of compliance frameworks that can be assigned to a Project
 """
 enum ProjectSettingEnum {
-  gdpr
-  hipaa
-  pci_dss
-  soc_2
-  sox
+  GDPR
+  HIPAA
+  PCI_DSS
+  SOC_2
+  SOX
+  gdpr @deprecated(reason: "Use GDPR. Deprecated in 13.4")
+  hipaa @deprecated(reason: "Use HIPAA. Deprecated in 13.4")
+  pci_dss @deprecated(reason: "Use PCI_DSS. Deprecated in 13.4")
+  soc_2 @deprecated(reason: "Use SOC_2. Deprecated in 13.4")
+  sox @deprecated(reason: "Use SOX. Deprecated in 13.4")
 }
 
 type ProjectStatistics {
@@ -15578,10 +15709,14 @@ type SnippetBlob {
 Type of a snippet blob input action
 """
 enum SnippetBlobActionEnum {
-  create
-  delete
-  move
-  update
+  CREATE
+  DELETE
+  MOVE
+  UPDATE
+  create @deprecated(reason: "Use CREATE. Deprecated in 13.4")
+  delete @deprecated(reason: "Use DELETE. Deprecated in 13.4")
+  move @deprecated(reason: "Use MOVE. Deprecated in 13.4")
+  update @deprecated(reason: "Use UPDATE. Deprecated in 13.4")
 }
 
 """
@@ -15723,22 +15858,42 @@ enum Sort {
   """
   Created at ascending order
   """
-  created_asc
+  CREATED_ASC
 
   """
   Created at descending order
   """
-  created_desc
+  CREATED_DESC
 
   """
   Updated at ascending order
   """
-  updated_asc
+  UPDATED_ASC
 
   """
   Updated at descending order
   """
-  updated_desc
+  UPDATED_DESC
+
+  """
+  Created at ascending order
+  """
+  created_asc @deprecated(reason: "Use CREATED_ASC. Deprecated in 13.4")
+
+  """
+  Created at descending order
+  """
+  created_desc @deprecated(reason: "Use CREATED_DESC. Deprecated in 13.4")
+
+  """
+  Updated at ascending order
+  """
+  updated_asc @deprecated(reason: "Use UPDATED_ASC. Deprecated in 13.4")
+
+  """
+  Updated at descending order
+  """
+  updated_desc @deprecated(reason: "Use UPDATED_DESC. Deprecated in 13.4")
 }
 
 type Submodule implements Entry {
@@ -16099,13 +16254,20 @@ type Todo {
 }
 
 enum TodoActionEnum {
-  approval_required
-  assigned
-  build_failed
-  directly_addressed
-  marked
-  mentioned
-  unmergeable
+  APPROVAL_REQUIRED
+  ASSIGNED
+  BUILD_FAILED
+  DIRECTLY_ADDRESSED
+  MARKED
+  MENTIONED
+  UNMERGEABLE
+  approval_required @deprecated(reason: "Use APPROVAL_REQUIRED. Deprecated in 13.4")
+  assigned @deprecated(reason: "Use ASSIGNED. Deprecated in 13.4")
+  build_failed @deprecated(reason: "Use BUILD_FAILED. Deprecated in 13.4")
+  directly_addressed @deprecated(reason: "Use DIRECTLY_ADDRESSED. Deprecated in 13.4")
+  marked @deprecated(reason: "Use MARKED. Deprecated in 13.4")
+  mentioned @deprecated(reason: "Use MENTIONED. Deprecated in 13.4")
+  unmergeable @deprecated(reason: "Use UNMERGEABLE. Deprecated in 13.4")
 }
 
 """
@@ -16535,8 +16697,10 @@ type TreeEntryEdge {
 }
 
 enum TypeEnum {
-  personal
-  project
+  PERSONAL
+  PROJECT
+  personal @deprecated(reason: "Use PERSONAL. Deprecated in 13.4")
+  project @deprecated(reason: "Use PROJECT. Deprecated in 13.4")
 }
 
 """
@@ -17644,17 +17808,32 @@ enum UserState {
   """
   The user is active and is able to use the system
   """
-  active
+  ACTIVE
 
   """
   The user has been blocked and is prevented from using the system
   """
-  blocked
+  BLOCKED
 
   """
   The user is no longer active and is unable to use the system
   """
-  deactivated
+  DEACTIVATED
+
+  """
+  The user is active and is able to use the system
+  """
+  active @deprecated(reason: "Use ACTIVE. Deprecated in 13.4")
+
+  """
+  The user has been blocked and is prevented from using the system
+  """
+  blocked @deprecated(reason: "Use BLOCKED. Deprecated in 13.4")
+
+  """
+  The user is no longer active and is unable to use the system
+  """
+  deactivated @deprecated(reason: "Use DEACTIVATED. Deprecated in 13.4")
 }
 
 type UserStatus {
@@ -17675,15 +17854,21 @@ type UserStatus {
 }
 
 enum VisibilityLevelsEnum {
-  internal
-  private
-  public
+  INTERNAL
+  PRIVATE
+  PUBLIC
+  internal @deprecated(reason: "Use INTERNAL. Deprecated in 13.4")
+  private @deprecated(reason: "Use PRIVATE. Deprecated in 13.4")
+  public @deprecated(reason: "Use PUBLIC. Deprecated in 13.4")
 }
 
 enum VisibilityScopesEnum {
-  internal
-  private
-  public
+  INTERNAL
+  PRIVATE
+  PUBLIC
+  internal @deprecated(reason: "Use INTERNAL. Deprecated in 13.4")
+  private @deprecated(reason: "Use PRIVATE. Deprecated in 13.4")
+  public @deprecated(reason: "Use PUBLIC. Deprecated in 13.4")
 }
 
 """
