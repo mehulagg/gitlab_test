@@ -23,7 +23,7 @@ module Mutations
                required: false,
                description: 'The URL of the target to be scanned.'
 
-      authorize :create_on_demand_dast_scan
+      authorize :manage_on_demand_dast_scans
 
       def resolve(full_path:, profile_name:, target_url: nil)
         project = authorized_find_project!(full_path: full_path)

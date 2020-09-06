@@ -194,7 +194,7 @@ module EE
 
       rule { on_demand_scans_enabled & can?(:developer_access) }.policy do
         enable :read_on_demand_scans
-        enable :create_on_demand_dast_scan
+        enable :manage_on_demand_dast_scans
       end
 
       rule { can?(:read_merge_request) & can?(:read_pipeline) }.enable :read_merge_train

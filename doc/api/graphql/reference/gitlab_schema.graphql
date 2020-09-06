@@ -3366,9 +3366,9 @@ Check permissions for the current user on site profile
 """
 type DastSiteProfilePermissions {
   """
-  Indicates the user can perform `create_on_demand_dast_scan` on this resource
+  Indicates the user can perform `manage_on_demand_dast_scans` on this resource
   """
-  createOnDemandDastScan: Boolean!
+  manageOnDemandDastScans: Boolean!
 }
 
 """

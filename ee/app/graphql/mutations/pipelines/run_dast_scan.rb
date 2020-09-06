@@ -27,7 +27,7 @@ module Mutations
                required: true,
                description: 'The type of scan to be run.'
 
-      authorize :create_on_demand_dast_scan
+      authorize :manage_on_demand_dast_scans
 
       def resolve(project_path:, target_url:, branch:, scan_type:)
         project = authorized_find!(full_path: project_path)

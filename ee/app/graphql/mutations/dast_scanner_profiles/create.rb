@@ -32,7 +32,7 @@ module Mutations
                 required: false,
                 description: 'The maximum number of seconds allowed for the site under test to respond to a request.'
 
-      authorize :create_on_demand_dast_scan
+      authorize :manage_on_demand_dast_scans
 
       def resolve(full_path:, profile_name:, spider_timeout: nil, target_timeout: nil)
         project = authorized_find_project!(full_path: full_path)

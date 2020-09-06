@@ -25,7 +25,7 @@ module Mutations
                required: false,
                description: 'ID of the scanner profile to be used for the scan.'
 
-      authorize :create_on_demand_dast_scan
+      authorize :manage_on_demand_dast_scans
 
       def resolve(full_path:, dast_site_profile_id:, **args)
         project = authorized_find_project!(full_path: full_path)

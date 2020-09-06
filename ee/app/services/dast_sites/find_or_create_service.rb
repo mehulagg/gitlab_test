@@ -13,7 +13,7 @@ module DastSites
     private
 
     def allowed?
-      Ability.allowed?(current_user, :create_on_demand_dast_scan, project)
+      Ability.allowed?(current_user, :manage_on_demand_dast_scans, project)
     end
 
     def find_or_create_by!(url)

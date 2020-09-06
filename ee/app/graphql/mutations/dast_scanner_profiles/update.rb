@@ -31,7 +31,7 @@ module Mutations
                 required: true,
                 description: 'The maximum number of seconds allowed for the site under test to respond to a request.'
 
-      authorize :create_on_demand_dast_scan
+      authorize :manage_on_demand_dast_scans
 
       def resolve(full_path:, **service_args)
         project = authorized_find!(full_path: full_path)

@@ -15,7 +15,7 @@ module Mutations
                 required: true,
                 description: 'ID of the scanner profile to be deleted.'
 
-      authorize :create_on_demand_dast_scan
+      authorize :manage_on_demand_dast_scans
 
       def resolve(full_path:, id:)
         project = authorized_find_project!(full_path: full_path)

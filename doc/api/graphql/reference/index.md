@@ -589,7 +589,7 @@ Check permissions for the current user on site profile
 
 | Name  | Type  | Description |
 | ---   |  ---- | ----------  |
-| `createOnDemandDastScan` | Boolean! | Indicates the user can perform `create_on_demand_dast_scan` on this resource |
+| `manageOnDemandDastScans` | Boolean! | Indicates the user can perform `manage_on_demand_dast_scans` on this resource |
 
 ## DastSiteProfileUpdatePayload
 

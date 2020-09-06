@@ -24,7 +24,7 @@ module DastScannerProfiles
     end
 
     def can_delete_scanner_profile?
-      can?(current_user, :create_on_demand_dast_scan, project)
+      can?(current_user, :manage_on_demand_dast_scans, project)
     end
 
     def find_dast_scanner_profile(id)

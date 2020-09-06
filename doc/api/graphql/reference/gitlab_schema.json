@@ -9194,8 +9194,8 @@
           "description": "Check permissions for the current user on site profile",
           "fields": [
             {
-              "name": "createOnDemandDastScan",
-              "description": "Indicates the user can perform `create_on_demand_dast_scan` on this resource",
+              "name": "manageOnDemandDastScans",
+              "description": "Indicates the user can perform `manage_on_demand_dast_scans` on this resource",
               "args": [
 
               ],
