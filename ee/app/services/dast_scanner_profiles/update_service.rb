@@ -28,7 +28,7 @@ module DastScannerProfiles
     end
 
     def find_dast_scanner_profile(id)
-      project.dast_scanner_profiles.id_in(id).first
+      DastScannerProfilesFinder.new(project_id: project.id, id: id).execute.first
     end
   end
 end
