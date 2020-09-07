@@ -194,15 +194,10 @@ export default {
           update(
             store,
             {
-              data: { createDesignTodo },
+              data: { todoMarkDone },
             },
           ) {
-            updateStoreAfterDeleteDesignTodo(
-              store,
-              createDesignTodo,
-              getDesignQuery,
-              designVariables,
-            );
+            updateStoreAfterDeleteDesignTodo(store, todoMarkDone, getDesignQuery, designVariables);
           },
         })
         .catch(err => {
