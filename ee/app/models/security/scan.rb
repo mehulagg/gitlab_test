@@ -22,6 +22,13 @@ module Security
       coverage_fuzzing: 6
     }
 
+    scope :by_scan_types, -> (scan_types) { where(scan_type: scan_types) }
+    scope :has_dismissal_feedback, -> do
+      joins(build: { project: :vulnerability_feedback })
+        .where('vulnerability_feedback.category = (security_scans.scan_type - 1)')
+        .merge(Vulnerabilities::Feedback.for_dismissal)
+    end
+
     delegate :project, to: :build
   end
 end
