@@ -39,6 +39,7 @@ module Gitlab
             .merge(analytics_unique_visits_data)
             .merge(compliance_unique_visits_data)
             .merge(search_unique_visits_data)
+            .merge(redis_hll_counters)
         end
       end
 
@@ -181,6 +182,7 @@ module Gitlab
             successful_deployments: deployment_count(Deployment.success.where(last_28_days_time_period)),
             failed_deployments: deployment_count(Deployment.failed.where(last_28_days_time_period)),
             # rubocop: enable UsageData/LargeTable:
+            packages: count(::Packages::Package.where(last_28_days_time_period)),
             personal_snippets: count(PersonalSnippet.where(last_28_days_time_period)),
             project_snippets: count(ProjectSnippet.where(last_28_days_time_period))
           }.tap do |data|
@@ -615,6 +617,10 @@ module Gitlab
       # Once https://gitlab.com/gitlab-org/gitlab/merge_requests/17568 is merged, this might be doable
       def usage_activity_by_stage_secure(time_period)
         {}
+      end
+
+      def redis_hll_counters
+        { redis_hll_counters: ::Gitlab::UsageDataCounters::HLLRedisCounter.unique_events_data }
       end
 
       def analytics_unique_visits_data

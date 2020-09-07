@@ -479,7 +479,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
       expect(count_data[:project_snippets]).to eq(4)
 
       expect(count_data[:projects_with_packages]).to eq(2)
-      expect(count_data[:packages]).to eq(3)
+      expect(count_data[:packages]).to eq(4)
     end
 
     it 'gathers object store usage correctly' do
@@ -572,6 +572,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
       expect(counts_monthly[:snippets]).to eq(3)
       expect(counts_monthly[:personal_snippets]).to eq(1)
       expect(counts_monthly[:project_snippets]).to eq(2)
+      expect(counts_monthly[:packages]).to eq(3)
     end
   end
 
@@ -1137,6 +1138,24 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
           'search_unique_visits_for_any_target_monthly' => 987
         }
       })
+    end
+  end
+
+  describe 'redis_hll_counters' do
+    subject { described_class.redis_hll_counters }
+
+    let(:categories) { ::Gitlab::UsageDataCounters::HLLRedisCounter.categories }
+
+    it 'has all know_events' do
+      expect(subject).to have_key(:redis_hll_counters)
+
+      expect(subject[:redis_hll_counters].keys).to match_array(categories)
+
+      categories.each do |category|
+        keys = ::Gitlab::UsageDataCounters::HLLRedisCounter.events_for_category(category) + ["#{category}_total_unique_counts_weekly", "#{category}_total_unique_counts_monthly"]
+
+        expect(subject[:redis_hll_counters][category].keys).to match_array(keys)
+      end
     end
   end
 

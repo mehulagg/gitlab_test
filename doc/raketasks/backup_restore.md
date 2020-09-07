@@ -16,7 +16,7 @@ remember to enable backups with your object storage provider if desired.
 
 ## Requirements
 
-In order to be able to backup and restore, you need two essential tools
+In order to be able to backup and restore, you need one essential tool
 installed on your system.
 
 - **Rsync**: If you installed GitLab:
@@ -533,6 +533,44 @@ For installations from source:
    ```
 
 1. [Restart GitLab](../administration/restart_gitlab.md#installations-from-source) for the changes to take effect
+
+##### Using Azure Blob storage
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/25877) in GitLab 13.4.
+
+For Omnibus GitLab packages:
+
+1. Edit `/etc/gitlab/gitlab.rb`:
+
+   ```ruby
+   gitlab_rails['backup_upload_connection'] = {
+    'provider' => 'AzureRM',
+    'azure_storage_account_name' => '<AZURE STORAGE ACCOUNT NAME>',
+    'azure_storage_access_key' => '<AZURE STORAGE ACCESS KEY>',
+    'azure_storage_domain' => 'blob.core.windows.net', # Optional
+   }
+   gitlab_rails['backup_upload_remote_directory'] = '<AZURE BLOB CONTAINER>'
+   ```
+
+1. [Reconfigure GitLab](../administration/restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect
+
+For installations from source:
+
+1. Edit `home/git/gitlab/config/gitlab.yml`:
+
+   ```yaml
+     backup:
+       upload:
+         connection:
+           provider: 'AzureRM'
+           azure_storage_account_name: '<AZURE STORAGE ACCOUNT NAME>'
+           azure_storage_access_key: '<AZURE STORAGE ACCESS KEY>'
+         remote_directory: '<AZURE BLOB CONTAINER>'
+   ```
+
+1. [Restart GitLab](../administration/restart_gitlab.md#installations-from-source) for the changes to take effect
+
+See [the table of Azure parameters](../administration/object_storage.md#azure-blob-storage) for more details.
 
 ##### Specifying a custom directory for backups
 

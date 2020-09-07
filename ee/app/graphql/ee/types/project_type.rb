@@ -77,11 +77,27 @@ module EE
               description: 'Find iterations',
               resolver: ::Resolvers::IterationsResolver
 
+        field :dast_site_profile,
+              ::Types::DastSiteProfileType,
+              null: true,
+              resolve: -> (obj, args, _ctx) do
+                DastSiteProfilesFinder.new(project_id: obj.id, id: args[:id].model_id).execute.first
+              end,
+              description: 'DAST Site Profile associated with the project' do
+                argument :id, ::Types::GlobalIDType[::DastSiteProfile], required: true, description: 'ID of the site profile'
+              end
+
         field :dast_site_profiles,
               ::Types::DastSiteProfileType.connection_type,
               null: true,
               description: 'DAST Site Profiles associated with the project',
               resolve: -> (obj, _args, _ctx) { obj.dast_site_profiles.with_dast_site }
+
+        field :cluster_agents,
+              ::Types::Clusters::AgentType.connection_type,
+              null: true,
+              description: 'Cluster agents associated with the project',
+              resolver: ::Resolvers::Clusters::AgentsResolver
 
         def self.requirements_available?(project, user)
           ::Feature.enabled?(:requirements_management, project, default_enabled: true) && Ability.allowed?(user, :read_requirement, project)

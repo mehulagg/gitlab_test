@@ -177,10 +177,6 @@ module Issuable
       assignees.count > 1
     end
 
-    def supports_weight?
-      false
-    end
-
     def supports_time_tracking?
       is_a?(TimeTrackable) && !incident?
     end
@@ -385,8 +381,12 @@ module Issuable
     Date.today == created_at.to_date
   end
 
+  def created_hours_ago
+    (Time.now.utc.to_i - created_at.utc.to_i) / 3600
+  end
+
   def new?
-    today? && created_at == updated_at
+    created_hours_ago < 24
   end
 
   def open?

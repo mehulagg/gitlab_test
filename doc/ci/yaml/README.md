@@ -322,7 +322,7 @@ pipelines and merge request pipelines don't run, as there's no rule allowing the
 ```yaml
 workflow:
   rules:
-    - if: $CI_COMMIT_REF_NAME =~ /-wip$/
+    - if: $CI_COMMIT_MESSAGE =~ /-wip$/
       when: never
     - if: '$CI_PIPELINE_SOURCE == "push"'
 ```
@@ -982,7 +982,7 @@ If you do want to include the `rake test`, see [`before_script` and `after_scrip
 possible to inherit from regular jobs as well.
 
 `extends` supports multi-level inheritance. You should avoid using more than 3 levels,
-but you can use as many as ten.
+but you can use as many as eleven.
 The following example has two levels of inheritance:
 
 ```yaml
@@ -3289,10 +3289,10 @@ job:
 ```
 
 NOTE: **Note:**
-Since [GitLab 13.0](https://gitlab.com/gitlab-org/gitlab/-/issues/16267), the latest
-artifacts for refs can be locked against deletion, and kept regardless of the expiry time. This feature is disabled
-by default and is not ready for production use. It can be enabled for testing by
-enabling the `:keep_latest_artifact_for_ref` and `:destroy_only_unlocked_expired_artifacts` [feature flags](../../administration/feature_flags.md).
+The latest artifacts for refs are locked against deletion, and kept regardless of
+the expiry time. [Introduced in](https://gitlab.com/gitlab-org/gitlab/-/issues/16267)
+GitLab 13.0 behind a disabled feature flag, and [made the default behavior](https://gitlab.com/gitlab-org/gitlab/-/issues/229936)
+in GitLab 13.4.
 
 #### `artifacts:reports`
 

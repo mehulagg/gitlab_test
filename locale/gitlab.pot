@@ -1162,7 +1162,7 @@ msgstr ""
 msgid "A merge request approval is required when a security report contains a new vulnerability of high, critical, or unknown severity."
 msgstr ""
 
-msgid "A merge request approval is required when the license compliance report contains a blacklisted license."
+msgid "A merge request approval is required when the license compliance report contains a denied license."
 msgstr ""
 
 msgid "A new Auto DevOps pipeline has been created, go to %{pipelines_link_start}Pipelines page%{pipelines_link_end} for details"
@@ -2540,6 +2540,9 @@ msgstr ""
 msgid "An %{link_start}alert%{link_end} with the same fingerprint is already open. To change the status of this alert, resolve the linked alert."
 msgstr ""
 
+msgid "An administrator changed the password for your GitLab account on %{link_to}."
+msgstr ""
+
 msgid "An alert has been triggered in %{project_path}."
 msgstr ""
 
@@ -2868,6 +2871,9 @@ msgid "An error occurred while updating approvers"
 msgstr ""
 
 msgid "An error occurred while updating the comment"
+msgstr ""
+
+msgid "An error occurred while updating the list. Please try again."
 msgstr ""
 
 msgid "An error occurred while validating group path"
@@ -3206,9 +3212,6 @@ msgid "Archiving the project will make it entirely read only. It is hidden from 
 msgstr ""
 
 msgid "Are you ABSOLUTELY SURE you wish to delete this project?"
-msgstr ""
-
-msgid "Are you setting up GitLab for a company?"
 msgstr ""
 
 msgid "Are you sure that you want to archive this project?"
@@ -7099,6 +7102,11 @@ msgstr ""
 msgid "Coverage Fuzzing"
 msgstr ""
 
+msgid "Coverage value for this pipeline was calculated by the coverage value of %d job."
+msgid_plural "Coverage value for this pipeline was calculated by averaging the resulting coverage values of %d jobs."
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "Create"
 msgstr ""
 
@@ -7701,6 +7709,9 @@ msgstr ""
 msgid "DAG visualization requires at least 3 dependent jobs."
 msgstr ""
 
+msgid "DAST Profiles"
+msgstr ""
+
 msgid "DNS"
 msgstr ""
 
@@ -7734,6 +7745,9 @@ msgstr ""
 msgid "DastProfiles|Are you sure you want to delete this profile?"
 msgstr ""
 
+msgid "DastProfiles|Could not create the scanner profile. Please try again."
+msgstr ""
+
 msgid "DastProfiles|Could not create the site profile. Please try again."
 msgstr ""
 
@@ -7758,10 +7772,16 @@ msgstr ""
 msgid "DastProfiles|Could not update the site profile. Please try again."
 msgstr ""
 
+msgid "DastProfiles|Do you want to discard this scanner profile?"
+msgstr ""
+
 msgid "DastProfiles|Do you want to discard this site profile?"
 msgstr ""
 
 msgid "DastProfiles|Do you want to discard your changes?"
+msgstr ""
+
+msgid "DastProfiles|Download validation text file"
 msgstr ""
 
 msgid "DastProfiles|Edit feature will come soon. Please create a new profile if changes needed"
@@ -7779,10 +7799,13 @@ msgstr ""
 msgid "DastProfiles|Manage profiles"
 msgstr ""
 
-msgid "DastProfiles|New Profile"
+msgid "DastProfiles|Minimum = 0 (no timeout enabled), Maximum = 2880 minutes"
 msgstr ""
 
-msgid "DastProfiles|New Scanner Profile"
+msgid "DastProfiles|Minimum = 1 second, Maximum = 3600 seconds"
+msgstr ""
+
+msgid "DastProfiles|New Profile"
 msgstr ""
 
 msgid "DastProfiles|New scanner profile"
@@ -7795,6 +7818,9 @@ msgid "DastProfiles|No profiles created yet"
 msgstr ""
 
 msgid "DastProfiles|Please enter a valid URL format, ex: http://www.example.com/home"
+msgstr ""
+
+msgid "DastProfiles|Please enter a valid timeout value"
 msgstr ""
 
 msgid "DastProfiles|Profile name"
@@ -7818,7 +7844,55 @@ msgstr ""
 msgid "DastProfiles|Site Profiles"
 msgstr ""
 
+msgid "DastProfiles|Site is not validated yet, please follow the steps."
+msgstr ""
+
+msgid "DastProfiles|Site must be validated to run an active scan."
+msgstr ""
+
+msgid "DastProfiles|Spider timeout"
+msgstr ""
+
+msgid "DastProfiles|Step 1 - Choose site validation method"
+msgstr ""
+
+msgid "DastProfiles|Step 2 - Add following text to the target site"
+msgstr ""
+
+msgid "DastProfiles|Step 3 - Confirm text file location and validate"
+msgstr ""
+
 msgid "DastProfiles|Target URL"
+msgstr ""
+
+msgid "DastProfiles|Target timeout"
+msgstr ""
+
+msgid "DastProfiles|Text file validation"
+msgstr ""
+
+msgid "DastProfiles|The maximum number of seconds allowed for the site under test to respond to a request."
+msgstr ""
+
+msgid "DastProfiles|The maximum number of seconds allowed for the spider to traverse the site."
+msgstr ""
+
+msgid "DastProfiles|Validate"
+msgstr ""
+
+msgid "DastProfiles|Validate target site"
+msgstr ""
+
+msgid "DastProfiles|Validating..."
+msgstr ""
+
+msgid "DastProfiles|Validation failed, please make sure that you follow the steps above with the choosen method."
+msgstr ""
+
+msgid "DastProfiles|Validation must be turned off to change the target URL"
+msgstr ""
+
+msgid "DastProfiles|Validation succeeded. Both active and passive scans can be run against the target site."
 msgstr ""
 
 msgid "Data is still calculating..."
@@ -7969,9 +8043,6 @@ msgid "Delete"
 msgstr ""
 
 msgid "Delete Comment"
-msgstr ""
-
-msgid "Delete Package"
 msgstr ""
 
 msgid "Delete Snippet"
@@ -9468,6 +9539,9 @@ msgid "Environments allow you to track deployments of your application %{link_to
 msgstr ""
 
 msgid "Environments in %{name}"
+msgstr ""
+
+msgid "EnvironmentsAlert|%{severity} • %{title} %{text}. %{linkStart}View Details%{linkEnd} · %{startedAt} "
 msgstr ""
 
 msgid "EnvironmentsDashboard|Add a project to the dashboard"
@@ -12565,6 +12639,9 @@ msgstr ""
 msgid "Hello there"
 msgstr ""
 
+msgid "Hello, %{username}!"
+msgstr ""
+
 msgid "Help"
 msgstr ""
 
@@ -13061,13 +13138,13 @@ msgstr ""
 msgid "In order to personalize your experience with GitLab%{br_tag}we would like to know a bit more about you."
 msgstr ""
 
-msgid "In order to tailor your experience with GitLab we%{br_tag}would like to know a bit more about you."
-msgstr ""
-
 msgid "In progress"
 msgstr ""
 
 msgid "In the next step, you'll be able to select the projects you want to import."
+msgstr ""
+
+msgid "Incident"
 msgstr ""
 
 msgid "Incident Management Limits"
@@ -13490,6 +13567,15 @@ msgid "InviteEmail|to join the %{project_or_group_name} %{project_or_group} as a
 msgstr ""
 
 msgid "InviteEmail|to join the %{strong_start}%{project_or_group_name}%{strong_end}"
+msgstr ""
+
+msgid "InviteMembersBanner|Collaborate with your team"
+msgstr ""
+
+msgid "InviteMembersBanner|Invite your colleagues"
+msgstr ""
+
+msgid "InviteMembersBanner|We noticed that you haven't invited anyone to this group. Invite your colleagues so you can discuss issues, collaborate on merge requests, and share your knowledge."
 msgstr ""
 
 msgid "Invited"
@@ -17150,7 +17236,7 @@ msgstr ""
 msgid "OnDemandScans|Use existing site profile"
 msgstr ""
 
-msgid "Once a project is permanently deleted it %{strongStart}cannot be recovered%{strongEnd}. Permanently deleting this project will %{strongStart}immediately delete%{strongEnd} its respositories and %{strongStart}all related resources%{strongEnd} including issues, merge requests etc."
+msgid "Once a project is permanently deleted it %{strongStart}cannot be recovered%{strongEnd}. Permanently deleting this project will %{strongStart}immediately delete%{strongEnd} its repositories and %{strongStart}all related resources%{strongEnd} including issues, merge requests etc."
 msgstr ""
 
 msgid "Once a project is permanently deleted it cannot be recovered. You will lose this project's repository and all content: issues, merge requests etc."
@@ -18293,6 +18379,9 @@ msgid "Please choose a group URL with no special characters."
 msgstr ""
 
 msgid "Please complete your profile with email address"
+msgstr ""
+
+msgid "Please contact your administrator with any questions."
 msgstr ""
 
 msgid "Please contact your administrator."
@@ -19912,6 +20001,9 @@ msgstr ""
 msgid "Promoted issue to an epic."
 msgstr ""
 
+msgid "Promotion is not supported."
+msgstr ""
+
 msgid "Promotions|Burndown Charts are visual representations of the progress of completing a milestone. At a glance, you see the current state for the completion a given milestone. Without them, you would have to organize the data from the milestone and plot it yourself to have the same sense of progress."
 msgstr ""
 
@@ -21463,6 +21555,9 @@ msgstr ""
 msgid "Save variables"
 msgstr ""
 
+msgid "Saved scan settings and target site settings which are reusable."
+msgstr ""
+
 msgid "Saving"
 msgstr ""
 
@@ -21756,6 +21851,9 @@ msgstr ""
 msgid "Secondary"
 msgstr ""
 
+msgid "Seconds"
+msgstr ""
+
 msgid "Secret"
 msgstr ""
 
@@ -21796,6 +21894,9 @@ msgid "SecurityApprovals|Requires license policy rules for licenses of Allowed, 
 msgstr ""
 
 msgid "SecurityConfiguration|An error occurred while creating the merge request."
+msgstr ""
+
+msgid "SecurityConfiguration|Available for on-demand DAST"
 msgstr ""
 
 msgid "SecurityConfiguration|Configure"
@@ -22228,6 +22329,9 @@ msgid "Select timeframe"
 msgstr ""
 
 msgid "Select timezone"
+msgstr ""
+
+msgid "Select type"
 msgstr ""
 
 msgid "Select user"
@@ -24320,6 +24424,9 @@ msgstr ""
 msgid "Test Cases"
 msgstr ""
 
+msgid "Test cases are not available for this project"
+msgstr ""
+
 msgid "Test coverage parsing"
 msgstr ""
 
@@ -25139,7 +25246,7 @@ msgstr ""
 msgid "This action can lead to data loss. To prevent accidental actions we ask you to confirm your intention."
 msgstr ""
 
-msgid "This action cannot be undone. You will lose the project's respository and all conent: issues, merge requests, etc."
+msgid "This action cannot be undone. You will lose the project's repository and all content: issues, merge requests, etc."
 msgstr ""
 
 msgid "This action will %{strongOpen}permanently delete%{strongClose} %{codeOpen}%{project}%{codeClose} %{strongOpen}immediately%{strongClose}, including its repositories and all content: issues, merge requests, etc."
@@ -27727,7 +27834,7 @@ msgstr ""
 msgid "We sent you an email with reset password instructions"
 msgstr ""
 
-msgid "We tried to automatically renew your %{strong}%{plan_name}%{strong_close} subscription for %{strong}%{namespace_name}%{strong_close} on %{expires_on} but something went wrong so your subscription was downgraded to the free plan. Don't worry, your data is safe. We suggest you check your payment method and get in touch with our support team (%{support_link}). They'll gladly help with your subscription renewal."
+msgid "We tried to automatically renew your subscription for %{strong}%{namespace_name}%{strong_close} on %{expires_on} but something went wrong so your subscription was downgraded to the free plan. Don't worry, your data is safe. We suggest you check your payment method and get in touch with our support team (%{support_link}). They'll gladly help with your subscription renewal."
 msgstr ""
 
 msgid "We want to be sure it is you, please confirm you are not a robot."
@@ -27877,13 +27984,10 @@ msgstr ""
 msgid "Welcome to GitLab"
 msgstr ""
 
-msgid "Welcome to GitLab %{name}!"
+msgid "Welcome to GitLab%{br_tag}%{name}!"
 msgstr ""
 
 msgid "Welcome to GitLab, %{first_name}!"
-msgstr ""
-
-msgid "Welcome to GitLab.com%{br_tag}@%{name}!"
 msgstr ""
 
 msgid "Welcome to the guided GitLab tour"
@@ -28413,10 +28517,10 @@ msgstr ""
 msgid "You could not create a new trigger."
 msgstr ""
 
-msgid "You didn't renew your %{strong}%{plan_name}%{strong_close} subscription for %{strong}%{namespace_name}%{strong_close} so it was downgraded to the free plan."
+msgid "You didn't renew your subscription for %{strong}%{namespace_name}%{strong_close} so it was downgraded to the free plan."
 msgstr ""
 
-msgid "You didn't renew your %{strong}%{plan_name}%{strong_close} subscription so it was downgraded to the GitLab Core Plan."
+msgid "You didn't renew your subscription so it was downgraded to the GitLab Core Plan."
 msgstr ""
 
 msgid "You do not have an active license"
@@ -29415,6 +29519,11 @@ msgstr ""
 
 msgid "from"
 msgstr ""
+
+msgid "from %d job"
+msgid_plural "from %d jobs"
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "group"
 msgstr ""

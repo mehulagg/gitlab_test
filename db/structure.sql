@@ -10083,7 +10083,6 @@ CREATE TABLE public.ci_job_artifacts (
     file_sha256 bytea,
     file_format smallint,
     file_location smallint,
-    locked boolean,
     CONSTRAINT check_27f0f6dbab CHECK ((file_store IS NOT NULL))
 );
 
@@ -10267,7 +10266,7 @@ CREATE TABLE public.ci_pipelines (
     target_sha bytea,
     external_pull_request_id bigint,
     ci_ref_id bigint,
-    locked smallint DEFAULT 0 NOT NULL,
+    locked smallint DEFAULT 1 NOT NULL,
     CONSTRAINT check_d7e99a025e CHECK ((lock_version IS NOT NULL))
 );
 
@@ -20462,6 +20461,8 @@ CREATE INDEX index_packages_package_files_on_file_store ON public.packages_packa
 CREATE INDEX index_packages_package_files_on_package_id_and_file_name ON public.packages_package_files USING btree (package_id, file_name);
 
 CREATE INDEX index_packages_packages_on_creator_id ON public.packages_packages USING btree (creator_id);
+
+CREATE INDEX index_packages_packages_on_id_and_created_at ON public.packages_packages USING btree (id, created_at);
 
 CREATE INDEX index_packages_packages_on_name_trigram ON public.packages_packages USING gin (name public.gin_trgm_ops);
 

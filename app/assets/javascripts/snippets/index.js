@@ -19,7 +19,12 @@ function appFactory(el, Component) {
     defaultClient: createDefaultClient(),
   });
 
-  const { visibilityLevels, selectedLevel, multipleLevelsRestricted, ...restDataset } = el.dataset;
+  const {
+    visibilityLevels = '[]',
+    selectedLevel,
+    multipleLevelsRestricted,
+    ...restDataset
+  } = el.dataset;
 
   apolloProvider.clients.defaultClient.cache.writeData({
     data: {
