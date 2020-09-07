@@ -16,7 +16,7 @@ module QA
         expect(page).to have_content(epic_title)
       end
 
-      it 'creates a confidential epic', testcase: 'https://gitlab.com/gitlab-org/quality/testcases/-/issues/967' do
+      it 'creates a confidential epic', testcase: 'https://gitlab.com/gitlab-org/quality/testcases/-/issues/967', quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/246507', type: :investigating } do
         epic_title = 'Confidential epic created via GUI'
         EE::Resource::Epic.fabricate_via_browser_ui! do |epic|
           epic.title = epic_title
