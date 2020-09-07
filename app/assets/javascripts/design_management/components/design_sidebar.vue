@@ -112,6 +112,9 @@ export default {
       // TODO data structure pending BE MR: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/40555#note_405732940
       return this.design.currentUserTodos?.nodes[0];
     },
+    hasPendingTodo() {
+      return Boolean(this.pendingTodo);
+    },
   },
   watch: {
     isResolvedCommentsPopoverHidden(newVal) {
@@ -168,15 +171,16 @@ export default {
             );
           },
         })
-        .catch(() => {
+        .catch(err => {
           this.emitError(CREATE_DESIGN_TODO_ERROR);
+          throw err;
         });
     },
     emitError(message) {
       this.$emit('error', { message });
     },
     deleteTodo() {
-      if (!this.pendingTodo) return Promise.reject();
+      if (!this.hasPendingTodo) return Promise.reject();
 
       const { id } = this.pendingTodo;
       const { designVariables } = this;
@@ -201,12 +205,13 @@ export default {
             );
           },
         })
-        .catch(() => {
+        .catch(err => {
           this.emitError(DELETE_DESIGN_TODO_ERROR);
+          throw err;
         });
     },
     toggleTodo() {
-      if (this.pendingTodo) {
+      if (this.hasPendingTodo) {
         return this.deleteTodo();
       }
 
@@ -228,7 +233,7 @@ export default {
       <todo-button
         issuable-type="design"
         :issuable-id="design.iid"
-        :is-todo="pendingTodo"
+        :is-todo="hasPendingTodo"
         @click.prevent.stop="toggleTodo"
       />
     </div>
