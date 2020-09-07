@@ -150,23 +150,27 @@ export default {
     createTodo() {
       const { designVariables } = this;
 
-      return this.$apollo.mutate({
-        mutation: createDesignTodoMutation,
-        variables: this.designTodoVariables,
-        update(
-          store,
-          {
-            data: { createDesignTodo },
-          },
-        ) {
-          updateStoreAfterCreateDesignTodo(
+      return this.$apollo
+        .mutate({
+          mutation: createDesignTodoMutation,
+          variables: this.designTodoVariables,
+          update(
             store,
-            createDesignTodo,
-            getDesignQuery,
-            designVariables,
-          );
-        },
-      });
+            {
+              data: { createDesignTodo },
+            },
+          ) {
+            updateStoreAfterCreateDesignTodo(
+              store,
+              createDesignTodo,
+              getDesignQuery,
+              designVariables,
+            );
+          },
+        })
+        .catch(() => {
+          this.emitError(CREATE_DESIGN_TODO_ERROR);
+        });
     },
     emitError(message) {
       this.$emit('error', { message });
@@ -177,36 +181,36 @@ export default {
       const { id } = this.pendingTodo;
       const { designVariables } = this;
 
-      return this.$apollo.mutate({
-        mutation: todoMarkDoneMutation,
-        variables: {
-          id,
-        },
-        update(
-          store,
-          {
-            data: { createDesignTodo },
+      return this.$apollo
+        .mutate({
+          mutation: todoMarkDoneMutation,
+          variables: {
+            id,
           },
-        ) {
-          updateStoreAfterDeleteDesignTodo(
+          update(
             store,
-            createDesignTodo,
-            getDesignQuery,
-            designVariables,
-          );
-        },
-      });
+            {
+              data: { createDesignTodo },
+            },
+          ) {
+            updateStoreAfterDeleteDesignTodo(
+              store,
+              createDesignTodo,
+              getDesignQuery,
+              designVariables,
+            );
+          },
+        })
+        .catch(() => {
+          this.emitError(DELETE_DESIGN_TODO_ERROR);
+        });
     },
     toggleTodo() {
       if (this.pendingTodo) {
-        return this.deleteTodo().catch(() => {
-          this.emitError(DELETE_DESIGN_TODO_ERROR);
-        });
+        return this.deleteTodo();
       }
 
-      return this.createTodo().catch(() => {
-        this.emitError(CREATE_DESIGN_TODO_ERROR);
-      });
+      return this.createTodo();
     },
   },
   resolveCommentsToggleText: s__('DesignManagement|Resolved Comments'),
