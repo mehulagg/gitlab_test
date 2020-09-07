@@ -225,9 +225,24 @@ const moveDesignInStore = (store, designManagementMove, query) => {
 };
 
 export const addPendingTodoToStore = (store, pendingTodo, query, queryVariables) => {
-  const data = store.readQuery({
+  const sourceData = store.readQuery({
     query,
     variables: queryVariables,
+  });
+
+  const data = produce(sourceData, draftData => {
+    const design = extractDesign(draftData);
+    const existingTodos = design.currentUserTodos?.nodes || [];
+    const newTodoNodes = [...existingTodos, { ...pendingTodo, __typename: 'Todo' }];
+
+    if (!design.currentUserTodos) {
+      design.currentUserTodos = {
+        __typename: 'TodoConnection',
+        nodes: newTodoNodes,
+      };
+    } else {
+      design.currentUserTodos.nodes = newTodoNodes;
+    }
   });
 
   // TODO produce new version of data that includes the new pendingTodo.
@@ -236,12 +251,19 @@ export const addPendingTodoToStore = (store, pendingTodo, query, queryVariables)
   store.writeQuery({ query, variables: queryVariables, data });
 };
 
-export const deletePendingTodoFromStore = (store, pendingTodo, query, queryVariables) => {
-  const data = store.readQuery({
+export const deletePendingTodoFromStore = (store, todoMarkDone, query, queryVariables) => {
+  const sourceData = store.readQuery({
     query,
     variables: queryVariables,
   });
 
+  const { id: todoId } = todoMarkDone.todo;
+  const data = produce(sourceData, draftData => {
+    const design = extractDesign(draftData);
+    const existingTodos = design.currentUserTodos?.nodes || [];
+
+    design.currentUserTodos.nodes = existingTodos.filter(({ id }) => id !== todoId);
+  });
   // TODO produce new version of data without the pendingTodo.
   // This is only possible after BE MR: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/40555
 
