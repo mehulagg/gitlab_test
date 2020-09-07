@@ -19,7 +19,10 @@ import Participants from '~/sidebar/components/participants/participants.vue';
 import TodoButton from '~/vue_shared/components/todo_button.vue';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import allVersionsMixin from '../mixins/all_versions';
-import { updateStoreAfterCreateDesignTodo } from '../utils/cache_update';
+import {
+  updateStoreAfterCreateDesignTodo,
+  updateStoreAfterDeleteDesignTodo,
+} from '../utils/cache_update';
 import getDesignQuery from '../graphql/queries/get_design.query.graphql';
 
 export default {
@@ -172,10 +175,25 @@ export default {
       if (!this.pendingTodo) return Promise.reject();
 
       const { id } = this.pendingTodo;
+      const { designVariables } = this;
+
       return this.$apollo.mutate({
         mutation: todoMarkDoneMutation,
         variables: {
           id,
+        },
+        update(
+          store,
+          {
+            data: { createDesignTodo },
+          },
+        ) {
+          updateStoreAfterDeleteDesignTodo(
+            store,
+            createDesignTodo,
+            getDesignQuery,
+            designVariables,
+          );
         },
       });
     },
