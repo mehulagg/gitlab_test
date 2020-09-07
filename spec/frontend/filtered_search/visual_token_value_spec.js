@@ -5,6 +5,9 @@ import AjaxCache from '~/lib/utils/ajax_cache';
 import UsersCache from '~/lib/utils/users_cache';
 import DropdownUtils from '~/filtered_search//dropdown_utils';
 import FilteredSearchSpecHelper from '../helpers/filtered_search_spec_helper';
+import { deprecatedCreateFlash as Flash } from '~/flash';
+
+jest.mock('~/flash');
 
 describe('Filtered Search Visual Tokens', () => {
   const findElements = tokenElement => {
@@ -43,7 +46,6 @@ describe('Filtered Search Visual Tokens', () => {
     });
 
     it('ignores error if UsersCache throws', done => {
-      jest.spyOn(window, 'Flash').mockImplementation(() => {});
       const dummyError = new Error('Earth rotated backwards');
       const { subject, tokenValueContainer, tokenValueElement } = findElements(authorToken);
       const tokenValue = tokenValueElement.innerText;
@@ -55,7 +57,7 @@ describe('Filtered Search Visual Tokens', () => {
       subject
         .updateUserTokenAppearance(tokenValueContainer, tokenValueElement, tokenValue)
         .then(() => {
-          expect(window.Flash.mock.calls.length).toBe(0);
+          expect(Flash.mock.calls.length).toBe(0);
         })
         .then(done)
         .catch(done.fail);

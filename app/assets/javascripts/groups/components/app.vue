@@ -1,8 +1,7 @@
 <script>
-/* global Flash */
-
 import $ from 'jquery';
 import { GlLoadingIcon } from '@gitlab/ui';
+import { deprecatedCreateFlash as Flash } from '~/flash';
 import { s__, sprintf } from '~/locale';
 import DeprecatedModal from '~/vue_shared/components/deprecated_modal.vue';
 import { HIDDEN_CLASS } from '~/lib/utils/constants';

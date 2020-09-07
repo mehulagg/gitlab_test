@@ -1,6 +1,5 @@
-/* global Flash */
-
 import $ from 'jquery';
+import { deprecatedCreateFlash as Flash } from './flash';
 import axios from './lib/utils/axios_utils';
 import { n__, s__ } from './locale';
 

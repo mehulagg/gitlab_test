@@ -175,4 +175,3 @@ export {
   removeFlashClickListener,
   FLASH_TYPES,
 };
-window.Flash = deprecatedCreateFlash;

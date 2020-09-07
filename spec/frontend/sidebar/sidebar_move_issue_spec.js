@@ -6,6 +6,9 @@ import SidebarStore from '~/sidebar/stores/sidebar_store';
 import SidebarService from '~/sidebar/services/sidebar_service';
 import SidebarMoveIssue from '~/sidebar/lib/sidebar_move_issue';
 import Mock from './mock_data';
+import { deprecatedCreateFlash as Flash } from '~/flash';
+
+jest.mock('~/flash');
 
 describe('SidebarMoveIssue', () => {
   let mock;
@@ -99,7 +102,6 @@ describe('SidebarMoveIssue', () => {
     });
 
     it('should remove loading state from confirm button on failure', done => {
-      jest.spyOn(window, 'Flash').mockImplementation(() => {});
       jest.spyOn(test.mediator, 'moveIssue').mockReturnValue(Promise.reject());
       test.mediator.setMoveToProjectId(7);
 
@@ -108,7 +110,7 @@ describe('SidebarMoveIssue', () => {
       expect(test.mediator.moveIssue).toHaveBeenCalled();
       // Wait for the move issue request to fail
       setImmediate(() => {
-        expect(window.Flash).toHaveBeenCalled();
+        expect(Flash).toHaveBeenCalled();
         expect(test.$confirmButton.prop('disabled')).toBeFalsy();
         expect(test.$confirmButton.hasClass('is-loading')).toBe(false);
         done();
