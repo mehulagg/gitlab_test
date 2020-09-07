@@ -88,5 +88,58 @@ RSpec.describe SessionsController, :geo do
         end
       end
     end
+
+    context 'when using two-factor authentication' do
+      def authenticate_2fa(user_params, otp_user_id: user.id)
+        post(:create, params: { user: user_params }, session: { otp_user_id: otp_user_id })
+      end
+
+      shared_examples 'an auditable action' do
+        it 'log an audit event', :aggregate_failures do
+          audit_event_service = instance_spy(AuditEventService)
+          allow(AuditEventService).to receive(:new).and_return(audit_event_service)
+
+          operation
+
+          expect(AuditEventService).to have_received(:new).with(user, user, ip_address: '0.0.0.0', with: method)
+          expect(audit_event_service).to have_received(:for_failed_login)
+          expect(audit_event_service).to have_received(:unauth_security_event)
+        end
+      end
+
+      context 'when OTP authentication fails' do
+        it_behaves_like 'an auditable action' do
+          let(:user) { create(:user, :two_factor) }
+          let(:operation) { authenticate_2fa(otp_attempt: 'invalid', otp_user_id: user.id) }
+          let(:method) { 'OTP' }
+        end
+      end
+
+      context 'when U2F authentication fails' do
+        before do
+          allow(U2fRegistration).to receive(:authenticate).and_return(false)
+        end
+
+        it_behaves_like 'an auditable action' do
+          let(:user) { create(:user, :two_factor_via_u2f) }
+          let(:operation) { authenticate_2fa(device_response: 'invalid', otp_user_id: user.id) }
+          let(:method) { 'U2F' }
+        end
+      end
+
+      context 'when WebAuthn authentication fails' do
+        before do
+          stub_feature_flags(webauthn: true)
+          webauthn_authenticate_service = instance_spy(Webauthn::AuthenticateService, execute: false)
+          allow(Webauthn::AuthenticateService).to receive(:new).and_return(webauthn_authenticate_service)
+        end
+
+        it_behaves_like 'an auditable action' do
+          let(:user) { create(:user, :two_factor_via_webauthn) }
+          let(:operation) { authenticate_2fa(device_response: 'invalid', otp_user_id: user.id) }
+          let(:method) { 'WebAuthn' }
+        end
+      end
+    end
   end
 end
