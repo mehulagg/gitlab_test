@@ -70,6 +70,9 @@
 .if-rspec-impact-not-enabled: &if-rspec-impact-not-enabled
   if: '$RSPEC_IMPACT_ENABLED != "true"'
 
+.if-rspec-impact-skipped: &if-rspec-impact-skipped
+  if: '$CI_MERGE_REQUEST_TITLE =~ /SKIP RSPEC IMPACT/'
+
 ####################
 # Changes patterns #
 ####################
@@ -582,6 +585,8 @@
   rules:
     - <<: *if-rspec-impact-not-enabled
       when: never
+    - <<: *if-rspec-impact-skipped
+      when: never
     - <<: *if-not-ee
       when: never
     - <<: *if-security-merge-request
@@ -592,6 +597,8 @@
 .rails:rules:fail-pipeline-early:
   rules:
     - <<: *if-rspec-impact-not-enabled
+      when: never
+    - <<: *if-rspec-impact-skipped
       when: never
     - <<: *if-not-ee
       when: never
