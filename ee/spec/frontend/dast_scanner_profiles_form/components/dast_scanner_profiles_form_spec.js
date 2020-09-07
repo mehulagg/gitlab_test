@@ -161,10 +161,9 @@ describe('DAST Scanner Profile', () => {
 
       describe('on success', () => {
         beforeEach(() => {
-          createComponent();
           jest
             .spyOn(wrapper.vm.$apollo, 'mutate')
-            .mockResolvedValue({ data: { dastScannerProfileCreate: { id: createdProfileId } } });
+            .mockResolvedValue({ data: { [mutationKind]: { id: createdProfileId } } });
           findProfileNameInput().vm.$emit('input', profileName);
           findSpiderTimeoutInput().vm.$emit('input', spiderTimeout);
           findTargetTimeoutInput().vm.$emit('input', targetTimeout);
@@ -177,12 +176,13 @@ describe('DAST Scanner Profile', () => {
 
         it('triggers GraphQL mutation', () => {
           expect(wrapper.vm.$apollo.mutate).toHaveBeenCalledWith({
-            mutation: dastScannerProfileCreateMutation,
+            mutation,
             variables: {
               profileName,
               spiderTimeout,
               targetTimeout,
               projectFullPath,
+              ...mutationVars,
             },
           });
         });
@@ -218,10 +218,9 @@ describe('DAST Scanner Profile', () => {
         const errors = ['Name is already taken', 'Value should be Int', 'error#3'];
 
         beforeEach(() => {
-          createComponent();
-          jest.spyOn(wrapper.vm.$apollo, 'mutate').mockResolvedValue({
-            data: { dastScannerProfileCreate: { pipelineUrl: null, errors } },
-          });
+          jest
+            .spyOn(wrapper.vm.$apollo, 'mutate')
+            .mockResolvedValue({ data: { [mutationKind]: { errors } } });
           const input = findSpiderTimeoutInput();
           input.vm.$emit('input', spiderTimeout);
           submitForm();
