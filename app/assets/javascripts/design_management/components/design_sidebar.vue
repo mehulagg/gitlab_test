@@ -100,10 +100,6 @@ export default {
     showTodoButton() {
       return this.glFeatures.designManagementTodoButton;
     },
-    hasPendingTodo() {
-      // TODO not implemented, awaiting BE support: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/40555
-      return true;
-    },
     sidebarWrapperClass() {
       return {
         'gl-pt-0': this.showTodoButton,
@@ -184,7 +180,7 @@ export default {
       });
     },
     toggleTodo() {
-      if (this.hasPendingTodo) {
+      if (this.pendingTodo) {
         return this.deleteTodo().catch(() => {
           this.emitError(DELETE_DESIGN_TODO_ERROR);
         });
@@ -210,7 +206,7 @@ export default {
       <todo-button
         issuable-type="design"
         :issuable-id="design.iid"
-        :is-todo="hasPendingTodo"
+        :is-todo="pendingTodo"
         @click.prevent.stop="toggleTodo"
       />
     </div>

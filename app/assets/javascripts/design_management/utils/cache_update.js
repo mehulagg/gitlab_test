@@ -64,15 +64,9 @@ export const addPendingTodoToStore = (store, pendingTodo, query, queryVariables)
     variables: queryVariables,
   });
 
-  // // const data = produce(sourceData, draftData => {
-  // //   // eslint-disable-next-line no-param-reassign
-  // //   draftData.project.issue.designCollection.versions.nodes = [
-  // //     version,
-  // //     ...draftData.project.issue.designCollection.versions.nodes,
-  // //   ];
-  // // });
+  // TODO produce new version of data that includes the new pendingTodo.
+  // This is only possible after BE MR: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/40555
 
-  // const design = extractDesign(data);
   store.writeQuery({ query, variables: queryVariables, data });
 };
 
