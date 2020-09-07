@@ -216,7 +216,7 @@ export default {
 <template>
   <gl-form @submit.prevent="onSubmit">
     <h2 class="gl-mb-6">
-      {{ s__('DastProfiles|New scanner profile') }}
+      {{ i18n.title }}
     </h2>
 
     <gl-alert v-if="showAlert" variant="danger" class="gl-mb-5" @dismiss="hideErrors">
