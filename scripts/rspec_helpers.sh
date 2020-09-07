@@ -112,7 +112,7 @@ function rspec_paralellized_job() {
 }
 
 function rspec_impact_job() {
-  local test_file_count_threshold=20
+  local test_file_count_threshold=${RSPEC_IMPACT_TEST_FILE_COUNT_THRESHOLD:-10}
   local matching_tests_file=${1}
   local rspec_opts=${2}
   local test_files="$(cat "${matching_tests_file}")"
