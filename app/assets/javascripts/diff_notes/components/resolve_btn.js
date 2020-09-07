@@ -134,9 +134,8 @@ const ResolveBtn = Vue.extend({
           gl.mrWidget.checkStatus();
           this.updateTooltip();
         })
-        .catch(
-          () =>
-            new Flash(__('An error occurred when trying to resolve a comment. Please try again.')),
+        .catch(() =>
+          Flash(__('An error occurred when trying to resolve a comment. Please try again.')),
         );
     },
   },

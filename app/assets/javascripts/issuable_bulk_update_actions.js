@@ -31,7 +31,7 @@ export default {
 
   onFormSubmitFailure() {
     this.form.find('[type="submit"]').enable();
-    return new Flash(__('Issue update failed'));
+    return Flash(__('Issue update failed'));
   },
 
   /**

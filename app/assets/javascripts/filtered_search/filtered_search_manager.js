@@ -84,8 +84,7 @@ export default class FilteredSearchManager {
       .fetch()
       .catch(error => {
         if (error.name === 'RecentSearchesServiceError') return undefined;
-        // eslint-disable-next-line no-new
-        new Flash(__('An error occurred while parsing recent searches'));
+        Flash(__('An error occurred while parsing recent searches'));
         // Gracefully fail to empty array
         return [];
       })

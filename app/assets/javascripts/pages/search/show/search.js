@@ -65,7 +65,7 @@ export default class Search {
             return data;
           })
           .then(data => callback(data))
-          .catch(() => new Flash(__('Error fetching projects')));
+          .catch(() => Flash(__('Error fetching projects')));
       },
       id(obj) {
         return obj.id;

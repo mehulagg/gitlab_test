@@ -672,8 +672,7 @@ export default class Notes {
   }
 
   updateNoteError() {
-    // eslint-disable-next-line no-new
-    new Flash(
+    Flash(
       __('Your comment could not be updated! Please check your network connection and try again.'),
     );
   }
@@ -1376,7 +1375,7 @@ export default class Notes {
   }
 
   addFlash(...flashParams) {
-    this.flashContainer = new Flash(...flashParams);
+    this.flashContainer = Flash(...flashParams);
   }
 
   clearFlash() {

@@ -22,5 +22,5 @@ document.addEventListener('DOMContentLoaded', () => {
         .val(selectedOption)
         .trigger('change.select2');
     })
-    .catch(() => new Flash(__('Error loading countries data.')));
+    .catch(() => Flash(__('Error loading countries data.')));
 });

@@ -83,7 +83,7 @@ export default class VisualTokenValue {
           matchingLabel.text_color,
         );
       })
-      .catch(() => new Flash(__('An error occurred while fetching label colors.')));
+      .catch(() => Flash(__('An error occurred while fetching label colors.')));
   }
 
   updateEpicLabel(tokenValueContainer) {
@@ -105,7 +105,7 @@ export default class VisualTokenValue {
 
         VisualTokenValue.replaceEpicTitle(tokenValueContainer, matchingEpic.title, matchingEpic.id);
       })
-      .catch(() => new Flash(__('An error occurred while adding formatted title for epic')));
+      .catch(() => Flash(__('An error occurred while adding formatted title for epic')));
   }
 
   static replaceEpicTitle(tokenValueContainer, epicTitle, epicId) {

@@ -162,7 +162,7 @@ export default class BlobViewer {
 
         this.toggleCopyButtonState();
       })
-      .catch(() => new Flash(__('Error loading viewer')));
+      .catch(() => Flash(__('Error loading viewer')));
   }
 
   static loadViewer(viewerParam) {

@@ -157,7 +157,7 @@ export default class FileTemplateMediator {
           initPopover(suggestCommitChanges);
         }
       })
-      .catch(err => new Flash(`An error occurred while fetching the template: ${err}`));
+      .catch(err => Flash(`An error occurred while fetching the template: ${err}`));
   }
 
   displayMatchedTemplateSelector() {

@@ -48,9 +48,8 @@ class ResolveServiceClass {
         if (gl.mrWidget) gl.mrWidget.checkStatus();
         discussion.updateHeadline(data);
       })
-      .catch(
-        () =>
-          new Flash(__('An error occurred when trying to resolve a discussion. Please try again.')),
+      .catch(() =>
+        Flash(__('An error occurred when trying to resolve a discussion. Please try again.')),
       );
   }
 

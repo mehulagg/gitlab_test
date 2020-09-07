@@ -50,7 +50,7 @@ export default class SidebarMediator {
       .then(([restResponse, graphQlResponse]) => {
         this.processFetchedData(restResponse.data, graphQlResponse.data);
       })
-      .catch(() => new Flash(__('Error occurred when fetching sidebar data')));
+      .catch(() => Flash(__('Error occurred when fetching sidebar data')));
   }
 
   processFetchedData(data) {

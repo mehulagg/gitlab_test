@@ -4,7 +4,7 @@ import { getBinary } from './services/image_service';
 
 const imageRepository = () => {
   const images = new Map();
-  const flash = message => new Flash(message);
+  const flash = message => Flash(message);
 
   const add = (file, url) => {
     getBinary(file)

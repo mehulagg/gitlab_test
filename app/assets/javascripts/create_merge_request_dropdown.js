@@ -1,4 +1,3 @@
-/* eslint-disable no-new */
 import { debounce } from 'lodash';
 import axios from './lib/utils/axios_utils';
 import { deprecatedCreateFlash as Flash } from './flash';
@@ -262,7 +261,7 @@ export default class CreateMergeRequestDropdown {
       .catch(() => {
         this.unavailable();
         this.disable();
-        new Flash(__('Failed to get ref.'));
+        Flash(__('Failed to get ref.'));
 
         this.isGettingRef = false;
 

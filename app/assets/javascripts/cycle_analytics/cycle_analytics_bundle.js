@@ -74,7 +74,7 @@ export default () => {
     methods: {
       handleError() {
         this.store.setErrorState(true);
-        return new Flash(__('There was an error while fetching value stream analytics data.'));
+        return Flash(__('There was an error while fetching value stream analytics data.'));
       },
       initDropdown() {
         const $dropdown = $('.js-ca-dropdown');

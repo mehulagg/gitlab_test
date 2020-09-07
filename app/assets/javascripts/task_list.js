@@ -22,7 +22,7 @@ export default class TaskList {
           errorMessages = e.response.data.errors.join(' ');
         }
 
-        return new Flash(errorMessages || __('Update failed'), 'alert');
+        return Flash(errorMessages || __('Update failed'), 'alert');
       };
 
     this.init();
