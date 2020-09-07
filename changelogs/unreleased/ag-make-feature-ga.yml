@@ -1,5 +1,5 @@
 ---
-title: Move group activity analytics from beta to general availability
+title: Remove the feature flag for group activity analytics
 merge_request: 29261
 author:
 type: changed
