@@ -88,6 +88,7 @@ variables:
   # TODO: Remove before merge
   # This is to test the rspec-impact and fail-pipeline-early jobs introduced in this MR
   RSPEC_IMPACT_ENABLED: "true"
+  RSPEC_IMPACT_TEST_FILE_COUNT_THRESHOLD: 13
 
 include:
   - local: .gitlab/ci/build-images.gitlab-ci.yml
