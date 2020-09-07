@@ -100,6 +100,10 @@ export default {
     showTodoButton() {
       return this.glFeatures.designManagementTodoButton;
     },
+    hasPendingTodo() {
+      // TODO not implemented, awaiting BE support: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/40555
+      return true;
+    },
     sidebarWrapperClass() {
       return {
         'gl-pt-0': this.showTodoButton,
