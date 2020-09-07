@@ -161,6 +161,10 @@ module EE
         merge_request_pipeline? && merge_train_ref?
       end
 
+      def has_security_findings?
+        security_findings.exists?
+      end
+
       private
 
       def project_has_subscriptions?

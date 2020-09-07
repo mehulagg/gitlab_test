@@ -496,4 +496,21 @@ RSpec.describe Ci::Pipeline do
       it { is_expected.to eq(:detached) }
     end
   end
+
+  describe '#has_security_findings?' do
+    subject { pipeline.has_security_findings? }
+
+    context 'when the pipeline has security_findings' do
+      before do
+        scan = create(:security_scan, pipeline: pipeline)
+        create(:security_finding, scan: scan)
+      end
+
+      it { is_expected.to be_truthy }
+    end
+
+    context 'when the pipeline does not have security_findings' do
+      it { is_expected.to be_falsey }
+    end
+  end
 end

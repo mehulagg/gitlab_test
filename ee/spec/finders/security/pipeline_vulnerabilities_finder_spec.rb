@@ -14,6 +14,7 @@ RSpec.describe Security::PipelineVulnerabilitiesFinder do
 
   describe '#execute' do
     let(:params) { {} }
+    let(:adaptive) { false }
 
     let_it_be(:build_cs) { create(:ci_build, :success, name: 'cs_job', pipeline: pipeline, project: project) }
     let_it_be(:build_dast) { create(:ci_build, :success, name: 'dast_job', pipeline: pipeline, project: project) }
@@ -42,7 +43,7 @@ RSpec.describe Security::PipelineVulnerabilitiesFinder do
       disable_deduplication
     end
 
-    subject { described_class.new(pipeline: pipeline, params: params).execute }
+    subject { described_class.new(pipeline: pipeline, adaptive: adaptive, params: params).execute }
 
     context 'findings' do
       it 'assigns commit sha to findings' do
