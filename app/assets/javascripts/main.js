@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 // bootstrap webpack, common libs, polyfills, and behaviors
 import './webpack';
 import './commons';
-import './behaviors';
+// import './behaviors';
 
 // lib/utils
 import applyGitLabUIConfig from '@gitlab/ui/dist/config';
@@ -21,19 +21,19 @@ import { getLocationHash, visitUrl } from './lib/utils/url_utility';
 
 // everything else
 import { deprecatedCreateFlash as Flash, removeFlashClickListener } from './flash';
-import initTodoToggle from './header';
+// import initTodoToggle from './header';
 import initImporterStatus from './importer_status';
-import initLayoutNav from './layout_nav';
+// import initLayoutNav from './layout_nav';
 import './feature_highlight/feature_highlight_options';
 import LazyLoader from './lazy_loader';
 import initLogoAnimation from './logo';
 import initFrequentItemDropdowns from './frequent_items';
 import initBreadcrumbs from './breadcrumb';
 import initUsagePingConsent from './usage_ping_consent';
-import initPerformanceBar from './performance_bar';
-import initSearchAutocomplete from './search_autocomplete';
+// import initPerformanceBar from './performance_bar';
+// import initSearchAutocomplete from './search_autocomplete';
 import GlFieldErrors from './gl_field_errors';
-import initUserPopovers from './user_popovers';
+// import initUserPopovers from './user_popovers';
 import initBroadcastNotifications from './broadcast_notification';
 import initPersistentUserCallouts from './persistent_user_callouts';
 import { initUserTracking, initDefaultTrackers } from './tracking';
@@ -103,10 +103,10 @@ function deferredInitialisation() {
 
   initBreadcrumbs();
   initImporterStatus();
-  initTodoToggle();
+  // initTodoToggle();
   initLogoAnimation();
   initUsagePingConsent();
-  initUserPopovers();
+  // initUserPopovers();
   initBroadcastNotifications();
   initFrequentItemDropdowns();
   initPersistentUserCallouts();
@@ -163,10 +163,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const $document = $(document);
   const bootstrapBreakpoint = bp.getBreakpointSize();
 
-  if (document.querySelector('#js-peek')) initPerformanceBar({ container: '#js-peek' });
+  // if (document.querySelector('#js-peek')) initPerformanceBar({ container: '#js-peek' });
 
   initUserTracking();
-  initLayoutNav();
+  // initLayoutNav();
 
   // Set the default path for all cookies to GitLab's root directory
   Cookies.defaults.path = gon.relative_url_root || '/';
