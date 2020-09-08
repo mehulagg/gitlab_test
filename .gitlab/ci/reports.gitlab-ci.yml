@@ -99,6 +99,8 @@ dependency_scanning:
     - .use-docker-in-docker
   stage: test
   needs: []
+  before_script:
+    - source lib/gitlab/ci/templates/utils/env.sh
   variables:
     DS_MAJOR_VERSION: 2
     DS_EXCLUDED_PATHS: "qa/qa/ee/fixtures/secure_premade_reports,spec,ee/spec"  # GitLab-specific
@@ -109,14 +111,6 @@ dependency_scanning:
           export DOCKER_HOST='tcp://localhost:2375'
         fi
       fi
-    - | # this is required to avoid undesirable reset of Docker image ENV variables being set on build stage
-      function propagate_env_vars() {
-        CURRENT_ENV=$(printenv)
-
-        for VAR_NAME; do
-          echo $CURRENT_ENV | grep "${VAR_NAME}=" > /dev/null && echo "--env $VAR_NAME "
-        done
-      }
     - |
       docker run \
         $(propagate_env_vars \
