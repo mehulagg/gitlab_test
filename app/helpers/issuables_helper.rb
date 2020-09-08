@@ -301,8 +301,8 @@ module IssuablesHelper
     return { groupPath: parent.path } if parent.is_a?(Group)
 
     {
-        projectPath: ref_project.path,
-        projectNamespace: ref_project.namespace.full_path
+      projectPath: ref_project.path,
+      projectNamespace: ref_project.namespace.full_path
     }
   end
 
