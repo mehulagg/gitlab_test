@@ -2,10 +2,10 @@
 import { GlButton } from '@gitlab/ui';
 
 export default {
+  name: 'ReplyPlaceholder',
   components: {
     GlButton,
   },
-  name: 'ReplyPlaceholder',
   props: {
     buttonText: {
       type: String,
