@@ -368,6 +368,14 @@ module QA
         ENV['MAILHOG_HOSTNAME']
       end
 
+      def release
+         ENV['RELEASE']
+      end
+
+      def deployed_version
+        ENV['DEPLOYED_VERSION']
+      end
+
       private
 
       def remote_grid_credentials
