@@ -720,6 +720,18 @@ RSpec.describe Ci::Pipeline, :mailer do
       ]
     end
 
+    it 'does not include CI_HAS_OPEN_MERGE_REQUEST variable' do
+      expect(subject.to_hash).not_to have_key('CI_HAS_OPEN_MERGE_REQUEST')
+    end
+
+    context 'when there is a merge request for the source ref of the pipeline' do
+      # ...?
+
+      it 'includes CI_HAS_OPEN_MERGE_REQUEST variable' do
+        expect(subject.to_hash).to include('CI_HAS_OPEN_MERGE_REQUEST' => 'true')
+      end
+    end
+
     context 'when pipeline is merge request' do
       let(:pipeline) do
         create(:ci_pipeline, merge_request: merge_request)
@@ -761,6 +773,10 @@ RSpec.describe Ci::Pipeline, :mailer do
             'CI_MERGE_REQUEST_MILESTONE' => milestone.title,
             'CI_MERGE_REQUEST_LABELS' => labels.map(&:title).sort.join(','),
             'CI_MERGE_REQUEST_EVENT_TYPE' => pipeline.merge_request_event_type.to_s)
+      end
+
+      it 'includes CI_HAS_OPEN_MERGE_REQUEST variable' do
+        expect(subject.to_hash).to include('CI_HAS_OPEN_MERGE_REQUEST' => 'true')
       end
 
       context 'when source project does not exist' do
