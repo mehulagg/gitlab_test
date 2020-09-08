@@ -21,7 +21,7 @@ describe('ReplyPlaceholder', () => {
     wrapper.destroy();
   });
 
-  it('emits onClick event on button click', () => {
+  it('should emit a onClick event on button click', () => {
     findButton().trigger('click');
 
     return wrapper.vm.$nextTick().then(() => {
