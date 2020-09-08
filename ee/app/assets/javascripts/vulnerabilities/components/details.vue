@@ -1,13 +1,14 @@
 <script>
 import { GlLink, GlSprintf } from '@gitlab/ui';
 import SeverityBadge from 'ee/vue_shared/security_reports/components/severity_badge.vue';
+import ReportDetails from 'ee/vue_shared/security_reports/components/report_items/details.vue';
 import CodeBlock from '~/vue_shared/components/code_block.vue';
 import { __ } from '~/locale';
 import DetailItem from './detail_item.vue';
 
 export default {
   name: 'VulnerabilityDetails',
-  components: { CodeBlock, GlLink, SeverityBadge, DetailItem, GlSprintf },
+  components: { CodeBlock, GlLink, SeverityBadge, DetailItem, GlSprintf, ReportDetails },
   props: {
     vulnerability: {
       type: Object,
@@ -93,6 +94,9 @@ export default {
       return (
         this.location.crash_address || this.location.crash_type || this.location.stacktrace_snippet
       );
+    },
+    details() {
+      return this.vulnerability.details;
     },
   },
   methods: {
@@ -258,5 +262,10 @@ export default {
         </detail-item>
       </ul>
     </section>
+
+    <div v-if="details">
+      <h3>{{ s__('Vulnerability|Details') }}</h3>
+      <report-details v-if="details" :vulnerability="vulnerability" />
+    </div>
   </div>
 </template>
