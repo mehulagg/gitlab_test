@@ -8186,6 +8186,9 @@ msgstr ""
 msgid "Deletion pending. This project will be removed on %{date}. Repository and other project resources are read-only."
 msgstr ""
 
+msgid "Demo"
+msgstr ""
+
 msgid "Denied"
 msgstr ""
 
@@ -19671,6 +19674,9 @@ msgstr ""
 msgid "ProjectTemplates|Android"
 msgstr ""
 
+msgid "ProjectTemplates|Demo Template (test)"
+msgstr ""
+
 msgid "ProjectTemplates|GitLab Cluster Management"
 msgstr ""
 
@@ -24496,6 +24502,9 @@ msgid "Test failed."
 msgstr ""
 
 msgid "Test settings and save changes"
+msgstr ""
+
+msgid "Test template for Demo Templates."
 msgstr ""
 
 msgid "TestHooks|Ensure one of your projects has merge requests."

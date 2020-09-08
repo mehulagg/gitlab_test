@@ -4,7 +4,7 @@ module Gitlab
   class DemoTemplate < ProjectTemplate
     def self.localized_templates_table
       [
-        DemoTemplate.new('demo_template', 'Demo Template (test)', _('Test template for Demo Templates.'), 'https://gitlab.com/gitlab-org/project-templates', 'illustrations/gitlab_logo.svg'),
+        DemoTemplate.new('demo_template', 'Demo Template (test)', _('Test template for Demo Templates.'), 'https://gitlab.com/gitlab-org/project-templates', 'illustrations/gitlab_logo.svg')
       ].freeze
     end
 
