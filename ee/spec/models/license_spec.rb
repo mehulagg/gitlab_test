@@ -10,7 +10,9 @@ RSpec.describe License do
     describe "Valid license" do
       context "when the license is provided" do
         it "is valid" do
-          expect(license).to be_valid end end
+          expect(license).to be_valid
+        end
+      end
 
       context "when no license is provided" do
         before do
