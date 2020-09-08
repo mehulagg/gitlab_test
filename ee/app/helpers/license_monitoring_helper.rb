@@ -36,4 +36,8 @@ module LicenseMonitoringHelper
   def active_user_count_threshold
     strong_memoize(:active_user_count_threshold) { current_license.active_user_count_threshold }
   end
+
+  def total_user_count
+    strong_memoize(:total_user_count) { current_license.restricted_user_count }
+  end
 end
