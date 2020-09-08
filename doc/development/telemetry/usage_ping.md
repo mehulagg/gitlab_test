@@ -295,13 +295,16 @@ Implemented using Redis methods [PFADD](https://redis.io/commands/pfadd) and [PF
    - `entity_id`: value we count. For example: user_id, visitor_id.
    - `event_name`: event name.
 
-1. Get event data using `Gitlab::UsageDataCounters::HLLRedisCounter.unique_events(event_names:, start_date:, end_date)`.
+1. Get event data using `Gitlab::UsageDataCounters::HLLRedisCounter.unique_events(event_names:, start_date:, end_date:)`.
 
    Arguments:
 
    - `event_names`: the list of event names.
    - `start_date`: start date of the period for which we want to get event data.
    - `end_date`: end date of the period for which we want to get event data.
+
+   When querying for an event that is aggregated weekly, only events tracked within completed weeks will be included in the
+   total count of unique events. For example, if you would like to include events tracked for the current day, set `end_date: Date.current.next_week`.
 
 Recommendations:
 
