@@ -9304,7 +9304,6 @@ CREATE TABLE public.approval_merge_request_rules (
     updated_at timestamp with time zone NOT NULL,
     merge_request_id integer NOT NULL,
     approvals_required smallint DEFAULT 0 NOT NULL,
-    code_owner boolean DEFAULT false NOT NULL,
     name character varying NOT NULL,
     rule_type smallint DEFAULT 1 NOT NULL,
     report_type smallint,
@@ -10083,7 +10082,6 @@ CREATE TABLE public.ci_job_artifacts (
     file_sha256 bytea,
     file_format smallint,
     file_location smallint,
-    locked boolean,
     CONSTRAINT check_27f0f6dbab CHECK ((file_store IS NOT NULL))
 );
 
@@ -10267,7 +10265,7 @@ CREATE TABLE public.ci_pipelines (
     target_sha bytea,
     external_pull_request_id bigint,
     ci_ref_id bigint,
-    locked smallint DEFAULT 0 NOT NULL,
+    locked smallint DEFAULT 1 NOT NULL,
     CONSTRAINT check_d7e99a025e CHECK ((lock_version IS NOT NULL))
 );
 
@@ -14643,7 +14641,8 @@ CREATE TABLE public.project_security_settings (
     auto_fix_container_scanning boolean DEFAULT true NOT NULL,
     auto_fix_dast boolean DEFAULT true NOT NULL,
     auto_fix_dependency_scanning boolean DEFAULT true NOT NULL,
-    auto_fix_sast boolean DEFAULT true NOT NULL
+    auto_fix_sast boolean DEFAULT true NOT NULL,
+    cve_id_request_enabled boolean DEFAULT true NOT NULL
 );
 
 CREATE SEQUENCE public.project_security_settings_project_id_seq
@@ -14792,8 +14791,7 @@ CREATE TABLE public.projects (
     marked_for_deletion_at date,
     marked_for_deletion_by_user_id integer,
     autoclose_referenced_issues boolean,
-    suggestion_commit_message character varying(255),
-    cve_id_request_enabled boolean DEFAULT true
+    suggestion_commit_message character varying(255)
 );
 
 CREATE SEQUENCE public.projects_id_seq
@@ -19050,8 +19048,6 @@ CREATE UNIQUE INDEX any_approver_project_rule_type_unique_index ON public.approv
 
 CREATE INDEX approval_mr_rule_index_merge_request_id ON public.approval_merge_request_rules USING btree (merge_request_id);
 
-CREATE UNIQUE INDEX approval_rule_name_index_for_code_owners ON public.approval_merge_request_rules USING btree (merge_request_id, code_owner, name) WHERE ((code_owner = true) AND (section IS NULL));
-
 CREATE UNIQUE INDEX backup_labels_group_id_project_id_title_idx ON public.backup_labels USING btree (group_id, project_id, title);
 
 CREATE INDEX backup_labels_group_id_title_idx ON public.backup_labels USING btree (group_id, title) WHERE (project_id = NULL::integer);
@@ -19079,6 +19075,8 @@ CREATE INDEX design_user_mentions_on_design_id_and_note_id_index ON public.desig
 CREATE UNIQUE INDEX epic_user_mentions_on_epic_id_and_note_id_index ON public.epic_user_mentions USING btree (epic_id, note_id);
 
 CREATE UNIQUE INDEX epic_user_mentions_on_epic_id_index ON public.epic_user_mentions USING btree (epic_id) WHERE (note_id IS NULL);
+
+CREATE INDEX idx_audit_events_on_entity_id_desc_author_id_created_at ON public.audit_events USING btree (entity_id, entity_type, id DESC, author_id, created_at);
 
 CREATE INDEX idx_ci_pipelines_artifacts_locked ON public.ci_pipelines USING btree (ci_ref_id, id) WHERE (locked = 1);
 
@@ -19224,8 +19222,6 @@ CREATE UNIQUE INDEX index_approval_merge_request_rule_sources_1 ON public.approv
 
 CREATE INDEX index_approval_merge_request_rule_sources_2 ON public.approval_merge_request_rule_sources USING btree (approval_project_rule_id);
 
-CREATE INDEX index_approval_merge_request_rules_1 ON public.approval_merge_request_rules USING btree (merge_request_id, code_owner);
-
 CREATE UNIQUE INDEX index_approval_merge_request_rules_approved_approvers_1 ON public.approval_merge_request_rules_approved_approvers USING btree (approval_merge_request_rule_id, user_id);
 
 CREATE INDEX index_approval_merge_request_rules_approved_approvers_2 ON public.approval_merge_request_rules_approved_approvers USING btree (user_id);
@@ -19273,8 +19269,6 @@ CREATE INDEX index_approvers_on_target_id_and_target_type ON public.approvers US
 CREATE INDEX index_approvers_on_user_id ON public.approvers USING btree (user_id);
 
 CREATE UNIQUE INDEX index_atlassian_identities_on_extern_uid ON public.atlassian_identities USING btree (extern_uid);
-
-CREATE INDEX index_audit_events_on_entity_id_entity_type_id_desc_author_id ON public.audit_events USING btree (entity_id, entity_type, id DESC, author_id);
 
 CREATE INDEX index_award_emoji_on_awardable_type_and_awardable_id ON public.award_emoji USING btree (awardable_type, awardable_id);
 
@@ -20124,7 +20118,7 @@ CREATE INDEX index_keys_on_user_id ON public.keys USING btree (user_id);
 
 CREATE UNIQUE INDEX index_kubernetes_namespaces_on_cluster_project_environment_id ON public.clusters_kubernetes_namespaces USING btree (cluster_id, project_id, environment_id);
 
-CREATE INDEX index_label_links_on_label_id ON public.label_links USING btree (label_id);
+CREATE INDEX index_label_links_on_label_id_and_target_type ON public.label_links USING btree (label_id, target_type);
 
 CREATE INDEX index_label_links_on_target_id_and_target_type ON public.label_links USING btree (target_id, target_type);
 
@@ -20410,6 +20404,8 @@ CREATE INDEX index_on_identities_lower_extern_uid_and_provider ON public.identit
 
 CREATE UNIQUE INDEX index_on_instance_statistics_recorded_at_and_identifier ON public.analytics_instance_statistics_measurements USING btree (identifier, recorded_at);
 
+CREATE INDEX index_on_label_links_all_columns ON public.label_links USING btree (target_id, label_id, target_type);
+
 CREATE INDEX index_on_users_name_lower ON public.users USING btree (lower((name)::text));
 
 CREATE INDEX index_open_project_tracker_data_on_service_id ON public.open_project_tracker_data USING btree (service_id);
@@ -20461,6 +20457,8 @@ CREATE INDEX index_packages_package_files_on_file_store ON public.packages_packa
 CREATE INDEX index_packages_package_files_on_package_id_and_file_name ON public.packages_package_files USING btree (package_id, file_name);
 
 CREATE INDEX index_packages_packages_on_creator_id ON public.packages_packages USING btree (creator_id);
+
+CREATE INDEX index_packages_packages_on_id_and_created_at ON public.packages_packages USING btree (id, created_at);
 
 CREATE INDEX index_packages_packages_on_name_trigram ON public.packages_packages USING gin (name public.gin_trgm_ops);
 
@@ -20820,6 +20818,8 @@ CREATE INDEX index_resource_iteration_events_on_merge_request_id ON public.resou
 
 CREATE INDEX index_resource_iteration_events_on_user_id ON public.resource_iteration_events USING btree (user_id);
 
+CREATE INDEX index_resource_iterationn_events_on_iteration_id_and_add_action ON public.resource_iteration_events USING btree (iteration_id) WHERE (action = 1);
+
 CREATE INDEX index_resource_label_events_issue_id_label_id_action ON public.resource_label_events USING btree (issue_id, label_id, action);
 
 CREATE INDEX index_resource_label_events_on_epic_id ON public.resource_label_events USING btree (epic_id);
@@ -21173,6 +21173,8 @@ CREATE INDEX index_vulnerabilities_on_last_edited_by_id ON public.vulnerabilitie
 CREATE INDEX index_vulnerabilities_on_milestone_id ON public.vulnerabilities USING btree (milestone_id);
 
 CREATE INDEX index_vulnerabilities_on_project_id ON public.vulnerabilities USING btree (project_id);
+
+CREATE INDEX index_vulnerabilities_on_project_id_and_id ON public.vulnerabilities USING btree (project_id, id);
 
 CREATE INDEX index_vulnerabilities_on_resolved_by_id ON public.vulnerabilities USING btree (resolved_by_id);
 
@@ -21592,7 +21594,7 @@ ALTER INDEX public.product_analytics_events_experimental_pkey ATTACH PARTITION g
 
 ALTER INDEX public.product_analytics_events_experimental_pkey ATTACH PARTITION gitlab_partitions_static.product_analytics_events_experimental_63_pkey;
 
-CREATE TRIGGER table_sync_trigger_ee39a25f9d AFTER INSERT OR DELETE OR UPDATE ON public.audit_events FOR EACH ROW EXECUTE FUNCTION public.table_sync_function_2be879775d();
+CREATE TRIGGER table_sync_trigger_ee39a25f9d AFTER INSERT OR DELETE OR UPDATE ON public.audit_events FOR EACH ROW EXECUTE PROCEDURE public.table_sync_function_2be879775d();
 
 ALTER TABLE ONLY public.chat_names
     ADD CONSTRAINT fk_00797a2bf9 FOREIGN KEY (service_id) REFERENCES public.services(id) ON DELETE CASCADE;
