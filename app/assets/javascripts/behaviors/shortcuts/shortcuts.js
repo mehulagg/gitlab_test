@@ -3,11 +3,9 @@ import Cookies from 'js-cookie';
 import Mousetrap from 'mousetrap';
 import Vue from 'vue';
 import { disableShortcuts, shouldDisableShortcuts } from './shortcuts_toggle';
-import ShortcutsToggle from './shortcuts_toggle.vue';
-import axios from '../../lib/utils/axios_utils';
 import { refreshCurrentPage, visitUrl } from '../../lib/utils/url_utility';
 import findAndFollowLink from '../../lib/utils/navigation_utility';
-import { parseBoolean, getCspNonceValue } from '~/lib/utils/common_utils';
+import { parseBoolean } from '~/lib/utils/common_utils';
 
 const defaultStopCallback = Mousetrap.prototype.stopCallback;
 Mousetrap.prototype.stopCallback = function customStopCallback(e, element, combo) {
@@ -17,15 +15,6 @@ Mousetrap.prototype.stopCallback = function customStopCallback(e, element, combo
 
   return defaultStopCallback.call(this, e, element, combo);
 };
-
-function initToggleButton() {
-  return new Vue({
-    el: document.querySelector('.js-toggle-shortcuts'),
-    render(createElement) {
-      return createElement(ShortcutsToggle);
-    },
-  });
-}
 
 export default class Shortcuts {
   constructor() {
@@ -101,32 +90,27 @@ export default class Shortcuts {
     $(document).triggerHandler('markdown-preview:toggle', [e]);
   }
 
-  static toggleHelp(location) {
-    const $modal = $('#modal-shortcuts');
+  static toggleHelp() {
+    const $modal = document.querySelector('#modal-shortcuts');
 
-    if ($modal.length) {
-      $modal.modal('toggle');
+    if ($modal) {
+      $modal.remove();
       return null;
     }
 
-    return axios
-      .get(gon.shortcuts_path, {
-        responseType: 'text',
-      })
-      .then(({ data }) => {
-        $.globalEval(data, { nonce: getCspNonceValue() });
+    const el = document.createElement('div');
 
-        if (location && location.length > 0) {
-          const results = [];
-          for (let i = 0, len = location.length; i < len; i += 1) {
-            results.push($(location[i]).show());
-          }
-          return results;
-        }
+    document.body.append(el);
 
-        return $('.js-more-help-button').remove();
-      })
-      .then(initToggleButton);
+    return new Vue({
+      el,
+      components: {
+        ShortcutsHelp: () => import('./shortcuts_help.vue'),
+      },
+      render(createElement) {
+        return createElement('shortcuts-help');
+      },
+    });
   }
 
   focusFilter(e) {
