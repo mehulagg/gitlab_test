@@ -2940,7 +2940,7 @@ to the project directory. Wildcards can be used that follow the
 [glob](https://en.wikipedia.org/wiki/Glob_(programming)) patterns and:
 
 - In [GitLab Runner 13.0](https://gitlab.com/gitlab-org/gitlab-runner/-/issues/2620) and later,
-[`doublestar.Glob`](https://pkg.go.dev/github.com/bmatcuk/doublestar@v1.2.2?tab=doc#Match).
+[`doublestar.PathMatch`](https://pkg.go.dev/github.com/bmatcuk/doublestar@v1.2.2?tab=doc#PathMatch).
 - In GitLab Runner 12.10 and earlier,
 [`filepath.Match`](https://pkg.go.dev/path/filepath/#Match).
 
