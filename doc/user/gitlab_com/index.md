@@ -38,6 +38,14 @@ The IP address for `mg.gitlab.com` is subject to change at any time.
 
 [See our backup strategy](https://about.gitlab.com/handbook/engineering/infrastructure/production/#backups).
 
+There are several ways to perform backups of your content on GitLab.com.
+
+Projects can be backed up in their entirety by exporting them either [through the UI](https://docs.gitlab.com/ee/user/project/settings/import_export.html) or [API](https://docs.gitlab.com/ee/api/project_import_export.html#schedule-an-export), the latter of which can be used to programmatically upload exports to a storage platform such as AWS S3.
+
+With exports, be sure to take note of [what is and is not](https://docs.gitlab.com/ee/user/project/settings/import_export.html#exported-contents), included in a project export.
+
+Since GitLab is built on Git, you can back up **just** the repository of a project by [cloning](https://docs.gitlab.com/ee/gitlab-basics/command-line-commands.html#clone-your-project) it to another machine. Similarly, if you need to back up just the wiki of a repository it can also be cloned and all files uploaded to that wiki will come with it [if they were uploaded after version 11.3 of GitLab.com](https://docs.gitlab.com/ee/user/project/wiki/#creating-a-new-wiki-page).
+
 ## Alternative SSH port
 
 GitLab.com can be reached via a [different SSH port](https://about.gitlab.com/blog/2016/02/18/gitlab-dot-com-now-supports-an-alternate-git-plus-ssh-port/) for `git+ssh`.
