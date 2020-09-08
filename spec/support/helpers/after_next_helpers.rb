@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require_relative './next_instance_of'
+
 module AfterNextHelpers
   class DeferredExpectation
-    include NextInstanceOf
+    include ::NextInstanceOf
     include ::RSpec::Matchers
     include ::RSpec::Mocks::ExampleMethods
 
