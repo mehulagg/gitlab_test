@@ -92,6 +92,12 @@ bulk_migrate_async(
 )
 ```
 
+NOTE: **Note:**
+This will queue a Sidekiq job to be run immediately- if you have a large number
+of records, this may not be what you want. You can use the function
+`queue_background_migration_jobs_by_range_at_intervals` to split the job into
+batches.
+
 You'll also need to make sure that newly created data is either migrated, or
 saved in both the old and new version upon creation. For complex and time
 consuming migrations it's best to schedule a background job using an
