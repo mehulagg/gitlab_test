@@ -515,9 +515,9 @@ class License < ApplicationRecord
   end
 
   def active_user_count_threshold_reached?
-    return if restricted_user_count.nil?
-    return if current_active_users_count <= 1
-    return if current_active_users_count > restricted_user_count
+    return false if restricted_user_count.nil?
+    return false if current_active_users_count <= 1
+    return false if current_active_users_count > restricted_user_count
 
     active_user_count_threshold[:value] >= if active_user_count_threshold[:percentage]
                                              remaining_user_count.fdiv(current_active_users_count) * 100
