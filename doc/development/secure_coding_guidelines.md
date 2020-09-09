@@ -414,4 +414,5 @@ It can be used as follows:
 requires :file_path, type: String, file_path: { allowlist: ['/foo/bar/', '/home/foo/', '/app/home'] }
 ```
 
-Remember that absolute paths are not allowed by default. If allowing an absolute path is required, you will need to provide an array of paths to the parameter `allowlist`.  
+Remember that absolute paths are not allowed by default. If allowing an absolute path is required, you
+will need to provide an array of paths to the parameter `allowlist`.  
