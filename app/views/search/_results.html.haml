@@ -25,6 +25,7 @@
   #js-search-filter-by-state{ 'v-cloak': true, data: { scope: @scope, state: params[:state] } }
   - if Feature.enabled?(:search_filter_by_confidential)
     #js-search-filter-by-confidential{ 'v-cloak': true, data: { scope: @scope, confidential: params[:confidential] } }
+  %hr.gl-mt-4.gl-mb-4
 
   .results.gl-mt-3
     - if @scope == 'commits'

@@ -68,11 +68,7 @@ export default {
 </script>
 
 <template>
-  <gl-dropdown
-    v-if="scope === 'issues'"
-    :text="selectedFilterText"
-    class="col-sm-3 gl-pt-4 gl-pl-0"
-  >
+  <gl-dropdown v-if="scope === 'issues'" :text="selectedFilterText" class="col-2 gl-pt-4 gl-pl-0">
     <header class="gl-text-center gl-font-weight-bold gl-font-lg">
       {{ $options.filterHeader }}
     </header>
