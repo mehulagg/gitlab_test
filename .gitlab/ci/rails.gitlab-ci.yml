@@ -543,9 +543,12 @@ fail-pipeline-early:
   needs:
     - job: rspec-impact
       artifacts: false
+  variables:
+    GIT_DEPTH: 1
+  before_script:
+    - source scripts/utils.sh
+    - install_api_client_dependencies_with_apt
   script:
-    - . scripts/utils.sh
-    - echo "Failing pipeline early for fast feedback due to test failures in rspec-impact."
-    - cancel_current_pipeline
+    - fail_pipeline_early
 # EE: Canonical MR pipelines
 ##################################################
