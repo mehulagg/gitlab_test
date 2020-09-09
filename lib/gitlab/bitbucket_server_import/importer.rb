@@ -131,6 +131,10 @@ module Gitlab
 
         project.ensure_repository
         project.repository.fetch_as_mirror(project.import_url, refmap: self.class.refmap, remote_name: REMOTE_NAME)
+        if is_lfs_enabled?
+          project.update(lfs_enabled: true)
+          download_lfs_objects
+        end
 
         log_info(stage: 'import_repository', message: 'finished import')
       rescue Gitlab::Shell::Error => e
@@ -145,6 +149,18 @@ module Gitlab
         project.repository.expire_content_cache if project.repository_exists?
 
         raise
+      end
+
+      def download_lfs_objects
+        return unless project.lfs_enabled?
+  
+        result = Projects::LfsPointers::LfsImportService.new(project).execute
+  
+        if result[:status] == :error
+          # To avoid aborting the importing process, we silently fail
+          # if any exception raises.
+          Gitlab::AppLogger.error("The Lfs import process failed. #{result[:message]}")
+        end
       end
 
       # Bitbucket Server keeps tracks of references for open pull requests in
@@ -396,6 +412,10 @@ module Gitlab
 
       def metrics
         @metrics ||= Gitlab::Import::Metrics.new(:bitbucket_server_importer, @project)
+      end
+
+      def is_lfs_enabled?
+        client.lfs_enabled(@project_key, repo) == 200
       end
     end
   end

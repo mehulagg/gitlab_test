@@ -42,6 +42,17 @@ module BitbucketServer
       raise ConnectionError, e
     end
 
+    def get_status_code(path, extra_query = {})
+      response = Gitlab::HTTP.get(build_url(path),
+                                  basic_auth: auth,
+                                  headers: accept_headers,
+                                  query: extra_query)
+
+      response.code
+    rescue *NETWORK_ERRORS => e
+      raise ConnectionError, e
+    end
+
     def post(path, body)
       response = Gitlab::HTTP.post(build_url(path),
                                    basic_auth: auth,
@@ -105,7 +116,8 @@ module BitbucketServer
 
     def build_url(path)
       return path if path.starts_with?(root_url)
-
+      return path if path.starts_with?(lfs_url)
+      
       Gitlab::Utils.append_path(root_url, path)
     end
 
@@ -119,6 +131,10 @@ module BitbucketServer
       else
         build_url(path)
       end
+    end
+
+    def lfs_url
+      Gitlab::Utils.append_path(base_uri, "rest/git-lfs/admin")
     end
   end
 end

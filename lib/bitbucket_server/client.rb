@@ -29,6 +29,10 @@ module BitbucketServer
       get_collection(path, :repo, page_offset: page_offset, limit: limit)
     end
 
+    def lfs_enabled(project_key, repo)
+      connection.get("rest/git-lfs/admin/projects/#{project_key}/repos/#{repo}/enabled")
+    end
+
     def create_branch(project_key, repo, branch_name, sha)
       payload = {
         name: branch_name,
