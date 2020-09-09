@@ -578,9 +578,8 @@ If you receive an "13:Received RST_STREAM with error code 2" while mirroring to 
 
 ### Error `pre-receive hook failed` in pull-mirrored repositories
 
-If you
+If you encounter the error **Pre-receive hook failed** in a pulled-mirrored repository:
 
-1. encounter the above error and
 1. find a matching timestamp in an error [logged by Gitaly](../../../administration/logs.md#gitaly-logs)
    (for example using `grep 'not allowed to push code to protected branches' /var/log/gitlab/gitaly/current`)
    
