@@ -400,7 +400,9 @@ path = Gitlab::Utils.check_path_traversal!(path)
 Gitlab::Utils.check_allowed_absolute_path!(path, path_allowlist)
 ```
 
-In case the checks have to be done on the API side, there's also the [`FilePath`](https://gitlab.com/gitlab-org/security/gitlab/-/blob/master/lib/api/validations/validators/file_path.rb) Grape validator, which is based on `check_path_traversal!()` and `check_allowed_absolute_path!()`. It can be used as follows:
+In case the checks have to be done on the API side, there's also the [`FilePath`](https://gitlab.com/gitlab-org/security/gitlab/-/blob/master/lib/api/validations/validators/file_path.rb)
+Grape validator, which is based on `check_path_traversal!()` and `check_allowed_absolute_path!()`.
+It can be used as follows:
 
 ```ruby
 requires :file_path, type: String, file_path: { allowlist: ['/foo/bar/', '/home/foo/', '/app/home'] }
