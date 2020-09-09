@@ -22,7 +22,6 @@ RSpec.describe 'Gitlab::Graphql::Authorization' do
     end
 
     it 'returns nil when user is not authorized' do
-      ap result
       expect(subject).to be_nil
     end
   end

@@ -38,7 +38,7 @@ module Gitlab
         end
 
         def authorize!(object)
-          unless object.authorized?
+          unless Types::BaseObject.authorized?(object, context)
             raise_resource_not_available_error!
           end
         end
