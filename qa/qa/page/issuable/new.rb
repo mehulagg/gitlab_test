@@ -28,6 +28,11 @@ module QA
           element :assign_to_me_link
         end
 
+        view 'app/views/shared/issuable/form/_type_selector.html.haml' do
+          element :issuable_type_dropdown
+          element :issuable_type_content
+        end
+
         def fill_title(title)
           fill_element :issuable_form_title, title
         end
@@ -51,6 +56,13 @@ module QA
 
         def assign_to_me
           click_element :assign_to_me_link
+        end
+
+        def select_type(type)
+          click_element :issuable_type_dropdown
+          within_element(:issuable_type_content) do
+            click_on type
+          end
         end
       end
     end

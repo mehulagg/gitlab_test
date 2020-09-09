@@ -107,11 +107,12 @@ module QA
       Page::Project::Menu.perform(&:go_to_operations_incidents)
 
       Page::Project::Operations::Incidents::Index.perform do |incidents_page|
-        incidents_page.create_incident
+        incidents_page.create_first_incident
       end
 
       Page::Project::Issue::New.perform do |new_issue|
         new_issue.fill_title('test incident')
+        new_issue.select_type('Incident')
         new_issue.create_new_issue
       end
     end

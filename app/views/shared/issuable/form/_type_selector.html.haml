@@ -3,7 +3,7 @@
   .col-sm-10
     .issuable-form-select-holder.selectbox.form-group
       .dropdown.js-issuable-type-filter-dropdown-wrap
-        %button.dropdown-menu-toggle{ type: 'button', 'data-toggle' => 'dropdown' }
+        %button.dropdown-menu-toggle{ type: 'button', 'data-toggle' => 'dropdown' , data: { qa_selector: 'issuable_type_dropdown' } }
           %span.dropdown-label
             = type.capitalize || _("Select type")
           = icon('chevron-down')
@@ -12,7 +12,7 @@
             = _("Select type")
           %button.dropdown-title-button.dropdown-menu-close.gl-mt-3
             = icon('times', class: 'dropdown-menu-close-icon', 'aria-hidden' => 'true')
-          .dropdown-content
+          .dropdown-content{ data: { qa_selector: 'issuable_type_content' } }
             %ul
               %li.js-filter-issuable-type
                 = link_to new_project_issue_path(@project), class: ("is-active" if type === 'issue') do
