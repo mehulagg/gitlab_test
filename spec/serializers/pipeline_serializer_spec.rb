@@ -189,11 +189,19 @@ RSpec.describe PipelineSerializer do
         before do
           pipeline_1 = create(:ci_pipeline)
           build_1 = create(:ci_build, pipeline: pipeline_1)
-          create(:ci_sources_pipeline, source_job: build_1)
+          build_5 = create(:ci_build, pipeline: pipeline_1)
+          pipeline_4 = create(:ci_sources_pipeline, source_job: build_1).pipeline
+          create(:ci_sources_pipeline, source_job: build_5)
 
           pipeline_2 = create(:ci_pipeline)
           build_2 = create(:ci_build, pipeline: pipeline_2)
-          create(:ci_sources_pipeline, source_job: build_2)
+          pipeline_3 = create(:ci_sources_pipeline, source_job: build_2).pipeline
+
+          build_3 = create(:ci_build, pipeline: pipeline_3)
+          create(:ci_sources_pipeline, source_job: build_3)
+
+          build_4 = create(:ci_build, pipeline: pipeline_4)
+          create(:ci_sources_pipeline, source_job: build_4)
         end
 
         it 'verifies number of queries', :request_store do
