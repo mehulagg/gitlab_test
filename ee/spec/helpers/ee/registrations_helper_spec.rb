@@ -164,7 +164,7 @@ RSpec.describe EE::RegistrationsHelper do
         end
 
         with_them do
-          context 'regardles of if the onboarding issues experiment is enabled' do
+          context 'regardless of if the onboarding issues experiment is enabled' do
             where(onboarding_issues_experiment_enabled: [true, false])
 
             with_them do
