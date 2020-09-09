@@ -39,7 +39,6 @@ export default {
         if (FILTERS_ARRAY.some(({ value }) => value === this.confidential)) {
           return this.confidential;
         }
-        Ø;
         return FILTER_STATES.ANY.value;
       },
       set(confidential) {
