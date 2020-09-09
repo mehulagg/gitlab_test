@@ -39,7 +39,7 @@ export default {
         if (FILTERS_ARRAY.some(({ value }) => value === this.confidential)) {
           return this.confidential;
         }
-
+        Ø;
         return FILTER_STATES.ANY.value;
       },
       set(confidential) {
@@ -50,7 +50,7 @@ export default {
   methods: {
     dropDownItemClass(filter) {
       return {
-        'gl-border-b-solid gl-border-b-gray-100 gl-border-b-1 gl-pb-2! gl-mb-2':
+        'gl-border-b-solid gl-border-b-gray-100 gl-border-b-1 gl-pb-2! gl-mb-0':
           filter === FILTER_STATES.ANY,
       };
     },
@@ -68,7 +68,12 @@ export default {
 </script>
 
 <template>
-  <gl-dropdown v-if="scope === 'issues'" :text="selectedFilterText" class="col-2 gl-pt-4 gl-pl-0">
+  <gl-dropdown
+    v-if="scope === 'issues'"
+    :text="selectedFilterText"
+    class="col-3 gl-pt-4 gl-pl-3"
+    menu-class="w-100"
+  >
     <header class="gl-text-center gl-font-weight-bold gl-font-lg">
       {{ $options.filterHeader }}
     </header>

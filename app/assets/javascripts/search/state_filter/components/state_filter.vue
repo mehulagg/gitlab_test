@@ -76,7 +76,12 @@ export default {
 </script>
 
 <template>
-  <gl-dropdown v-if="showDropdown" :text="selectedFilterText" class="col-2 gl-pt-4 gl-pl-0">
+  <gl-dropdown
+    v-if="showDropdown"
+    :text="selectedFilterText"
+    class="col-3 gl-pt-4 gl-pl-0 gl-pr-3"
+    menu-class="w-100"
+  >
     <header class="gl-text-center gl-font-weight-bold gl-font-lg">
       {{ $options.filterHeader }}
     </header>
