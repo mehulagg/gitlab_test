@@ -316,6 +316,8 @@ always take into account the
 [project's visibility and permissions settings](project/settings/index.md#sharing-and-permissions)
 as well as the permission level of the user.
 
+The only difference from the permissions table with external users is that internal projects are considered like private projects for external users. For example, in an internal project you need to grant an external user access at the Reporter level or above if you want them to have access to the code.
+
 NOTE: **Note:**
 External users still count towards a license seat.
 
