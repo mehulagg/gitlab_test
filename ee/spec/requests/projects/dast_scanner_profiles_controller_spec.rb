@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'spec_helper'
+require 'pry'
+
 
 RSpec.describe Projects::DastScannerProfilesController, type: :request do
   let_it_be(:project) { create(:project) }
@@ -86,6 +88,11 @@ RSpec.describe Projects::DastScannerProfilesController, type: :request do
 
     it_behaves_like 'a GET request' do
       let(:path) { edit_path }
+    end
+
+    it 'set @scanner_profile' do
+      get edit_path
+      expect(assigns(:scanner_profile)).not_to be_nil
     end
   end
 end
