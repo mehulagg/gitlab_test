@@ -28,6 +28,30 @@ RSpec.describe Gitlab::GonHelper do
     end
   end
 
+  describe '#push_licensed_feature_availability' do
+    let(:gon) { instance_double('gon') }
+
+    it 'pushes a licensed feature when parent param is present' do
+      parent = double
+
+      expect(parent).to receive(:feature_available?).with(:some_feature).and_return(true)
+
+      allow(helper).to receive(:gon).and_return(gon)
+
+      expect(gon).to receive(:push).with({ features: { 'someFeature' => true } }, true)
+
+      helper.push_licensed_feature_availability(:some_feature, parent)
+    end
+
+    it 'pushes a licensed feature when parent param is not present' do
+      allow(helper).to receive(:gon).and_return(gon)
+
+      expect(gon).to receive(:push).with({ features: { 'someFeature' => false } }, true)
+
+      helper.push_licensed_feature_availability(:some_feature)
+    end
+  end
+
   describe '#default_avatar_url' do
     it 'returns an absolute URL' do
       url = helper.default_avatar_url

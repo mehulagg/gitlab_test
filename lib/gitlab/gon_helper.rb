@@ -59,10 +59,29 @@ module Gitlab
       var_name = name.to_s.camelize(:lower)
       enabled = Feature.enabled?(name, *args)
 
+      push_feature_availability(var_name, enabled)
+    end
+
+    # Exposes the state of a licensed feature to the frontend code.
+    #
+    # name - The name of the feature, e.g. `my_feature`.
+    # parent - Parent object, eg. project or group
+    def push_licensed_feature_availability(feature_name, parent = nil)
+      enabled = if parent
+                  parent.feature_available?(feature_name)
+                else
+                  ::License.feature_available?(feature_name)
+                end
+
+      push_feature_availability(feature_name, enabled)
+    end
+
+    def push_feature_availability(feature, enabled)
       # Here the `true` argument signals gon that the value should be merged
       # into any existing ones, instead of overwriting them. This allows you to
-      # use this method to push multiple feature flags.
-      gon.push({ features: { var_name => enabled } }, true)
+      # use this method to push multiple features.
+
+      gon.push({ features: { feature.to_s.camelize(:lower) => enabled } }, true)
     end
 
     def default_avatar_url
