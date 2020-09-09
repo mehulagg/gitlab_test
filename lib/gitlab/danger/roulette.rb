@@ -90,13 +90,25 @@ module Gitlab
         shuffled_people = people.shuffle(random: random)
 
         if timezone_experiment
-          shuffled_people.find(&method(:valid_person_with_timezone?))
+          shuffled_people.find(&method(:hungry_person_with_timezone?)) || shuffled_people.find(&method(:valid_person_with_timezone?))
         else
-          shuffled_people.find(&method(:valid_person?))
+          shuffled_people.find(&method(:hungry_person?)) || shuffled_people.find(&method(:valid_person?))
         end
       end
 
       private
+
+      # @param [Teammate] person
+      # @return [Boolean]
+      def hungry_person?(person)
+        valid_person?(person) && person.hungry
+      end
+
+      # @param [Teammate] person
+      # @return [Boolean]
+      def hungry_person_with_timezone?(person)
+        valid_person_with_timezone?(person) && person.hungry
+      end
 
       # @param [Teammate] person
       # @return [Boolean]

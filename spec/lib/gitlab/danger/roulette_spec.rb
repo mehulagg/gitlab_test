@@ -67,14 +67,18 @@ RSpec.describe Gitlab::Danger::Roulette do
     )
   end
 
-  let(:teammate_json) do
+  let(:teammates) do
     [
       backend_maintainer.to_h,
       frontend_maintainer.to_h,
       frontend_reviewer.to_h,
       software_engineer_in_test.to_h,
       engineering_productivity_reviewer.to_h
-    ].to_json
+    ]
+  end
+
+  let(:teammate_json) do
+    teammates.to_json
   end
 
   subject(:roulette) { Object.new.extend(described_class) }
@@ -207,6 +211,28 @@ RSpec.describe Gitlab::Danger::Roulette do
           it 'assigns backend reviewer and maintainer' do
             expect(spins).to eq([described_class::Spin.new(:backend, engineering_productivity_reviewer, backend_maintainer, false, false)])
           end
+        end
+      end
+
+      context 'when a reviewer is hungry' do
+        before(:each) do
+          teammates << backend_maintainer_hungry.to_h
+        end
+        let(:backend_maintainer_hungry) do
+          Gitlab::Danger::Teammate.new(
+            'username' => 'backend-maintainer-2',
+            'name' => 'Backend maintainer 2',
+            'role' => 'Backend engineer',
+            'projects' => { 'gitlab' => 'maintainer backend' },
+            'available' => true,
+            'hungry' => true,
+            'tz_offset_hours' => backend_tz_offset_hours
+          )
+        end
+        let(:categories) { [:backend] }
+
+        it 'assigns the hungry reviewer' do
+          expect(spins).to eq([described_class::Spin.new(:backend, engineering_productivity_reviewer, backend_maintainer_hungry, false, true)])
         end
       end
     end
