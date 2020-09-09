@@ -1,19 +1,24 @@
 import '~/behaviors/autosize';
 
 function load() {
-  document.dispatchEvent(new Event('load'));
+  document.dispatchEvent(new Event('DOMContentLoaded'));
 }
+
+jest.mock('~/helpers/startup_css_helper', () => {
+  return {
+    waitForCSSLoaded: jest.fn().mockImplementation(cb => cb.apply()),
+  };
+});
 
 describe('Autosize behavior', () => {
   beforeEach(() => {
     setFixtures('<textarea class="js-autosize" style="resize: vertical"></textarea>');
   });
 
-  it('does not overwrite the resize property', () => {
+  it('is applied to the textarea', () => {
     load();
 
-    expect(document.querySelector('textarea')).toHaveCss({
-      resize: 'vertical',
-    });
+    const textarea = document.querySelector('textarea');
+    expect(textarea.classList).toContain('autosized');
   });
 });
