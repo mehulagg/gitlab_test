@@ -94,6 +94,7 @@ module Users
       User.transaction do
         user.remove_project_authorizations(remove) unless remove.empty?
         ProjectAuthorization.insert_authorizations(add) unless add.empty?
+        user.update!(project_authorizations_recalculated_at: Time.zone.now)
       end
 
       # Since we batch insert authorization rows, Rails' associations may get

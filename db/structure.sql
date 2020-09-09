@@ -16206,6 +16206,7 @@ CREATE TABLE public.user_details (
     bio_html text,
     cached_markdown_version integer,
     webauthn_xid text,
+    project_authorizations_recalculated_at timestamp with time zone,
     CONSTRAINT check_245664af82 CHECK ((char_length(webauthn_xid) <= 100))
 );
 
@@ -21186,6 +21187,8 @@ CREATE UNIQUE INDEX index_user_canonical_emails_on_user_id_and_canonical_email O
 CREATE INDEX index_user_custom_attributes_on_key_and_value ON public.user_custom_attributes USING btree (key, value);
 
 CREATE UNIQUE INDEX index_user_custom_attributes_on_user_id_and_key ON public.user_custom_attributes USING btree (user_id, key);
+
+CREATE INDEX index_user_details_on_project_authorizations_recalculated_at ON public.user_details USING btree (project_authorizations_recalculated_at);
 
 CREATE UNIQUE INDEX index_user_details_on_user_id ON public.user_details USING btree (user_id);
 

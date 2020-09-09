@@ -108,6 +108,17 @@ RSpec.describe Users::RefreshAuthorizedProjectsService do
       service.execute_without_lease
     end
 
+    it 'updates project_authorizations_recalculated_at' do
+      Timecop.freeze do
+        expect_any_instance_of(User) do |user|
+          expect(user).to(
+            receive(:update!).with({ project_authorizations_recalculated_at: Time.zone.now }))
+        end
+
+        service.execute_without_lease
+      end
+    end
+
     it 'returns a User' do
       expect(service.execute_without_lease).to be_an_instance_of(User)
     end
