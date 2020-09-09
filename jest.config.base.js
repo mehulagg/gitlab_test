@@ -42,6 +42,7 @@ module.exports = path => {
     '^jest/(.*)$': '<rootDir>/spec/frontend/$1',
     'test_helpers(/.*)$': '<rootDir>/spec/frontend_integration/test_helpers$1',
     'test_fixtures(/.*)$': '<rootDir>/tmp/tests/frontend/fixtures$1',
+    '^jquery$': '<rootDir>/node_modules/jquery/dist/jquery.slim.js',
   };
 
   const collectCoverageFrom = ['<rootDir>/app/assets/javascripts/**/*.{js,vue}'];
