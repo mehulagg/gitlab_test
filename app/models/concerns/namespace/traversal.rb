@@ -46,13 +46,10 @@ class Namespace
     end
 
     def sync_traversal_ids?
-      return false unless self.respond_to?(:traversal_ids)
-
       Feature.enabled?(:sync_traversal_ids, root_ancestor, default_enabled: false)
     end
 
     def linear_group_traversal?
-      return false unless self.respond_to?(:traversal_ids)
       return false if traversal_ids.blank?
 
       Feature.enabled?(:linear_groups, root_ancestor, default_enabled: false)
