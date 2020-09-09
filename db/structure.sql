@@ -14024,6 +14024,15 @@ CREATE SEQUENCE public.packages_dependency_links_id_seq
 
 ALTER SEQUENCE public.packages_dependency_links_id_seq OWNED BY public.packages_dependency_links.id;
 
+CREATE TABLE public.packages_events (
+    event_type smallint NOT NULL,
+    event_scope smallint NOT NULL,
+    originator_type smallint NOT NULL,
+    originator bigint,
+    created_at timestamp with time zone NOT NULL,
+    package_id bigint
+);
+
 CREATE TABLE public.packages_maven_metadata (
     id bigint NOT NULL,
     package_id bigint NOT NULL,
@@ -20570,6 +20579,8 @@ CREATE UNIQUE INDEX index_packages_dependencies_on_name_and_version_pattern ON p
 
 CREATE INDEX index_packages_dependency_links_on_dependency_id ON public.packages_dependency_links USING btree (dependency_id);
 
+CREATE INDEX index_packages_events_on_package_id ON public.packages_events USING btree (package_id);
+
 CREATE INDEX index_packages_maven_metadata_on_package_id_and_path ON public.packages_maven_metadata USING btree (package_id, path);
 
 CREATE INDEX index_packages_nuget_dl_metadata_on_dependency_link_id ON public.packages_nuget_dependency_link_metadata USING btree (dependency_link_id);
@@ -23324,6 +23335,9 @@ ALTER TABLE ONLY public.merge_request_user_mentions
 
 ALTER TABLE ONLY public.ci_job_artifacts
     ADD CONSTRAINT fk_rails_c5137cb2c1 FOREIGN KEY (job_id) REFERENCES public.ci_builds(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.packages_events
+    ADD CONSTRAINT fk_rails_c6c20d0094 FOREIGN KEY (package_id) REFERENCES public.packages_packages(id) ON DELETE SET NULL;
 
 ALTER TABLE ONLY public.project_settings
     ADD CONSTRAINT fk_rails_c6df6e6328 FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;

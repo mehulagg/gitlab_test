@@ -246,7 +246,7 @@ module API
         delete do
           authorize!(:destroy_package, project)
 
-          package_event('delete_package', category: 'API::ConanPackages')
+          package_event('delete_package', :conan, category: 'API::ConanPackages')
 
           package.destroy
         end
