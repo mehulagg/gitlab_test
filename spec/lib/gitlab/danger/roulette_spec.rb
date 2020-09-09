@@ -215,7 +215,7 @@ RSpec.describe Gitlab::Danger::Roulette do
       end
 
       context 'when a reviewer is hungry' do
-        before(:each) do
+        before do
           teammates << backend_maintainer_hungry.to_h
         end
         let(:backend_maintainer_hungry) do
