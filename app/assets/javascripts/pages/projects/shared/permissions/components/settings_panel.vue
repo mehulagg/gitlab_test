@@ -367,7 +367,7 @@ export default {
           :label="s__('CVE|Enable CVE ID requests in the issue sidebar')"
           :disabled-input="visibilityLevel != visibilityOptions.PUBLIC"
           :help-path="cveIdRequestHelpPath"
-          name="project[cve_id_request_enabled]"
+          name="project[security_setting_attributes][cve_id_request_enabled]"
         />
       </project-setting-row>
       <project-setting-row

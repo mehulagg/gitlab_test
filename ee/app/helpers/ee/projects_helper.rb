@@ -4,6 +4,15 @@ module EE
   module ProjectsHelper
     extend ::Gitlab::Utils::Override
 
+    override :project_permissions_settings
+    def project_permissions_settings(project)
+      security_settings ||= ProjectSecuritySetting.safe_find_or_create_for(project)
+
+      super(project).merge({
+        cveIdRequestEnabled: !!security_settings.cve_id_request_enabled
+      })
+    end
+
     override :sidebar_settings_paths
     def sidebar_settings_paths
       super + %w[

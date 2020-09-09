@@ -65,10 +65,6 @@ class IssuableSidebarBasicEntity < Grape::Entity
     issuable.project.path
   end
 
-  expose :cve_id_request_is_enabled do |issuable|
-    issuable.project.cve_id_request_enabled === true
-  end
-
   expose :project_is_public do |issuable|
     issuable.project.visibility_level == ::Gitlab::VisibilityLevel::PUBLIC
   end

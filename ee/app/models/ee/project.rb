@@ -185,6 +185,7 @@ module EE
       accepts_nested_attributes_for :tracing_setting, update_only: true, allow_destroy: true
       accepts_nested_attributes_for :status_page_setting, update_only: true, allow_destroy: true
       accepts_nested_attributes_for :compliance_framework_setting, update_only: true, allow_destroy: true
+      accepts_nested_attributes_for :security_setting, update_only: true
 
       alias_attribute :fallback_approvals_required, :approvals_before_merge
     end

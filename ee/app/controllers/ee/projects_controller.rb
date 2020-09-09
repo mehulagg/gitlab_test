@@ -67,18 +67,22 @@ module EE
     private
 
     def project_params_ee
-      attrs = %i[
-        approvals_before_merge
-        approver_group_ids
-        approver_ids
-        issues_template
-        merge_requests_template
-        repository_size_limit
-        reset_approvals_on_push
-        ci_cd_only
-        use_custom_template
-        require_password_to_approve
-        group_with_project_templates_id
+      attrs = [
+        :approvals_before_merge,
+        :approver_group_ids,
+        :approver_ids,
+        :issues_template,
+        :merge_requests_template,
+        :repository_size_limit,
+        :reset_approvals_on_push,
+        :ci_cd_only,
+        :use_custom_template,
+        :require_password_to_approve,
+        :group_with_project_templates_id,
+
+        security_setting_attributes: %i[
+          cve_id_request_enabled
+        ]
       ]
 
       if allow_merge_pipelines_params?

@@ -605,7 +605,6 @@ module ProjectsHelper
     {
       packagesEnabled: !!project.packages_enabled,
       visibilityLevel: project.visibility_level,
-      cveIdRequestEnabled: !!project.cve_id_request_enabled,
       requestAccessEnabled: !!project.request_access_enabled,
       issuesAccessLevel: feature.issues_access_level,
       repositoryAccessLevel: feature.repository_access_level,
