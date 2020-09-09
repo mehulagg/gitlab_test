@@ -391,7 +391,13 @@ In order to prevent Path Traversal vulnerabilities, user-controlled filenames or
 - After validating the user supplied input, it should be appended to the base directory and the path should be canonicalized using the filesystem API.
 
 #### GitLab specific validations
-The methods `Gitlab::Utils.check_path_traversal!()` and `Gitlab::Utils.check_allowed_absolute_path!()` can be used to validate user-supplied paths and prevent Path Traversal vulnerabilities. `check_path_traversal!()` will detect Path Traversal payloads included on relative paths, and `check_allowed_absolute_path!()` will detect payloads included on absolute paths. By default, absolute paths are not allowed, so you will need to pass a list of allowed absolute paths to the `path_allowlist` parameter when using `check_allowed_absolute_path!()`.
+
+The methods `Gitlab::Utils.check_path_traversal!()` and `Gitlab::Utils.check_allowed_absolute_path!()`
+can be used to validate user-supplied paths and prevent Path Traversal vulnerabilities.
+`check_path_traversal!()` will detect Path Traversal payloads included on relative paths, and
+`check_allowed_absolute_path!()` will detect payloads included on absolute paths. By default, absolute
+paths are not allowed, so you will need to pass a list of allowed absolute paths to the `path_allowlist`
+parameter when using `check_allowed_absolute_path!()`.
 
 To use a combination of both checks, follow the example below:
 
