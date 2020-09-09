@@ -4,7 +4,6 @@ class Analytics::CycleAnalyticsController < Analytics::ApplicationController
   include CycleAnalyticsParams
   extend ::Gitlab::Utils::Override
 
-  check_feature_flag Gitlab::Analytics::CYCLE_ANALYTICS_FEATURE_FLAG
   increment_usage_counter Gitlab::UsageDataCounters::CycleAnalyticsCounter, :views, only: :show
 
   before_action :load_group, only: :show

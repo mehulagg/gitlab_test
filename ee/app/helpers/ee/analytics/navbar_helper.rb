@@ -42,7 +42,7 @@ module EE
 
       def project_merge_request_analytics_navbar_link(project, current_user)
         return unless project_nav_tab?(:merge_request_analytics)
-        return unless ::Gitlab::Analytics.project_merge_request_analytics_enabled?
+        return unless ::Feature.enabled?(:project_merge_request_analytics, project)
 
         navbar_sub_item(
           title: _('Merge Request'),
@@ -52,7 +52,7 @@ module EE
       end
 
       def group_merge_request_analytics_navbar_link(group, current_user)
-        return unless ::Gitlab::Analytics.group_merge_request_analytics_enabled?
+        return unless ::Feature.enabled?(:group_merge_request_analytics, group)
         return unless group_sidebar_link?(:merge_request_analytics)
 
         navbar_sub_item(

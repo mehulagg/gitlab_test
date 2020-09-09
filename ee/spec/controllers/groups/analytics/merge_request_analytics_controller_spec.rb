@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe Groups::Analytics::MergeRequestAnalyticsController do
   let_it_be(:current_user) { create(:user) }
   let_it_be(:group) { create :group }
-  let_it_be(:feature_flag_name) { Gitlab::Analytics::GROUP_MERGE_REQUEST_ANALYTICS_FEATURE_FLAG }
+  let_it_be(:feature_flag_name) { :group_merge_request_analytics }
   let_it_be(:feature_name) { :group_merge_request_analytics }
 
   before do

@@ -6,7 +6,7 @@ RSpec.describe Projects::Analytics::MergeRequestAnalyticsController do
   let_it_be(:current_user) { create(:user) }
   let_it_be(:group) { create(:group) }
   let_it_be(:project) { create(:project, group: group) }
-  let_it_be(:feature_flag_name) { Gitlab::Analytics::PROJECT_MERGE_REQUEST_ANALYTICS_FEATURE_FLAG }
+  let_it_be(:feature_flag_name) { :project_merge_request_analytics }
   let_it_be(:feature_name) { :project_merge_request_analytics }
 
   before do
