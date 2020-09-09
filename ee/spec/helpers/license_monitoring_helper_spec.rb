@@ -46,7 +46,7 @@ RSpec.describe LicenseMonitoringHelper do
       context 'when license' do
         context 'is not available' do
           before do
-            allow(License).to receive(:current).and_return(:nil)
+            allow(License).to receive(:current).and_return(nil)
           end
 
           it { is_expected.to be_falsey }
