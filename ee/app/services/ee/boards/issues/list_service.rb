@@ -8,6 +8,8 @@ module EE
 
         override :filter
         def filter(issues)
+          issues = by_epics(issues)
+
           return issues if params[:all_lists]
 
           unless list&.movable? || list&.closed?
@@ -23,6 +25,12 @@ module EE
           else
             super
           end
+        end
+
+        def by_epics(issues)
+          return issues unless params[:epic_ids]
+
+          issues.in_epics(params[:epic_ids])
         end
 
         override :issues_label_links
