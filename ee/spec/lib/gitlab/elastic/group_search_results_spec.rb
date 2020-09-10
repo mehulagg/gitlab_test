@@ -23,23 +23,28 @@ RSpec.describe Gitlab::Elastic::GroupSearchResults, :elastic do
     let(:query) { 'foo' }
     let(:scope) { 'issues' }
 
-    include_examples 'search results filtered by state' do
-      before do
-        ensure_elasticsearch_index!
-      end
+    before do
+      project.add_developer(user)
+
+      ensure_elasticsearch_index!
     end
+
+    include_examples 'search results filtered by state'
+    include_examples 'search issues scope filters by confidential'
   end
 
   context 'merge_requests search', :sidekiq_inline do
     let!(:project) { create(:project, :public, group: group) }
     let!(:opened_result) { create(:merge_request, :opened, source_project: project, title: 'foo opened') }
     let!(:closed_result) { create(:merge_request, :closed, source_project: project, title: 'foo closed') }
-
+    let!(:confidential_result) { create(:issue, :confidential, project: project, title: 'foo confidential') }
     let(:query) { 'foo' }
     let(:scope) { 'merge_requests' }
 
     include_examples 'search results filtered by state' do
       before do
+        project.add_developer(user)
+
         ensure_elasticsearch_index!
       end
     end

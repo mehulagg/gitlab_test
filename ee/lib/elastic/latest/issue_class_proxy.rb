@@ -35,8 +35,8 @@ module Elastic
         project_ids = options[:project_ids]
         confidential_filter = options[:confidential]
 
-        if confidential_filter.present?
-          query_hash[:query][:bool][:filter] << { term: { confidential: confidential_filter } }
+        if confidential_filter.present? && %w(yes no).include?(confidential_filter)
+          query_hash[:query][:bool][:filter] << { term: { confidential: confidential_filter == 'yes' } }
         end
 
         return query_hash if current_user&.can_read_all_resources?
