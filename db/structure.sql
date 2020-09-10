@@ -19327,6 +19327,8 @@ CREATE UNIQUE INDEX index_approval_project_rules_groups_1 ON public.approval_pro
 
 CREATE INDEX index_approval_project_rules_groups_2 ON public.approval_project_rules_groups USING btree (group_id);
 
+CREATE INDEX index_approval_project_rules_on_id_with_regular_type ON public.approval_project_rules USING btree (id) WHERE (rule_type = 0);
+
 CREATE INDEX index_approval_project_rules_on_project_id ON public.approval_project_rules USING btree (project_id);
 
 CREATE INDEX index_approval_project_rules_on_rule_type ON public.approval_project_rules USING btree (rule_type);
@@ -19338,6 +19340,8 @@ CREATE UNIQUE INDEX index_approval_project_rules_protected_branches_unique ON pu
 CREATE UNIQUE INDEX index_approval_project_rules_users_1 ON public.approval_project_rules_users USING btree (approval_project_rule_id, user_id);
 
 CREATE INDEX index_approval_project_rules_users_2 ON public.approval_project_rules_users USING btree (user_id);
+
+CREATE INDEX index_approval_project_rules_users_on_approval_project_rule_id ON public.approval_project_rules_users USING btree (approval_project_rule_id);
 
 CREATE UNIQUE INDEX index_approval_rule_name_for_code_owners_rule_type ON public.approval_merge_request_rules USING btree (merge_request_id, name) WHERE ((rule_type = 2) AND (section IS NULL));
 
