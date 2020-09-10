@@ -181,7 +181,7 @@ class Feature
           path,
           name: key.to_s,
           type: type.to_s,
-          default_enabled: default_enabled,
+          default_enabled: default_enabled
         ).tap(&:save!)
 
         definitions[definition.key] = definition
