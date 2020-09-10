@@ -93,7 +93,7 @@ RSpec.shared_examples 'multiple issue boards' do
 
       wait_for_requests
 
-      expect(page).to have_selector('.board', count: 2)
+      expect(page).to have_selector('.board', count: 4)
     end
 
     it 'maintains sidebar state over board switch' do

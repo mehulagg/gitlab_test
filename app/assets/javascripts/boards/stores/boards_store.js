@@ -12,7 +12,6 @@ import {
   parseBoolean,
   convertObjectPropsToCamelCase,
 } from '~/lib/utils/common_utils';
-import { __ } from '~/locale';
 import axios from '~/lib/utils/axios_utils';
 import { mergeUrlParams } from '~/lib/utils/url_utility';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
@@ -126,12 +125,13 @@ const boardsStore = {
   addBlankState() {
     if (!this.shouldAddBlankState() || this.welcomeIsHidden() || this.disabled) return;
 
-    this.addList({
-      id: 'blank',
-      list_type: 'blank',
-      title: __('Welcome to your Issue Board!'),
-      position: 0,
-    });
+    this.generateDefaultLists()
+      .then(res => res.data)
+      .then(data => Promise.all(data.map(list => this.addList(list))))
+      .catch(() => {
+        this.removeList(undefined, 'label');
+        this.addBlankState();
+      });
   },
   removeBlankState() {
     this.removeList('blank');

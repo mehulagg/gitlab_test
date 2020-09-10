@@ -374,21 +374,15 @@ If you're not able to do some of the things above, make sure you have the right
 
 ### First time using an issue board
 
-The first time you open an issue board, you are presented with
-the default lists (**Open** and **Closed**) and a welcome message that gives
-you two options. You can either:
+The first time you open an issue board, you are presented with the default lists
+(**Open**, **To Do**, **Doing**, and **Closed**). The predefined lists (**To
+Do** and **Doing**) will appear as empty because the labels associated to them
+will not exist up until that moment, which means the system has no way of
+populating them automatically. That's of course if the predefined labels don't
+already exist. If any of them does exist, the list will be created and filled
+with the issues that have that label.
 
-- Create a predefined set of labels (by default: **To Do** and **Doing**) and create their
-  corresponding lists to the issue board.
-- Opt-out and use your own lists.
-
-![issue board welcome message](img/issue_board_welcome_message.png)
-
-If you choose to use and create the predefined lists, they will appear as empty
-because the labels associated to them will not exist up until that moment,
-which means the system has no way of populating them automatically. That's of
-course if the predefined labels don't already exist. If any of them does exist,
-the list will be created and filled with the issues that have that label.
+![issue board default lists](img/issue_board_welcome_message.png)
 
 ### Create a new list
 
