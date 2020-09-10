@@ -318,7 +318,7 @@ DELETE /groups/:id/packages/:package_id
 | `package_id`      | integer | yes | ID of a package. |
 
 ```shell
-curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/groupss/:id/packages/:package_id"
+curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/groups/:id/packages/:package_id"
 ```
 
 Can return the following status codes:
