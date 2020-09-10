@@ -7,9 +7,9 @@ class Groups::Security::CredentialsController < Groups::ApplicationController
   include CredentialsInventoryActions
   include Groups::SecurityFeaturesHelper
 
-  helper_method :credentials_inventory_path, :user_detail_path
+  helper_method :credentials_inventory_path, :user_detail_path, :personal_access_token_revoke_path
 
-  before_action :validate_group_level_credentials_inventory_available!, only: [:index]
+  before_action :validate_group_level_credentials_inventory_available!, only: [:index, :revoke]
 
   private
 
@@ -25,6 +25,11 @@ class Groups::Security::CredentialsController < Groups::ApplicationController
   override :user_detail_path
   def user_detail_path(user)
     user_path(user)
+  end
+
+  override :personal_access_token_revoke_path
+  def personal_access_token_revoke_path(token)
+    revoke_group_security_credential_path(group, token)
   end
 
   override :users
