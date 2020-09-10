@@ -309,7 +309,7 @@ Can return the following status codes:
 Deletes a group package.
 
 ```plaintext
-DELETE /groupss/:id/packages/:package_id
+DELETE /groups/:id/packages/:package_id
 ```
 
 | Attribute | Type | Required | Description |
