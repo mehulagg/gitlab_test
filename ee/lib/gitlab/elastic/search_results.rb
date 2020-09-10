@@ -51,6 +51,14 @@ module Gitlab
         end
       end
 
+      def highlight_map(scope)
+        case scope
+        when 'issues'
+          issues.map { |issue| puts issue.highlight }
+          Hash[issues.map { |issue| [issue[:_source][:id], issue.highlight] }]
+        end
+      end
+
       def generic_search_results
         @generic_search_results ||= Gitlab::SearchResults.new(current_user, query, limit_projects)
       end
