@@ -106,7 +106,7 @@ a shared drive between servers. In either case, upon job completion jobs will ar
 
 DANGER: **Danger:**
 In a multi-server setup you must either enable the incremental logging feature
-or use a shared drive for the job logs location. Otherwise, job logs will disappear or not be saved during the archive process.
+or use a shared drive for the job logs location. Otherwise, job logs will disappear or not be saved.
 
 [Read more about using object storage with GitLab](object_storage.md).
 
