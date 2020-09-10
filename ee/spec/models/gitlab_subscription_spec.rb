@@ -134,6 +134,14 @@ RSpec.describe GitlabSubscription do
         end
       end
     end
+
+    context 'when subscription does not have a namespace' do
+      let(:gitlab_subscription) { create(:gitlab_subscription, namespace_id: nil) }
+
+      it 'returns zero' do
+        expect(gitlab_subscription.calculate_seats_in_use).to eq(0)
+      end
+    end
   end
 
   describe '#calculate_seats_owed' do

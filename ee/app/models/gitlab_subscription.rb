@@ -43,7 +43,7 @@ class GitlabSubscription < ApplicationRecord
   end
 
   def calculate_seats_in_use
-    namespace.billable_members_count
+    namespace&.billable_members_count.to_i
   end
 
   # The purpose of max_seats_used is similar to what we do for EE licenses
