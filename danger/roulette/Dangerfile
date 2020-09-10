@@ -32,7 +32,7 @@ MARKDOWN
 
 TRAINEE_MAINTAINER_MESSAGE = <<~MARKDOWN
 
-Consider assigning this MR to a [trainee maintainer](https://about.gitlab.com/handbook/engineering/workflow/code-review/#trainee-maintainer) instead of the selected reviewer or a domain expert.
+To help [trainee maintainers](https://about.gitlab.com/handbook/engineering/workflow/code-review/#trainee-maintainer) achieve their code review goals, consider assigning this MR to a trainee maintainer instead of the selected reviewer or a domain expert.
 
 | Category | Trainee Maintainer |
 | -------- | ------------------ |
