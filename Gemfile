@@ -98,6 +98,7 @@ gem 'apollo_upload_server', '~> 2.0.2'
 gem 'graphql-docs', '~> 1.6.0', group: [:development, :test]
 
 # Disable strong_params so that Mash does not respond to :permitted?
+gem 'hashie'
 gem 'hashie-forbidden_attributes'
 
 # Pagination
