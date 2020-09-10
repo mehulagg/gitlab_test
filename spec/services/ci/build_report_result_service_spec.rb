@@ -10,6 +10,7 @@ RSpec.describe Ci::BuildReportResultService do
       let(:build) { create(:ci_build, :success, :test_reports) }
 
       it 'creates a build report result entry', :aggregate_failures do
+        expect(Gitlab::Tracking::TestCasesParsed).to receive(:track_event).and_call_original
         expect(build_report_result.tests_name).to eq("test")
         expect(build_report_result.tests_success).to eq(2)
         expect(build_report_result.tests_failed).to eq(2)

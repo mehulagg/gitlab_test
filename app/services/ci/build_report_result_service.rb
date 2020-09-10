@@ -5,9 +5,13 @@ module Ci
     def execute(build)
       return unless build.has_test_reports?
 
+      test_suite = generate_test_suite_report(build)
+
+      track_test_cases(build, test_suite)
+
       build.report_results.create!(
         project_id: build.project_id,
-        data: tests_params(build)
+        data: tests_params(test_suite)
       )
     end
 
@@ -17,9 +21,11 @@ module Ci
       build.collect_test_reports!(Gitlab::Ci::Reports::TestReports.new)
     end
 
-    def tests_params(build)
-      test_suite = generate_test_suite_report(build)
+    def track_test_cases(build, test_suite)
+      Gitlab::Tracking::TestCasesParsed.track_event(build, test_suite)
+    end
 
+    def tests_params(test_suite)
       {
         tests: {
           name: test_suite.name,
