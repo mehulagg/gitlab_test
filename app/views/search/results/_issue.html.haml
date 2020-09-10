@@ -9,6 +9,9 @@
       %span.term.str-truncated.gl-font-weight-bold.gl-ml-2= issue.title
   .gl-text-gray-500.gl-my-3
     = sprintf(s_(' %{project_name}#%{issue_iid} &middot; opened %{issue_created} by %{author}'), { project_name: issue.project.full_name, issue_iid: issue.iid, issue_created: time_ago_with_tooltip(issue.created_at, placement: 'bottom'), author: link_to_member(@project, issue.author, avatar: false) }).html_safe
-  - if issue.description.present?
+  - if search_service.use_elasticsearch? && defined?(issue.highlight)
     .description.term.col-sm-10.gl-px-0
-      = search_bold_and_truncate(issue.description, @search_term, truncate: true)
+      = issue.highlight.description
+  - elsif issue.description.present?
+    .description.term.col-sm-10.gl-px-0
+      = simple_search_highlight_and_truncate(issue.description, @search_term, highlighter: '<em>\1</em>')

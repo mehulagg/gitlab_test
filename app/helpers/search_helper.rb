@@ -279,8 +279,9 @@ module SearchHelper
     sanitize(html, tags: %w(a p ol ul li pre code))
   end
 
-  def search_bold_and_truncate(text, phrase, options = {})
-    text = truncate(text, length: 200) if options.fetch(:truncate, true)
+  def simple_search_highlight_and_truncate(text, phrase, options = {})
+    text = truncate(text, length: 200)
+    phrase = phrase.split
     ActionView::Helpers::TextHelper.instance_method(:highlight).bind(self).call(text, phrase, options)
   end
 
