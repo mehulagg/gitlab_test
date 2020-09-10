@@ -290,6 +290,7 @@ module Types
           null: true,
           description: 'The code coverage of the project',
           resolver: Resolvers::Ci::DailyBuildGroupReportResultResolver.single
+      #     authorize: :read_build_report_results
 
     field :label,
           Types::LabelType,

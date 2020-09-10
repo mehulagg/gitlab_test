@@ -8,6 +8,8 @@ module Types
 
       # authorize :read_build_report_results
 
+      # present_using Ci::DailyBuildGroupReportResultPresenter
+
       field :id, GraphQL::ID_TYPE, null: false,
             description: 'ID of the DailyBuildGroupReportResult'
 

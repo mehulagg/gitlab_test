@@ -24,6 +24,13 @@ module Types
       def create_snippet
         Ability.allowed?(context[:current_user], :create_snippet, object)
       end
+
+      # permission_field :read_build_report_results
+
+      # def read_build_report_results
+      #   Ability.allowed?(context[:current_user], :read_build, object) &&
+      #     Ability.allowed?(context[:current_user], :read_pipeline, object)
+      # end
     end
   end
 end
