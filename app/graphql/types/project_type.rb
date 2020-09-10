@@ -289,7 +289,7 @@ module Types
           Types::Ci::DailyBuildGroupReportResultType,
           null: true,
           description: 'The code coverage of the project',
-          resolver: Resolvers::Ci::DailyBuildGroupReportResultResolver
+          resolver: Resolvers::Ci::DailyBuildGroupReportResultResolver.single
 
     field :label,
           Types::LabelType,

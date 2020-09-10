@@ -9,7 +9,6 @@ module Resolvers
 
       def resolve(**args)
         ::Ci::DailyBuildGroupReportResult.all
-        # ::Ci::DailyBuildGroupReportResultsFinder.new(finder_params).execute
       end
 
       def finder_params
