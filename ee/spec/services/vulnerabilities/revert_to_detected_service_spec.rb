@@ -60,16 +60,19 @@ RSpec.describe Vulnerabilities::RevertToDetectedService do
     end
 
     context 'when there is an error' do
-      before do
-        allow(service).to receive(:revert_findings_to_detected_state).and_return(
-          described_class::FindingsRevertResult.new(false, broken_finding, 'something went wrong'))
+      let(:broken_finding) { vulnerability.findings.first }
+
+      let!(:dismissal_feedback) do
+        create(:vulnerability_feedback, :dismissal, project: broken_finding.project, project_fingerprint: broken_finding.project_fingerprint)
       end
 
-      let(:broken_finding) { vulnerability.findings.first }
+      before do
+        allow(service).to receive(:destroy_feedback_for).and_return(false)
+      end
 
       it 'responds with error' do
         expect(revert_vulnerability_to_detected.errors.messages).to eq(
-          base: ["failed to revert associated finding(id=#{broken_finding.id}) to detected: something went wrong"])
+          base: ["failed to revert associated finding(id=#{broken_finding.id}) to detected"])
       end
     end
 

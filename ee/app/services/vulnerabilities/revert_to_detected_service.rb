@@ -4,7 +4,6 @@ module Vulnerabilities
   class RevertToDetectedService < BaseService
     include Gitlab::Allowable
 
-    FindingsRevertResult = Struct.new(:ok?, :finding, :message)
     REVERT_PARAMS = { resolved_by: nil, resolved_at: nil, dismissed_by: nil, dismissed_at: nil, confirmed_by: nil, confirmed_at: nil }.freeze
 
     def initialize(current_user, vulnerability)
@@ -15,12 +14,8 @@ module Vulnerabilities
       raise Gitlab::Access::AccessDeniedError unless authorized?
 
       @vulnerability.transaction do
-        result = revert_findings_to_detected_state
-
-        unless result.ok?
-          handle_finding_revert_error(result.finding, result.message)
-          raise ActiveRecord::Rollback
-        end
+        revert_result = revert_findings_to_detected_state
+        raise ActiveRecord::Rollback unless revert_result
 
         update_with_note(@vulnerability, state: Vulnerability.states[:detected], **REVERT_PARAMS)
       end
@@ -30,8 +25,10 @@ module Vulnerabilities
 
     private
 
-    def destroy_feedback_service_for(finding)
-      VulnerabilityFeedback::DestroyService.new(@project, @user, finding.dismissal_feedback)
+    def destroy_feedback_for(finding)
+      VulnerabilityFeedback::DestroyService
+        .new(@project, @user, finding.dismissal_feedback)
+        .execute
     end
 
     def revert_findings_to_detected_state
@@ -39,22 +36,24 @@ module Vulnerabilities
         .findings
         .select { |finding| finding.dismissal_feedback.present? }
         .each do |finding|
-          result = destroy_feedback_service_for(finding).execute
+          result = destroy_feedback_for(finding)
 
-          return FindingsRevertResult.new(false, finding, result[:message]) if result[:status] == :error
+          unless result
+            handle_finding_revert_error(finding)
+            return false
+          end
         end
 
-      FindingsRevertResult.new(true)
+      true
     end
 
-    def handle_finding_revert_error(finding, message)
+    def handle_finding_revert_error(finding)
       @vulnerability.errors.add(
         :base,
         :finding_revert_to_detected_error,
-        message: _("failed to revert associated finding(id=%{finding_id}) to detected: %{message}") %
+        message: _("failed to revert associated finding(id=%{finding_id}) to detected") %
           {
-            finding_id: finding.id,
-            message: message
+            finding_id: finding.id
           })
     end
   end
