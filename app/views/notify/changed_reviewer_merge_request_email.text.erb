@@ -1,0 +1,6 @@
+<%= _('Reviewer changed for Merge Request %{merge_request_id}') % { merge_request_id: @merge_request.iid} %>
+
+<%= url_for([@merge_request.project, @merge_request, { only_path: false }]) %>
+
+<%= _('Reviewer changed') %> <%= "from #{sanitize_name(@previous_reviewers.map(&:name).to_sentence)}" if @previous_reviewers.any? -%>
+ to <%= "#{@merge_request.reviewers.any? ? @merge_request.reviewer_list : 'Unassigned'}" %>

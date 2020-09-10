@@ -8,6 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gitlab 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-09-10 18:19+0930\n"
+"PO-Revision-Date: 2020-09-10 18:19+0930\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -21429,6 +21431,12 @@ msgstr ""
 msgid "ReviewApp|Enable Review App"
 msgstr ""
 
+msgid "Reviewer changed"
+msgstr ""
+
+msgid "Reviewer changed for Merge Request %{merge_request_id}"
+msgstr ""
+
 msgid "Reviewing"
 msgstr ""
 
@@ -30545,6 +30553,9 @@ msgid "this document"
 msgstr ""
 
 msgid "time summary"
+msgstr ""
+
+msgid "to"
 msgstr ""
 
 msgid "to help your contributors communicate effectively!"
