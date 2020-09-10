@@ -50,4 +50,19 @@ RSpec.describe Users::CreateService do
       end
     end
   end
+
+  context 'active user count threshold' do
+    before do
+      allow(Gitlab).to receive(:ee?).and_return(true)
+    end
+
+    it 'removes all users callouts with feature name ACTIVE_USER_COUNT_THRESHOLD' do
+      expect { operation }.to change(UserCallout, :count).to(0)
+    end
+
+    context 'when threshold reached' do
+      it 'sends email to admin' do
+      end
+    end
+  end
 end
