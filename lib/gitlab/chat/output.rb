@@ -12,7 +12,10 @@ module Gitlab
       PRIMARY_SECTION = 'chat_reply'
 
       # The backup trace section in case the primary one could not be found.
-      FALLBACK_SECTION = 'build_script'
+      FALLBACK_SECTION = 'step_script'
+
+      # `step_script` used to be `build_script` before runner 13.1
+      LEGACY_SECTION = 'build_script'
 
       # build - The `Ci::Build` to obtain the output from.
       def initialize(build)
@@ -41,7 +44,8 @@ module Gitlab
       # to the offset.
       def read_offset_and_length
         section = find_build_trace_section(PRIMARY_SECTION) ||
-          find_build_trace_section(FALLBACK_SECTION)
+          find_build_trace_section(FALLBACK_SECTION) ||
+          find_build_trace_section(LEGACY_SECTION)
 
         unless section
           raise(

@@ -29,10 +29,29 @@ RSpec.describe Gitlab::Chat::Output do
 
   describe '#read_offset_and_length' do
     context 'without the chat_reply trace section' do
+      it 'falls back to using the step_script trace section' do
+        expect(output)
+          .to receive(:find_build_trace_section)
+          .with('chat_reply')
+          .and_return(nil)
+
+        expect(output)
+          .to receive(:find_build_trace_section)
+          .with('step_script')
+          .and_return({ name: 'step_script', byte_start: 1, byte_end: 4 })
+
+        expect(output.read_offset_and_length).to eq([1, 3])
+      end
+
       it 'falls back to using the build_script trace section' do
         expect(output)
           .to receive(:find_build_trace_section)
           .with('chat_reply')
+          .and_return(nil)
+
+        expect(output)
+          .to receive(:find_build_trace_section)
+          .with('step_script')
           .and_return(nil)
 
         expect(output)
