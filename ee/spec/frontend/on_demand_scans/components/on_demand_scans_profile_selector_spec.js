@@ -57,7 +57,6 @@ describe('OnDemandScansProfileSelector', () => {
       ),
     );
   };
-  // const createComponent = wrapperFactory();
   const createFullComponent = wrapperFactory(mount);
 
   afterEach(() => {

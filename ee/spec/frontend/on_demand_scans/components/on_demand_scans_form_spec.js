@@ -1,5 +1,5 @@
 import { merge } from 'lodash';
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount, mount } from '@vue/test-utils';
 import { GlForm, GlSkeletonLoader } from '@gitlab/ui';
 import { TEST_HOST } from 'helpers/test_constants';
 import OnDemandScansForm from 'ee/on_demand_scans/components/on_demand_scans_form.vue';
@@ -86,7 +86,7 @@ describe('OnDemandScansForm', () => {
       ),
     );
   };
-  const createComponent = wrapperFactory();
+  const createComponent = wrapperFactory(mount);
 
   beforeEach(() => {
     createComponent();
@@ -101,6 +101,49 @@ describe('OnDemandScansForm', () => {
     expect(wrapper.html()).not.toBe('');
   });
 
+  describe('on success', () => {
+    beforeEach(async () => {
+      createComponent({
+        data: {
+          profiles: { scannerProfiles, siteProfiles },
+          form: {
+            dastScannerProfileId: { value: null },
+            dastSiteProfileId: { value: null },
+          },
+        },
+      });
+      jest
+        .spyOn(wrapper.vm.$apollo, 'mutate')
+        .mockResolvedValue({ data: { dastOnDemandScanCreate: { pipelineUrl, errors: [] } } });
+      await setFormData();
+      await wrapper.vm.$nextTick();
+      submitForm();
+    });
+
+    it('sets loading state', () => {
+      expect(wrapper.vm.loading).toBe(true);
+    });
+
+    it('triggers GraphQL mutation', () => {
+      expect(wrapper.vm.$apollo.mutate).toHaveBeenCalledWith({
+        mutation: dastOnDemandScanCreate,
+        variables: {
+          dastScannerProfileId: scannerProfiles[0].id,
+          dastSiteProfileId: siteProfiles[0].id,
+          fullPath: projectPath,
+        },
+      });
+    });
+
+    it('redirects to the URL provided in the response', () => {
+      expect(redirectTo).toHaveBeenCalledWith(pipelineUrl);
+    });
+
+    it('does not show an alert', () => {
+      expect(findAlert().exists()).toBe(false);
+    });
+  });
+
   describe('submission', () => {
     beforeEach(() => {
       createComponent({
@@ -108,40 +151,6 @@ describe('OnDemandScansForm', () => {
           scannerProfiles,
           siteProfiles,
         },
-      });
-    });
-
-    describe('on success', () => {
-      beforeEach(async () => {
-        jest
-          .spyOn(wrapper.vm.$apollo, 'mutate')
-          .mockResolvedValue({ data: { dastOnDemandScanCreate: { pipelineUrl, errors: [] } } });
-        await setFormData();
-        await wrapper.vm.$nextTick();
-        submitForm();
-      });
-
-      it('sets loading state', () => {
-        expect(wrapper.vm.loading).toBe(true);
-      });
-
-      it('triggers GraphQL mutation', () => {
-        expect(wrapper.vm.$apollo.mutate).toHaveBeenCalledWith({
-          mutation: dastOnDemandScanCreate,
-          variables: {
-            dastScannerProfileId: scannerProfiles[0].id,
-            dastSiteProfileId: siteProfiles[0].id,
-            fullPath: projectPath,
-          },
-        });
-      });
-
-      it('redirects to the URL provided in the response', () => {
-        expect(redirectTo).toHaveBeenCalledWith(pipelineUrl);
-      });
-
-      it('does not show an alert', () => {
-        expect(findAlert().exists()).toBe(false);
       });
     });
 

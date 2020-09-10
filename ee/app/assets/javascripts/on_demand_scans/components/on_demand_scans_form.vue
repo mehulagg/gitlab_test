@@ -242,9 +242,9 @@ export default {
       <on-demand-scans-profile-selector
         v-for="(settings, profileType) in profilesSettings"
         :key="profileType"
-        v-model="form[settings.field].value"
         :profiles="profiles[profileType]"
         :settings="settings"
+        @set-profile="id => form[settings.field].value = id"
       />
 
       <div class="gl-mt-6 gl-pt-6">
