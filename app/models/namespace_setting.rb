@@ -7,9 +7,8 @@ class NamespaceSetting < ApplicationRecord
 
   validate :allow_mfa_for_group
 
-
   def allow_mfa_for_group
-    if namespace.parent_id
+    if namespace&.parent_id
       errors.add(:allow_mfa_for_subgroups, "allow MFA setting is not allowed since group is not top-level group.")
     end
   end
