@@ -30,7 +30,7 @@ export default {
     <nav class="review-bar-component">
       <div class="review-bar-content qa-review-bar d-flex gl-justify-content-end">
         <preview-dropdown />
-        <publish-button class="gl-ml-3" show-count />
+        <publish-button class="gl-ml-3" show-count review-bar />
       </div>
     </nav>
   </div>

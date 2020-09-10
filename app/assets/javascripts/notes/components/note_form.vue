@@ -1,6 +1,10 @@
 <script>
 /* eslint-disable vue/no-v-html */
 import { mapGetters, mapActions, mapState } from 'vuex';
+import {
+  GlNewDropdown as GlDropdown,
+  GlNewDropdownItem as GlDropdownItem,
+} from '@gitlab/ui';
 import { mergeUrlParams } from '~/lib/utils/url_utility';
 import eventHub from '../event_hub';
 import NoteableWarning from '../../vue_shared/components/notes/noteable_warning.vue';
@@ -9,12 +13,16 @@ import issuableStateMixin from '../mixins/issuable_state';
 import resolvable from '../mixins/resolvable';
 import { __, sprintf } from '~/locale';
 import { getDraft, updateDraft } from '~/lib/utils/autosave';
+import DraftsCount from '../../batch_comments/components/drafts_count.vue';
 
 export default {
   name: 'NoteForm',
   components: {
     NoteableWarning,
     markdownField,
+    GlDropdown,
+    GlDropdownItem,
+    DraftsCount,
   },
   mixins: [issuableStateMixin, resolvable],
   props: {
@@ -116,7 +124,7 @@ export default {
     ...mapState({
       withBatchComments: state => state.batchComments?.withBatchComments,
     }),
-    ...mapGetters('batchComments', ['hasDrafts']),
+    ...mapGetters('batchComments', ['hasDrafts', 'draftsCount']),
     showBatchCommentsActions() {
       return this.withBatchComments && this.noteId === '' && !this.discussion.for_commit;
     },
@@ -253,8 +261,12 @@ export default {
       }
     },
     handleKeySubmit() {
-      this.isSubmittingWithKeydown = true;
-      this.handleUpdate();
+      if (this.hasDrafts) {
+        this.handleAddToReview();
+      } else {
+        this.isSubmittingWithKeydown = true;
+        this.handleUpdate();
+      }
     },
     handleUpdate(shouldResolve) {
       const beforeSubmitDiscussionState = this.discussionResolved;
@@ -369,22 +381,39 @@ export default {
             </label>
           </p>
           <div>
-            <button
-              :disabled="isDisabled"
-              type="button"
-              class="btn btn-success qa-comment-now js-comment-button"
-              @click="handleUpdate()"
-            >
-              {{ __('Comment') }}
-            </button>
-            <button
-              :disabled="isDisabled"
-              type="button"
-              class="btn qa-start-review"
-              @click="handleAddToReview"
-            >
-              {{ __('Add comment to batch') }}
-            </button>
+            <template v-if="hasDrafts">
+              <gl-dropdown
+                :disabled="isDisabled"
+                category="primary"
+                variant="success"
+                split
+                right
+                @click="handleAddToReview"
+              >
+                <template #button-content>
+                  {{ s__('Add comment to batch') }} <drafts-count />
+                </template>
+                <gl-dropdown-item @click="handleUpdate()">{{ __('Comment now') }}</gl-dropdown-item>
+              </gl-dropdown>
+            </template>
+            <template v-else>
+              <button
+                :disabled="isDisabled"
+                type="button"
+                class="btn btn-success qa-comment-now js-comment-button"
+                @click="handleUpdate()"
+              >
+                {{ __('Comment now') }}
+              </button>
+              <button
+                :disabled="isDisabled"
+                type="button"
+                class="btn qa-start-review"
+                @click="handleAddToReview"
+              >
+                {{ __('Publish later in batch') }}
+              </button>
+            </template>
             <button
               class="btn note-edit-cancel js-close-discussion-note-form float-right"
               type="button"

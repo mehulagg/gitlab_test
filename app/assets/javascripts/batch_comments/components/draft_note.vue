@@ -36,7 +36,7 @@ export default {
   },
   computed: {
     ...mapState('batchComments', ['isPublishing']),
-    ...mapGetters('batchComments', ['isPublishingDraft']),
+    ...mapGetters('batchComments', ['isPublishingDraft', 'draftsCount']),
     draftCommands() {
       return this.draft.references.commands;
     },
@@ -116,15 +116,10 @@ export default {
       ></div>
 
       <p class="draft-note-actions d-flex">
-        <publish-button :show-count="true" />
-        <gl-button
-          ref="publishNowButton"
-          :loading="isPublishingDraft(draft.id) || isPublishing"
-          class="gl-ml-3"
-          @click="publishNow"
-        >
-          {{ __('Publish this comment') }}
-        </gl-button>
+        <publish-button
+          show-count
+          @handlePublishSingleDraft="publishNow"
+        />
       </p>
     </template>
   </article>
