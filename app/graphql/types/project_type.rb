@@ -289,7 +289,8 @@ module Types
           Types::Ci::DailyBuildGroupReportResultType,
           null: true,
           description: 'The code coverage of the project',
-          resolver: Resolvers::Ci::DailyBuildGroupReportResultResolver.single
+          resolver: Resolvers::Ci::DailyBuildGroupReportResultResolver.single,
+          feature_flag: :code_coverage_graphql
       #     authorize: :read_build_report_results
 
     field :label,
