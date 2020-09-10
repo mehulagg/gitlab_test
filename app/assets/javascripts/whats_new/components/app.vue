@@ -15,6 +15,11 @@ export default {
       required: false,
       default: null,
     },
+    storageKey: {
+      type: String,
+      required: true,
+      default: '840'
+    }
   },
   computed: {
     ...mapState(['open']),
@@ -31,7 +36,7 @@ export default {
     },
   },
   mounted() {
-    this.openDrawer();
+    this.openDrawer(this.$props.storageKey);
   },
   methods: {
     ...mapActions(['openDrawer', 'closeDrawer']),

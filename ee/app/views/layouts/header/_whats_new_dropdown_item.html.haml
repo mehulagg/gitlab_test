@@ -3,6 +3,7 @@
     %li
       %button.js-whats-new-trigger{ type: 'button' }
         = _("See what's new at GitLab")
+        = whats_new_most_recent_release_items_count if display_whats_new_notification?
   - else
     %li
       = link_to _("See what's new at GitLab"), "#{promo_url}/releases/gitlab-com/", target: '_blank', rel: 'noopener noreferrer', data: { track_event: 'click_whats_new', track_property: 'question_menu' }

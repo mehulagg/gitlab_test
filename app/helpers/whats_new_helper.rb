@@ -3,6 +3,21 @@
 module WhatsNewHelper
   EMPTY_JSON = ''.to_json
 
+  def whats_new_most_recent_release_items_count
+    JSON.parse(whats_new_most_recent_release_items).count
+  end
+
+  def display_whats_new_notification?
+    cookie = cookies[whats_new_storage_key.to_sym]
+
+    JSON.parse(cookie)
+  end
+
+  def whats_new_storage_key
+    release = JSON.parse(whats_new_most_recent_release_items).first['release']
+    ['display-whats-new-notification', release].join('-')
+  end
+
   def whats_new_most_recent_release_items
     YAML.load_file(most_recent_release_file_path).to_json
 
