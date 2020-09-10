@@ -114,7 +114,6 @@ It is also possible to manage multiple assignees:
 ## Reviewer
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/216054) in GitLab 13.4.
-> - It's deployed behind a feature flag, disabled by default.
 > - It's [deployed behind a feature flag](../../../user/feature_flags.md), disabled by default.
 > - It's disabled on GitLab.com.
 > - It's not recommended for production use.
@@ -123,7 +122,10 @@ It is also possible to manage multiple assignees:
 CAUTION: **Caution:**
 This feature might not be available to you. Check the **version history** note above for details.
 
-Choose an reviewer to designate someone as the person responsible for the review of the merge request. Open the drop down box to search for the user you wish to review.
+Requesting a code review is an important part of contributing code. However, deciding who should review your code and asking for a review are no easy tasks. Using the "assignee" field for both authors and reviewers makes it hard for others to determine who's doing what on a merge request.
+Merge request reviewers easily allow authors to request a review as well as see the status of the review. By simply selecting one or more users from the **"reviewers"** field, the assigned reviewers will receive a notification of the request to review the merge request. This makes it easy to determine the relevant roles for the users involved in the merge request, as well as formally requesting a review form a peer.
+
+Open the drop down box to search for the user you wish to review.
 
 ### Enable or disable Merge Request Reviewers **(CORE ONLY)**
 
