@@ -8,7 +8,7 @@ module Resolvers
       alias_method :project, :object
 
       def resolve(**args)
-        ::Ci::DailyBuildGroupReportResult.all
+        ::Ci::DailyBuildGroupReportResultsFinder.new(finder_params).execute
       end
 
       def finder_params
@@ -16,7 +16,7 @@ module Resolvers
           current_user: current_user,
           project: project,
           ref_path: 'master',
-          start_date: Date.yesterday,
+          start_date: 1.month.ago,
           end_date: Date.today,
           limit: 10
         }
