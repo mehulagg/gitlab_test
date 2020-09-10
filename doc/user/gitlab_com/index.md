@@ -40,7 +40,7 @@ The IP address for `mg.gitlab.com` is subject to change at any time.
 
 There are several ways to perform backups of your content on GitLab.com.
 
-Projects can be backed up in their entirety by exporting them either [through the UI](https://docs.gitlab.com/ee/user/project/settings/import_export.html) or [API](https://docs.gitlab.com/ee/api/project_import_export.html#schedule-an-export), the latter of which can be used to programmatically upload exports to a storage platform such as AWS S3.
+Projects can be backed up in their entirety by exporting them either [through the UI](../project/settings/import_export.md) or [API](../../api/project_import_export.md#schedule-an-export), the latter of which can be used to programmatically upload exports to a storage platform such as AWS S3.
 
 With exports, be sure to take note of [what is and is not](https://docs.gitlab.com/ee/user/project/settings/import_export.html#exported-contents), included in a project export.
 
