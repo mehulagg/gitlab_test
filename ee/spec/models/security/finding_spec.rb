@@ -46,6 +46,16 @@ RSpec.describe Security::Finding do
     it { is_expected.to match_array(expected_findings) }
   end
 
+  describe '.by_project_fingerprints' do
+    let!(:finding_1) { create(:security_finding) }
+    let!(:finding_2) { create(:security_finding) }
+    let(:expected_findings) { [finding_1] }
+
+    subject { described_class.by_project_fingerprints(finding_1.project_fingerprint) }
+
+    it { is_expected.to match_array(expected_findings) }
+  end
+
   describe '.undismissed' do
     let(:scan) { create(:security_scan) }
     let!(:undismissed_finding) { create(:security_finding, scan: scan) }

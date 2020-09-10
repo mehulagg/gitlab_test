@@ -32,6 +32,8 @@ module Security
           .has_dismissal_feedback
           .where('vulnerability_feedback.project_fingerprint = security_findings.project_fingerprint')
     end
-    scope :ordered, -> { order(severity: :desc, confidence: :desc) }
+    scope :ordered, -> { order(severity: :desc, confidence: :desc, id: :asc) }
+    scope :with_build, -> { includes(:build) }
+    scope :with_scan, -> { includes(:scan) }
   end
 end
