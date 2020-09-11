@@ -36,6 +36,7 @@ class SearchController < ApplicationController
     @scope = search_service.scope
     @show_snippets = search_service.show_snippets?
     @search_results = search_service.search_results
+    @search_highlight = search_service.search_highlight
     @search_objects = search_service.search_objects(preload_method)
 
     render_commits if @scope == 'commits'
