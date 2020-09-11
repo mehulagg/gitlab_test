@@ -88,7 +88,7 @@ export default {
         :key="button.title"
         v-gl-tooltip
         class="px-1"
-        variant="transparent"
+        category="tertiary"
         :title="button.title"
         @click="button.onClick"
       >
