@@ -56,6 +56,16 @@ describe('setupAxiosStartupCalls', () => {
       expect(axios.interceptors.request.handlers.length).toBe(1);
     });
 
+    it('detaches the request interceptor if every startup call has been made', async () => {
+      expect(axios.interceptors.request.handlers[0]).not.toBeNull();
+
+      await axios.get('/startup');
+      await axios.get('/startup-failing');
+
+      // Axios sets the interceptor to null
+      expect(axios.interceptors.request.handlers[0]).toBeNull();
+    });
+
     it('delegates to startup calls if URL is registered and call is successful', async () => {
       const { headers, data, status, statusText } = await axios.get('/startup');
 

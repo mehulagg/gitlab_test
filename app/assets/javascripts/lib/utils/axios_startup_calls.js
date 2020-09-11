@@ -17,9 +17,7 @@ const setupAxiosStartupCalls = axios => {
     return;
   }
 
-  // TODO: To save performance of future axios calls, we can
-  // remove this interceptor once the "startupCalls" have been loaded
-  axios.interceptors.request.use(async req => {
+  const interceptor = axios.interceptors.request.use(async req => {
     const fullUrl = getFullUrl(req);
 
     const existing = startupCalls[fullUrl];
@@ -53,6 +51,10 @@ const setupAxiosStartupCalls = axios => {
       }
 
       delete startupCalls[fullUrl];
+
+      if (isEmpty(startupCalls)) {
+        axios.interceptors.request.eject(interceptor);
+      }
     }
 
     return req;
