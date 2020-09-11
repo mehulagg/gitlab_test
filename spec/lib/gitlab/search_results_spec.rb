@@ -184,7 +184,7 @@ RSpec.describe Gitlab::SearchResults do
         let_it_be(:confidential_result) { create(:issue, :confidential, project: project, title: 'foo confidential') }
 
         include_examples 'search results filtered by state'
-        include_examples 'search issues scope filters by confidential'
+        include_examples 'search results filtered by confidential'
       end
     end
 

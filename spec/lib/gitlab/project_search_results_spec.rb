@@ -273,7 +273,7 @@ RSpec.describe Gitlab::ProjectSearchResults do
       end
 
       include_examples 'search results filtered by state'
-      include_examples 'search issues scope filters by confidential'
+      include_examples 'search results filtered by confidential'
     end
   end
 

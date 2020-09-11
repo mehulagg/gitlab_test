@@ -74,14 +74,17 @@ RSpec.describe Gitlab::Elastic::ProjectSearchResults, :elastic do
         let!(:project) { create(:project, :public) }
         let!(:closed_result) { create(:issue, :closed, project: project, title: 'foo closed') }
         let!(:opened_result) { create(:issue, :opened, project: project, title: 'foo opened') }
+        let_it_be(:confidential_result) { create(:issue, :confidential, project: project, title: 'foo confidential') }
+
         let(:query) { 'foo' }
         let(:scope) { 'issues' }
 
-        include_examples 'search results filtered by state' do
-          before do
-            ensure_elasticsearch_index!
-          end
+        before do
+          ensure_elasticsearch_index!
         end
+
+        include_examples 'search results filtered by state'
+        include_examples 'search results filtered by confidential'
       end
 
       context 'merge_requests' do
