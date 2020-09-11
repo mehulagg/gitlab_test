@@ -12,6 +12,7 @@ module Metrics
       def perform(project_id)
         project = Project.find(project_id)
         dashboard_paths = ::Gitlab::Metrics::Dashboard::RepoDashboardFinder.list_dashboards(project)
+
         return unless dashboard_paths.present?
 
         dashboard_paths.each do |dashboard_path|
