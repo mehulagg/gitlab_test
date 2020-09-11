@@ -51,6 +51,8 @@ const setupAxiosStartupCalls = axios => {
       } catch (e) {
         // Something went wrong with the startup call
       }
+
+      delete startupCalls[fullUrl];
     }
 
     return req;

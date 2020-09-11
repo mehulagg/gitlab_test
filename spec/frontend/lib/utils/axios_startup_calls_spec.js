@@ -66,6 +66,14 @@ describe('setupAxiosStartupCalls', () => {
       expect(data).not.toEqual(AXIOS_RESPONSE);
     });
 
+    it('delegates to startup calls exactly once', async () => {
+      await axios.get('/startup');
+      const { data } = await axios.get('/startup');
+
+      expect(data).not.toEqual(STARTUP_JS_RESPONSE);
+      expect(data).toEqual(AXIOS_RESPONSE);
+    });
+
     it('does not delegate to startup calls if the call is failing', async () => {
       const { data } = await axios.get('/startup-failing');
 
