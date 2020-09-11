@@ -76,10 +76,6 @@ export default {
     <gl-deprecated-button variant="success" class="qa-new-epic-button" data-toggle="dropdown">
       {{ __('New epic') }}
     </gl-deprecated-button>
-    <gl-deprecated-dropdown>
-      <gl-deprecated-dropdown-divider>
-      </gl-deprecated-dropdown-divider>
-    </gl-deprecated-dropdown>
     <div :class="{ 'dropdown-menu-right': alignRight }" class="dropdown-menu">
       <gl-form>
         <gl-form-input
