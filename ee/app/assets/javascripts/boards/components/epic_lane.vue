@@ -1,6 +1,6 @@
 <script>
 import { GlButton, GlIcon, GlLink, GlPopover, GlTooltipDirective } from '@gitlab/ui';
-import { mapGetters } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 import { __, n__, sprintf } from '~/locale';
 import timeagoMixin from '~/vue_shared/mixins/timeago';
 import { formatDate } from '~/lib/utils/datetime_utility';
@@ -94,7 +94,12 @@ export default {
       return formatDate(this.epic.createdAt);
     },
   },
+  mounted() {
+    console.log('MOUNTED', this.epic.id);
+    this.fetchIssuesForEpic(this.epic.id);
+  },
   methods: {
+    ...mapActions(['fetchIssuesForEpic']),
     toggleExpanded() {
       this.isExpanded = !this.isExpanded;
     },

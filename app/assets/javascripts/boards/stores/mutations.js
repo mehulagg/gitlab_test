@@ -89,6 +89,14 @@ export default {
     notImplemented();
   },
 
+  [mutationTypes.RECEIVE_ISSUES_FOR_EPIC_SUCCESS]: (state, { listData, issues }) => {
+    Object.entries(listData).forEach(([listId, list]) => {
+      Vue.set(state.issuesByListId, listId, (state.issuesByListId[listId] || []).concat(list));
+    });
+    Vue.set(state, 'issues', { ...state.issues, ...issues });
+    state.isLoadingIssues = false;
+  },
+
   [mutationTypes.REQUEST_ISSUES_FOR_ALL_LISTS]: state => {
     state.isLoadingIssues = true;
   },

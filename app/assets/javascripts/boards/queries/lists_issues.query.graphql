@@ -3,6 +3,7 @@
 query ListIssues(
   $fullPath: ID!
   $boardId: ID!
+  $epicIds: [ID!]
   $filters: BoardIssueInput
   $isGroup: Boolean = false
   $isProject: Boolean = false
@@ -12,7 +13,7 @@ query ListIssues(
       lists {
         nodes {
           id
-          issues(filters: $filters) {
+          issues(filters: $filters, epicIds: $epicIds) {
             nodes {
               ...IssueNode
             }

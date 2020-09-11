@@ -201,6 +201,40 @@ export default {
     notImplemented();
   },
 
+  fetchIssuesForEpic: ({ state, commit }, epicId) => {
+    //commit(types.REQUEST_ISSUES_FOR_EPIC);
+
+    const { endpoints, boardType, filterParams } = state;
+    const { fullPath, boardId } = endpoints;
+
+    const variables = {
+      fullPath,
+      boardId: fullBoardId(boardId),
+      epicIds: [epicId],
+      filters: filterParams,
+      isGroup: boardType === BoardType.group,
+      isProject: boardType === BoardType.project,
+    };
+
+    return gqlClient
+      .query({
+        query: listsIssuesQuery,
+        context: {
+          isSingleRequest: true,
+        },
+        variables,
+      })
+      .then(({ data }) => {
+        const { lists } = data[boardType]?.board;
+        const listIssues = formatListIssues(lists);
+        commit(types.RECEIVE_ISSUES_FOR_EPIC_SUCCESS, listIssues);
+      })
+      .catch((e) => {
+        console.log('ERROR', e);
+        commit(types.RECEIVE_ISSUES_FOR_ALL_LISTS_FAILURE);
+      });
+  },
+
   fetchIssuesForAllLists: ({ state, commit }) => {
     commit(types.REQUEST_ISSUES_FOR_ALL_LISTS);
 
