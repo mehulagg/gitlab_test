@@ -6,10 +6,6 @@ module Vulnerabilities
 
     REVERT_PARAMS = { resolved_by: nil, resolved_at: nil, dismissed_by: nil, dismissed_at: nil, confirmed_by: nil, confirmed_at: nil }.freeze
 
-    def initialize(current_user, vulnerability)
-      super(current_user, vulnerability)
-    end
-
     def execute
       raise Gitlab::Access::AccessDeniedError unless authorized?
 
@@ -33,8 +29,7 @@ module Vulnerabilities
 
     def revert_findings_to_detected_state
       @vulnerability
-        .findings
-        .select { |finding| finding.dismissal_feedback.present? }
+        .dismissed_findings
         .each do |finding|
           result = destroy_feedback_for(finding)
 
