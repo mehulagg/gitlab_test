@@ -28,8 +28,7 @@ module Mutations
           project = authorized_find!(full_path: project_path)
           validate_flag!(project)
 
-          sast_create_service_params = format_for_service(configuration)
-          result = ::Security::CiConfiguration::SastCreateService.new(project, current_user, sast_create_service_params).execute
+          result = ::Security::CiConfiguration::SastCreateService.new(project, current_user, configuration).execute
           prepare_response(result)
         end
 
@@ -43,15 +42,6 @@ module Mutations
 
         def find_object(full_path:)
           resolve_project(full_path: full_path)
-        end
-
-        # Temporary formatting necessary for supporting REST API
-        # Will be removed during the implementation of
-        # https://gitlab.com/gitlab-org/gitlab/-/issues/246737
-        def format_for_service(configuration)
-          global_defaults = configuration["global"]&.collect {|k| [k["field"], k["defaultValue"]]}.to_h
-          pipeline_defaults = configuration["pipeline"]&.collect {|k| [k["field"], k["defaultValue"]]}.to_h
-          global_defaults.merge!(pipeline_defaults)
         end
 
         def prepare_response(result)
