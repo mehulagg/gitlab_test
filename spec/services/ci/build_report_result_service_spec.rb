@@ -3,14 +3,14 @@
 require 'spec_helper'
 
 RSpec.describe Ci::BuildReportResultService do
-  describe "#execute" do
+  describe '#execute', :clean_gitlab_redis_shared_state do
     subject(:build_report_result) { described_class.new.execute(build) }
 
     context 'when build is finished' do
       let(:build) { create(:ci_build, :success, :test_reports) }
 
       it 'creates a build report result entry', :aggregate_failures do
-        expect(Gitlab::Tracking::TestCasesParsed).to receive(:track_event).and_call_original
+        expect_any_instance_of(Gitlab::Tracking::TestCasesParsed).to receive(:track_event).and_call_original
         expect(build_report_result.tests_name).to eq("test")
         expect(build_report_result.tests_success).to eq(2)
         expect(build_report_result.tests_failed).to eq(2)
@@ -26,7 +26,7 @@ RSpec.describe Ci::BuildReportResultService do
         end
 
         it 'creates the report but does not track the event' do
-          expect(Gitlab::Tracking::TestCasesParsed).not_to receive(:track_event)
+          expect_any_instance_of(Gitlab::Tracking::TestCasesParsed).not_to receive(:track_event)
           expect(build_report_result.tests_name).to eq("test")
           expect(Ci::BuildReportResult.count).to eq(1)
         end

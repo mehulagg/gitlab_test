@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 RSpec.describe Gitlab::Tracking::TestCasesParsed do
-  describe '.track_event' do
+  describe '#track_event', :clean_gitlab_redis_shared_state do
     let(:build) { double(project_id: 123) }
     let(:test_suite) { double(name: 'rspec') }
     let(:test_case_1) { double(key: 'test_case_1') }
@@ -31,7 +31,7 @@ RSpec.describe Gitlab::Tracking::TestCasesParsed do
       expect(Gitlab::UsageDataCounters::HLLRedisCounter)
         .to receive(:track_event).with([hash_3], described_class::EVENT_NAME).ordered
 
-      described_class.track_event(build, test_suite)
+      described_class.new(build, test_suite).track_event
     end
   end
 end

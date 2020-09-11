@@ -100,7 +100,13 @@ module Gitlab
         return unless Feature.enabled?(:"usage_data_#{metric_name}", default_enabled: true)
         return unless Gitlab::CurrentSettings.usage_ping_enabled?
 
-        Gitlab::UsageDataCounters::HLLRedisCounter.track_event(target.id, metric_name.to_s)
+        target = if target.is_a?(Array)
+                   target.map { |t| t.try(:id) || t }
+                 else
+                   target.id
+                 end
+
+        Gitlab::UsageDataCounters::HLLRedisCounter.track_event(target, metric_name.to_s)
       end
 
       private

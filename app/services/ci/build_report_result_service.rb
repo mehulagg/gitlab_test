@@ -22,9 +22,9 @@ module Ci
     end
 
     def track_test_cases(build, test_suite)
-      return if Feature.disabled?(:track_unique_test_cases_parsed, type: :ops)
+      return if Feature.disabled?(:track_unique_test_cases_parsed, build.project)
 
-      Gitlab::Tracking::TestCasesParsed.track_event(build, test_suite)
+      Gitlab::Tracking::TestCasesParsed.new(build, test_suite).track_event
     end
 
     def tests_params(test_suite)
