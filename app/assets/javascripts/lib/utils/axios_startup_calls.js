@@ -19,33 +19,38 @@ const setupAxiosStartupCalls = axios => {
 
   // TODO: To save performance of future axios calls, we can
   // remove this interceptor once the "startupCalls" have been loaded
-  axios.interceptors.request.use(req => {
+  axios.interceptors.request.use(async req => {
     const fullUrl = getFullUrl(req);
 
     const existing = startupCalls[fullUrl];
 
-    if (existing) {
-      // eslint-disable-next-line no-param-reassign
-      req.adapter = () =>
-        existing.fetchCall.then(res => {
-          const fetchHeaders = {};
-          res.headers.forEach((val, key) => {
-            fetchHeaders[key] = val;
-          });
+    if (existing && existing.fetchCall) {
+      try {
+        const res = await existing.fetchCall;
+        if (!res.ok) {
+          throw new Error(res.statusText);
+        }
 
-          // eslint-disable-next-line promise/no-nesting
-          return res
-            .clone()
-            .json()
-            .then(data => ({
-              data,
-              status: res.status,
-              statusText: res.statusText,
-              headers: fetchHeaders,
-              config: req,
-              request: req,
-            }));
+        const fetchHeaders = {};
+        res.headers.forEach((val, key) => {
+          fetchHeaders[key] = val;
         });
+
+        const data = await res.clone().json();
+
+        // eslint-disable-next-line no-param-reassign
+        req.adapter = () =>
+          Promise.resolve({
+            data,
+            status: res.status,
+            statusText: res.statusText,
+            headers: fetchHeaders,
+            config: req,
+            request: req,
+          });
+      } catch (e) {
+        // Something went wrong with the startup call
+      }
     }
 
     return req;
