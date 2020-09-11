@@ -85,6 +85,9 @@
         show_whitespace_default: @show_whitespace_default.to_s,
         file_by_file_default: @file_by_file_default.to_s }
 
+    - unless current_user&.gitpod_enabled
+      = render 'shared/gitpod/enable_gitpod_modal'
+
     .mr-loading-status
       .loading.hide
         .spinner.spinner-md
