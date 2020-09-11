@@ -202,7 +202,9 @@ describe('Design overlay component', () => {
         { x: position.x, y: position.y },
         { x: 20, y: 20 },
       ).then(() => {
-        expect(findFirstBadge().attributes().style).toBe('left: 20px; top: 20px; cursor: move;');
+        expect(findFirstBadge().attributes().style).toBe(
+          'left: 20px; top: 20px; cursor: grabbing;',
+        );
       });
     });
 
@@ -301,7 +303,7 @@ describe('Design overlay component', () => {
           { x: 20, y: 20 },
         ).then(() => {
           expect(findCommentBadge().attributes().style).toBe(
-            'left: 20px; top: 20px; cursor: move;',
+            'left: 20px; top: 20px; cursor: grabbing;',
           );
         });
       });

@@ -28,7 +28,7 @@ export default {
       return this.label === null;
     },
     pinStyle() {
-      return this.repositioning ? { ...this.position, cursor: 'move' } : this.position;
+      return this.repositioning ? { ...this.position, cursor: 'grabbing' } : this.position;
     },
     pinLabel() {
       return this.isNewNote
@@ -47,7 +47,7 @@ export default {
       'btn-transparent comment-indicator': isNewNote,
       'js-image-badge badge badge-pill': !isNewNote,
     }"
-    class="design-pin gl-absolute gl-display-flex gl-align-items-center gl-justify-content-center gl-font-lg"
+    class="gl-absolute gl-display-flex gl-align-items-center gl-justify-content-center gl-font-lg"
     type="button"
     @mousedown="$emit('mousedown', $event)"
     @mouseup="$emit('mouseup', $event)"

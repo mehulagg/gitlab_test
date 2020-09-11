@@ -1,4 +1,5 @@
 $design-pin-diameter: 28px;
+$t-gray-a-16-design-pin: rgba($black, 0.16);
 
 .layout-page.design-detail-layout {
   max-height: 100vh;
@@ -11,24 +12,12 @@ $design-pin-diameter: 28px;
     top: 35px;
   }
 
-  .design-pin {
-    transition: opacity $gl-transition-duration-medium $general-hover-transition-curve;
-
-    &.inactive {
-      @include gl-opacity-5;
-
-      &:hover {
-        @include gl-opacity-10;
-      }
-    }
-  }
-
   .badge.badge-pill {
     display: flex;
     height: $design-pin-diameter;
     width: $design-pin-diameter;
     box-sizing: content-box;
-    background-color: $purple-400;
+    background-color: $purple-500;
     color: $white;
     font-weight: $gl-font-weight-bold;
     border-radius: 50%;
@@ -48,15 +37,26 @@ $design-pin-diameter: 28px;
    * Design pin that overlays the design
    */
   .frame .badge.badge-pill {
-    box-shadow: 0 2px 4px $t-gray-a-24;
+    box-shadow: 0 2px 4px $t-gray-a-08, 0 0 1px $t-gray-a-24;
     border: $white 2px solid;
-    transition: transform 350ms cubic-bezier(0, 1, 1, 1);
-    will-change: transform;
+    transition-delay: $general-hover-transition-duration;
+    transition-timing-function: linear;
+    transition-property: transform, box-shadow, opacity;
+    will-change: transform, box-shadow, opacity;
     transform-origin: 0 0;
     transform: translate(-50%, -50%);
 
     &:hover {
+      box-shadow: 0 0 4px $t-gray-a-16-design-pin, 0 4px 12px $t-gray-a-16-design-pin;
       transform: scale(1.2) translate(-50%, -50%);
+    }
+
+    &.inactive {
+      @include gl-opacity-5;
+
+      &:hover {
+        @include gl-opacity-10;
+      }
     }
   }
 }

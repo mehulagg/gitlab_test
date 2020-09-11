@@ -38,7 +38,7 @@ describe('Design note pin component', () => {
   describe('pinStyle', () => {
     it('sets cursor to `move` when repositioning = true', () => {
       createComponent({ repositioning: true });
-      expect(wrapper.vm.pinStyle.cursor).toBe('move');
+      expect(wrapper.vm.pinStyle.cursor).toBe('grabbing');
     });
 
     it('does not set cursor when repositioning = false', () => {
