@@ -46,7 +46,7 @@ RSpec.describe Security::CiConfiguration::SastBuildActions do
     end
 
     context 'sast template include is not an array' do
-      let(:gitlab_ci_content) { existing_gitlab_ci_and_single_template_with_sast }
+      let(:gitlab_ci_content) { existing_gitlab_ci_and_single_template_with_sast_and_default_stage }
 
       subject(:result) { described_class.new(auto_devops_enabled, params, gitlab_ci_content, default_sast_values).generate }
 
@@ -58,7 +58,7 @@ RSpec.describe Security::CiConfiguration::SastBuildActions do
 
     context 'with default values' do
       let(:params) { default_sast_values }
-      let(:gitlab_ci_content) { existing_gitlab_ci_and_single_template_with_sast }
+      let(:gitlab_ci_content) { existing_gitlab_ci_and_single_template_with_sast_and_default_stage }
 
       subject(:result) { described_class.new(auto_devops_enabled, params, gitlab_ci_content, default_sast_values).generate }
 
@@ -125,10 +125,10 @@ RSpec.describe Security::CiConfiguration::SastBuildActions do
        "include" => [{ "template" => "existing.yml" }] }
     end
 
-    def existing_gitlab_ci_and_single_template_with_sast
+    def existing_gitlab_ci_and_single_template_with_sast_and_default_stage
       { "stages" => %w(test),
        "variables" => { "SECURE_ANALYZERS_PREFIX" => "localhost:5000/analyzers" },
-       "sast" => { "variables" => { "SAST_ANALYZER_IMAGE_TAG" => 2, "SEARCH_MAX_DEPTH" => 1 }, "stage" => "security" },
+       "sast" => { "variables" => { "SAST_ANALYZER_IMAGE_TAG" => 2, "SEARCH_MAX_DEPTH" => 1 }, "stage" => "test" },
        "include" => { "template" => "Security/SAST.gitlab-ci.yml" } }
     end
 
