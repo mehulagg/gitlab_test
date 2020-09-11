@@ -172,6 +172,7 @@
 - name: incident_management_incident_change_confidential
   redis_slot: incident_management
   category: incident_management
-- name: test_case_parsed
+# Testing category
+- name: i_test_case_parsed
   category: testing
   aggregation: weekly

@@ -3,7 +3,7 @@
 module Gitlab
   module Tracking
     class TestCasesParsed
-      EVENT_NAME = 'test_case_parsed'
+      EVENT_NAME = 'i_test_case_parsed'
       HLL_BATCH_SIZE = 1000
 
       class << self
