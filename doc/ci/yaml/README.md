@@ -2830,6 +2830,16 @@ cache:
     - binaries/
 ```
 
+If you want to set a cache to use as a fallback when the cache doesn't
+yet exist, you can use a fallback cache key:
+
+```yaml
+cache:
+  key: $FALLBACK_CACHE_KEY
+  paths:
+    - binaries/
+```
+
 ##### `cache:key:files`
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/18986) in GitLab v12.5.

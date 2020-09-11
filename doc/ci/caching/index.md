@@ -126,7 +126,10 @@ cache:
 
 While this feels like it might be safe from accidentally overwriting the cache,
 it means merge requests get slow first pipelines, which might be a bad
-developer experience. The next time a new commit is pushed to the branch, the
+developer experience. To speed up first pipelines, you can use
+[a fallback cache key](#using-a-fallback-cache-key).
+
+The next time a new commit is pushed to the branch, the
 cache will be re-used.
 
 To enable per-job and per-branch caching:
@@ -158,6 +161,19 @@ To share the same cache between branches, but separate them by job:
 ```yaml
 cache:
   key: ${CI_JOB_NAME}
+```
+
+### Using a fallback cache key
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-runner/-/merge_requests/1534) in GitLab 13.4.
+
+The first time a pipeline runs for a branch, the cache does not yet exist.
+
+You can specify a fallback cache key to use when none exists. For example:
+
+```yaml
+cache:
+  key: $FALLBACK_CACHE_KEY
 ```
 
 ### Disabling cache on specific jobs
