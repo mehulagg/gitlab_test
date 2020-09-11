@@ -44,13 +44,14 @@ module Gitlab
 
         approval_project_rules = ApprovalProjectRule
           .joins(:groups, approval_merge_request_rule_sources: :approval_merge_request_rule)
-          .where(id: start_id..stop_id)
+          .where(approval_merge_request_rules: { id: start_id..stop_id })
           .pluck(
             'approval_merge_request_rule_sources.id as ars_id',
             'approval_project_rules_groups.id as apg_id'
           )
 
         different_names_or_approval_sources = ApprovalMergeRequestRule.joins(:approval_project_rule, :approval_merge_request_rule_source)
+          .where(id: start_id..stop_id)
           .where('approval_merge_request_rules.name != approval_project_rules.name OR ' \
                 'approval_merge_request_rules.approvals_required != approval_project_rules.approvals_required')
           .pluck('approval_merge_request_rule_sources.id as ars_id')
@@ -59,7 +60,7 @@ module Gitlab
         source_ids = intersected_set.collect { |rule| rule[0] }.uniq
 
         rule_sources = ApprovalMergeRequestRuleSource.where(id: source_ids + different_names_or_approval_sources)
-        changed_merge_request_rules = ApprovalMergeRequestRule.where(id: rule_sources.collect(&:approval_merge_request_rule_id).uniq)
+        changed_merge_request_rules = ApprovalMergeRequestRule.where(id: rule_sources.select(&:approval_merge_request_rule_id))
 
         changed_merge_request_rules.update_all(modified_from_project_rule: true)
       end

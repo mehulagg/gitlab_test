@@ -10,6 +10,6 @@ class BackfillModifiedColumnForApprovalMergeRequestRules < ActiveRecord::Migrati
   end
 
   def change
-    queue_background_migration_jobs_by_range_at_intervals(ApprovalMergeRequestRule, 'AddModifiedToApprovalMergeRequestRule', 1.minute)
+    queue_background_migration_jobs_by_range_at_intervals(ApprovalMergeRequestRule, 'AddModifiedToApprovalMergeRequestRule', 2.minutes)
   end
 end
