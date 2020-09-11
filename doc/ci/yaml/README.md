@@ -2835,7 +2835,7 @@ yet exist, you can use a fallback cache key:
 
 ```yaml
 cache:
-  key: $FALLBACK_CACHE_KEY
+  key: "$FALLBACK_CACHE_KEY"
   paths:
     - binaries/
 ```
