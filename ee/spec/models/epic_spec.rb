@@ -629,6 +629,11 @@ RSpec.describe Epic do
         let_it_be(:parent) { create(:epic) }
         let(:factory) { :epic_tree_node }
         let(:default_params) { { parent: parent, group: parent.group } }
+        let(:irrelevant) { parent }
+
+        def as_item(item)
+          item.send(:filter_epic_tree_node).drop(1)
+        end
       end
     end
   end

@@ -31,6 +31,37 @@ RSpec.shared_examples 'a class that supports relative positioning' do
     end
   end
 
+  def as_item(item)
+    item # Override to perform a transformation, if necessary
+  end
+
+  describe '#scoped_items' do
+    it 'includes all items with the same scope' do
+      scope = [item1, item2, new_item, create_item].map(&method(:as_item))
+      irrelevant = create(factory, {}) # This should not share the scope
+      context = RelativePositioning.mover.context(item1)
+
+      same_scope = context.scoped_items.map(&method(:as_item))
+
+      expect(same_scope).to include(*scope)
+      expect(same_scope).not_to include(as_item(irrelevant))
+    end
+  end
+
+  describe '#relative_siblings' do
+    it 'includes all items with the same scope, except self' do
+      scope = [item2, new_item, create_item].map(&method(:as_item))
+      irrelevant = create(factory, {}) # This should not share the scope
+      context = RelativePositioning.mover.context(item1)
+
+      siblings = context.scoped_items.map(&method(:as_item))
+
+      expect(siblings).to include(*scope)
+      expect(siblings).not_to include(as_item(item1))
+      expect(siblings).not_to include(as_item(irrelevant))
+    end
+  end
+
   describe '.move_nulls_to_end' do
     let(:item3) { create_item }
     let(:sibling_query) { item1.class.relative_positioning_query_base(item1) }
