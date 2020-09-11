@@ -20,6 +20,10 @@ module Gitlab
       @limited_snippet_titles_count ||= limited_count(snippet_titles)
     end
 
+    def highlight_map(scope)
+      {}
+    end
+
     private
 
     # rubocop: disable CodeReuse/ActiveRecord

@@ -12,6 +12,32 @@ RSpec.describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need
   let(:project_2) { create(:project, :public, :repository, :wiki_repo) }
   let(:limit_projects) { [project_1] }
 
+  describe '#highlight_map' do
+    using RSpec::Parameterized::TableSyntax
+
+    let(:results) { described_class.new(user, 'hello world', limit_projects) }
+
+    where(:scope, :results_method, :expected) do
+      'projects'       | :projects       | { 1 => 'test <em>highlight</em>' }
+      'milestones'     | :milestones     | { 1 => 'test <em>highlight</em>' }
+      'notes'          | :notes          | { 1 => 'test <em>highlight</em>' }
+      'issues'         | :issues         | { 1 => 'test <em>highlight</em>' }
+      'merge_requests' | :merge_requests | { 1 => 'test <em>highlight</em>' }
+      'blobs'          | nil             | nil
+      'wiki_blobs'     | nil             | nil
+      'commits'        | nil             | nil
+      'users'          | nil             | nil
+      'unknown'        | nil             | nil
+    end
+
+    with_them do
+      it 'returns the expected highlight map' do
+        expect(results).to receive(results_method).and_return([{ _source: { id: 1 }, highlight: 'test <em>highlight</em>' }]) if results_method
+        expect(results.highlight_map(scope)).to eq(expected)
+      end
+    end
+  end
+
   describe '#formatted_count' do
     using RSpec::Parameterized::TableSyntax
 
@@ -547,7 +573,7 @@ RSpec.describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need
     end
   end
 
-  describe 'Blobs' do
+  describe 'blobs' do
     before do
       project_1.repository.index_commits_and_blobs
 
@@ -757,7 +783,7 @@ RSpec.describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need
     end
   end
 
-  describe 'Wikis' do
+  describe 'wikis' do
     let(:results) { described_class.new(user, 'term', limit_projects) }
 
     subject(:wiki_blobs) { results.objects('wiki_blobs') }
@@ -844,7 +870,7 @@ RSpec.describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need
     end
   end
 
-  describe 'Commits' do
+  describe 'commits' do
     before do
       project_1.repository.index_commits_and_blobs
       ensure_elasticsearch_index!
@@ -880,7 +906,7 @@ RSpec.describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need
     end
   end
 
-  describe 'Visibility levels' do
+  describe 'visibility levels' do
     let(:internal_project) { create(:project, :internal, :repository, :wiki_repo, description: "Internal project") }
     let(:private_project1) { create(:project, :private, :repository, :wiki_repo, description: "Private project") }
     let(:private_project2) { create(:project, :private, :repository, :wiki_repo, description: "Private project where I'm a member") }
@@ -891,7 +917,7 @@ RSpec.describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need
       private_project2.project_members.create(user: user, access_level: ProjectMember::DEVELOPER)
     end
 
-    context 'Issues' do
+    context 'issues' do
       it 'finds right set of issues' do
         issue_1 = create :issue, project: internal_project, title: "Internal project"
         create :issue, project: private_project1, title: "Private project"
@@ -918,7 +944,7 @@ RSpec.describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need
       end
     end
 
-    context 'Milestones' do
+    context 'milestones' do
       let!(:milestone_1) { create(:milestone, project: internal_project, title: "Internal project") }
       let!(:milestone_2) { create(:milestone, project: private_project1, title: "Private project") }
       let!(:milestone_3) { create(:milestone, project: private_project2, title: "Private project which user is member") }
@@ -1038,7 +1064,7 @@ RSpec.describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need
       end
     end
 
-    context 'Projects' do
+    context 'projects' do
       it_behaves_like 'a paginated object', 'projects'
 
       it 'finds right set of projects' do
@@ -1067,7 +1093,7 @@ RSpec.describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need
       end
     end
 
-    context 'Merge Requests' do
+    context 'merge requests' do
       it 'finds right set of merge requests' do
         merge_request_1 = create :merge_request, target_project: internal_project, source_project: internal_project, title: "Internal project"
         create :merge_request, target_project: private_project1, source_project: private_project1, title: "Private project"
@@ -1094,7 +1120,7 @@ RSpec.describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need
       end
     end
 
-    context 'Wikis' do
+    context 'wikis' do
       before do
         [public_project, internal_project, private_project1, private_project2].each do |project|
           project.wiki.create_page('index_page', 'term')
@@ -1121,7 +1147,7 @@ RSpec.describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need
       end
     end
 
-    context 'Commits' do
+    context 'commits' do
       it 'finds right set of commits' do
         [internal_project, private_project1, private_project2, public_project].each do |project|
           project.repository.create_file(
@@ -1153,7 +1179,7 @@ RSpec.describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need
       end
     end
 
-    context 'Blobs' do
+    context 'blobs' do
       it 'finds right set of blobs' do
         [internal_project, private_project1, private_project2, public_project].each do |project|
           project.repository.create_file(
