@@ -37,8 +37,6 @@ export default function setupVueRepositoryList() {
     },
   });
 
-  console.log(apolloProvider);
-
   router.afterEach(({ params: { path } }) => {
     setTitle(path, ref, fullName);
   });

@@ -29,7 +29,6 @@ const defaultClient = createDefaultClient(
         });
       },
       readme(_, { url }) {
-        console.log('READMEEEEE');
         return axios
           .get(url, { params: { format: 'json', viewer: 'rich' } })
           .then(({ data }) => ({ ...data, __typename: 'ReadmeFile' }));
@@ -61,8 +60,6 @@ const defaultClient = createDefaultClient(
     },
   },
 );
-
-console.log(defaultClient);
 
 export default new VueApollo({
   defaultClient,
