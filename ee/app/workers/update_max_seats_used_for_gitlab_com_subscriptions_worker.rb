@@ -16,6 +16,10 @@ class UpdateMaxSeatsUsedForGitlabComSubscriptionsWorker # rubocop:disable Scalab
       tuples = []
 
       subscriptions.each do |subscription|
+        # This check should be removed when https://gitlab.com/gitlab-org/gitlab/-/issues/243496
+        # is addressed.
+        next if subscription.namespace.nil?
+
         subscription.refresh_seat_attributes!
 
         tuples << [subscription.id, subscription.max_seats_used, subscription.seats_in_use, subscription.seats_owed]
