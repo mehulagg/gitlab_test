@@ -3,8 +3,9 @@ import { deprecatedCreateFlash as Flash } from '~/flash';
 import Translate from '~/vue_shared/translate';
 import { __ } from '~/locale';
 import { setUrlFragment, redirectTo } from '~/lib/utils/url_utility';
-import pipelineGraph from './components/graph/graph_component.vue';
+import pipelineGraphLegacy from './components/graph/graph_component_legacy.vue';
 import createDagApp from './pipeline_details_dag';
+import createPipelinesDetailApp from './pipeline_details_graph';
 import GraphBundleMixin from './mixins/graph_pipeline_bundle_mixin';
 import PipelinesMediator from './pipeline_details_mediator';
 import pipelineHeader from './components/header_component.vue';
@@ -14,12 +15,15 @@ import createTestReportsStore from './stores/test_reports';
 
 Vue.use(Translate);
 
-const createPipelinesDetailApp = mediator => {
+// Replace with actual feature flag check
+const showNewGraph = true;
+
+const legacyCreatePipelinesDetailApp = mediator => {
   // eslint-disable-next-line no-new
   new Vue({
     el: '#js-pipeline-graph-vue',
     components: {
-      pipelineGraph,
+      pipelineGraphLegacy,
     },
     mixins: [GraphBundleMixin],
     data() {
@@ -28,7 +32,7 @@ const createPipelinesDetailApp = mediator => {
       };
     },
     render(createElement) {
-      return createElement('pipeline-graph', {
+      return createElement('pipeline-graph-legacy', {
         props: {
           isLoading: this.mediator.state.isLoading,
           pipeline: this.mediator.store.state.pipeline,
@@ -119,7 +123,12 @@ export default () => {
   const mediator = new PipelinesMediator({ endpoint: dataset.endpoint });
   mediator.fetchPipeline();
 
-  createPipelinesDetailApp(mediator);
+  if (showNewGraph) {
+    createPipelinesDetailApp();
+  } else {
+    legacyCreatePipelinesDetailApp(mediator);
+  }
+
   createPipelineHeaderApp(mediator);
   createTestDetails();
   createDagApp();
