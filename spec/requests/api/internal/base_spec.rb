@@ -1074,17 +1074,21 @@ RSpec.describe API::Internal::Base do
 
       context 'when action is git push' do
         it 'does not allow access' do
-          push(key, project, 'push')
+          push(key, project)
 
-          expect(response).to have_gitlab_http_status(:service_unavailable)
+          expect(response).to have_gitlab_http_status(:unauthorized)
           expect(json_response["status"]).to be_falsey
           expect(user.reload.last_activity_on).to be_nil
         end
       end
 
       context 'when action is not git push' do
+        before do
+          allow_any_instance_of(Object).to receive(:access_check!).with(any_args).and_return(Gitlab::GitAccessResult::Success)
+        end
+
         it 'checks git access' do
-          push(key, project)
+          push(key, project, 'git-upload-pack')
 
           expect(response).to have_gitlab_http_status(:success)
           expect(json_response["status"]).to be_truthy
@@ -1282,7 +1286,7 @@ RSpec.describe API::Internal::Base do
                    changes: changes)
   end
 
-  def push_with_path(key, full_path:, action:, gl_repository: nil, protocol: 'ssh', env: nil, changes: nil)
+  def push_with_path(key, full_path:, action: 'git-receive-pack', gl_repository: nil, protocol: 'ssh', env: nil, changes: nil)
     changes ||= 'd14d6c0abdd253381df51a723d58691b2ee1ab08 570e7b2abdd848b95f2f578043fc23bd6f6fd24d refs/heads/master'
 
     params = {

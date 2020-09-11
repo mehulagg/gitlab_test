@@ -39,8 +39,9 @@ module API
           # This is a separate method so that EE can alter its behaviour more
           # easily.
 
-          if params[:action] == 'push' && Gitlab::CurrentSettings.current_application_settings.maintenance_mode
-            return response_with_status(code: 503, success: false, message: MAINTENANCE_MODE_ENABLED)
+          if params[:action] == 'git-receive-pack' &&
+            Gitlab::CurrentSettings.current_application_settings.maintenance_mode
+            return response_with_status(code: 401, success: false, message: MAINTENANCE_MODE_ENABLED)
           end
 
           # Stores some Git-specific env thread-safely
