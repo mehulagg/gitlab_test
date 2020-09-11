@@ -14,7 +14,7 @@ module QA
   end
 
   RSpec.describe 'Manage', :skip_signup_disabled do
-    describe 'standard', testcase: 'https://gitlab.com/gitlab-org/quality/testcases/-/issues/936' do
+    describe 'standard', testcase: 'https://gitlab.com/gitlab-org/quality/testcases/-/issues/936', quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/247743' } do
       it_behaves_like 'registration and login'
 
       context 'when user account is deleted', :requires_admin do
