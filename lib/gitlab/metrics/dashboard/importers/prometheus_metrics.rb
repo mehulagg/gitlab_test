@@ -13,6 +13,7 @@ module Gitlab
             @dashboard_hash = dashboard_hash
             @project = project
             @dashboard_path = dashboard_path
+            @affected_metric_ids = []
           end
 
           def execute
@@ -32,6 +33,7 @@ module Gitlab
           def import
             delete_stale_metrics
             create_or_update_metrics
+            update_prometheus_alerts
           end
 
           # rubocop: disable CodeReuse/ActiveRecord
@@ -40,6 +42,8 @@ module Gitlab
             prometheus_metrics_attributes.each do |attributes|
               prometheus_metric = PrometheusMetric.find_or_initialize_by(attributes.slice(:identifier, :project))
               prometheus_metric.update!(attributes.slice(*ALLOWED_ATTRIBUTES))
+
+              @affected_metric_ids << prometheus_metric.id
             end
           end
           # rubocop: enable CodeReuse/ActiveRecord
@@ -52,8 +56,14 @@ module Gitlab
               .for_group(Enums::PrometheusMetric.groups[:custom])
               .not_identifier(identifiers)
 
-            # TODO: use destroy_all and worker for callbacks?
-            stale_metrics.each(&:destroy)
+            @affected_metric_ids << stale_metrics.map(&:id)
+
+            delete_stale_alerts(stale_metrics)
+            stale_metrics.delete_all
+          end
+
+          def delete_stale_alerts(stale_metrics)
+            stale_metrics.prometheus_alerts.delete_all
           end
 
           def prometheus_metrics_attributes
@@ -62,6 +72,18 @@ module Gitlab
                 dashboard_hash,
                 project: project,
                 dashboard_path: dashboard_path
+              ).execute
+            end
+          end
+
+          def update_prometheus_alerts
+            affected_alerts = PrometheusAlert.for_prometheus_metric_id(@affected_metric_ids.flatten.uniq)
+              .distinct_project_and_environment
+
+            affected_alerts.each do |affected_alert|
+              ::Clusters::Applications::ScheduleUpdateService.new(
+                affected_alert.environment.cluster_prometheus_adapter,
+                affected_alert.project
               ).execute
             end
           end
