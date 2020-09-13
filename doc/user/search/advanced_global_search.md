@@ -44,7 +44,8 @@ The Advanced Search can be useful in various scenarios.
 ### Faster searches
 
 If you are dealing with huge amount of data and want to keep GitLab's search
-fast, the Advanced Search will help you achieve that.
+fast, the Advanced Search will help you achieve that. 
+Between versions 12.10 and 13.4 Advanced Search responce times have improved by 80%. 
 
 ### Promote innersourcing
 
