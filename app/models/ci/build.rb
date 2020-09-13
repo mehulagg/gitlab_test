@@ -912,8 +912,126 @@ module Ci
     end
 
     def collect_coverage_reports!(coverage_report)
+      # NOTE: This is something we would get from the YML config which would go under build#yaml_variables
+      #
+      # Examples:
+      #
+      # Scenario A: All class filenames are relative to the project root, so no need to derive the path
+      # from the package name, and so no need to define any variables.
+      #
+      # project root: my-rails-app
+      # sample file path: my-rails-app/app/models/user.rb
+      #
+      # <coverage>
+      #   ...
+      #   <packages>
+      #     <package name="my-rails-app">
+      #       <classes>
+      #         <class filename="app/models/user.rb">
+      #         </class>
+      #       </classes>
+      #     </package>
+      #   </packages>
+      #   ...
+      # </coverage>
+      #
+      # job_name:
+      #   artifacts:
+      #     reports:
+      #       cobertura: path-to-file.xml
+      #
+      # Scenario B: All class filenames are relative to the package path, and the package path relative to the
+      # root can be easily derived from the package name.
+      #
+      # project root: my-csharp-app
+      # sample file path: my-csharp-app/SampleLib/Foo.cs
+      #
+      # <coverage>
+      #   ...
+      #   <packages>
+      #     <package name="SampleLib">
+      #       <classes>
+      #         <class filename="Foo.cs">
+      #         </class>
+      #       </classes>
+      #     </package>
+      #   </packages>
+      #   ...
+      # </coverage>
+      #
+      # job_name:
+      #   variables:
+      #     COVERAGE_REPORT_PACKAGE_PATH_PATTERN: '^.+$'
+      #     COVERAGE_REPORT_PACKAGE_PATH_REPLACEMENT: '\0'
+      #   artifacts:
+      #     reports:
+      #       cobertura: path-to-file.xml
+      #
+      # Scenario C: All class filenames are relative to the package path, and the package path relative to the
+      # root can be extracted from the package name to form the actual path.
+      #
+      # project root: my-golang-app
+      # sample file path: my-golang-app/cmd/ssh/main.go
+      #
+      # <coverage>
+      #   ...
+      #   <packages>
+      #     <package name="example.com/some-org/my-golang-app/cmd/ssh">
+      #       <classes>
+      #         <class filename="main.go">
+      #         </class>
+      #       </classes>
+      #     </package>
+      #   </packages>
+      #   ...
+      # </coverage>
+      #
+      # job_name:
+      #   variables:
+      #     COVERAGE_REPORT_PACKAGE_PATH_PATTERN: '^example\.com/some-org/my-golang-app/(.+)$'
+      #     COVERAGE_REPORT_PACKAGE_PATH_REPLACEMENT: '\1'
+      #   artifacts:
+      #     reports:
+      #       cobertura: path-to-file.xml
+      #
+      # Scenario D: All class filenames are relative to the source root but the source root path
+      # must be defined.
+      #
+      # project root: my-java-app
+      # sample file path: my-java-app/src/main/java/com/example/foo/User.java
+      #
+      # <coverage>
+      #   ...
+      #   <packages>
+      #     <package name="com.example.foo">
+      #       <classes>
+      #         <class filename="com/example/foo/User.java">
+      #         </class>
+      #       </classes>
+      #     </package>
+      #   </packages>
+      #   ...
+      # </coverage>
+      #
+      # job_name:
+      #   variables:
+      #     COVERAGE_REPORT_SRC_ROOT: 'src/main/java'
+      #   artifacts:
+      #     reports:
+      #       cobertura: path-to-file.xml
+      coverage_report_options = yaml_variables.each_with_object({}) do |var, opts|
+        case var[:key]
+        when 'COVERAGE_REPORT_SRC_ROOT'
+          opts[:src_root] = var[:value]
+        when 'COVERAGE_REPORT_PACKAGE_PATH_PATTERN'
+          opts[:package_path_pattern] = var[:value]
+        when 'COVERAGE_REPORT_PACKAGE_PATH_REPLACEMENT'
+          opts[:package_path_replacement] = var[:value]
+        end
+      end
+
       each_report(Ci::JobArtifact::COVERAGE_REPORT_FILE_TYPES) do |file_type, blob|
-        Gitlab::Ci::Parsers.fabricate!(file_type).parse!(blob, coverage_report)
+        Gitlab::Ci::Parsers.fabricate!(file_type).parse!(blob, coverage_report, coverage_report_options)
       end
 
       coverage_report
