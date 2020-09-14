@@ -2,6 +2,8 @@
 
 module Issues
   class BaseService < ::IssuableBaseService
+    include IncidentManagement::UsageData
+
     def hook_data(issue, action, old_associations: {})
       hook_data = issue.to_hook_data(current_user, old_associations: old_associations)
       hook_data[:object_attributes][:action] = action
@@ -17,8 +19,6 @@ module Issues
       Issues::CloseService
     end
 
-    private
-
     NO_REBALANCING_NEEDED = ((RelativePositioning::MIN_POSITION * 0.9999)..(RelativePositioning::MAX_POSITION * 0.9999)).freeze
 
     def rebalance_if_needed(issue)
@@ -31,6 +31,8 @@ module Issues
 
       IssueRebalancingWorker.perform_async(nil, issue.project_id)
     end
+
+    private
 
     def create_assignee_note(issue, old_assignees)
       SystemNoteService.change_issuable_assignees(

@@ -262,7 +262,7 @@ module Ci
 
     scope :internal, -> { where(source: internal_sources) }
     scope :no_child, -> { where.not(source: :parent_pipeline) }
-    scope :ci_sources, -> { where(config_source: Enums::Ci::Pipeline.ci_config_sources_values) }
+    scope :ci_sources, -> { where(source: Enums::Ci::Pipeline.ci_sources.values) }
     scope :for_user, -> (user) { where(user: user) }
     scope :for_sha, -> (sha) { where(sha: sha) }
     scope :for_source_sha, -> (source_sha) { where(source_sha: source_sha) }
@@ -677,8 +677,10 @@ module Ci
       messages.select(&:error?)
     end
 
-    def warning_messages
-      messages.select(&:warning?)
+    def warning_messages(limit: nil)
+      messages.select(&:warning?).tap do |warnings|
+        break warnings.take(limit) if limit
+      end
     end
 
     # Manually set the notes for a Ci::Pipeline
@@ -819,11 +821,15 @@ module Ci
       all_merge_requests.order(id: :desc)
     end
 
-    # If pipeline is a child of another pipeline, include the parent
-    # and the siblings, otherwise return only itself and children.
     def same_family_pipeline_ids
-      parent = parent_pipeline || self
-      [parent.id] + parent.child_pipelines.pluck(:id)
+      if ::Gitlab::Ci::Features.child_of_child_pipeline_enabled?(project)
+        ::Gitlab::Ci::PipelineObjectHierarchy.new(base_and_ancestors).base_and_descendants.select(:id)
+      else
+        # If pipeline is a child of another pipeline, include the parent
+        # and the siblings, otherwise return only itself and children.
+        parent = parent_pipeline || self
+        [parent.id] + parent.child_pipelines.pluck(:id)
+      end
     end
 
     def bridge_triggered?
@@ -876,7 +882,11 @@ module Ci
     end
 
     def has_coverage_reports?
-      self.has_reports?(Ci::JobArtifact.coverage_reports)
+      pipeline_artifacts&.has_code_coverage?
+    end
+
+    def can_generate_coverage_reports?
+      has_reports?(Ci::JobArtifact.coverage_reports)
     end
 
     def test_report_summary
@@ -1027,7 +1037,11 @@ module Ci
     end
 
     def cacheable?
-      Enums::Ci::Pipeline.ci_config_sources.key?(config_source.to_sym)
+      !dangling?
+    end
+
+    def dangling?
+      Enums::Ci::Pipeline.dangling_sources.key?(source.to_sym)
     end
 
     def source_ref_path
@@ -1046,6 +1060,14 @@ module Ci
 
     def ensure_ci_ref!
       self.ci_ref = Ci::Ref.ensure_for(self)
+    end
+
+    def base_and_ancestors
+      # Without using `unscoped`, caller scope is also included into the query.
+      # Using `unscoped` here will be redundant after Rails 6.1
+      ::Gitlab::Ci::PipelineObjectHierarchy
+        .new(self.class.unscoped.where(id: id))
+        .base_and_ancestors
     end
 
     private

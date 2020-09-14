@@ -305,7 +305,7 @@ Do not include the same information in multiple places.
 
 ### References across documents
 
-- Give each folder an index.md page that introduces the topic, introduces the
+- Give each folder an `index.md` page that introduces the topic, introduces the
   pages within, and links to the pages within (including to the index pages of
   any next-level subpaths).
 - To ensure discoverability, ensure each new or renamed doc is linked from its
@@ -540,65 +540,37 @@ tenses, words, and phrases:
 
 ### Contractions
 
-- Use common contractions when it helps create a friendly and informal tone,
-  especially in tutorials, instructional documentation, and
-  [user interfaces](https://design.gitlab.com/content/punctuation/#contractions).
-  (Tested in [`Contractions.yml`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/.vale/gitlab/Contractions.yml).)
+Contractions are encouraged, and can create a friendly and informal tone,
+especially in tutorials, instructional documentation, and
+[user interfaces](https://design.gitlab.com/content/punctuation/#contractions).
 
-  <!-- vale gitlab.ContractionsKeep = NO -->
-  <!-- vale gitlab.ContractionsDiscard = NO -->
-  <!-- vale gitlab.FutureTense = NO -->
-  | Do       | Don't     |
-  |----------|-----------|
-  | it's     | it is     |
-  | can't    | cannot    |
-  | wouldn't | would not |
-  | you're   | you are   |
-  | you've   | you have  |
-  | haven't  | have not  |
-  | don't    | do not    |
-  | we're    | we are    |
-  | that's   | that is   |
-  | won't    | will not  |
-
-- Avoid less common contractions:
-
-  | Do           | Don't       |
-  |--------------|-------------|
-  | he would     | he'd        |
-  | it will      | it'll       |
-  | should have  | should've   |
-  | there would  | there'd     |
+Some contractions, however, should be avoided:
 
 - Do not use contractions with a proper noun and a verb. For example:
 
-  | Do                   | Don't               |
-  |----------------------|---------------------|
-  | GitLab is creating X | GitLab's creating X |
+  | Do                                       | Don't                                   |
+  |------------------------------------------|-----------------------------------------|
+  | GitLab is creating X.                    | GitLab's creating X.                    |
 
 - Do not use contractions when you need to emphasize a negative. For example:
 
-  | Do                          | Don't                      |
-  |-----------------------------|----------------------------|
-  | Do *not* install X with Y   | *Don't* install X with Y   |
+  | Do                                       | Don't                                   |
+  |------------------------------------------|-----------------------------------------|
+  | Do *not* install X with Y.               | *Don't* install X with Y.               |
 
 - Do not use contractions in reference documentation. For example:
 
-  | Do                                       | Don't                                  |
-  |------------------------------------------|----------------------------------------|
-  | Do *not* set a limit greater than 1000   | *Don't* set a limit greater than 1000  |
-  | For `parameter1`, the default is 10      | For `parameter1`, the default's 10     |
+  | Do                                       | Don't                                   |
+  |------------------------------------------|-----------------------------------------|
+  | Do *not* set a limit greater than 1000.  | *Don't* set a limit greater than 1000.  |
+  | For `parameter1`, the default is 10.     | For `parameter1`, the default's 10.     |
 
 - Avoid contractions in error messages. Examples:
 
-  | Do                                       | Don't                                |
-  |------------------------------------------|--------------------------------------|
-  | Requests to localhost are not allowed    | Requests to localhost aren't allowed |
-  | Specified URL cannot be used             | Specified URL can't be used          |
-
-  <!-- vale gitlab.ContractionsKeep = YES -->
-  <!-- vale gitlab.ContractionsDiscard = YES -->
-  <!-- vale gitlab.FutureTense = YES -->
+  | Do                                       | Don't                                   |
+  |------------------------------------------|-----------------------------------------|
+  | Requests to localhost are not allowed.   | Requests to localhost aren't allowed.   |
+  | Specified URL cannot be used.            | Specified URL can't be used.            |
 
 ## Text
 
@@ -642,8 +614,8 @@ Additional examples are available in the [Pajamas guide for punctuation](https:/
 
 ### Placeholder text
 
-Often in examples, a writer will provide a command or configuration that is
-complete apart from a value specific to the reader.
+Often in examples, a writer will provide a command or configuration that
+uses values specific to the reader.
 
 In these cases, use [`<` and `>`](https://en.wikipedia.org/wiki/Usage_message#Pattern)
 to call out where a reader must replace text with their own value.
@@ -874,9 +846,8 @@ For other punctuation rules, please refer to the
   someone in the Merge Request.
 - [Avoid using symbols and special characters](https://gitlab.com/gitlab-org/gitlab-docs/-/issues/84)
   in headers. Whenever possible, they should be plain and short text.
-- Avoid adding things that show ephemeral statuses. For example, if a feature is
-  considered beta or experimental, put this information in a note, not in the
-  heading.
+- When possible, avoid including words that might change in the future. Changing
+  a heading changes its anchor URL, which affects other linked pages.
 - When introducing a new document, be careful for the headings to be
   grammatically and syntactically correct. Mention an [assigned technical writer (TW)](https://about.gitlab.com/handbook/product/product-categories/)
   for review.
@@ -914,6 +885,11 @@ GitLab documentation from both the GitLab application and external sites.
 
 Headings generate anchor links automatically when rendered. `## This is an example`
 generates the anchor `#this-is-an-example`.
+
+NOTE: **Note:**
+[Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/39717) in GitLab 13.4, [product badges](#product-badges) used in headings aren't included in the
+generated anchor links. For example, when you link to
+`## This is an example **(CORE)**`, use the anchor `#this-is-an-example`.
 
 Keep in mind that the GitLab user interface links to many documentation pages
 and anchor links to take the user to the right spot. Therefore, when you change
@@ -983,7 +959,7 @@ Relative linking enables crosslinks to work:
 - in Review Apps, local previews, and `/help`.
 - when working on the documentation locally, so you can verify that they work as
   early as possible in the process.
-- within the GitLab user interace when browsing doc files in their respective
+- within the GitLab user interface when browsing doc files in their respective
   repositories. For example, the links displayed at
   `https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/README.md`.
 
@@ -1426,7 +1402,7 @@ interface:
 | **{monitor}** Monitoring | View GitLab system information, and information on background jobs, logs, health checks, requests profiles, and audit logs. |
 | **{messages}** Messages  | Send and manage broadcast messages for your users.                                                                          |
 
-Use an icon when you find youself having to describe an interface element. For
+Use an icon when you find yourself having to describe an interface element. For
 example:
 
 - Do: Click the Admin Area icon ( **{admin}** ).
@@ -1434,8 +1410,8 @@ example:
 
 ## Alert boxes
 
-Whenever you need to call special attention to particular sentences, use the
-following markup for highlighting.
+When you need to call special attention to particular sentences, use the
+following markup to create highlighted alert boxes.
 
 Note that the alert boxes only work for one paragraph only. Multiple paragraphs,
 lists, headers and so on, will not render correctly. For multiple lines, use
@@ -1444,6 +1420,16 @@ lists, headers and so on, will not render correctly. For multiple lines, use
 Alert boxes render only on the GitLab documentation site (<https://docs.gitlab.com>).
 Within GitLab itself, they will appear as plain Markdown text (like the examples
 above the rendered versions, below).
+
+These alert boxes are used in the GitLab documentation. These aren't strict
+guidelines, but for consistency you should try to use these values:
+
+| Color  | Markup     | Default keyword | Alternative keywords                                                 |
+|--------|------------|-----------------|----------------------------------------------------------------------|
+| Blue   | `NOTE:`    | `**Note:**`     |                                                                      |
+| Yellow | `CAUTION:` | `**Caution:**`  | `**Warning:**`, `**Important:**`                                     |
+| Red    | `DANGER:`  | `**Danger:**`   | `**Warning:**`, `**Important:**`, `**Deprecated:**`, `**Required:**` |
+| Green  | `TIP:`     | `**Tip:**`      |                                                                      |
 
 ### Note
 
@@ -1661,7 +1647,7 @@ heading level.
    warning such as:
 
    ```markdown
-   CAUTION: **Warning:**
+   DANGER: **Deprecated:**
    This feature was [deprecated](link-to-issue) in GitLab 12.3
    and replaced by [Feature name](link-to-feature-documentation).
    ```
@@ -1943,7 +1929,7 @@ METHOD /endpoint
 Example request:
 
 ```shell
-curl --header "PRIVATE-TOKEN: <your_access_token>" 'https://gitlab.example.com/api/v4/endpoint?parameters'
+curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/endpoint?parameters"
 ```
 
 Example response:
@@ -2038,7 +2024,7 @@ you can use in the API documentation.
 Get the details of a group:
 
 ```shell
-curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/gitlab-org
+curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/groups/gitlab-org"
 ```
 
 #### cURL example with parameters passed in the URL
@@ -2066,7 +2052,7 @@ In this example we create a new group. Watch carefully the single and double
 quotes.
 
 ```shell
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" --header "Content-Type: application/json" --data '{"path": "my-group", "name": "My group"}' https://gitlab.example.com/api/v4/groups
+curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" --header "Content-Type: application/json" --data '{"path": "my-group", "name": "My group"}' "https://gitlab.example.com/api/v4/groups"
 ```
 
 #### Post data using form-data
@@ -2075,7 +2061,7 @@ Instead of using JSON or urlencode you can use multipart/form-data which
 properly handles data encoding:
 
 ```shell
-curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" --form "title=ssh-key" --form "key=ssh-rsa AAAAB3NzaC1yc2EA..." https://gitlab.example.com/api/v4/users/25/keys
+curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" --form "title=ssh-key" --form "key=ssh-rsa AAAAB3NzaC1yc2EA..." "https://gitlab.example.com/api/v4/users/25/keys"
 ```
 
 The above example is run by and administrator and will add an SSH public key
@@ -2101,7 +2087,7 @@ exclude specific users when requesting a list of users for a project, you would
 do something like this:
 
 ```shell
-curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" --data "skip_users[]=<user_id>" --data "skip_users[]=<user_id>" https://gitlab.example.com/api/v4/projects/<project_id>/users
+curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" --data "skip_users[]=<user_id>" --data "skip_users[]=<user_id>" "https://gitlab.example.com/api/v4/projects/<project_id>/users"
 ```
 
 ## GraphQL API
@@ -2179,7 +2165,7 @@ We store our Table of Contents in the `default-nav.yaml` file, in the
 following line:
 
 ```yaml
-      - category_title: GraphQL
+- category_title: GraphQL
 ```
 
 Be aware that CI tests for that second MR will fail with a bad link until the

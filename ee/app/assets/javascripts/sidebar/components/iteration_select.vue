@@ -2,7 +2,7 @@
 import {
   GlButton,
   GlLink,
-  GlNewDropdown,
+  GlDropdown,
   GlNewDropdownItem,
   GlSearchBoxByType,
   GlNewDropdownHeader,
@@ -24,7 +24,7 @@ export default {
   components: {
     GlButton,
     GlLink,
-    GlNewDropdown,
+    GlDropdown,
     GlNewDropdownItem,
     GlSearchBoxByType,
     GlNewDropdownHeader,
@@ -161,7 +161,7 @@ export default {
 </script>
 
 <template>
-  <div>
+  <div data-qa-selector="iteration_container">
     <div v-gl-tooltip class="sidebar-collapsed-icon">
       <gl-icon :size="16" :aria-label="$options.iterationText" name="iteration" />
       <span class="collapse-truncated-title">{{ iterationTitle }}</span>
@@ -176,17 +176,18 @@ export default {
         data-track-label="right_sidebar"
         data-track-property="iteration"
         data-track-event="click_edit_button"
+        data-qa-selector="edit_iteration_link"
         @click.stop="toggleDropdown"
         >{{ __('Edit') }}</gl-button
       >
     </div>
     <div data-testid="select-iteration" class="hide-collapsed">
       <span v-if="showNoIterationContent" class="no-value">{{ $options.noIteration }}</span>
-      <gl-link v-else-if="!editing" :href="iterationUrl"
+      <gl-link v-else-if="!editing" data-qa-selector="iteration_link" :href="iterationUrl"
         ><strong>{{ iterationTitle }}</strong></gl-link
       >
     </div>
-    <gl-new-dropdown
+    <gl-dropdown
       v-show="editing"
       ref="newDropdown"
       data-toggle="dropdown"
@@ -206,6 +207,6 @@ export default {
         @click="setIteration(iterationItem.id)"
         >{{ iterationItem.title }}</gl-new-dropdown-item
       >
-    </gl-new-dropdown>
+    </gl-dropdown>
   </div>
 </template>

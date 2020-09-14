@@ -29,12 +29,36 @@ RSpec.describe Issues::CreateService do
       end
 
       it 'creates the issue with the given params' do
+        expect(Issuable::CommonSystemNotesService).to receive_message_chain(:new, :execute)
+
         expect(issue).to be_persisted
         expect(issue.title).to eq('Awesome issue')
         expect(issue.assignees).to eq [assignee]
         expect(issue.labels).to match_array labels
         expect(issue.milestone).to eq milestone
         expect(issue.due_date).to eq Date.tomorrow
+      end
+
+      context 'when skip_system_notes is true' do
+        let(:issue) { described_class.new(project, user, opts).execute(skip_system_notes: true) }
+
+        it 'does not call Issuable::CommonSystemNotesService' do
+          expect(Issuable::CommonSystemNotesService).not_to receive(:new)
+
+          issue
+        end
+      end
+
+      context 'issue is incident type' do
+        before do
+          opts[:issue_type] = 'incident'
+        end
+
+        let(:current_user) { user }
+
+        subject { issue }
+
+        it_behaves_like 'an incident management tracked event', :incident_management_incident_created
       end
 
       it 'refreshes the number of open issues', :use_clean_rails_memory_store_caching do
@@ -75,35 +99,10 @@ RSpec.describe Issues::CreateService do
         expect(Todo.where(attributes).count).to eq 1
       end
 
-      it 'rebalances if needed' do
-        create(:issue, project: project, relative_position: RelativePositioning::MAX_POSITION)
-        expect(IssueRebalancingWorker).to receive(:perform_async).with(nil, project.id)
+      it 'moves the issue to the end, in an asynchronous worker' do
+        expect(IssuePlacementWorker).to receive(:perform_async).with(Integer)
 
-        expect(issue.relative_position).to eq(project.issues.maximum(:relative_position))
-      end
-
-      it 'does not rebalance if the flag is disabled' do
-        stub_feature_flags(rebalance_issues: false)
-
-        create(:issue, project: project, relative_position: RelativePositioning::MAX_POSITION)
-        expect(IssueRebalancingWorker).not_to receive(:perform_async)
-
-        expect(issue.relative_position).to eq(project.issues.maximum(:relative_position))
-      end
-
-      it 'does rebalance if the flag is enabled for the project' do
-        stub_feature_flags(rebalance_issues: project)
-
-        create(:issue, project: project, relative_position: RelativePositioning::MAX_POSITION)
-        expect(IssueRebalancingWorker).to receive(:perform_async).with(nil, project.id)
-
-        expect(issue.relative_position).to eq(project.issues.maximum(:relative_position))
-      end
-
-      it 'does not rebalance unless needed' do
-        expect(IssueRebalancingWorker).not_to receive(:perform_async)
-
-        expect(issue.relative_position).to eq(project.issues.maximum(:relative_position))
+        described_class.new(project, user, opts).execute
       end
 
       context 'when label belongs to project group' do
@@ -119,7 +118,7 @@ RSpec.describe Issues::CreateService do
         end
 
         before do
-          project.update(group: group)
+          project.update!(group: group)
         end
 
         it 'assigns group labels' do
@@ -295,7 +294,7 @@ RSpec.describe Issues::CreateService do
 
         context "when issuable feature is private" do
           before do
-            project.project_feature.update(issues_access_level: ProjectFeature::PRIVATE,
+            project.project_feature.update!(issues_access_level: ProjectFeature::PRIVATE,
                                            merge_requests_access_level: ProjectFeature::PRIVATE)
           end
 
@@ -303,7 +302,7 @@ RSpec.describe Issues::CreateService do
 
           levels.each do |level|
             it "removes not authorized assignee when project is #{Gitlab::VisibilityLevel.level_name(level)}" do
-              project.update(visibility_level: level)
+              project.update!(visibility_level: level)
               opts = { title: 'Title', description: 'Description', assignee_ids: [assignee.id] }
 
               issue = described_class.new(project, user, opts).execute

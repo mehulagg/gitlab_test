@@ -15,7 +15,9 @@ See [Geo current limitations](../replication/index.md#current-limitations) for m
 
 CAUTION: **Warning:**
 Disaster recovery for multi-secondary configurations is in **Alpha**.
-For the latest updates, check the multi-secondary [Disaster Recovery epic](https://gitlab.com/groups/gitlab-org/-/epics/65).
+For the latest updates, check the [Disaster Recovery epic for complete maturity](https://gitlab.com/groups/gitlab-org/-/epics/590). 
+Multi-secondary configurations require the complete re-synchronization and re-configuration of all non-promoted secondaries and
+will cause downtime.
 
 ## Promoting a **secondary** Geo node in single-secondary configurations
 
@@ -96,6 +98,10 @@ must disable the **primary** node.
 
 Note the following when promoting a secondary:
 
+- If replication was paused on the secondary node, for example as a part of upgrading,
+  while you were running a version of GitLab lower than 13.4, you _must_
+  [enable the node via the database](#while-promoting-the-secondary-i-got-an-error-activerecordrecordinvalid)
+  before proceeding.
 - A new **secondary** should not be added at this time. If you want to add a new
   **secondary**, do this after you have completed the entire process of promoting
   the **secondary** to the **primary**.
@@ -132,9 +138,6 @@ Note the following when promoting a secondary:
    gitlab-ctl promote-to-primary-node
    ```
 
-   CAUTION: **Warning:**
-   Skipping preflight checks will promote the secondary to a primary without any further confirmation!
-
    If you have already run the [preflight checks](planned_failover.md#preflight-checks) or don't want to run them, you can skip preflight checks with:
 
    ```shell
@@ -145,6 +148,12 @@ Note the following when promoting a secondary:
 
    ```shell
    gitlab-ctl promotion-preflight-checks
+   ```
+
+   After all the checks are run, you will be asked for a final confirmation before the promotion to primary. To skip this confirmation, run:
+
+   ```shell
+   gitlab-ctl promote-to-primary-node --force
    ```
 
 1. Verify you can connect to the newly promoted **primary** node using the URL used
@@ -425,3 +434,20 @@ instructions in the
 [Upgrading to GitLab 10.5](../replication/version_specific_updates.md#updating-to-gitlab-105)
 section to resolve the error. Otherwise, the secret is lost and you'll need to
 [reset two-factor authentication for all users](../../../security/two_factor_authentication.md#disabling-2fa-for-everyone).
+
+### While Promoting the secondary, I got an error `ActiveRecord::RecordInvalid`
+
+If you disabled a secondary node, either with the [replication pause task](../replication/index.md#pausing-and-resuming-replication)
+(13.2) or via the UI (13.1 and earlier), you must first re-enable the
+node before you can continue. This is fixed in 13.4.
+
+From `gitlab-psql`, execute the following, replacing  `<your secondary url>`
+with the URL for your secondary server starting with `http` or `https` and ending with a `/`.
+
+```shell
+SECONDARY_URL="https://<secondary url>/"
+DATABASE_NAME="gitlabhq_production"
+sudo gitlab-psql -d "$DATABASE_NAME" -c "UPDATE geo_nodes SET enabled = true WHERE url = '$SECONDARY_URL';"
+```
+
+This should update 1 row.

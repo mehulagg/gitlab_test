@@ -776,7 +776,7 @@ POST /user/keys
 
 Parameters:
 
-- `title` (required) - new SSH Key's title
+- `title` (required) - new SSH key's title
 - `key` (required) - new SSH key
 - `expires_at` (optional) - The expiration date of the SSH key in ISO 8601 format (`YYYY-MM-DDTHH:MM:SSZ`)
 
@@ -815,12 +815,12 @@ POST /users/:id/keys
 Parameters:
 
 - `id` (required) - ID of specified user
-- `title` (required) - new SSH Key's title
+- `title` (required) - new SSH key's title
 - `key` (required) - new SSH key
 - `expires_at` (optional) - The expiration date of the SSH key in ISO 8601 format (`YYYY-MM-DDTHH:MM:SSZ`)
 
 NOTE: **Note:**
-This also adds an audit event, as described in [audit instance events](../administration/audit_events.md#instance-events-premium-only). **(PREMIUM)**
+This also adds an audit event, as described in [audit instance events](../administration/audit_events.md#instance-events). **(PREMIUM)**
 
 ## Delete SSH key for current user
 

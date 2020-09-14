@@ -131,6 +131,14 @@
   :weight: 1
   :idempotent:
   :tags: []
+- :name: cronjob:ci_platform_metrics_update_cron
+  :feature_category: :continuous_integration
+  :has_external_dependencies:
+  :urgency: :low
+  :resource_boundary: :cpu
+  :weight: 1
+  :idempotent:
+  :tags: []
 - :name: cronjob:container_expiration_policy
   :feature_category: :container_registry
   :has_external_dependencies:
@@ -897,7 +905,7 @@
   :urgency: :low
   :resource_boundary: :unknown
   :weight: 1
-  :idempotent:
+  :idempotent: true
   :tags: []
 - :name: pipeline_background:ci_daily_build_group_report_results
   :feature_category: :continuous_integration
@@ -1004,14 +1012,6 @@
   :idempotent:
   :tags: []
 - :name: pipeline_default:pipeline_notification
-  :feature_category: :continuous_integration
-  :has_external_dependencies:
-  :urgency: :high
-  :resource_boundary: :cpu
-  :weight: 3
-  :idempotent:
-  :tags: []
-- :name: pipeline_default:pipeline_update_ci_ref_status
   :feature_category: :continuous_integration
   :has_external_dependencies:
   :urgency: :high
@@ -1452,6 +1452,14 @@
   :weight: 1
   :idempotent:
   :tags: []
+- :name: issue_placement
+  :feature_category: :issue_tracking
+  :has_external_dependencies:
+  :urgency: :high
+  :resource_boundary: :cpu
+  :weight: 2
+  :idempotent: true
+  :tags: []
 - :name: issue_rebalancing
   :feature_category: :issue_tracking
   :has_external_dependencies:
@@ -1475,6 +1483,14 @@
   :resource_boundary: :unknown
   :weight: 5
   :idempotent:
+  :tags: []
+- :name: merge_request_cleanup_refs
+  :feature_category: :source_code_management
+  :has_external_dependencies:
+  :urgency: :low
+  :resource_boundary: :unknown
+  :weight: 1
+  :idempotent: true
   :tags: []
 - :name: merge_request_mergeability_check
   :feature_category: :source_code_management

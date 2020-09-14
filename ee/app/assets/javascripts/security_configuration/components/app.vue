@@ -5,6 +5,7 @@ import { s__, __ } from '~/locale';
 import LocalStorageSync from '~/vue_shared/components/local_storage_sync.vue';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import AutoFixSettings from './auto_fix_settings.vue';
+import FeatureStatus from './feature_status.vue';
 import ManageFeature from './manage_feature.vue';
 
 export default {
@@ -15,6 +16,7 @@ export default {
     GlTable,
     AutoFixSettings,
     LocalStorageSync,
+    FeatureStatus,
     ManageFeature,
   },
   mixins: [glFeatureFlagsMixin()],
@@ -49,6 +51,11 @@ export default {
       type: Boolean,
       required: false,
       default: false,
+    },
+    gitlabCiHistoryPath: {
+      type: String,
+      required: false,
+      default: '',
     },
     autoDevopsPath: {
       type: String,
@@ -93,10 +100,9 @@ export default {
           thClass,
         },
         {
-          key: 'configured',
+          key: 'status',
           label: s__('SecurityConfiguration|Status'),
           thClass,
-          formatter: this.getStatusText,
         },
         {
           key: 'manage',
@@ -115,15 +121,6 @@ export default {
     },
   },
   methods: {
-    getStatusText(value) {
-      if (value) {
-        return this.autoDevopsEnabled
-          ? s__('SecurityConfiguration|Enabled with Auto DevOps')
-          : s__('SecurityConfiguration|Enabled');
-      }
-
-      return s__('SecurityConfiguration|Not enabled');
-    },
     dismissAutoDevopsAlert() {
       this.autoDevopsAlertDismissed = 'true';
     },
@@ -175,6 +172,14 @@ export default {
         <div>
           {{ item.description }}
         </div>
+      </template>
+
+      <template #cell(status)="{ item }">
+        <feature-status
+          :feature="item"
+          :gitlab-ci-present="gitlabCiPresent"
+          :gitlab-ci-history-path="gitlabCiHistoryPath"
+        />
       </template>
 
       <template #cell(manage)="{ item }">

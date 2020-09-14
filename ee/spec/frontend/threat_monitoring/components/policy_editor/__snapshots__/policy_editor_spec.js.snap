@@ -158,7 +158,7 @@ exports[`PolicyEditorApp component renders the policy editor layout 1`] = `
       </h4>
         
       <div
-        class="gl-p-3 gl-rounded-base gl-border-1 gl-border-solid gl-border-gray-100"
+        class="gl-p-3 gl-rounded-base gl-border-1 gl-border-solid gl-border-gray-100 gl-mb-5"
       >
         <gl-button-stub
           category="primary"
@@ -175,6 +175,10 @@ exports[`PolicyEditorApp component renders the policy editor layout 1`] = `
         Actions
       </h4>
        
+      <p>
+        Traffic that does not match any rule will be blocked.
+      </p>
+       
       <policy-action-picker-stub />
     </div>
      
@@ -186,6 +190,7 @@ exports[`PolicyEditorApp component renders the policy editor layout 1`] = `
       </h5>
        
       <policy-preview-stub
+        initialtab="0"
         policydescription="Deny all traffic"
         policyyaml="apiVersion: cilium.io/v2
 kind: CiliumNetworkPolicy
@@ -212,6 +217,7 @@ spec:
     >
       <gl-button-stub
         category="primary"
+        data-testid="save-policy"
         icon=""
         size="medium"
         type="submit"
@@ -220,8 +226,11 @@ spec:
         Create policy
       </gl-button-stub>
        
+      <!---->
+       
       <gl-button-stub
         category="secondary"
+        href="/threat-monitoring"
         icon=""
         size="medium"
         variant="default"
@@ -230,5 +239,19 @@ spec:
       </gl-button-stub>
     </div>
   </div>
+   
+  <gl-modal-stub
+    actioncancel="[object Object]"
+    actionsecondary="[object Object]"
+    modalclass=""
+    modalid="delete-modal"
+    size="md"
+    title="Delete policy: "
+    titletag="h4"
+  >
+    
+    Are you sure you want to delete this policy? This action cannot be undone.
+  
+  </gl-modal-stub>
 </section>
 `;

@@ -31,8 +31,6 @@ module AlertManagement
 
     def issue_summary_markdown
       <<~MARKDOWN.chomp
-        #### Summary
-
         #{metadata_list}
         #{alert_details}#{metric_embed_for_alert}
       MARKDOWN
@@ -42,6 +40,10 @@ module AlertManagement
 
     def details_url
       details_project_alert_management_url(project, alert.iid)
+    end
+
+    def details
+      Gitlab::Utils::InlineHash.merge_keys(payload)
     end
 
     private
@@ -83,7 +85,7 @@ module AlertManagement
     end
 
     def details_list
-      alert.details
+      details
         .map { |label, value| list_item(label, value) }
         .join(MARKDOWN_LINE_BREAK)
     end

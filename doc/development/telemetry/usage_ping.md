@@ -236,13 +236,28 @@ Implemented using Redis methods [PFADD](https://redis.io/commands/pfadd) and [PF
    - name: i_compliance_credential_inventory
      category: compliance
      redis_slot: compliance
-     expiry: 42 # 6 weeks
+     expiry: 42  # 6 weeks
      aggregation: weekly
    ```
 
    Keys:
 
    - `name`: unique event name.
+
+     Name format `<prefix>_<redis_slot>_name`.
+
+     Use one of the following prefixes for the event's name:
+
+        - `g_` for group, as an event which is tracked for group.
+        - `p_` for project, as an event which is tracked for project.
+        - `i_` for instance, as an event which is tracked for instance.
+        - `a_` for events encompassing all `g_`, `p_`, `i_`.
+        - `o_` for other.
+
+     Consider including in the event's name the Redis slot in order to be able to count totals for a specific category.
+
+     Example names: `i_compliance_credential_inventory`, `g_analytics_contribution`.
+
    - `category`: event category. Used for getting total counts for events in a category, for easier
      access to a group of events.
    - `redis_slot`: optional Redis slot; default value: event name. Used if needed to calculate totals
@@ -256,13 +271,14 @@ Implemented using Redis methods [PFADD](https://redis.io/commands/pfadd) and [PF
      keys for data storage. For `daily` we keep a key for metric per day of the year, for `weekly` we
      keep a key for metric per week of the year.
 
-1. Track event in controller using `RedisTracking` module with `track_redis_hll_event(*controller_actions, name:, feature:)`.
+1. Track event in controller using `RedisTracking` module with `track_redis_hll_event(*controller_actions, name:, feature:, feature_default_enabled: false)`.
 
    Arguments:
 
    - `controller_actions`: controller actions we want to track.
    - `name`: event name.
    - `feature`: feature name, all metrics we track should be under feature flag.
+   - `feature_default_enabled`: feature flag is disabled by default, set to `true` for it to be enabled by default.
 
    Example usage:
 
@@ -272,7 +288,7 @@ Implemented using Redis methods [PFADD](https://redis.io/commands/pfadd) and [PF
      include RedisTracking
 
      skip_before_action :authenticate_user!, only: :show
-     track_redis_hll_event :index, :show, name: 'i_analytics_dev_ops_score', feature: :g_compliance_dashboard_feature
+     track_redis_hll_event :index, :show, name: 'i_analytics_dev_ops_score', feature: :g_compliance_dashboard_feature, feature_default_enabled: true
 
      def index
        render html: 'index'
@@ -287,6 +303,56 @@ Implemented using Redis methods [PFADD](https://redis.io/commands/pfadd) and [PF
     end
    end
    ```
+
+1. Track event in API using `increment_unique_values(event_name, values)` helper method.
+
+   In order to be able to track the event, Usage Ping must be enabled and the event feature `usage_data_<event_name>` must be enabled.
+
+   Arguments:
+
+   - `event_name`: event name.
+   - `values`: values counted, one value or array of values.
+
+   Example usage:
+
+   ```ruby
+   get ':id/registry/repositories' do
+     repositories = ContainerRepositoriesFinder.new(
+       user: current_user, subject: user_group
+     ).execute
+
+     increment_unique_values('i_list_repositories', current_user.id)
+
+     present paginate(repositories), with: Entities::ContainerRegistry::Repository, tags: params[:tags], tags_count: params[:tags_count]
+   end
+   ```
+
+1. Track event using `UsageData` API
+
+   Increment unique users count using Redis HLL, for given event name.
+
+   Tracking events using the `UsageData` API requires the `usage_data_api` feature flag to be enabled, which is disabled by default.
+
+   API requests are protected by checking for a valid CSRF token.
+
+   In order to be able to increment the values the related feature `usage_data<event_name>` should be enabled.
+
+   ```plaintext
+   POST /usage_data/increment_unique_users
+   ```
+
+   | Attribute | Type | Required | Description |
+   | :-------- | :--- | :------- | :---------- |
+   | `event` | string | yes | The event name it should be tracked |
+
+   Response
+
+   Return 200 if tracking failed for any reason.
+
+   - `200` if event was tracked or any errors
+   - `400 Bad request` if event parameter is missing
+   - `401 Unauthorized` if user is not authenticated
+   - `403 Forbidden` for invalid CSRF token provided
 
 1. Track event using base module `Gitlab::UsageDataCounters::HLLRedisCounter.track_event(entity_id, event_name)`.
 
@@ -433,8 +499,6 @@ When adding, changing, or updating metrics, please update the [Event Dictionary'
 ### 5. Add new metric to Versions Application
 
 Check if new metrics need to be added to the Versions Application. See `usage_data` [schema](https://gitlab.com/gitlab-services/version-gitlab-com/-/blob/master/db/schema.rb#L147) and usage data [parameters accepted](https://gitlab.com/gitlab-services/version-gitlab-com/-/blob/master/app/services/usage_ping.rb). Any metrics added under the `counts` key are saved in the `counts` column.
-
-For further details, see the [Process to add additional instrumentation to the Usage Ping](https://about.gitlab.com/handbook/product/product-processes/#process-to-add-additional-instrumentation-to-the-usage-ping).
 
 ### 6. Add the feature label
 

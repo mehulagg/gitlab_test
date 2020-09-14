@@ -70,8 +70,8 @@ Rails.application.routes.draw do
   # Use this scope for all new global routes.
   scope path: '-' do
     # remove in 13.5
-    get '/instance_statistics', to: redirect('admin/dev_ops_score')
-    get '/instance_statistics/dev_ops_score', to: redirect('admin/dev_ops_score')
+    get '/instance_statistics', to: redirect('admin/dev_ops_report')
+    get '/instance_statistics/dev_ops_score', to: redirect('admin/dev_ops_report')
     get '/instance_statistics/cohorts', to: redirect('admin/cohorts')
     # Autocomplete
     get '/autocomplete/users' => 'autocomplete#users'
@@ -135,7 +135,6 @@ Rails.application.routes.draw do
       draw :country
       draw :country_state
       draw :subscription
-      draw :analytics
 
       scope '/push_from_secondary/:geo_node_id' do
         draw :git_http

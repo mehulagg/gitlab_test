@@ -30,6 +30,7 @@ ELSIF (TG_OP = 'UPDATE') THEN
     entity_path = NEW.entity_path,
     target_details = NEW.target_details,
     target_type = NEW.target_type,
+    target_id = NEW.target_id,
     created_at = NEW.created_at
   WHERE audit_events_part_5fc467ac26.id = NEW.id;
 ELSIF (TG_OP = 'INSERT') THEN
@@ -44,6 +45,7 @@ ELSIF (TG_OP = 'INSERT') THEN
     entity_path,
     target_details,
     target_type,
+    target_id,
     created_at)
   VALUES (NEW.id,
     NEW.author_id,
@@ -56,6 +58,7 @@ ELSIF (TG_OP = 'INSERT') THEN
     NEW.entity_path,
     NEW.target_details,
     NEW.target_type,
+    NEW.target_id,
     NEW.created_at);
 END IF;
 RETURN NULL;
@@ -78,6 +81,7 @@ CREATE TABLE public.audit_events_part_5fc467ac26 (
     target_details text,
     created_at timestamp without time zone NOT NULL,
     target_type text,
+    target_id bigint,
     CONSTRAINT check_492aaa021d CHECK ((char_length(entity_path) <= 5500)),
     CONSTRAINT check_83ff8406e2 CHECK ((char_length(author_name) <= 255)),
     CONSTRAINT check_97a8c868e7 CHECK ((char_length(target_type) <= 255)),
@@ -9267,6 +9271,7 @@ CREATE TABLE public.application_settings (
     elasticsearch_indexed_file_size_limit_kb integer DEFAULT 1024 NOT NULL,
     enforce_namespace_storage_limit boolean DEFAULT false NOT NULL,
     container_registry_delete_tags_service_timeout integer DEFAULT 250 NOT NULL,
+    elasticsearch_client_request_timeout integer DEFAULT 0 NOT NULL,
     CONSTRAINT check_51700b31b5 CHECK ((char_length(default_branch_name) <= 255)),
     CONSTRAINT check_9c6c447a13 CHECK ((char_length(maintenance_mode_message) <= 255)),
     CONSTRAINT check_d03919528d CHECK ((char_length(container_registry_vendor) <= 255)),
@@ -9518,6 +9523,7 @@ CREATE TABLE public.audit_events (
     entity_path text,
     target_details text,
     target_type text,
+    target_id bigint,
     CONSTRAINT check_492aaa021d CHECK ((char_length(entity_path) <= 5500)),
     CONSTRAINT check_82294106dd CHECK ((char_length(target_type) <= 255)),
     CONSTRAINT check_83ff8406e2 CHECK ((char_length(author_name) <= 255)),
@@ -9820,6 +9826,25 @@ CREATE SEQUENCE public.ci_build_needs_id_seq
     CACHE 1;
 
 ALTER SEQUENCE public.ci_build_needs_id_seq OWNED BY public.ci_build_needs.id;
+
+CREATE TABLE public.ci_build_pending_states (
+    id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    build_id bigint NOT NULL,
+    state integer,
+    failure_reason integer,
+    trace_checksum bytea
+);
+
+CREATE SEQUENCE public.ci_build_pending_states_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.ci_build_pending_states_id_seq OWNED BY public.ci_build_pending_states.id;
 
 CREATE TABLE public.ci_build_report_results (
     build_id bigint NOT NULL,
@@ -10297,7 +10322,8 @@ CREATE TABLE public.ci_platform_metrics (
     recorded_at timestamp with time zone NOT NULL,
     platform_target text NOT NULL,
     count integer NOT NULL,
-    CONSTRAINT check_f922abc32b CHECK ((char_length(platform_target) <= 255))
+    CONSTRAINT check_f922abc32b CHECK ((char_length(platform_target) <= 255)),
+    CONSTRAINT ci_platform_metrics_check_count_positive CHECK ((count > 0))
 );
 
 CREATE SEQUENCE public.ci_platform_metrics_id_seq
@@ -13141,6 +13167,25 @@ CREATE TABLE public.merge_request_diff_commits (
     message text
 );
 
+CREATE TABLE public.merge_request_diff_details (
+    merge_request_diff_id bigint NOT NULL,
+    verification_retry_at timestamp with time zone,
+    verified_at timestamp with time zone,
+    verification_retry_count smallint,
+    verification_checksum bytea,
+    verification_failure text,
+    CONSTRAINT check_81429e3622 CHECK ((char_length(verification_failure) <= 255))
+);
+
+CREATE SEQUENCE public.merge_request_diff_details_merge_request_diff_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.merge_request_diff_details_merge_request_diff_id_seq OWNED BY public.merge_request_diff_details.merge_request_diff_id;
+
 CREATE TABLE public.merge_request_diff_files (
     merge_request_diff_id integer NOT NULL,
     relative_order integer NOT NULL,
@@ -13295,6 +13340,7 @@ CREATE TABLE public.merge_requests (
     rebase_jid character varying,
     squash_commit_sha bytea,
     sprint_id bigint,
+    merge_ref_sha bytea,
     CONSTRAINT check_970d272570 CHECK ((lock_version IS NOT NULL))
 );
 
@@ -14218,11 +14264,11 @@ CREATE TABLE public.plan_limits (
     ci_max_artifact_size_browser_performance integer DEFAULT 0 NOT NULL,
     ci_max_artifact_size_load_performance integer DEFAULT 0 NOT NULL,
     ci_needs_size_limit integer DEFAULT 50 NOT NULL,
-    conan_max_file_size bigint DEFAULT 52428800 NOT NULL,
-    maven_max_file_size bigint DEFAULT 52428800 NOT NULL,
-    npm_max_file_size bigint DEFAULT 52428800 NOT NULL,
-    nuget_max_file_size bigint DEFAULT 52428800 NOT NULL,
-    pypi_max_file_size bigint DEFAULT 52428800 NOT NULL,
+    conan_max_file_size bigint DEFAULT '3221225472'::bigint NOT NULL,
+    maven_max_file_size bigint DEFAULT '3221225472'::bigint NOT NULL,
+    npm_max_file_size bigint DEFAULT 524288000 NOT NULL,
+    nuget_max_file_size bigint DEFAULT 524288000 NOT NULL,
+    pypi_max_file_size bigint DEFAULT '3221225472'::bigint NOT NULL,
     generic_packages_max_file_size bigint DEFAULT '5368709120'::bigint NOT NULL
 );
 
@@ -15623,7 +15669,13 @@ ALTER SEQUENCE public.smartcard_identities_id_seq OWNED BY public.smartcard_iden
 CREATE TABLE public.snippet_repositories (
     snippet_id bigint NOT NULL,
     shard_id bigint NOT NULL,
-    disk_path character varying(80) NOT NULL
+    disk_path character varying(80) NOT NULL,
+    verification_retry_count smallint,
+    verification_retry_at timestamp with time zone,
+    verified_at timestamp with time zone,
+    verification_checksum bytea,
+    verification_failure text,
+    CONSTRAINT snippet_repositories_verification_failure_text_limit CHECK ((char_length(verification_failure) <= 255))
 );
 
 CREATE TABLE public.snippet_statistics (
@@ -16940,6 +16992,8 @@ ALTER TABLE ONLY public.chat_teams ALTER COLUMN id SET DEFAULT nextval('public.c
 
 ALTER TABLE ONLY public.ci_build_needs ALTER COLUMN id SET DEFAULT nextval('public.ci_build_needs_id_seq'::regclass);
 
+ALTER TABLE ONLY public.ci_build_pending_states ALTER COLUMN id SET DEFAULT nextval('public.ci_build_pending_states_id_seq'::regclass);
+
 ALTER TABLE ONLY public.ci_build_report_results ALTER COLUMN build_id SET DEFAULT nextval('public.ci_build_report_results_build_id_seq'::regclass);
 
 ALTER TABLE ONLY public.ci_build_trace_chunks ALTER COLUMN id SET DEFAULT nextval('public.ci_build_trace_chunks_id_seq'::regclass);
@@ -17243,6 +17297,8 @@ ALTER TABLE ONLY public.merge_request_assignees ALTER COLUMN id SET DEFAULT next
 ALTER TABLE ONLY public.merge_request_blocks ALTER COLUMN id SET DEFAULT nextval('public.merge_request_blocks_id_seq'::regclass);
 
 ALTER TABLE ONLY public.merge_request_context_commits ALTER COLUMN id SET DEFAULT nextval('public.merge_request_context_commits_id_seq'::regclass);
+
+ALTER TABLE ONLY public.merge_request_diff_details ALTER COLUMN merge_request_diff_id SET DEFAULT nextval('public.merge_request_diff_details_merge_request_diff_id_seq'::regclass);
 
 ALTER TABLE ONLY public.merge_request_diffs ALTER COLUMN id SET DEFAULT nextval('public.merge_request_diffs_id_seq'::regclass);
 
@@ -17899,6 +17955,9 @@ ALTER TABLE public.merge_request_diffs
 ALTER TABLE ONLY public.ci_build_needs
     ADD CONSTRAINT ci_build_needs_pkey PRIMARY KEY (id);
 
+ALTER TABLE ONLY public.ci_build_pending_states
+    ADD CONSTRAINT ci_build_pending_states_pkey PRIMARY KEY (id);
+
 ALTER TABLE ONLY public.ci_build_report_results
     ADD CONSTRAINT ci_build_report_results_pkey PRIMARY KEY (build_id);
 
@@ -18372,6 +18431,9 @@ ALTER TABLE ONLY public.merge_request_blocks
 
 ALTER TABLE ONLY public.merge_request_context_commits
     ADD CONSTRAINT merge_request_context_commits_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.merge_request_diff_details
+    ADD CONSTRAINT merge_request_diff_details_pkey PRIMARY KEY (merge_request_diff_id);
 
 ALTER TABLE ONLY public.merge_request_diffs
     ADD CONSTRAINT merge_request_diffs_pkey PRIMARY KEY (id);
@@ -19342,6 +19404,8 @@ CREATE UNIQUE INDEX index_chat_teams_on_namespace_id ON public.chat_teams USING 
 
 CREATE UNIQUE INDEX index_ci_build_needs_on_build_id_and_name ON public.ci_build_needs USING btree (build_id, name);
 
+CREATE UNIQUE INDEX index_ci_build_pending_states_on_build_id ON public.ci_build_pending_states USING btree (build_id);
+
 CREATE INDEX index_ci_build_report_results_on_project_id ON public.ci_build_report_results USING btree (project_id);
 
 CREATE UNIQUE INDEX index_ci_build_trace_chunks_on_build_id_and_chunk_index ON public.ci_build_trace_chunks USING btree (build_id, chunk_index);
@@ -19461,6 +19525,8 @@ CREATE INDEX index_ci_pipeline_schedules_on_project_id ON public.ci_pipeline_sch
 CREATE UNIQUE INDEX index_ci_pipeline_variables_on_pipeline_id_and_key ON public.ci_pipeline_variables USING btree (pipeline_id, key);
 
 CREATE INDEX index_ci_pipelines_config_on_pipeline_id ON public.ci_pipelines_config USING btree (pipeline_id);
+
+CREATE INDEX index_ci_pipelines_for_ondemand_dast_scans ON public.ci_pipelines USING btree (id) WHERE (source = 13);
 
 CREATE INDEX index_ci_pipelines_on_auto_canceled_by_id ON public.ci_pipelines USING btree (auto_canceled_by_id);
 
@@ -20198,6 +20264,8 @@ CREATE UNIQUE INDEX index_merge_request_diff_commits_on_mr_diff_id_and_order ON 
 
 CREATE INDEX index_merge_request_diff_commits_on_sha ON public.merge_request_diff_commits USING btree (sha);
 
+CREATE INDEX index_merge_request_diff_details_on_merge_request_diff_id ON public.merge_request_diff_details USING btree (merge_request_diff_id);
+
 CREATE UNIQUE INDEX index_merge_request_diff_files_on_mr_diff_id_and_order ON public.merge_request_diff_files USING btree (merge_request_diff_id, relative_order);
 
 CREATE INDEX index_merge_request_diffs_by_id_partial ON public.merge_request_diffs USING btree (id) WHERE ((files_count > 0) AND ((NOT stored_externally) OR (stored_externally IS NULL)));
@@ -20814,6 +20882,8 @@ CREATE INDEX index_resource_iteration_events_on_issue_id ON public.resource_iter
 
 CREATE INDEX index_resource_iteration_events_on_iteration_id ON public.resource_iteration_events USING btree (iteration_id);
 
+CREATE INDEX index_resource_iteration_events_on_iteration_id_and_add_action ON public.resource_iteration_events USING btree (iteration_id) WHERE (action = 1);
+
 CREATE INDEX index_resource_iteration_events_on_merge_request_id ON public.resource_iteration_events USING btree (merge_request_id);
 
 CREATE INDEX index_resource_iteration_events_on_user_id ON public.resource_iteration_events USING btree (user_id);
@@ -21314,6 +21384,10 @@ CREATE INDEX partial_index_deployments_for_legacy_successful_deployments ON publ
 
 CREATE INDEX partial_index_deployments_for_project_id_and_tag ON public.deployments USING btree (project_id) WHERE (tag IS TRUE);
 
+CREATE INDEX snippet_repositories_verification_checksum_partial ON public.snippet_repositories USING btree (verification_checksum) WHERE (verification_checksum IS NOT NULL);
+
+CREATE INDEX snippet_repositories_verification_failure_partial ON public.snippet_repositories USING btree (verification_failure) WHERE (verification_failure IS NOT NULL);
+
 CREATE UNIQUE INDEX snippet_user_mentions_on_snippet_id_and_note_id_index ON public.snippet_user_mentions USING btree (snippet_id, note_id);
 
 CREATE UNIQUE INDEX snippet_user_mentions_on_snippet_id_index ON public.snippet_user_mentions USING btree (snippet_id) WHERE (note_id IS NULL);
@@ -21329,6 +21403,8 @@ CREATE INDEX terraform_states_verification_failure_partial ON public.terraform_s
 CREATE INDEX tmp_build_stage_position_index ON public.ci_builds USING btree (stage_id, stage_idx) WHERE (stage_idx IS NOT NULL);
 
 CREATE INDEX tmp_index_for_email_unconfirmation_migration ON public.emails USING btree (id) WHERE (confirmed_at IS NOT NULL);
+
+CREATE INDEX tmp_index_for_fixing_inconsistent_vulnerability_occurrences ON public.vulnerability_occurrences USING btree (id) WHERE ((length(location_fingerprint) = 40) AND (report_type = 2));
 
 CREATE UNIQUE INDEX unique_merge_request_metrics_by_merge_request_id ON public.merge_request_metrics USING btree (merge_request_id);
 
@@ -22253,6 +22329,9 @@ ALTER TABLE ONLY public.project_deploy_tokens
 ALTER TABLE ONLY public.packages_conan_file_metadata
     ADD CONSTRAINT fk_rails_0afabd9328 FOREIGN KEY (package_file_id) REFERENCES public.packages_package_files(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY public.ci_build_pending_states
+    ADD CONSTRAINT fk_rails_0bbbfeaf9d FOREIGN KEY (build_id) REFERENCES public.ci_builds(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY public.operations_user_lists
     ADD CONSTRAINT fk_rails_0c716e079b FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
 
@@ -22864,6 +22943,9 @@ ALTER TABLE ONLY public.deployment_merge_requests
 
 ALTER TABLE ONLY public.analytics_language_trend_repository_languages
     ADD CONSTRAINT fk_rails_86cc9aef5f FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.merge_request_diff_details
+    ADD CONSTRAINT fk_rails_86f4d24ecd FOREIGN KEY (merge_request_diff_id) REFERENCES public.merge_request_diffs(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.clusters_applications_crossplane
     ADD CONSTRAINT fk_rails_87186702df FOREIGN KEY (cluster_id) REFERENCES public.clusters(id) ON DELETE CASCADE;

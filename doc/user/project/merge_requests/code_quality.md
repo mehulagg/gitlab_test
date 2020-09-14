@@ -23,7 +23,7 @@ Code Quality:
   Quality](https://gitlab.com/gitlab-org/ci-cd/codequality) project using [default Code Climate configurations](https://gitlab.com/gitlab-org/ci-cd/codequality/-/tree/master/codeclimate_defaults).
 - Can make use of a [template](#example-configuration).
 - Is available with [Auto
-  DevOps](../../../topics/autodevops/stages.md#auto-code-quality-starter).
+  DevOps](../../../topics/autodevops/stages.md#auto-code-quality).
 - Can be extended through [Analysis Plugins](https://docs.codeclimate.com/docs/list-of-engines) or a [custom tool](#implementing-a-custom-tool).
 
 ## Code Quality Widget
@@ -100,6 +100,16 @@ include:
 code_quality:
   variables:
     CODE_QUALITY_IMAGE: "registry.example.com/codequality-fork:latest"
+```
+
+In [GitLab 13.4 and later](https://gitlab.com/gitlab-org/gitlab/-/issues/11100), you can override the [Code Quality environment variables](https://gitlab.com/gitlab-org/ci-cd/codequality#environment-variables):
+
+```yaml
+variables:
+  TIMEOUT_SECONDS: 1
+
+include:
+  - template: Code-Quality.gitlab-ci.yml
 ```
 
 By default, report artifacts are not downloadable. If you need them downloadable on the

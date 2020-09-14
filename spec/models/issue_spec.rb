@@ -133,6 +133,7 @@ RSpec.describe Issue do
     let_it_be(:project) { create(:project) }
     let_it_be(:issue) { create(:issue, project: project) }
     let_it_be(:incident) { create(:incident, project: project) }
+    let_it_be(:test_case) { create(:quality_test_case, project: project) }
 
     it 'gives issues with the given issue type' do
       expect(described_class.with_issue_type('issue'))
@@ -140,8 +141,8 @@ RSpec.describe Issue do
     end
 
     it 'gives issues with the given issue type' do
-      expect(described_class.with_issue_type(%w(issue incident)))
-        .to contain_exactly(issue, incident)
+      expect(described_class.with_issue_type(%w(issue incident test_case)))
+        .to contain_exactly(issue, incident, test_case)
     end
   end
 
@@ -1209,6 +1210,16 @@ RSpec.describe Issue do
 
         expect { issue.move_sequence_after }.to raise_error(ActiveRecord::QueryCanceled)
       end
+    end
+  end
+
+  describe '#allows_reviewers?' do
+    it 'returns false as issues do not support reviewers feature' do
+      stub_feature_flags(merge_request_reviewers: true)
+
+      issue = build_stubbed(:issue)
+
+      expect(issue.allows_reviewers?).to be(false)
     end
   end
 end

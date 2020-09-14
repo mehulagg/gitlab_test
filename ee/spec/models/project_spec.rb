@@ -270,11 +270,11 @@ RSpec.describe Project do
   describe 'setting up a mirror' do
     context 'when new project' do
       it 'creates import_state and sets next_execution_timestamp to now' do
-        project = build(:project, :mirror)
+        project = build(:project, :mirror, creator: create(:user))
 
         Timecop.freeze do
           expect do
-            project.save
+            project.save!
           end.to change { ProjectImportState.count }.by(1)
 
           expect(project.import_state.next_execution_timestamp).to be_like_time(Time.current)
@@ -809,17 +809,6 @@ RSpec.describe Project do
                   is_expected.to eq(false)
                 end
               end
-
-              context 'with promo feature flag' do
-                let(:allowed_on_global_license) { true }
-
-                before do
-                  project.clear_memoization(:licensed_feature_available)
-                  stub_feature_flags("promo_#{feature}" => true)
-                end
-
-                it { is_expected.to be_truthy }
-              end
             end
           end
 
@@ -1099,13 +1088,16 @@ RSpec.describe Project do
     let(:project) { create(:project) }
     let!(:approval_rules) { create_list(:approval_project_rule, 2, project: project) }
     let!(:any_approver_rule) { create(:approval_project_rule, rule_type: :any_approver, project: project) }
+    let(:branch) { nil }
+
+    subject { project.visible_user_defined_rules(branch: branch) }
 
     before do
       stub_licensed_features(multiple_approval_rules: true)
     end
 
     it 'returns all approval rules' do
-      expect(project.visible_user_defined_rules).to eq([any_approver_rule, *approval_rules])
+      expect(subject).to eq([any_approver_rule, *approval_rules])
     end
 
     context 'when multiple approval rules is not available' do
@@ -1114,7 +1106,19 @@ RSpec.describe Project do
       end
 
       it 'returns the first approval rule' do
-        expect(project.visible_user_defined_rules).to eq([any_approver_rule])
+        expect(subject).to eq([any_approver_rule])
+      end
+    end
+
+    context 'when branch is provided' do
+      let(:branch) { 'master' }
+
+      it 'caches the rules' do
+        expect(project).to receive(:user_defined_rules).and_call_original
+        subject
+
+        expect(project).not_to receive(:user_defined_rules)
+        subject
       end
     end
   end

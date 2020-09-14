@@ -12,9 +12,11 @@ import {
 } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import { getTimeago } from '~/lib/utils/datetime_utility';
-import { setUrlFragment } from '~/lib/utils/url_utility';
+import { setUrlFragment, mergeUrlParams } from '~/lib/utils/url_utility';
 import EnvironmentPicker from './environment_picker.vue';
 import NetworkPolicyEditor from './network_policy_editor.vue';
+import PolicyDrawer from './policy_editor/policy_drawer.vue';
+import { CiliumNetworkPolicyKind } from './policy_editor/constants';
 
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 
@@ -30,6 +32,7 @@ export default {
     GlToggle,
     EnvironmentPicker,
     NetworkPolicyEditor,
+    PolicyDrawer,
   },
   mixins: [glFeatureFlagsMixin()],
   props: {
@@ -70,6 +73,29 @@ export default {
     },
     hasAutoDevopsPolicy() {
       return this.policiesWithDefaults.some(policy => policy.isAutodevops);
+    },
+    hasCiliumSelectedPolicy() {
+      return this.hasSelectedPolicy
+        ? this.selectedPolicy.manifest.includes(CiliumNetworkPolicyKind)
+        : false;
+    },
+    shouldShowCiliumDrawer() {
+      return this.glFeatures.networkPolicyEditor && this.hasCiliumSelectedPolicy;
+    },
+    shouldShowEditButton() {
+      return (
+        this.glFeatures.networkPolicyEditor &&
+        this.hasCiliumSelectedPolicy &&
+        Boolean(this.selectedPolicy.creationTimestamp)
+      );
+    },
+    editPolicyPath() {
+      return this.hasSelectedPolicy
+        ? mergeUrlParams(
+            { environment_id: this.currentEnvironmentId },
+            this.newPolicyPath.replace('new', `${this.selectedPolicyName}/edit`),
+          )
+        : '';
     },
   },
   methods: {
@@ -220,6 +246,14 @@ export default {
           <div>
             <gl-button ref="cancelButton" @click="deselectPolicy">{{ __('Cancel') }}</gl-button>
             <gl-button
+              v-if="shouldShowEditButton"
+              data-testid="edit-button"
+              category="primary"
+              variant="info"
+              :href="editPolicyPath"
+              >{{ s__('NetworkPolicies|Edit policy') }}</gl-button
+            >
+            <gl-button
               ref="applyButton"
               category="primary"
               variant="success"
@@ -233,17 +267,23 @@ export default {
       </template>
       <template>
         <div v-if="hasSelectedPolicy">
-          <h5>{{ s__('NetworkPolicies|Policy definition') }}</h5>
-          <p>{{ s__("NetworkPolicies|Define this policy's location, conditions and actions.") }}</p>
-          <div class="gl-p-3 gl-bg-gray-50">
-            <network-policy-editor
-              ref="policyEditor"
-              v-model="selectedPolicy.manifest"
-              class="network-policy-editor"
-            />
+          <policy-drawer v-if="shouldShowCiliumDrawer" v-model="selectedPolicy.manifest" />
+
+          <div v-else>
+            <h5>{{ s__('NetworkPolicies|Policy definition') }}</h5>
+            <p>
+              {{ s__("NetworkPolicies|Define this policy's location, conditions and actions.") }}
+            </p>
+            <div class="gl-p-3 gl-bg-gray-50">
+              <network-policy-editor
+                ref="policyEditor"
+                v-model="selectedPolicy.manifest"
+                class="network-policy-editor"
+              />
+            </div>
           </div>
 
-          <h5 class="mt-4">{{ s__('NetworkPolicies|Enforcement status') }}</h5>
+          <h5 class="gl-mt-6">{{ s__('NetworkPolicies|Enforcement status') }}</h5>
           <p>{{ s__('NetworkPolicies|Choose whether to enforce this policy.') }}</p>
           <gl-toggle v-model="selectedPolicy.isEnabled" data-testid="policyToggle" />
         </div>

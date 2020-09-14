@@ -78,10 +78,10 @@ module Gitlab
       end
 
       def with_prometheus_client(fallback: nil)
-        return fallback unless Gitlab::Prometheus::Internal.prometheus_enabled?
+        api_url = prometheus_api_url
+        return fallback unless api_url
 
-        prometheus_address = Gitlab::Prometheus::Internal.uri
-        yield Gitlab::PrometheusClient.new(prometheus_address, allow_local_requests: true)
+        yield Gitlab::PrometheusClient.new(api_url, allow_local_requests: true)
       end
 
       def measure_duration
@@ -96,7 +96,22 @@ module Gitlab
         yield.merge(key => Time.current)
       end
 
+      def track_usage_event(metric_name, target)
+        return unless Feature.enabled?(:"usage_data_#{metric_name}", default_enabled: true)
+        return unless Gitlab::CurrentSettings.usage_ping_enabled?
+
+        Gitlab::UsageDataCounters::HLLRedisCounter.track_event(target.id, metric_name.to_s)
+      end
+
       private
+
+      def prometheus_api_url
+        if Gitlab::Prometheus::Internal.prometheus_enabled?
+          Gitlab::Prometheus::Internal.uri
+        elsif Gitlab::Consul::Internal.api_url
+          Gitlab::Consul::Internal.discover_prometheus_uri
+        end
+      end
 
       def redis_usage_counter
         yield

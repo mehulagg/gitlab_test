@@ -1,5 +1,5 @@
 <script>
-import { GlButton, GlIcon, GlLink, GlSprintf, GlTooltipDirective } from '@gitlab/ui';
+import { GlButton, GlIcon, GlLink, GlSprintf, GlTooltipDirective, GlTruncate } from '@gitlab/ui';
 import PackageTags from './package_tags.vue';
 import PublishMethod from './publish_method.vue';
 import { getPackageTypeLabel } from '../utils';
@@ -13,6 +13,7 @@ export default {
     GlIcon,
     GlLink,
     GlSprintf,
+    GlTruncate,
     PackageTags,
     PublishMethod,
     ListItem,
@@ -61,11 +62,15 @@ export default {
 </script>
 
 <template>
-  <list-item data-qa-selector="packages-row">
+  <list-item data-qa-selector="package_row">
     <template #left-primary>
-      <div class="gl-display-flex gl-align-items-center gl-mr-3">
-        <gl-link :href="packageLink" class="gl-text-body" data-qa-selector="package_link">
-          {{ packageEntity.name }}
+      <div class="gl-display-flex gl-align-items-center gl-mr-3 gl-min-w-0">
+        <gl-link
+          :href="packageLink"
+          class="gl-text-body gl-min-w-0"
+          data-qa-selector="package_link"
+        >
+          <gl-truncate :text="packageEntity.name" />
         </gl-link>
 
         <package-tags
@@ -88,14 +93,14 @@ export default {
         </div>
 
         <div v-if="hasProjectLink" class="gl-display-flex gl-align-items-center">
-          <gl-icon name="review-list" class="gl-ml-3 gl-mr-2" />
+          <gl-icon name="review-list" class="gl-ml-3 gl-mr-2 gl-min-w-0" />
 
           <gl-link
-            class="gl-text-body"
+            class="gl-text-body gl-min-w-0"
             data-testid="packages-row-project"
             :href="`/${packageEntity.project_path}`"
           >
-            {{ packageEntity.projectPathName }}
+            <gl-truncate :text="packageEntity.projectPathName" />
           </gl-link>
         </div>
 
@@ -111,13 +116,15 @@ export default {
     </template>
 
     <template #right-secondary>
-      <gl-sprintf :message="__('Created %{timestamp}')">
-        <template #timestamp>
-          <span v-gl-tooltip :title="tooltipTitle(packageEntity.created_at)">
-            {{ timeFormatted(packageEntity.created_at) }}
-          </span>
-        </template>
-      </gl-sprintf>
+      <span>
+        <gl-sprintf :message="__('Created %{timestamp}')">
+          <template #timestamp>
+            <span v-gl-tooltip :title="tooltipTitle(packageEntity.created_at)">
+              {{ timeFormatted(packageEntity.created_at) }}
+            </span>
+          </template>
+        </gl-sprintf>
+      </span>
     </template>
 
     <template v-if="!disableDelete" #right-action>

@@ -84,6 +84,10 @@ export default () => {
     },
     store,
     apolloProvider,
+    provide: {
+      // TODO: Mv all non-reactive props from data/props to here.
+      rootPath: $boardApp.dataset.rootPath,
+    },
     data() {
       return {
         state: boardsStore.state,
@@ -161,7 +165,12 @@ export default () => {
       }
     },
     methods: {
-      ...mapActions(['setInitialBoardData', 'setFilters', 'fetchEpicsSwimlanes']),
+      ...mapActions([
+        'setInitialBoardData',
+        'setFilters',
+        'fetchEpicsSwimlanes',
+        'fetchIssuesForAllLists',
+      ]),
       updateTokens() {
         this.filterManager.updateTokens();
       },
@@ -169,6 +178,7 @@ export default () => {
         this.setFilters(convertObjectPropsToCamelCase(urlParamsToObject(window.location.search)));
         if (gon.features.boardsWithSwimlanes && this.isShowingEpicsSwimlanes) {
           this.fetchEpicsSwimlanes(false);
+          this.fetchIssuesForAllLists();
         }
       },
       updateDetailIssue(newIssue, multiSelect = false) {

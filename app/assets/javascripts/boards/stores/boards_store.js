@@ -15,6 +15,7 @@ import {
 import { __ } from '~/locale';
 import axios from '~/lib/utils/axios_utils';
 import { mergeUrlParams } from '~/lib/utils/url_utility';
+import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import eventHub from '../eventhub';
 import { ListType } from '../constants';
 import IssueProject from '../models/project';
@@ -303,7 +304,7 @@ const boardsStore = {
   onNewListIssueResponse(list, issue, data) {
     issue.refreshData(data);
 
-    if (list.issuesSize > 1) {
+    if (!gon.features.boardsWithSwimlanes && list.issuesSize > 1) {
       const moveBeforeId = list.issues[1].id;
       this.moveIssue(issue.id, null, null, null, moveBeforeId);
     }
@@ -710,6 +711,10 @@ const boardsStore = {
   },
 
   newIssue(id, issue) {
+    if (typeof id === 'string') {
+      id = getIdFromGraphQLId(id);
+    }
+
     return axios.post(this.generateIssuesPath(id), {
       issue,
     });
@@ -858,21 +863,6 @@ const boardsStore = {
   },
 
   refreshIssueData(issue, obj) {
-    // issue.id = obj.id;
-    // issue.iid = obj.iid;
-    // issue.title = obj.title;
-    // issue.confidential = obj.confidential;
-    // issue.dueDate = obj.due_date || obj.dueDate;
-    // issue.sidebarInfoEndpoint = obj.issue_sidebar_endpoint;
-    // issue.referencePath = obj.reference_path || obj.referencePath;
-    // issue.path = obj.real_path || obj.webUrl;
-    // issue.toggleSubscriptionEndpoint = obj.toggle_subscription_endpoint;
-    // issue.project_id = obj.project_id;
-    // issue.timeEstimate = obj.time_estimate || obj.timeEstimate;
-    // issue.assignableLabelsEndpoint = obj.assignable_labels_endpoint;
-    // issue.blocked = obj.blocked;
-    // issue.epic = obj.epic;
-
     const convertedObj = convertObjectPropsToCamelCase(obj, {
       dropKeys: ['issue_sidebar_endpoint', 'real_path', 'webUrl'],
     });

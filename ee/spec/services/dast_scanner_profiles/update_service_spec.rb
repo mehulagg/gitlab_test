@@ -28,7 +28,6 @@ RSpec.describe DastScannerProfiles::UpdateService do
     let(:dast_scanner_profile_id) { dast_scanner_profile.id }
     let(:status) { subject.status }
     let(:message) { subject.message }
-    let(:errors) { subject.errors }
     let(:payload) { subject.payload }
 
     context 'when a user does not have access to the project' do

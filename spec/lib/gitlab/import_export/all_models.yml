@@ -15,6 +15,7 @@ issues:
 - resource_iteration_events
 - sent_notifications
 - sentry_issue
+- issuable_severity
 - label_links
 - labels
 - last_edited_by
@@ -28,6 +29,7 @@ issues:
 - merge_requests_closing_issues
 - metrics
 - timelogs
+- issuable_severity
 - issue_assignees
 - closed_by
 - epic_issue
@@ -128,6 +130,7 @@ merge_requests:
 - resource_label_events
 - resource_milestone_events
 - resource_state_events
+- resource_iteration_events
 - label_links
 - labels
 - last_edited_by
@@ -177,8 +180,11 @@ external_pull_requests:
 merge_request_diff:
 - merge_request
 - merge_request_diff_commits
+- merge_request_diff_detail
 - merge_request_diff_files
 merge_request_diff_commits:
+- merge_request_diff
+merge_request_diff_detail:
 - merge_request_diff
 merge_request_diff_files:
 - merge_request_diff
@@ -359,6 +365,7 @@ project:
 - youtrack_service
 - custom_issue_tracker_service
 - bugzilla_service
+- ewm_service
 - external_wiki_service
 - mock_ci_service
 - mock_deployment_service
@@ -538,8 +545,11 @@ timelogs:
 - issue
 - merge_request
 - user
+- note
 push_event_payload:
 - event
+issuable_severity:
+- issue
 issue_assignees:
 - issue
 - assignee
@@ -648,6 +658,8 @@ versions: &version
 zoom_meetings:
 - issue
 sentry_issue:
+- issue
+issuable_severity:
 - issue
 design_versions: *version
 epic:

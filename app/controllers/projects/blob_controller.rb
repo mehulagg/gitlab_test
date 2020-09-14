@@ -10,6 +10,8 @@ class Projects::BlobController < Projects::ApplicationController
   include RedirectsForMissingPathOnTree
   include SourcegraphDecorator
   include DiffHelper
+  include RedisTracking
+  extend ::Gitlab::Utils::Override
 
   prepend_before_action :authenticate_user!, only: [:edit]
 
@@ -34,6 +36,8 @@ class Projects::BlobController < Projects::ApplicationController
     push_frontend_feature_flag(:code_navigation, @project, default_enabled: true)
     push_frontend_feature_flag(:suggest_pipeline) if experiment_enabled?(:suggest_pipeline)
   end
+
+  track_redis_hll_event :create, :update, name: 'g_edit_by_sfe', feature: :track_editor_edit_actions, feature_default_enabled: true
 
   def new
     commit unless @repository.empty?
@@ -99,8 +103,6 @@ class Projects::BlobController < Projects::ApplicationController
   end
 
   def diff
-    apply_diff_view_cookie!
-
     @form = Blobs::UnfoldPresenter.new(blob, diff_params)
 
     # keep only json rendering when
@@ -255,5 +257,10 @@ class Projects::BlobController < Projects::ApplicationController
 
   def diff_params
     params.permit(:full, :since, :to, :bottom, :unfold, :offset, :indent)
+  end
+
+  override :visitor_id
+  def visitor_id
+    current_user&.id
   end
 end

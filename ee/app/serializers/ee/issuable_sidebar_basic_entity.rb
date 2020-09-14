@@ -13,6 +13,7 @@ module EE
         security_setting ||= ProjectSecuritySetting.safe_find_or_create_for(issuable.project)
         security_setting.cve_id_request_enabled == true
       end
+      expose :supports_weight?, as: :supports_weight
     end
   end
 end

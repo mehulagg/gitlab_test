@@ -1,9 +1,9 @@
 import { mount, shallowMount } from '@vue/test-utils';
 import { within } from '@testing-library/dom';
 import { merge } from 'lodash';
-import { GlDropdown } from '@gitlab/ui';
+import { GlDropdown, GlTabs } from '@gitlab/ui';
+import setWindowLocation from 'helpers/set_window_location_helper';
 import DastProfiles from 'ee/dast_profiles/components/dast_profiles.vue';
-import DastProfilesList from 'ee/dast_profiles/components/dast_profiles_list.vue';
 
 const TEST_NEW_DAST_SCANNER_PROFILE_PATH = '/-/on_demand_scans/scanner_profiles/new';
 const TEST_NEW_DAST_SITE_PROFILE_PATH = '/-/on_demand_scans/site_profiles/new';
@@ -27,8 +27,18 @@ describe('EE - DastProfiles', () => {
           siteProfiles: {
             fetchMore: jest.fn().mockResolvedValue(),
           },
+          scannerProfiles: {
+            fetchMore: jest.fn().mockResolvedValue(),
+          },
         },
         mutate: jest.fn().mockResolvedValue(),
+        addSmartQuery: jest.fn(),
+      },
+    };
+
+    const defaultProvide = {
+      glFeatures: {
+        securityOnDemandScansScannerProfiles: true,
       },
     };
 
@@ -39,6 +49,7 @@ describe('EE - DastProfiles', () => {
         {
           propsData: defaultProps,
           mocks: defaultMocks,
+          provide: defaultProvide,
         },
         options,
       ),
@@ -67,10 +78,16 @@ describe('EE - DastProfiles', () => {
   };
 
   const withinComponent = () => within(wrapper.element);
-  const getSiteProfilesComponent = () => wrapper.find(DastProfilesList);
+  const getProfilesComponent = profileType => wrapper.find(`[data-testid="${profileType}List"]`);
   const getDropdownComponent = () => wrapper.find(GlDropdown);
   const getSiteProfilesDropdownItem = text =>
     within(getDropdownComponent().element).queryByText(text);
+  const getTabsComponent = () => wrapper.find(GlTabs);
+  const getTab = ({ tabName, selected }) =>
+    withinComponent().getByRole('tab', {
+      name: tabName,
+      selected,
+    });
 
   afterEach(() => {
     wrapper.destroy();
@@ -114,91 +131,134 @@ describe('EE - DastProfiles', () => {
   });
 
   describe('tabs', () => {
-    beforeEach(() => {
-      createFullComponent();
+    const originalLocation = window.location;
+
+    describe('without location hash set', () => {
+      beforeEach(() => {
+        createFullComponent();
+      });
+
+      it('shows a tab-list that contains the different profile categories', () => {
+        const tabList = withinComponent().getByRole('tablist');
+
+        expect(tabList).not.toBe(null);
+      });
+
+      it.each`
+        tabName               | shouldBeSelectedByDefault
+        ${'Site Profiles'}    | ${true}
+        ${'Scanner Profiles'} | ${false}
+      `(
+        'shows a "$tabName" tab which has "selected" set to "$shouldBeSelectedByDefault"',
+        ({ tabName, shouldBeSelectedByDefault }) => {
+          const tab = getTab({
+            tabName,
+            selected: shouldBeSelectedByDefault,
+          });
+
+          expect(tab).not.toBe(null);
+        },
+      );
     });
 
-    it('shows a tab-list that contains the different profile categories', () => {
-      const tabList = withinComponent().getByRole('tablist');
+    describe.each`
+      tabName               | index | givenLocationHash
+      ${'Site Profiles'}    | ${0}  | ${'site-profiles'}
+      ${'Scanner Profiles'} | ${1}  | ${'scanner-profiles'}
+    `('with location hash set to "$givenLocationHash"', ({ tabName, index, givenLocationHash }) => {
+      beforeEach(() => {
+        setWindowLocation(`http://foo.com/index#${givenLocationHash}`);
+        createFullComponent();
+      });
 
-      expect(tabList).not.toBe(null);
-    });
+      afterEach(() => {
+        window.location = originalLocation;
+      });
 
-    it.each`
-      tabName            | shouldBeSelectedByDefault
-      ${'Site Profiles'} | ${true}
-    `(
-      'shows a "$tabName" tab which has "selected" set to "$shouldBeSelectedByDefault"',
-      ({ tabName, shouldBeSelectedByDefault }) => {
-        const tab = withinComponent().getByRole('tab', {
-          name: tabName,
-          selected: shouldBeSelectedByDefault,
+      it(`has "${tabName}" selected`, () => {
+        const tab = getTab({
+          tabName,
+          selected: true,
         });
 
         expect(tab).not.toBe(null);
-      },
-    );
+      });
+
+      it('updates the browsers URL to contain the selected tab', () => {
+        window.location.hash = '';
+
+        getTabsComponent().vm.$emit('input', index);
+
+        expect(window.location.hash).toBe(givenLocationHash);
+      });
+    });
   });
 
-  describe('site profiles', () => {
+  describe.each`
+    description                | profileType
+    ${'Site Profiles List'}    | ${'siteProfiles'}
+    ${'Scanner Profiles List'} | ${'scannerProfiles'}
+  `('$description', ({ profileType }) => {
     beforeEach(() => {
       createComponent();
     });
 
     it('passes down the correct default props', () => {
-      expect(getSiteProfilesComponent().props()).toEqual({
+      expect(getProfilesComponent(profileType).props()).toEqual({
         errorMessage: '',
         errorDetails: [],
         hasMoreProfilesToLoad: false,
         isLoading: false,
         profilesPerPage: expect.any(Number),
         profiles: [],
+        fields: expect.any(Array),
       });
     });
 
-    it.each([true, false])('passes down the loading state', loading => {
-      createComponent({ mocks: { $apollo: { queries: { siteProfiles: { loading } } } } });
+    it.each([true, false])('passes down the loading state when loading is "%s"', loading => {
+      createComponent({ mocks: { $apollo: { queries: { [profileType]: { loading } } } } });
 
-      expect(getSiteProfilesComponent().props('isLoading')).toBe(loading);
+      expect(getProfilesComponent(profileType).props('isLoading')).toBe(loading);
     });
 
     it.each`
-      givenData                                          | propName                   | expectedPropValue
-      ${{ errorMessage: 'foo' }}                         | ${'errorMessage'}          | ${'foo'}
-      ${{ siteProfilesPageInfo: { hasNextPage: true } }} | ${'hasMoreProfilesToLoad'} | ${true}
-      ${{ siteProfiles: [{ foo: 'bar' }] }}              | ${'profiles'}              | ${[{ foo: 'bar' }]}
+      givenData                                                                   | propName                   | expectedPropValue
+      ${{ profileTypes: { [profileType]: { errorMessage: 'foo' } } }}             | ${'errorMessage'}          | ${'foo'}
+      ${{ profileTypes: { [profileType]: { errorDetails: ['foo'] } } }}           | ${'errorDetails'}          | ${['foo']}
+      ${{ profileTypes: { [profileType]: { pageInfo: { hasNextPage: true } } } }} | ${'hasMoreProfilesToLoad'} | ${true}
+      ${{ profileTypes: { [profileType]: { profiles: [{ foo: 'bar' }] } } }}      | ${'profiles'}              | ${[{ foo: 'bar' }]}
     `('passes down $propName correctly', async ({ givenData, propName, expectedPropValue }) => {
       wrapper.setData(givenData);
 
       await wrapper.vm.$nextTick();
 
-      expect(getSiteProfilesComponent().props(propName)).toEqual(expectedPropValue);
+      expect(getProfilesComponent(profileType).props(propName)).toEqual(expectedPropValue);
     });
 
-    it('fetches more results when "@loadMoreProfiles" is emitted', () => {
+    it('fetches more results when "@load-more-profiles" is emitted', () => {
       const {
         $apollo: {
           queries: {
-            siteProfiles: { fetchMore },
+            [profileType]: { fetchMore },
           },
         },
       } = wrapper.vm;
 
       expect(fetchMore).not.toHaveBeenCalled();
 
-      getSiteProfilesComponent().vm.$emit('loadMoreProfiles');
+      getProfilesComponent(profileType).vm.$emit('load-more-profiles');
 
       expect(fetchMore).toHaveBeenCalledTimes(1);
     });
 
-    it('deletes profile when "@deleteProfile" is emitted', () => {
+    it('deletes profile when "@delete-profile" is emitted', () => {
       const {
         $apollo: { mutate },
       } = wrapper.vm;
 
       expect(mutate).not.toHaveBeenCalled();
 
-      getSiteProfilesComponent().vm.$emit('deleteProfile');
+      getProfilesComponent(profileType).vm.$emit('delete-profile');
 
       expect(mutate).toHaveBeenCalledTimes(1);
     });

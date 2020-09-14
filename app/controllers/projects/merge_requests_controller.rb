@@ -10,8 +10,10 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
   include IssuableCollections
   include RecordUserLastActivity
   include SourcegraphDecorator
+  include DiffHelper
 
   skip_before_action :merge_request, only: [:index, :bulk_update]
+  before_action :apply_diff_view_cookie!, only: [:show]
   before_action :whitelist_query_limiting, only: [:assign_related_issues, :update]
   before_action :authorize_update_issuable!, only: [:close, :edit, :update, :remove_wip, :sort]
   before_action :authorize_read_actual_head_pipeline!, only: [
@@ -426,7 +428,13 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
     Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-foss/issues/42438')
   end
 
-  def reports_response(report_comparison)
+  def reports_response(report_comparison, pipeline = nil)
+    if pipeline&.active?
+      ::Gitlab::PollingInterval.set_header(response, interval: 3000)
+
+      render json: '', status: :no_content && return
+    end
+
     case report_comparison[:status]
     when :parsing
       ::Gitlab::PollingInterval.set_header(response, interval: 3000)

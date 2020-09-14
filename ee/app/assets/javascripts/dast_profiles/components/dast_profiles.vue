@@ -1,11 +1,11 @@
 <script>
 import * as Sentry from '@sentry/browser';
 import { GlDropdown, GlDropdownItem, GlTab, GlTabs } from '@gitlab/ui';
+import { camelCase, kebabCase } from 'lodash';
 import { s__ } from '~/locale';
+import { getLocationHash } from '~/lib/utils/url_utility';
 import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import ProfilesList from './dast_profiles_list.vue';
-import dastSiteProfilesQuery from '../graphql/dast_site_profiles.query.graphql';
-import dastSiteProfilesDelete from '../graphql/dast_site_profiles_delete.mutation.graphql';
 import * as cacheUtils from '../graphql/cache_utils';
 import { getProfileSettings } from '../settings/profiles';
 
@@ -32,38 +32,8 @@ export default {
   },
   data() {
     return {
-      siteProfiles: [],
-      siteProfilesPageInfo: {},
-      errorMessage: '',
-      errorDetails: [],
+      profileTypes: {},
     };
-  },
-  apollo: {
-    siteProfiles() {
-      return {
-        query: dastSiteProfilesQuery,
-        variables: {
-          fullPath: this.projectFullPath,
-          first: this.$options.profilesPerPage,
-        },
-        result({ data, error }) {
-          if (!error) {
-            this.siteProfilesPageInfo = data.project.siteProfiles.pageInfo;
-          }
-        },
-        update(data) {
-          const siteProfileEdges = data?.project?.siteProfiles?.edges ?? [];
-
-          return siteProfileEdges.map(({ node }) => node);
-        },
-        error(error) {
-          this.handleError({
-            exception: error,
-            message: this.$options.i18n.errorMessages.fetchNetworkError,
-          });
-        },
-      };
-    },
   },
   computed: {
     profileSettings() {
@@ -76,78 +46,154 @@ export default {
         glFeatures,
       );
     },
-    hasMoreSiteProfiles() {
-      return this.siteProfilesPageInfo.hasNextPage;
-    },
-    isLoadingSiteProfiles() {
-      return this.$apollo.queries.siteProfiles.loading;
+    tabIndex: {
+      get() {
+        const activeTabIndex = Object.keys(this.profileSettings).indexOf(
+          camelCase(getLocationHash()),
+        );
+
+        return Math.max(0, activeTabIndex);
+      },
+      set(newTabIndex) {
+        const profileTypeName = Object.keys(this.profileSettings)[newTabIndex];
+
+        if (profileTypeName) {
+          window.location.hash = kebabCase(profileTypeName);
+        }
+      },
     },
   },
+  created() {
+    this.addSmartQueriesForEnabledProfileTypes();
+  },
   methods: {
-    handleError({ exception, message = '', details = [] }) {
+    addSmartQueriesForEnabledProfileTypes() {
+      Object.values(this.profileSettings).forEach(({ profileType, graphQL: { query } }) => {
+        this.makeProfileTypeReactive(profileType);
+
+        this.$apollo.addSmartQuery(
+          profileType,
+          this.createQuery({
+            profileType,
+            query,
+            variables: {
+              fullPath: this.projectFullPath,
+              first: this.$options.profilesPerPage,
+            },
+          }),
+        );
+      });
+    },
+    makeProfileTypeReactive(profileType) {
+      this.$set(this.profileTypes, profileType, {
+        profiles: [],
+        pageInfo: {},
+        errorMessage: '',
+        errorDetails: [],
+      });
+    },
+    hasMoreProfiles(profileType) {
+      return this.profileTypes[profileType]?.pageInfo?.hasNextPage;
+    },
+    isLoadingProfiles(profileType) {
+      return this.$apollo.queries[profileType].loading;
+    },
+    createQuery({ profileType, query, variables }) {
+      return {
+        query,
+        variables,
+        manual: true,
+        result({ data, error }) {
+          if (!error) {
+            const { project } = data;
+            const profileEdges = project?.[profileType]?.edges ?? [];
+            const profiles = profileEdges.map(({ node }) => node);
+            const pageInfo = project?.[profileType].pageInfo;
+
+            this.profileTypes[profileType].profiles = profiles;
+            this.profileTypes[profileType].pageInfo = pageInfo;
+          }
+        },
+        error(error) {
+          this.handleError({
+            profileType,
+            exception: error,
+            message: this.profileSettings[profileType].i18n.errorMessages.fetchNetworkError,
+          });
+        },
+      };
+    },
+    handleError({ profileType, exception, message = '', details = [] }) {
       Sentry.captureException(exception);
-      this.errorMessage = message;
-      this.errorDetails = details;
+      this.profileTypes[profileType].errorMessage = message;
+      this.profileTypes[profileType].errorDetails = details;
     },
-    resetErrors() {
-      this.errorMessage = '';
-      this.errorDetails = [];
+    resetErrors(profileType) {
+      this.profileTypes[profileType].errorMessage = '';
+      this.profileTypes[profileType].errorDetails = [];
     },
-    fetchMoreProfiles() {
+    fetchMoreProfiles(profileType) {
       const {
         $apollo,
-        siteProfilesPageInfo,
-        $options: { i18n },
+        profileSettings: {
+          [profileType]: { i18n },
+        },
       } = this;
+      const { pageInfo } = this.profileTypes[profileType];
 
-      this.resetErrors();
+      this.resetErrors(profileType);
 
-      $apollo.queries.siteProfiles
+      $apollo.queries[profileType]
         .fetchMore({
-          variables: { after: siteProfilesPageInfo.endCursor },
-          updateQuery: cacheUtils.appendToPreviousResult,
+          variables: { after: pageInfo.endCursor },
+          updateQuery: cacheUtils.appendToPreviousResult(profileType),
         })
         .catch(error => {
-          this.handleError({ exception: error, message: i18n.errorMessages.fetchNetworkError });
+          this.handleError({
+            profileType,
+            exception: error,
+            message: i18n.errorMessages.fetchNetworkError,
+          });
         });
     },
-    deleteSiteProfile(profileToBeDeletedId) {
+    deleteProfile(profileType, profileId) {
       const {
         projectFullPath,
         handleError,
-        $options: { i18n },
+        profileSettings: {
+          [profileType]: {
+            i18n,
+            graphQL: { deletion },
+          },
+        },
         $apollo: {
           queries: {
-            siteProfiles: { options: siteProfilesQueryOptions },
+            [profileType]: { options: queryOptions },
           },
         },
       } = this;
 
-      this.resetErrors();
+      this.resetErrors(profileType);
 
       this.$apollo
         .mutate({
-          mutation: dastSiteProfilesDelete,
+          mutation: deletion.mutation,
           variables: {
             projectFullPath,
-            profileId: profileToBeDeletedId,
+            profileId,
           },
-          update(
-            store,
-            {
-              data: {
-                dastSiteProfileDelete: { errors = [] },
-              },
-            },
-          ) {
+          update(store, { data = {} }) {
+            const errors = data[`${profileType}Delete`]?.errors ?? [];
+
             if (errors.length === 0) {
               cacheUtils.removeProfile({
+                profileId,
+                profileType,
                 store,
                 queryBody: {
-                  query: siteProfilesQueryOptions.query,
-                  variables: siteProfilesQueryOptions.variables,
+                  query: queryOptions.query,
+                  variables: queryOptions.variables,
                 },
-                profileToBeDeletedId,
               });
             } else {
               handleError({
@@ -156,10 +202,11 @@ export default {
               });
             }
           },
-          optimisticResponse: cacheUtils.dastSiteProfilesDeleteResponse(),
+          optimisticResponse: deletion.optimisticResponse,
         })
         .catch(error => {
           this.handleError({
+            profileType,
             exception: error,
             message: i18n.errorMessages.deletionNetworkError,
           });
@@ -173,15 +220,6 @@ export default {
     subHeading: s__(
       'DastProfiles|Save commonly used configurations for target sites and scan specifications as profiles. Use these with an on-demand scan.',
     ),
-    errorMessages: {
-      fetchNetworkError: s__(
-        'DastProfiles|Could not fetch site profiles. Please refresh the page, or try again later.',
-      ),
-      deletionNetworkError: s__(
-        'DastProfiles|Could not delete site profile. Please refresh the page, or try again later.',
-      ),
-      deletionBackendError: s__('DastProfiles|Could not delete site profiles:'),
-    },
   },
 };
 </script>
@@ -200,11 +238,11 @@ export default {
           class="gl-ml-auto"
         >
           <gl-dropdown-item
-            v-for="{ i18n, createNewProfilePath, key } in profileSettings"
-            :key="key"
+            v-for="{ i18n, createNewProfilePath, profileType } in profileSettings"
+            :key="profileType"
             :href="createNewProfilePath"
           >
-            {{ i18n.title }}
+            {{ i18n.createNewLinkText }}
           </gl-dropdown-item>
         </gl-dropdown>
       </div>
@@ -213,21 +251,23 @@ export default {
       </p>
     </header>
 
-    <gl-tabs>
-      <gl-tab>
+    <gl-tabs v-model="tabIndex">
+      <gl-tab v-for="(settings, profileType) in profileSettings" :key="profileType">
         <template #title>
-          <span>{{ s__('DastProfiles|Site Profiles') }}</span>
+          <span>{{ settings.i18n.tabName }}</span>
         </template>
 
         <profiles-list
-          :error-message="errorMessage"
-          :error-details="errorDetails"
-          :has-more-profiles-to-load="hasMoreSiteProfiles"
-          :is-loading="isLoadingSiteProfiles"
+          :data-testid="`${profileType}List`"
+          :error-message="profileTypes[profileType].errorMessage"
+          :error-details="profileTypes[profileType].errorDetails"
+          :has-more-profiles-to-load="hasMoreProfiles(profileType)"
+          :is-loading="isLoadingProfiles(profileType)"
           :profiles-per-page="$options.profilesPerPage"
-          :profiles="siteProfiles"
-          @loadMoreProfiles="fetchMoreProfiles"
-          @deleteProfile="deleteSiteProfile"
+          :profiles="profileTypes[profileType].profiles"
+          :fields="settings.tableFields"
+          @load-more-profiles="fetchMoreProfiles(profileType)"
+          @delete-profile="deleteProfile(profileType, $event)"
         />
       </gl-tab>
     </gl-tabs>

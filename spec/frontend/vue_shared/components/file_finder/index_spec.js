@@ -84,7 +84,7 @@ describe('File finder item spec', () => {
 
       waitForPromises()
         .then(() => {
-          vm.$el.querySelector('.dropdown-input-clear').click();
+          vm.clearSearchInput();
         })
         .then(waitForPromises)
         .then(() => {
@@ -94,13 +94,13 @@ describe('File finder item spec', () => {
         .catch(done.fail);
     });
 
-    it('clear button focues search input', done => {
+    it('clear button focuses search input', done => {
       jest.spyOn(vm.$refs.searchInput, 'focus').mockImplementation(() => {});
       vm.searchText = 'index';
 
       waitForPromises()
         .then(() => {
-          vm.$el.querySelector('.dropdown-input-clear').click();
+          vm.clearSearchInput();
         })
         .then(waitForPromises)
         .then(() => {
@@ -343,26 +343,36 @@ describe('File finder item spec', () => {
 
     it('always allows `command+p` to trigger toggle', () => {
       expect(
-        vm.mousetrapStopCallback(null, vm.$el.querySelector('.dropdown-input-field'), 'command+p'),
+        Mousetrap.prototype.stopCallback(
+          null,
+          vm.$el.querySelector('.dropdown-input-field'),
+          'command+p',
+        ),
       ).toBe(false);
     });
 
     it('always allows `ctrl+p` to trigger toggle', () => {
       expect(
-        vm.mousetrapStopCallback(null, vm.$el.querySelector('.dropdown-input-field'), 'ctrl+p'),
+        Mousetrap.prototype.stopCallback(
+          null,
+          vm.$el.querySelector('.dropdown-input-field'),
+          'ctrl+p',
+        ),
       ).toBe(false);
     });
 
     it('onlys handles `t` when focused in input-field', () => {
       expect(
-        vm.mousetrapStopCallback(null, vm.$el.querySelector('.dropdown-input-field'), 't'),
+        Mousetrap.prototype.stopCallback(null, vm.$el.querySelector('.dropdown-input-field'), 't'),
       ).toBe(true);
     });
 
     it('stops callback in monaco editor', () => {
       setFixtures('<div class="inputarea"></div>');
 
-      expect(vm.mousetrapStopCallback(null, document.querySelector('.inputarea'), 't')).toBe(true);
+      expect(
+        Mousetrap.prototype.stopCallback(null, document.querySelector('.inputarea'), 't'),
+      ).toBe(true);
     });
   });
 });

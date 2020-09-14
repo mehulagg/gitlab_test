@@ -221,6 +221,26 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep do
     end
   end
 
+  describe '.ci_sources' do
+    subject { described_class.ci_sources }
+
+    let!(:push_pipeline)   { create(:ci_pipeline, source: :push) }
+    let!(:web_pipeline)    { create(:ci_pipeline, source: :web) }
+    let!(:api_pipeline)    { create(:ci_pipeline, source: :api) }
+    let!(:webide_pipeline) { create(:ci_pipeline, source: :webide) }
+    let!(:child_pipeline)  { create(:ci_pipeline, source: :parent_pipeline) }
+
+    it 'contains pipelines having CI only sources' do
+      expect(subject).to contain_exactly(push_pipeline, web_pipeline, api_pipeline)
+    end
+
+    it 'filters on expected sources' do
+      expect(::Enums::Ci::Pipeline.ci_sources.keys).to contain_exactly(
+        *%i[unknown push web trigger schedule api external pipeline chat
+            merge_request_event external_pull_request_event])
+    end
+  end
+
   describe '.outside_pipeline_family' do
     subject(:outside_pipeline_family) { described_class.outside_pipeline_family(upstream_pipeline) }
 
@@ -760,7 +780,6 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep do
             'CI_MERGE_REQUEST_SOURCE_BRANCH_NAME' => merge_request.source_branch.to_s,
             'CI_MERGE_REQUEST_SOURCE_BRANCH_SHA' => pipeline.source_sha.to_s,
             'CI_MERGE_REQUEST_TITLE' => merge_request.title,
-            'CI_MERGE_REQUEST_DESCRIPTION' => merge_request.description,
             'CI_MERGE_REQUEST_ASSIGNEES' => merge_request.assignee_username_list,
             'CI_MERGE_REQUEST_MILESTONE' => milestone.title,
             'CI_MERGE_REQUEST_LABELS' => labels.map(&:title).sort.join(','),
@@ -882,7 +901,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep do
 
       context 'when there is auto_canceled_by' do
         before do
-          pipeline.update(auto_canceled_by: create(:ci_empty_pipeline))
+          pipeline.update!(auto_canceled_by: create(:ci_empty_pipeline))
         end
 
         it 'is auto canceled' do
@@ -1240,14 +1259,42 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep do
     end
 
     describe 'pipeline caching' do
-      before do
-        pipeline.config_source = 'repository_source'
+      context 'if pipeline is cacheable' do
+        before do
+          pipeline.source = 'push'
+        end
+
+        it 'performs ExpirePipelinesCacheWorker' do
+          expect(ExpirePipelineCacheWorker).to receive(:perform_async).with(pipeline.id)
+
+          pipeline.cancel
+        end
       end
 
-      it 'performs ExpirePipelinesCacheWorker' do
-        expect(ExpirePipelineCacheWorker).to receive(:perform_async).with(pipeline.id)
+      context 'if pipeline is not cacheable' do
+        before do
+          pipeline.source = 'webide'
+        end
 
-        pipeline.cancel
+        it 'deos not perform ExpirePipelinesCacheWorker' do
+          expect(ExpirePipelineCacheWorker).not_to receive(:perform_async)
+
+          pipeline.cancel
+        end
+      end
+    end
+
+    describe '#dangling?' do
+      it 'returns true if pipeline comes from any dangling sources' do
+        pipeline.source = Enums::Ci::Pipeline.dangling_sources.each_key.first
+
+        expect(pipeline).to be_dangling
+      end
+
+      it 'returns true if pipeline comes from any CI sources' do
+        pipeline.source = Enums::Ci::Pipeline.ci_sources.each_key.first
+
+        expect(pipeline).not_to be_dangling
       end
     end
 
@@ -1524,7 +1571,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep do
         it 'looks up a commit for a tag' do
           expect(project.repository.branch_names).not_to include 'v1.0.0'
 
-          pipeline.update(sha: project.commit('v1.0.0').sha, ref: 'v1.0.0', tag: true)
+          pipeline.update!(sha: project.commit('v1.0.0').sha, ref: 'v1.0.0', tag: true)
 
           expect(pipeline).to be_tag
           expect(pipeline).to be_latest
@@ -1533,7 +1580,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep do
 
       context 'with not latest sha' do
         before do
-          pipeline.update(sha: project.commit("#{project.default_branch}~1").sha)
+          pipeline.update!(sha: project.commit("#{project.default_branch}~1").sha)
         end
 
         it 'returns false' do
@@ -1561,7 +1608,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep do
         let!(:manual2) { create(:ci_build, :manual, pipeline: pipeline, name: 'deploy') }
 
         before do
-          manual.update(retried: true)
+          manual.update!(retried: true)
         end
 
         it 'returns latest one' do
@@ -1597,7 +1644,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep do
   describe '#modified_paths' do
     context 'when old and new revisions are set' do
       before do
-        pipeline.update(before_sha: '1234abcd', sha: '2345bcde')
+        pipeline.update!(before_sha: '1234abcd', sha: '2345bcde')
       end
 
       it 'fetches stats for changes between commits' do
@@ -1960,12 +2007,12 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep do
   describe '.last_finished_for_ref_id' do
     let(:branch) { project.default_branch }
     let(:ref) { project.ci_refs.take }
-    let(:config_source) { Enums::Ci::Pipeline.config_sources[:parameter_source] }
+    let(:dangling_source) { Enums::Ci::Pipeline.sources[:ondemand_dast_scan] }
     let!(:pipeline1) { create(:ci_pipeline, :success, project: project, ref: branch) }
     let!(:pipeline2) { create(:ci_pipeline, :success, project: project, ref: branch) }
     let!(:pipeline3) { create(:ci_pipeline, :failed, project: project, ref: branch) }
     let!(:pipeline4) { create(:ci_pipeline, :success, project: project, ref: branch) }
-    let!(:pipeline5) { create(:ci_pipeline, :success, project: project, ref: branch, config_source: config_source) }
+    let!(:pipeline5) { create(:ci_pipeline, :success, project: project, ref: branch, source: dangling_source) }
 
     it 'returns the expected pipeline' do
       result = described_class.last_finished_for_ref_id(ref.id)
@@ -2569,11 +2616,11 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep do
   end
 
   describe '#same_family_pipeline_ids' do
-    subject(:same_family_pipeline_ids) { pipeline.same_family_pipeline_ids }
+    subject { pipeline.same_family_pipeline_ids.map(&:id) }
 
     context 'when pipeline is not child nor parent' do
       it 'returns just the pipeline id' do
-        expect(same_family_pipeline_ids).to contain_exactly(pipeline.id)
+        expect(subject).to contain_exactly(pipeline.id)
       end
     end
 
@@ -2596,7 +2643,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep do
       end
 
       it 'returns parent sibling and self ids' do
-        expect(same_family_pipeline_ids).to contain_exactly(parent.id, pipeline.id, sibling.id)
+        expect(subject).to contain_exactly(parent.id, pipeline.id, sibling.id)
       end
     end
 
@@ -2612,7 +2659,46 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep do
       end
 
       it 'returns self and child ids' do
-        expect(same_family_pipeline_ids).to contain_exactly(pipeline.id, child.id)
+        expect(subject).to contain_exactly(pipeline.id, child.id)
+      end
+    end
+
+    context 'when pipeline is a child of a child pipeline' do
+      let(:ancestor) { create(:ci_pipeline, project: pipeline.project) }
+      let(:parent) { create(:ci_pipeline, project: pipeline.project) }
+      let(:cousin_parent) { create(:ci_pipeline, project: pipeline.project) }
+      let(:cousin) { create(:ci_pipeline, project: pipeline.project) }
+
+      before do
+        create(:ci_sources_pipeline,
+               source_job: create(:ci_build, pipeline: ancestor),
+               source_project: ancestor.project,
+               pipeline: parent,
+               project: parent.project)
+
+        create(:ci_sources_pipeline,
+               source_job: create(:ci_build, pipeline: ancestor),
+               source_project: ancestor.project,
+               pipeline: cousin_parent,
+               project: cousin_parent.project)
+
+        create(:ci_sources_pipeline,
+               source_job: create(:ci_build, pipeline: parent),
+               source_project: parent.project,
+               pipeline: pipeline,
+               project: pipeline.project)
+
+        create(:ci_sources_pipeline,
+               source_job: create(:ci_build, pipeline: cousin_parent),
+               source_project: cousin_parent.project,
+               pipeline: cousin,
+               project: cousin.project)
+      end
+
+      it 'returns all family ids' do
+        expect(subject).to contain_exactly(
+          ancestor.id, parent.id, cousin_parent.id, cousin.id, pipeline.id
+        )
       end
     end
   end
@@ -2693,7 +2779,7 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep do
       project.add_developer(pipeline.user)
 
       pipeline.user.global_notification_setting
-        .update(level: 'custom', failed_pipeline: true, success_pipeline: true)
+        .update!(level: 'custom', failed_pipeline: true, success_pipeline: true)
 
       perform_enqueued_jobs do
         pipeline.enqueue
@@ -2945,6 +3031,22 @@ RSpec.describe Ci::Pipeline, :mailer, factory_default: :keep do
 
   describe '#has_coverage_reports?' do
     subject { pipeline.has_coverage_reports? }
+
+    context 'when pipeline has a code coverage artifact' do
+      let(:pipeline) { create(:ci_pipeline, :with_coverage_report_artifact, :running, project: project) }
+
+      it { expect(subject).to be_truthy }
+    end
+
+    context 'when pipeline does not have a code coverage artifact' do
+      let(:pipeline) { create(:ci_pipeline, :success, project: project) }
+
+      it { expect(subject).to be_falsey }
+    end
+  end
+
+  describe '#can_generate_coverage_reports?' do
+    subject { pipeline.can_generate_coverage_reports? }
 
     context 'when pipeline has builds with coverage reports' do
       before do

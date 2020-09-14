@@ -416,12 +416,20 @@ for verification state to the widgets table:
    # frozen_string_literal: true
 
    class AddVerificationFailureLimitToWidgets < ActiveRecord::Migration[6.0]
+     include Gitlab::Database::MigrationHelpers
+
      DOWNTIME = false
 
      disable_ddl_transaction!
 
-     def change
-       add_text_limit :widgets, :verification_failure, 255
+     CONSTRAINT_NAME = 'widget_verification_failure_text_limit'
+
+     def up
+       add_text_limit :widget, :verification_failure, 255, constraint_name: CONSTRAINT_NAME
+     end
+
+     def down
+       remove_check_constraint(:widget, CONSTRAINT_NAME)
      end
    end
    ```
@@ -526,7 +534,7 @@ Metrics are gathered by `Geo::MetricsUpdateWorker`, persisted in
    `GET /geo_nodes/status` example response in
    `doc/api/geo_nodes.md`.
 1. Add the same fields to `GET /geo_nodes/status` example response in
-   `doc/api/geo_nodes.md`.
+   `ee/spec/fixtures/api/schemas/public_api/v4/geo_node_status.json`.
 1. Add fields `geo_widgets`, `geo_widgets_checksummed`,
    `geo_widgets_checksum_failed`, `geo_widgets_synced`,
    `geo_widgets_failed`, and `geo_widgets_registry` to
@@ -566,7 +574,7 @@ the Admin Area UI, and Prometheus!
          null: true,
          resolver: ::Resolvers::Geo::WidgetRegistriesResolver,
          description: 'Find widget registries on this Geo node',
-         feature_flag: :geo_self_service_framework
+         feature_flag: :geo_widget_replication
    ```
 
 1. Add the new `widget_registries` field name to the `expected_fields` array in

@@ -19,14 +19,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           resources :test_cases, only: [:index]
         end
 
-        resources :feature_flags, param: :iid do
-          resources :feature_flag_issues, only: [:index, :create, :destroy], as: 'issues', path: 'issues'
-        end
-        resource :feature_flags_client, only: [] do
-          post :reset_token
-        end
-        resources :feature_flags_user_lists, param: :iid, only: [:new, :edit, :show]
-
         resources :autocomplete_sources, only: [] do
           collection do
             get 'epics'
@@ -42,7 +34,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         resources :subscriptions, only: [:create, :destroy]
 
         resource :threat_monitoring, only: [:show], controller: :threat_monitoring do
-          resources :policies, only: [:new], controller: :threat_monitoring
+          resources :policies, only: [:new, :edit], controller: :threat_monitoring
         end
 
         resources :protected_environments, only: [:create, :update, :destroy], constraints: { id: /\d+/ } do
@@ -102,7 +94,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           scope :profiles do
             root 'dast_profiles#index', as: 'profiles'
             resources :dast_site_profiles, only: [:new, :edit]
-            resources :dast_scanner_profiles, only: [:new]
+            resources :dast_scanner_profiles, only: [:new, :edit]
           end
         end
 

@@ -25,9 +25,7 @@ This document is the subject of continued work as part of an epic to [improve in
 
 ## Types of feature flags
 
-Currently, only a single type of feature flag is available.
-Additional feature flag types will be provided in the future,
-with descriptions for their usage.
+Choose a feature flag type that matches the expected usage.
 
 ### `development` type
 
@@ -39,6 +37,53 @@ ideally created using the [Feature Flag Roll Out template](https://gitlab.com/gi
 
 NOTE: **Note:**
 This is the default type used when calling `Feature.enabled?`.
+
+### `ops` type
+
+`ops` feature flags are long-lived feature flags that control operational aspects
+of GitLab's behavior. For example, feature flags that disable features that might
+have a performance impact, like special Sidekiq worker behavior.
+
+`ops` feature flags likely do not have rollout issues, as it is hard to
+predict when they will be enabled or disabled.
+
+To use `ops` feature flags, you must append `type: :ops` to `Feature.enabled?`
+invocations:
+
+```ruby
+# Check if feature flag is enabled
+Feature.enabled?(:my_ops_flag, project, type: ops)
+
+# Check if feature flag is disabled
+Feature.disabled?(:my_ops_flag, project, type: ops)
+
+# Push feature flag to Frontend
+push_frontend_feature_flag(:my_ops_flag, project, type: :ops)
+```
+
+### `licensed` type
+
+`licensed` feature flags are used to temporarily disable licensed features. There
+should be a one-to-one mapping of `licensed` feature flags to licensed features.
+
+`licensed` feature flags must be `default_enabled: true`, because that's the only
+supported option in the current implementation. This is under development as per
+the [related issue](https://gitlab.com/gitlab-org/gitlab/-/issues/218667).
+
+The `licensed` type has a dedicated set of functions to check if a licensed
+feature is available for a project or namespace. This check validates
+if the license is assigned to the namespace and feature flag itself.
+The `licensed` feature flag has the same name as a licensed feature name:
+
+```ruby
+# Good: checks if feature flag is enabled
+project.feature_available?(:my_licensed_feature)
+namespace.feature_available?(:my_licensed_feature)
+
+# Bad: licensed flag must be accessed via `feature_available?`
+Feature.enabled?(:my_licensed_feature, type: :licensed)
+push_frontend_feature_flag(:my_licensed_feature, type: :licensed)
+```
 
 ## Feature flag definition and validation
 
@@ -147,6 +192,21 @@ if Feature.disabled?(:my_feature_flag, project, default_enabled: true)
 end
 ```
 
+If not specified, the default feature flag type for `Feature.enabled?` and `Feature.disabled?`
+is `type: development`. For all other feature flag types, you must specify the `type:`:
+
+```ruby
+if Feature.enabled?(:feature_flag, project, type: :ops)
+  # execute code if ops feature flag is enabled
+else
+  # execute code if ops feature flag is disabled
+end
+
+if Feature.disabled?(:my_feature_flag, project, type: :ops)
+  # execute code if feature flag is disabled
+end
+```
+
 ### Frontend
 
 Use the `push_frontend_feature_flag` method for frontend code, which is
@@ -189,6 +249,15 @@ in the merge request. Use `default_enabled: true` when checking the feature flag
 before_action do
   # Prefer to scope it per project or user e.g.
   push_frontend_feature_flag(:vim_bindings, project, default_enabled: true)
+end
+```
+
+If not specified, the default feature flag type for `push_frontend_feature_flag`
+is `type: development`. For all other feature flag types, you must specify the `type:`:
+
+```ruby
+before_action do
+  push_frontend_feature_flag(:vim_bindings, project, type: :ops)
 end
 ```
 
@@ -245,12 +314,16 @@ The [`Project#feature_available?`](https://gitlab.com/gitlab-org/gitlab/blob/4cc
 [`License.feature_available?`](https://gitlab.com/gitlab-org/gitlab/blob/4cc1c62918aa4c31750cb21dfb1a6c3492d71080/ee/app/models/license.rb#L293-300) (EE) methods all implicitly check for
 a by default enabled feature flag with the same name as the provided argument.
 
-You'd still want to use an explicit `Feature.enabled?` check if your new feature
-isn't gated by a License or Plan.
-
 **An important side-effect of the implicit feature flags mentioned above is that
 unless the feature is explicitly disabled or limited to a percentage of users,
 the feature flag check will default to `true`.**
+
+NOTE: **Note:**
+Due to limitations with `feature_available?`, the YAML definition for `licensed` feature
+flags accepts only `default_enabled: true`. This is under development as per the
+[related issue](https://gitlab.com/gitlab-org/gitlab/-/issues/218667).
+
+#### Alpha/beta licensed feature flags
 
 This is relevant when developing the feature using
 [several smaller merge requests](https://about.gitlab.com/handbook/values/#make-small-merge-requests), or when the feature is considered to be an
@@ -265,6 +338,24 @@ GitLab.com and self-managed instances, you should use the
 [`Namespace#beta_feature_available?`](https://gitlab.com/gitlab-org/gitlab/blob/458749872f4a8f27abe8add930dbb958044cb926/ee/app/models/ee/namespace.rb#L100-112)
 method, according to our [definitions](https://about.gitlab.com/handbook/product/gitlab-the-product/#alpha-beta-ga). This ensures the feature is disabled unless the feature flag is
 _explicitly_ enabled.
+
+CAUTION: **Caution:**
+If `alpha_feature_available?` or `beta_feature_available?` is used, the YAML definition
+for the feature flag must use `default_enabled: [false, true]`, because the usage
+of the feature flag is undefined. These methods may change, as per the
+[related issue](https://gitlab.com/gitlab-org/gitlab/-/issues/218667).
+
+The resulting YAML should be similar to:
+
+```yaml
+name: scoped_labels
+group: group::memory
+type: licensed
+# The `default_enabled:` is undefined
+# as `feature_available?` uses `default_enabled: true`
+# as `beta_feature_available?` uses `default_enabled: false`
+default_enabled: [false, true]
+```
 
 ### Feature groups
 

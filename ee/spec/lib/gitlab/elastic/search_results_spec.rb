@@ -171,6 +171,21 @@ RSpec.describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need
       expect(results.objects('issues')).to be_empty
       expect(results.issues_count).to eq 0
     end
+
+    context 'filtering' do
+      let!(:project) { create(:project, :public) }
+      let!(:closed_result) { create(:issue, :closed, project: project, title: 'foo closed') }
+      let!(:opened_result) { create(:issue, :opened, project: project, title: 'foo opened') }
+
+      let(:scope) { 'issues' }
+      let(:results) { described_class.new(user, 'foo', [project], filters: filters) }
+
+      include_examples 'search results filtered by state' do
+        before do
+          ensure_elasticsearch_index!
+        end
+      end
+    end
   end
 
   describe 'notes' do
@@ -478,6 +493,21 @@ RSpec.describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need
 
       expect(results.objects('merge_requests')).to be_empty
       expect(results.merge_requests_count).to eq 0
+    end
+
+    context 'filtering' do
+      let!(:project) { create(:project, :public) }
+      let!(:opened_result) { create(:merge_request, :opened, source_project: project, title: 'foo opened') }
+      let!(:closed_result) { create(:merge_request, :closed, source_project: project, title: 'foo closed') }
+
+      let(:scope) { 'merge_requests' }
+      let(:results) { described_class.new(user, 'foo', [project], filters: filters) }
+
+      include_examples 'search results filtered by state' do
+        before do
+          ensure_elasticsearch_index!
+        end
+      end
     end
   end
 

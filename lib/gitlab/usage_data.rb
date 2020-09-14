@@ -39,6 +39,7 @@ module Gitlab
             .merge(analytics_unique_visits_data)
             .merge(compliance_unique_visits_data)
             .merge(search_unique_visits_data)
+            .merge(redis_hll_counters)
         end
       end
 
@@ -165,13 +166,27 @@ module Gitlab
             user_preferences_usage,
             ingress_modsecurity_usage,
             container_expiration_policies_usage,
-            service_desk_counts
+            service_desk_counts,
+            snowplow_event_counts
           ).tap do |data|
             data[:snippets] = data[:personal_snippets] + data[:project_snippets]
           end
         }
       end
       # rubocop: enable Metrics/AbcSize
+
+      def snowplow_event_counts(time_period: {})
+        return {} unless report_snowplow_events?
+
+        {
+          promoted_issues: count(
+            self_monitoring_project
+              .product_analytics_events
+              .by_category_and_action('epics', 'promote')
+              .where(time_period)
+          )
+        }
+      end
 
       def system_usage_data_monthly
         {
@@ -181,9 +196,12 @@ module Gitlab
             successful_deployments: deployment_count(Deployment.success.where(last_28_days_time_period)),
             failed_deployments: deployment_count(Deployment.failed.where(last_28_days_time_period)),
             # rubocop: enable UsageData/LargeTable:
+            packages: count(::Packages::Package.where(last_28_days_time_period)),
             personal_snippets: count(PersonalSnippet.where(last_28_days_time_period)),
             project_snippets: count(ProjectSnippet.where(last_28_days_time_period))
-          }.tap do |data|
+          }.merge(
+            snowplow_event_counts(time_period: last_28_days_time_period(column: :collector_tstamp))
+          ).tap do |data|
             data[:snippets] = data[:personal_snippets] + data[:project_snippets]
           end
         }
@@ -245,7 +263,8 @@ module Gitlab
           Gitlab::UsageDataCounters::ProductivityAnalyticsCounter,
           Gitlab::UsageDataCounters::SourceCodeCounter,
           Gitlab::UsageDataCounters::MergeRequestCounter,
-          Gitlab::UsageDataCounters::DesignsCounter
+          Gitlab::UsageDataCounters::DesignsCounter,
+          Gitlab::UsageDataCounters::KubernetesAgentCounter
         ]
       end
 
@@ -449,8 +468,8 @@ module Gitlab
         end
       end
 
-      def last_28_days_time_period
-        { created_at: 28.days.ago..Time.current }
+      def last_28_days_time_period(column: :created_at)
+        { column => 28.days.ago..Time.current }
       end
 
       # Source: https://gitlab.com/gitlab-data/analytics/blob/master/transform/snowflake-dbt/data/ping_metrics_to_stage_mapping_data.csv
@@ -616,6 +635,10 @@ module Gitlab
         {}
       end
 
+      def redis_hll_counters
+        { redis_hll_counters: ::Gitlab::UsageDataCounters::HLLRedisCounter.unique_events_data }
+      end
+
       def analytics_unique_visits_data
         results = ::Gitlab::Analytics::UniqueVisits.analytics_events.each_with_object({}) do |target, hash|
           hash[target] = redis_usage_data { unique_visit_service.unique_visits_for(targets: target) }
@@ -649,40 +672,40 @@ module Gitlab
       end
 
       def action_monthly_active_users(time_period)
-        counter = Gitlab::UsageDataCounters::TrackUniqueEvents
+        date_range = { date_from: time_period[:created_at].first, date_to: time_period[:created_at].last }
 
-        project_count = redis_usage_data do
-          counter.count_unique_events(
-            event_action: Gitlab::UsageDataCounters::TrackUniqueEvents::PUSH_ACTION,
-            date_from: time_period[:created_at].first,
-            date_to: time_period[:created_at].last
-          )
-        end
-
-        design_count = redis_usage_data do
-          counter.count_unique_events(
-            event_action: Gitlab::UsageDataCounters::TrackUniqueEvents::DESIGN_ACTION,
-            date_from: time_period[:created_at].first,
-            date_to: time_period[:created_at].last
-          )
-        end
-
-        wiki_count = redis_usage_data do
-          counter.count_unique_events(
-            event_action: Gitlab::UsageDataCounters::TrackUniqueEvents::WIKI_ACTION,
-            date_from: time_period[:created_at].first,
-            date_to: time_period[:created_at].last
-          )
-        end
-
-        {
-          action_monthly_active_users_project_repo: project_count,
-          action_monthly_active_users_design_management: design_count,
-          action_monthly_active_users_wiki_repo: wiki_count
-        }
+        event_monthly_active_users(date_range)
+          .merge!(ide_monthly_active_users(date_range))
       end
 
       private
+
+      def event_monthly_active_users(date_range)
+        data = {
+          action_monthly_active_users_project_repo: Gitlab::UsageDataCounters::TrackUniqueEvents::PUSH_ACTION,
+          action_monthly_active_users_design_management: Gitlab::UsageDataCounters::TrackUniqueEvents::DESIGN_ACTION,
+          action_monthly_active_users_wiki_repo: Gitlab::UsageDataCounters::TrackUniqueEvents::WIKI_ACTION
+        }
+
+        data.each do |key, event|
+          data[key] = redis_usage_data { Gitlab::UsageDataCounters::TrackUniqueEvents.count_unique_events(event_action: event, **date_range) }
+        end
+      end
+
+      def ide_monthly_active_users(date_range)
+        counter = Gitlab::UsageDataCounters::EditorUniqueCounter
+
+        {
+          action_monthly_active_users_web_ide_edit: redis_usage_data { counter.count_web_ide_edit_actions(date_range) },
+          action_monthly_active_users_sfe_edit: redis_usage_data { counter.count_sfe_edit_actions(date_range) },
+          action_monthly_active_users_snippet_editor_edit: redis_usage_data { counter.count_snippet_editor_edit_actions(date_range) },
+          action_monthly_active_users_ide_edit: redis_usage_data { counter.count_edit_using_editor(date_range) }
+        }
+      end
+
+      def report_snowplow_events?
+        self_monitoring_project && Feature.enabled?(:product_analytics, self_monitoring_project)
+      end
 
       def distinct_count_service_desk_enabled_projects(time_period)
         project_creator_id_start = user_minimum_id
@@ -771,6 +794,10 @@ module Gitlab
         strong_memoize(:project_maximum_id) do
           ::Project.maximum(:id)
         end
+      end
+
+      def self_monitoring_project
+        Gitlab::CurrentSettings.self_monitoring_project
       end
 
       def clear_memoized
