@@ -102,6 +102,20 @@ In the case of `after_script` scripts, they can:
 These restrictions are because `after_script` scripts are executed in a
 [separated shell context](../yaml/README.md#before_script-and-after_script).
 
+### Variable expansion precedence
+
+Manually created environment variables are assigned their values in a specific order.
+As a result, variables created later in the pipeline creation process have a higher
+precedence and can override variables that were created earlier:
+
+1. [Variables in the `.gitlab-ci.yml` configuration file](README.md#create-a-custom-variable-in-gitlab-ciyml)
+1. [Instance variables](README.md#instance-level-cicd-environment-variables)
+1. [Group variables](README.md#group-level-environment-variables)
+1. [Triggers API variables](../triggers/README.md#making-use-of-trigger-variables)
+1. [Variables in the project's CI/CD settings](README.md#create-a-custom-variable-in-the-ui) or [multi-project pipelines](../multi_project_pipelines.md#passing-variables-to-a-downstream-pipeline)
+1. [Scheduled pipeline variables](../pipelines/schedules.md#using-variables)
+1. [Manual job variables](../pipelines/index.md#specifying-variables-when-running-manual-jobs)
+
 ## Persisted variables
 
 NOTE: **Note:**
