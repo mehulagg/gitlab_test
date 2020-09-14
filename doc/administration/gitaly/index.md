@@ -319,6 +319,8 @@ disable enforcement. For more information, see the documentation on configuring
 1. Save the file and [reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure).
 1. Run `sudo /opt/gitlab/embedded/service/gitlab-shell/bin/check -config /opt/gitlab/embedded/service/gitlab-shell/config.yml`
    to confirm that Gitaly can perform callbacks to the GitLab internal API.
+1. Gitaly does not communicate with the database so create an empty file at `/etc/gitlab/skip-auto-backup` to 
+   [skip automated database backups](https://docs.gitlab.com/omnibus/update/#updating-methods) when upgrading.
 
 **For installations from source**
 
