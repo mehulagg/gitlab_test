@@ -9,12 +9,14 @@ import issuableStateMixin from '../mixins/issuable_state';
 import resolvable from '../mixins/resolvable';
 import { __, sprintf } from '~/locale';
 import { getDraft, updateDraft } from '~/lib/utils/autosave';
+import { GlButton } from '@gitlab/ui';
 
 export default {
   name: 'NoteForm',
   components: {
     NoteableWarning,
     markdownField,
+    GlButton,
   },
   mixins: [issuableStateMixin, resolvable],
   props: {
@@ -373,57 +375,64 @@ export default {
             </label>
           </p>
           <div>
-            <button
+            <gl-button
               :disabled="isDisabled"
-              type="button"
-              class="btn btn-success qa-start-review"
+              category="primary"
+              variant="success"
+              class="qa-start-review"
               @click="handleAddToReview"
             >
               <template v-if="hasDrafts">{{ __('Add to review') }}</template>
               <template v-else>{{ __('Start a review') }}</template>
-            </button>
-            <button
+            </gl-button>
+            <gl-button
               :disabled="isDisabled"
-              type="button"
-              class="btn qa-comment-now js-comment-button"
+              category="secondary"
+              variant="default"
+              class="qa-comment-now js-comment-button"
               @click="handleUpdate()"
             >
               {{ __('Add comment now') }}
-            </button>
-            <button
-              class="btn note-edit-cancel js-close-discussion-note-form"
-              type="button"
+            </gl-button>
+            <gl-button
+              class="note-edit-cancel js-close-discussion-note-form"
+              category="secondary"
+              variant="default"
               data-testid="cancelBatchCommentsEnabled"
               @click="cancelHandler(true)"
             >
               {{ __('Cancel') }}
-            </button>
+            </gl-button>
           </div>
         </template>
         <template v-else>
-          <button
+          <gl-button
             :disabled="isDisabled"
-            type="button"
-            class="js-vue-issue-save btn btn-success js-comment-button qa-reply-comment-button"
+            category="primary"
+            variant="success"
+            class="js-vue-issue-save js-comment-button qa-reply-comment-button"
             @click="handleUpdate()"
           >
             {{ saveButtonTitle }}
-          </button>
-          <button
+          </gl-button>
+          <gl-button
             v-if="discussion.resolvable"
-            class="btn btn-nr btn-default gl-mr-3 js-comment-resolve-button"
+            category="secondary"
+            variant="default"
+            class="gl-mr-3 js-comment-resolve-button"
             @click.prevent="handleUpdate(true)"
           >
             {{ resolveButtonTitle }}
-          </button>
-          <button
-            class="btn btn-cancel note-edit-cancel js-close-discussion-note-form"
-            type="button"
+          </gl-button>
+          <gl-button
+            class="note-edit-cancel js-close-discussion-note-form"
+            category="secondary"
+            variant="default"
             data-testid="cancel"
             @click="cancelHandler(true)"
           >
             {{ __('Cancel') }}
-          </button>
+          </gl-button>
         </template>
       </div>
     </form>
