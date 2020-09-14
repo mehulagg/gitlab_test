@@ -76,6 +76,9 @@ git push origin v1.0.0
 
 ### Publishing the package
 
+NOTE: **Note:**
+Currently, you cannot publish a Composer package to a project that is different from where it’s code resides.
+
 Now that the basics of our project is completed, we can publish the package.
 To publish the package, you need:
 
