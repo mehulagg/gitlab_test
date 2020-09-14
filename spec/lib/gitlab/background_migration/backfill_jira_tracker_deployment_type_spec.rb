@@ -109,7 +109,8 @@ RSpec.describe Gitlab::BackgroundMigration::BackfillJiraTrackerDeploymentType, :
           message: 'Error querying Jira',
           migrator: 'BackfillJiraTrackerDeploymentType',
           project_id: nil,
-          client_url: api_host
+          client_url: api_host,
+          error: error_message
         )
 
         subject.perform(jira_tracker_data.id)

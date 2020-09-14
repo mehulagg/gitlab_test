@@ -18,7 +18,7 @@ module Gitlab
       # Migration only version of services table
       class JiraServiceTemp < ActiveRecord::Base
         self.table_name = 'services'
-        self.inheritance_column = 'not_used'
+        self.inheritance_column = :_type_disabled
       end
 
       def perform(tracker_id)
@@ -55,15 +55,15 @@ module Gitlab
       end
 
       def client_url
-        jira_tracker_data.api_url.presence || jira_tracker_data.url
+        jira_tracker_data.api_url&.delete_suffix('/').presence ||
+          jira_tracker_data.url&.delete_suffix('/').presence
       end
 
       def jira_request
         yield
       rescue => error
         @error = error
-        log_error('Error querying Jira',
-                  client_url: client_url, error: @error.message)
+        log_error('Error querying Jira', error: @error.message)
         nil
       end
 
@@ -91,7 +91,8 @@ module Gitlab
           message: message,
           jira_service_id: jira_tracker_data.service&.id,
           project_id: jira_tracker_data.service&.project_id,
-          client_url: client_url
+          client_url: client_url,
+          error: params[:error]
         )
       end
     end
