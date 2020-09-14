@@ -13,9 +13,8 @@ module EE
 
       expose :request_cve_enabled do |issuable|
         security_setting = ProjectSecuritySetting.safe_find_or_create_for(issuable.project)
-        issuable_type = issuable.class.to_s.underscore
 
-        issuable_type == 'issue' \
+        issuable.to_ability_name == 'issue' \
           && ::Gitlab.dev_env_or_com? \
           && (issuable.respond_to?(:confidential) && issuable.confidential ) \
           && security_setting.cve_id_request_enabled == true \

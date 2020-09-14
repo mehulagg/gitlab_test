@@ -21,10 +21,6 @@ class IssuableSidebarBasicEntity < Grape::Entity
   expose :milestone, using: ::API::Entities::Milestone
   expose :labels, using: LabelEntity
 
-  expose :is_gitlab_com do |issuable|
-    ::Gitlab.dev_env_or_com?
-  end
-
   expose :current_user, if: lambda { |_issuable| current_user } do
     expose :current_user, merge: true, using: ::API::Entities::UserBasic
 
@@ -43,10 +39,6 @@ class IssuableSidebarBasicEntity < Grape::Entity
     expose :can_admin_label do |issuable|
       can?(current_user, :admin_label, issuable.project)
     end
-
-    expose :can_admin_project do |issuable|
-      can?(current_user, :admin_project, issuable.project)
-    end
   end
 
   expose :issuable_json_path do |issuable|
@@ -63,10 +55,6 @@ class IssuableSidebarBasicEntity < Grape::Entity
 
   expose :project_path do |issuable|
     issuable.project.path
-  end
-
-  expose :project_is_public do |issuable|
-    issuable.project.visibility_level == ::Gitlab::VisibilityLevel::PUBLIC
   end
 
   expose :project_full_path do |issuable|
