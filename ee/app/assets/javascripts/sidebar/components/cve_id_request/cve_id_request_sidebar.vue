@@ -1,8 +1,8 @@
 <script>
-import { __, s__ } from '~/locale'; // eslint-disable no-unused-vars
+import { GlIcon } from '@gitlab/ui';
+import { __, s__ } from '~/locale'; // eslint-disable-line no-unused-vars
 import { joinPaths } from '~/lib/utils/url_utility';
 import tooltip from '~/vue_shared/directives/tooltip';
-import { GlIcon } from '@gitlab/ui';
 
 export default {
   components: {
@@ -128,7 +128,7 @@ CVSS scores can be computed by means of the [NVD CVSS Calculator](https://nvd.ni
     <div class="hide-collapsed">
       {{ s__('CVE|Request CVE ID') }}
       <div v-if="!showHelpState" class="help-button float-right" @click="toggleHelpState(true)">
-        <i class="fa fa-question-circle" aria-hidden="true"> </i>
+        <gl-icon name="question-o" />
       </div>
       <div
         v-if="showHelpState"
