@@ -48,7 +48,6 @@ module Gitlab
 
         def initialize(params = {})
           super(params)
-          print "INITIALIZE #{params}"
 
           self.created_before = (self.created_before || Time.current).at_end_of_day
           self.created_after  = (created_after || default_created_after).at_beginning_of_day
