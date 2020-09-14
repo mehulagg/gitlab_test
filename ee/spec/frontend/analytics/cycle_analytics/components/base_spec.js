@@ -64,18 +64,20 @@ const mocks = {
 };
 
 function mockRequiredRoutes(mockAdapter) {
+  mockAdapter.onGet(mockData.endpoints.stageData).reply(httpStatusCodes.OK, mockData.issueEvents);
   mockAdapter
-    .onGet(/\/groups\/\w+\/-\/analytics\/value_stream_analytics\/value_streams\/.*\/duration_chart/)
-    .replyOnce(200, mockData.customizableStagesAndEvents.stages);
-
+    .onGet(mockData.endpoints.tasksByTypeTopLabelsData)
+    .reply(httpStatusCodes.OK, mockData.groupLabels);
   mockAdapter
-    .onGet(/\/groups\/\w+\/-\/analytics\/value_stream_analytics\/value_streams\/.*\/records/)
-    .replyOnce(200, mockData.issueEvents);
-
-  const { events, stages } = mockData.customizableStagesAndEvents;
+    .onGet(mockData.endpoints.tasksByTypeData)
+    .reply(httpStatusCodes.OK, { ...mockData.tasksByTypeData });
   mockAdapter
-    .onGet(/.*\/?groups\/\w+\/-\/analytics\/value_stream_analytics\/value_streams\/.*\/stages/)
-    .replyOnce(200, { events, stages });
+    .onGet(mockData.endpoints.baseStagesEndpoint)
+    .reply(httpStatusCodes.OK, { ...mockData.customizableStagesAndEvents });
+  mockAdapter
+    .onGet(mockData.endpoints.durationData)
+    .reply(httpStatusCodes.OK, mockData.customizableStagesAndEvents.stages);
+  mockAdapter.onGet(mockData.endpoints.stageMedian).reply(httpStatusCodes.OK, { value: null });
 }
 
 async function shouldMergeUrlParams(wrapper, result) {
@@ -478,55 +480,11 @@ describe('Cycle Analytics component', () => {
   });
 
   describe('with failed requests while loading', () => {
-    const mockRequestCycleAnalyticsData = (options = {}) => {
-      const {
-        overrides = {},
-        mockFetchStageData = true,
-        mockFetchStageMedian = true,
-        mockFetchTasksByTypeData = true,
-        mockFetchTopRankedGroupLabels = true,
-      } = options;
-      const defaultStatus = 200;
-      const defaultRequests = {
-        fetchGroupStagesAndEvents: {
-          status: defaultStatus,
-          endpoint: mockData.endpoints.baseStagesEndpoint,
-          response: { ...mockData.customizableStagesAndEvents },
-        },
-        ...overrides,
-      };
-
-      if (mockFetchTopRankedGroupLabels) {
-        mock
-          .onGet(mockData.endpoints.tasksByTypeTopLabelsData)
-          .reply(defaultStatus, mockData.groupLabels);
-      }
-
-      if (mockFetchTasksByTypeData) {
-        mock
-          .onGet(mockData.endpoints.tasksByTypeData)
-          .reply(defaultStatus, { ...mockData.tasksByTypeData });
-      }
-
-      if (mockFetchStageMedian) {
-        mock.onGet(mockData.endpoints.stageMedian).reply(defaultStatus, { value: null });
-      }
-
-      if (mockFetchStageData) {
-        mock.onGet(mockData.endpoints.stageData).reply(defaultStatus, mockData.issueEvents);
-      }
-
-      Object.values(defaultRequests).forEach(({ endpoint, status, response }) => {
-        mock.onGet(endpoint).replyOnce(status, response);
-      });
-    };
-
     beforeEach(async () => {
       setFixtures('<div class="flash-container"></div>');
 
       mock = new MockAdapter(axios);
       mockRequiredRoutes(mock);
-      wrapper = await createComponent();
     });
 
     afterEach(() => {
@@ -541,57 +499,60 @@ describe('Cycle Analytics component', () => {
     };
 
     it('will display an error if the fetchGroupStagesAndEvents request fails', async () => {
-      expect(findFlashError()).toBeNull();
+      // expect(await findFlashError()).toBeNull();
 
-      mockRequestCycleAnalyticsData({
-        overrides: {
-          fetchGroupStagesAndEvents: {
-            endPoint: mockData.endpoints.baseStagesEndpoint,
-            status: httpStatusCodes.NOT_FOUND,
-            response: { response: { status: httpStatusCodes.NOT_FOUND } },
-          },
-        },
-      });
+      mock
+        .onGet(mockData.endpoints.baseStagesEndpoint)
+        .reply(httpStatusCodes.NOT_FOUND, { response: { status: httpStatusCodes.NOT_FOUND } });
+      wrapper = await createComponent();
 
       await findError('There was an error fetching value stream analytics stages.');
     });
 
     it('will display an error if the fetchStageData request fails', async () => {
-      expect(findFlashError()).toBeNull();
+      // expect(await findFlashError()).toBeNull();
 
-      mockRequestCycleAnalyticsData({
-        mockFetchStageData: false,
-      });
+      mock
+        .onGet(mockData.endpoints.stageData)
+        .reply(httpStatusCodes.NOT_FOUND, { response: { status: httpStatusCodes.NOT_FOUND } });
+      await createComponent();
 
       await findError('There was an error fetching data for the selected stage');
     });
 
     it('will display an error if the fetchTopRankedGroupLabels request fails', async () => {
-      expect(findFlashError()).toBeNull();
+      // expect(await findFlashError()).toBeNull();
 
-      mockRequestCycleAnalyticsData({ mockFetchTopRankedGroupLabels: false });
+      mock
+        .onGet(mockData.endpoints.tasksByTypeTopLabelsData)
+        .reply(httpStatusCodes.NOT_FOUND, { response: { status: httpStatusCodes.NOT_FOUND } });
+      await createComponent();
 
       await findError('There was an error fetching the top labels for the selected group');
     });
 
     it('will display an error if the fetchTasksByTypeData request fails', async () => {
-      expect(findFlashError()).toBeNull();
+      // expect(await findFlashError()).toBeNull();
 
-      mockRequestCycleAnalyticsData({ mockFetchTasksByTypeData: false });
+      mock
+        .onGet(mockData.endpoints.tasksByTypeData)
+        .reply(httpStatusCodes.NOT_FOUND, { response: { status: httpStatusCodes.NOT_FOUND } });
+      await createComponent();
 
       await findError('There was an error fetching data for the tasks by type chart');
     });
 
     it('will display an error if the fetchStageMedian request fails', async () => {
-      expect(findFlashError()).toBeNull();
+      // expect(await findFlashError()).toBeNull();
 
-      mockRequestCycleAnalyticsData({
-        mockFetchStageMedian: false,
-      });
+      mock
+        .onGet(mockData.endpoints.stageMedian)
+        .reply(httpStatusCodes.NOT_FOUND, { response: { status: httpStatusCodes.NOT_FOUND } });
+      await createComponent();
 
-      expect(await waitForPromises()).toThrow();
-      expect(findFlashError().innerText.trim()).toEqual(
-        'There was an error while fetching value stream analytics data.',
+      await waitForPromises();
+      expect(await findFlashError().innerText.trim()).toEqual(
+        'There was an error fetching median data for stages',
       );
     });
   });
