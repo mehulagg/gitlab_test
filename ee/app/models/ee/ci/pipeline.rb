@@ -60,6 +60,7 @@ module EE
 
             pipeline.run_after_commit do
               StoreSecurityReportsWorker.perform_async(pipeline.id) if pipeline.default_branch?
+              Security::StoreScansWorker.perform_async(pipeline.id)
               SyncSecurityReportsToReportApprovalRulesWorker.perform_async(pipeline.id)
             end
           end
