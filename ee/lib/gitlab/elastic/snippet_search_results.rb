@@ -17,7 +17,7 @@ module Gitlab
       end
 
       def highlight_map(scope)
-        Hash[snippet_titles.map { |x| [x[:_source][:id], x[:highlight]] }]
+        snippet_titles.to_h { |x| [x[:_source][:id], x[:highlight]] }
       end
 
       private

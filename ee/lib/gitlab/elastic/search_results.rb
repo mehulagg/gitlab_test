@@ -65,11 +65,9 @@ module Gitlab
                     milestones
                   when 'notes'
                     notes
-                  else
-                    nil
                   end
 
-        Hash[results.map { |x| [x[:_source][:id], x[:highlight]] }] if results.present?
+        results.to_h { |x| [x[:_source][:id], x[:highlight]] } if results.present?
       end
 
       def generic_search_results
