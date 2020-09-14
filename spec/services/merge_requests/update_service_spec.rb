@@ -93,6 +93,7 @@ RSpec.describe MergeRequests::UpdateService, :mailer do
               labels: [],
               mentioned_users: [user2],
               assignees: [user3],
+              reviewers: [],
               milestone: nil,
               total_time_spent: 0,
               description: "FYI #{user2.to_reference}"
