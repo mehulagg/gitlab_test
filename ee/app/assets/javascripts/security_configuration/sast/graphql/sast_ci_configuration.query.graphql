@@ -1,6 +1,6 @@
 #import "./sast_ci_configuration_entity.fragment.graphql"
 
-query sastCiConfiguration($fullPath: ID!) {
+query sastCiConfiguration($fullPath: ID!, $includeAnalyzers: Boolean = false) {
   project(fullPath: $fullPath) {
     sastCiConfiguration {
       global {
@@ -11,6 +11,19 @@ query sastCiConfiguration($fullPath: ID!) {
       pipeline {
         nodes {
           ...SastCiConfigurationEntityFragment
+        }
+      }
+      analyzers @include(if: $includeAnalyzers) {
+        nodes {
+          description
+          enabled
+          label
+          name
+          variables {
+            nodes {
+              ...SastCiConfigurationEntityFragment
+            }
+          }
         }
       }
     }
