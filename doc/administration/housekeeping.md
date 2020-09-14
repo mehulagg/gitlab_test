@@ -29,7 +29,7 @@ the `pushes_since_gc` value is 200 a `git gc` will be run.
 - `git repack` ([man page](https://mirrors.edge.kernel.org/pub/software/scm/git/docs/git-repack.html)) re-organize existing packs into a single, more efficient pack.
 
 Housekeeping will also [remove unreferenced LFS files](../raketasks/cleanup.md#remove-unreferenced-lfs-files)
-from your project on the same schedule as the `git gc` operation, freeing up valuable storage space for your project.
+from your project on the same schedule as the `git gc` operation, freeing up storage space for your project.
 
 You can find this option under your project's **Settings > General > Advanced**.
 
