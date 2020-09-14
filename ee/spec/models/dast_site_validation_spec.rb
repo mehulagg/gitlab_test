@@ -16,10 +16,22 @@ RSpec.describe DastSiteValidation, type: :model do
   end
 
   describe 'before_create' do
-    it 'sets normalises the dast_site_token url' do
-      uri = URI(subject.dast_site_token.url)
+    describe '#normalize_base_url' do
+      it 'normalizes the dast_site_token url' do
+        uri = URI(subject.dast_site_token.url)
 
-      expect(subject.url_base).to eq("#{uri.scheme}://#{uri.host}:#{uri.port}")
+        expect(subject.url_base).to eq("#{uri.scheme}://#{uri.host}:#{uri.port}")
+      end
+
+      it 'is not lossy with respect to the constituents of the base url' do
+        uri1 = URI(subject.url_base)
+        uri2 = URI(subject.dast_site_token.url)
+
+        params1 = { scheme: uri1.scheme, host: uri1.host, port: uri1.port }
+        params2 = { scheme: uri2.scheme, host: uri2.host, port: uri2.port }
+
+        expect(params1).to eq(params2)
+      end
     end
   end
 
@@ -49,6 +61,12 @@ RSpec.describe DastSiteValidation, type: :model do
   describe '#project' do
     it 'returns project through dast_site_token' do
       expect(subject.project).to eq(subject.dast_site_token.project)
+    end
+  end
+
+  describe '#validation_url' do
+    it 'formats the url correctly' do
+      expect(subject.validation_url).to eq("#{subject.url_base}/#{subject.url_path}")
     end
   end
 end

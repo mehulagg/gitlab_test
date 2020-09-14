@@ -11,15 +11,19 @@ class DastSiteValidation < ApplicationRecord
     joins(:dast_site_token).where(dast_site_tokens: { project_id: project_id })
   end
 
-  before_create :set_url_base
+  before_create :normalize_base_url
 
   enum validation_strategy: { text_file: 0 }
 
   delegate :project, to: :dast_site_token, allow_nil: true
 
+  def validation_url
+    "#{url_base}/#{url_path}"
+  end
+
   private
 
-  def set_url_base
+  def normalize_base_url
     uri = URI(dast_site_token.url)
 
     self.url_base = "%{scheme}://%{host}:%{port}" % { scheme: uri.scheme, host: uri.host, port: uri.port }

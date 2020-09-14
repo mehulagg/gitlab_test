@@ -1,0 +1,5 @@
+---
+title: Add DastSiteValidationWorker for on-demand DAST
+merge_request: 42198
+author:
+type: added
