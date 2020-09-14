@@ -2,22 +2,30 @@
 
 module Ci
   class CodeCoverage
+    include Gitlab::Utils::StrongMemoize
+
     def initialize(report_results:)
       @report_results = report_results
     end
 
     def coverage
-      return 0 if coverage_count.zero?
+      strong_memoize(:coverage) do
+        return 0 if coverage_count.zero?
 
-      @report_results.sum(&:coverage) / coverage_count
+        @report_results.sum(&:coverage) / coverage_count
+      end
     end
 
     def coverage_count
-      @report_results.size
+      strong_memoize(:coverage_count) do
+        @report_results.size
+      end
     end
 
     def last_update
-      @report_results.last&.date
+      strong_memoize(:last_update) do
+        @report_results.last&.date
+      end
     end
   end
 end
