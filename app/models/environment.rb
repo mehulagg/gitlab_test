@@ -126,6 +126,14 @@ class Environment < ApplicationRecord
     self.state_machine.states.map(&:name)
   end
 
+  def ref
+    last_deployment.ref
+  end
+
+  def canary_exist?
+    get_deployments # TODO:
+  end
+
   class << self
     ##
     # This method returns stop actions (jobs) for multiple environments within one
