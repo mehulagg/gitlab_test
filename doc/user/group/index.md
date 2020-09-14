@@ -744,6 +744,34 @@ With [GitLab Issue Analytics](issues_analytics/index.md), you can see a bar char
 
 Use GitLab as a [dependency proxy](../packages/dependency_proxy/index.md) for upstream Docker images.
 
+## Group Wikis
+
+> - [Introduced](link-to-issue) in GitLab 12.0.
+> - It's deployed behind a `group_wiki` feature flag , disabled by default.
+> - It's disabled on GitLab.com.
+> - It's not recommended for production use.
+> - To use it in GitLab self-managed instances, ask a GitLab administrator to [enable it](#enable-or-disable-group-wiki-core-on;y). **(CORE ONLY)**
+
+
+### Enable or disable Group Wiki **(CORE ONLY)**
+
+Group Wiki feature is under development and not ready for production use. It is
+deployed behind a feature flag that is **disabled by default**.
+[GitLab administrators with access to the GitLab Rails console](../../administration/feature_flags.md)
+can enable it.
+
+To enable it:
+
+```ruby
+Feature.enable(:group_wiki)
+```
+
+To disable it:
+
+```ruby
+Feature.disable(:group_wiki)
+```
+
 <!-- ## Troubleshooting
 
 Include any troubleshooting steps that you can foresee. If you know beforehand what issues
