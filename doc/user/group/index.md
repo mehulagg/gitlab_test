@@ -750,8 +750,14 @@ Use GitLab as a [dependency proxy](../packages/dependency_proxy/index.md) for up
 > - It's deployed behind a `group_wiki` feature flag , disabled by default.
 > - It's disabled on GitLab.com.
 > - It's not recommended for production use.
-> - To use it in GitLab self-managed instances, ask a GitLab administrator to [enable it](#enable-or-disable-group-wiki-core-on;y). **(CORE ONLY)**
+> - To use it in GitLab self-managed instances, ask a GitLab administrator to [enable it](#enable-or-disable-group-wiki-core-only). **(CORE ONLY)**
 
+Group Wikis work the same way as to projects. To create, edit, view, and delete Wikis, refer to the [Wiki documentation](../project/wiki/index.md).
+
+There are a few limitations so far:
+- You can't upload files to Group Wiki.
+- Group Wiki activity records are not tracked.
+- You can't see changes between page versions.
 
 ### Enable or disable Group Wiki **(CORE ONLY)**
 
