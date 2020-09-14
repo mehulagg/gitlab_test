@@ -90,25 +90,13 @@ module Gitlab
         shuffled_people = people.shuffle(random: random)
 
         if timezone_experiment
-          shuffled_people.find(&method(:hungry_person_with_timezone?)) || shuffled_people.find(&method(:valid_person_with_timezone?))
+          shuffled_people.find(&method(:valid_person_with_timezone?)
         else
-          shuffled_people.find(&method(:hungry_person?)) || shuffled_people.find(&method(:valid_person?))
+          shuffled_people.find(&method(:valid_person?)
         end
       end
 
       private
-
-      # @param [Teammate] person
-      # @return [Boolean]
-      def hungry_person?(person)
-        valid_person?(person) && person.hungry
-      end
-
-      # @param [Teammate] person
-      # @return [Boolean]
-      def hungry_person_with_timezone?(person)
-        valid_person_with_timezone?(person) && person.hungry
-      end
 
       # @param [Teammate] person
       # @return [Boolean]
@@ -158,13 +146,15 @@ module Gitlab
           %i[reviewer traintainer maintainer].map do |role|
             spin_role_for_category(team, role, project, category)
           end
+        hungry_reviewers = reviewers.select { |member| member.hungry }
 
         # TODO: take CODEOWNERS into account?
         # https://gitlab.com/gitlab-org/gitlab/issues/26723
 
         # Make traintainers have triple the chance to be picked as a reviewer
         random = new_random(mr_source_branch)
-        reviewer = spin_for_person(reviewers + traintainers + traintainers, random: random, timezone_experiment: timezone_experiment)
+        weighted_reviewers = hungry_reviewers + reviewers + traintainers + traintainers + traintainers + traintainers
+        reviewer = spin_for_person(weighted_reviewers, random: random, timezone_experiment: timezone_experiment)
         maintainer = spin_for_person(maintainers, random: random, timezone_experiment: timezone_experiment)
 
         Spin.new(category, reviewer, maintainer, false, timezone_experiment)
