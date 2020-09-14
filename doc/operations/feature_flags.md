@@ -16,6 +16,10 @@ delivery from customer launch.
 <i class="fa fa-youtube-play youtube" aria-hidden="true"></i>
 For an example of feature flags in action, see [GitLab for Deploys, Feature Flags, and Error Tracking](https://www.youtube.com/embed/5tw2p6lwXxo).
 
+NOTE: **Note:**
+The Feature Flags GitLab offer as a feature (described in this document) is not the same method
+used for the [development of GitLab](../development/feature_flags/index.md).
+
 ## How it works
 
 GitLab uses [Unleash](https://github.com/Unleash/unleash), a feature
@@ -49,22 +53,6 @@ To create and enable a feature flag:
 
 You can change these settings by clicking the **{pencil}** (edit) button
 next to any feature flag in the list.
-
-## Rollout strategy (legacy)
-
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/8240) in GitLab 12.2.
-
-In GitLab 13.0 and earlier, the **Rollout strategy** setting affects which users will experience
-the feature as enabled. Choose the percentage of users that the feature will be enabled
-for. The rollout strategy will have no effect if the environment spec is disabled.
-
-It can be set to:
-
-- All users
-- [Percent of users](#percent-of-users)
-  - Optionally, you can click the **Include additional user IDs** checkbox and add a list
-    of specific users IDs to enable the feature for.
-- [User IDs](#user-ids)
 
 ## Feature flag strategies
 
@@ -203,6 +191,23 @@ To enable it:
 ```ruby
 Feature.enable(:feature_flags_new_version)
 ```
+
+## Rollout strategy (legacy)
+
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/8240) in GitLab 12.2.
+> - [Made read-only](https://gitlab.com/gitlab-org/gitlab/-/issues/220228) in GitLab 13.4.
+
+In GitLab 13.0 and earlier, the **Rollout strategy** setting affects which users will experience
+the feature as enabled. Choose the percentage of users that the feature will be enabled
+for. The rollout strategy will have no effect if the environment spec is disabled.
+
+It can be set to:
+
+- All users
+- [Percent of users](#percent-of-users)
+  - Optionally, you can click the **Include additional user IDs** checkbox and add a list
+    of specific users IDs to enable the feature for.
+- [User IDs](#user-ids)
 
 ## Disable a feature flag for a specific environment
 

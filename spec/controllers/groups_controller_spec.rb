@@ -422,10 +422,6 @@ RSpec.describe GroupsController do
     end
 
     context 'searching' do
-      before do
-        stub_feature_flags(attempt_group_search_optimizations: true)
-      end
-
       it 'works with popularity sort' do
         get :issues, params: { id: group.to_param, search: 'foo', sort: 'popularity' }
 
@@ -552,6 +548,21 @@ RSpec.describe GroupsController do
           expect(response).to have_gitlab_http_status(:found)
           expect(group.reload.default_branch_protection).not_to eq(::Gitlab::Access::PROTECTION_DEV_CAN_MERGE)
         end
+      end
+    end
+
+    context 'when there is a conflicting group path' do
+      render_views
+
+      let!(:conflict_group) { create(:group, path: SecureRandom.hex(12) ) }
+      let!(:old_name) { group.name }
+
+      it 'does not render references to the conflicting group' do
+        put :update, params: { id: group.to_param, group: { path: conflict_group.path } }
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(group.reload.name).to eq(old_name)
+        expect(response.body).not_to include(conflict_group.path)
       end
     end
 

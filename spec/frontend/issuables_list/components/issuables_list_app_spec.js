@@ -1,7 +1,11 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { shallowMount } from '@vue/test-utils';
-import { GlEmptyState, GlPagination, GlSkeletonLoading } from '@gitlab/ui';
+import {
+  GlEmptyState,
+  GlPagination,
+  GlDeprecatedSkeletonLoading as GlSkeletonLoading,
+} from '@gitlab/ui';
 import waitForPromises from 'helpers/wait_for_promises';
 import { TEST_HOST } from 'helpers/test_constants';
 import { deprecatedCreateFlash as flash } from '~/flash';
@@ -169,7 +173,7 @@ describe('Issuables list component', () => {
       it('does not display empty state', () => {
         expect(wrapper.vm.issuables.length).toBeGreaterThan(0);
         expect(wrapper.vm.emptyState).toEqual({});
-        expect(wrapper.contains(GlEmptyState)).toBe(false);
+        expect(wrapper.find(GlEmptyState).exists()).toBe(false);
       });
 
       it('sets the proper page and total items', () => {

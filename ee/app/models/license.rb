@@ -11,7 +11,6 @@ class License < ApplicationRecord
   EES_FEATURES = %i[
     audit_events
     blocked_issues
-    burndown_charts
     code_owners
     code_review_analytics
     contribution_analytics
@@ -19,8 +18,8 @@ class License < ApplicationRecord
     elastic_search
     group_activity_analytics
     group_bulk_edit
-    group_burndown_charts
     group_webhooks
+    group_wikis
     issuable_default_templates
     issue_weights
     iterations
@@ -28,6 +27,7 @@ class License < ApplicationRecord
     ldap_group_sync
     member_lock
     merge_request_approvers
+    milestone_charts
     multiple_issue_assignees
     multiple_ldap_servers
     multiple_merge_request_assignees
@@ -84,9 +84,9 @@ class License < ApplicationRecord
     group_ip_restriction
     group_merge_request_analytics
     group_project_templates
+    group_repository_analytics
     group_saml
     issues_analytics
-    jira_dev_panel_integration
     jira_issues_integration
     ldap_group_sync_filter
     merge_pipelines
@@ -110,6 +110,7 @@ class License < ApplicationRecord
     smartcard_auth
     group_timelogs
     type_of_work_analytics
+    minimal_access_role
     unprotection_restrictions
     ci_project_subscriptions
   ]
@@ -134,6 +135,7 @@ class License < ApplicationRecord
     prometheus_alerts
     pseudonymizer
     release_evidence_test_artifacts
+    environment_alerts
     report_approver_rules
     requirements
     sast
@@ -144,6 +146,7 @@ class License < ApplicationRecord
     subepics
     threat_monitoring
     tracing
+    quality_management
   ]
   EEU_FEATURES.freeze
 
@@ -155,7 +158,6 @@ class License < ApplicationRecord
   # introduced.
   EARLY_ADOPTER_FEATURES = %i[
     audit_events
-    burndown_charts
     contribution_analytics
     cross_project_pipelines
     deploy_board
@@ -300,10 +302,6 @@ class License < ApplicationRecord
       Gitlab::CurrentSettings.license_trial_ends_on
     end
 
-    def promo_feature_available?(feature)
-      ::Feature.enabled?("promo_#{feature}", default_enabled: false)
-    end
-
     def history
       all.sort_by { |license| [license.starts_at, license.created_at, license.expires_at] }.reverse
     end
@@ -384,7 +382,7 @@ class License < ApplicationRecord
     return false if trial? && expired?
 
     # This feature might not be behind a feature flag at all, so default to true
-    return false unless ::Feature.enabled?(feature, default_enabled: true)
+    return false unless ::Feature.enabled?(feature, type: :licensed, default_enabled: true)
 
     features.include?(feature)
   end
@@ -438,9 +436,11 @@ class License < ApplicationRecord
     restricted_attr(:trial)
   end
 
-  def exclude_guests_from_active_count?
+  def ultimate?
     plan == License::ULTIMATE_PLAN
   end
+
+  alias_method :exclude_guests_from_active_count?, :ultimate?
 
   def remaining_days
     return 0 if expired?

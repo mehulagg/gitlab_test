@@ -1,6 +1,24 @@
-query($fullPath: ID!, $startDate: Time!, $endDate: Time!, $limit: Int!) {
+query(
+  $fullPath: ID!
+  $startDate: Time!
+  $endDate: Time!
+  $limit: Int!
+  $labels: [String!]
+  $authorUsername: String
+  $assigneeUsername: String
+  $milestoneTitle: String
+) {
   project(fullPath: $fullPath) {
-    mergeRequests(first: $limit, mergedAfter: $startDate, mergedBefore: $endDate) {
+    mergeRequests(
+      first: $limit
+      mergedAfter: $startDate
+      mergedBefore: $endDate
+      sort: MERGED_AT_DESC
+      labels: $labels
+      authorUsername: $authorUsername
+      assigneeUsername: $assigneeUsername
+      milestoneTitle: $milestoneTitle
+    ) {
       nodes {
         iid
         title
@@ -33,6 +51,8 @@ query($fullPath: ID!, $startDate: Time!, $endDate: Time!, $limit: Int!) {
             }
           }
         }
+        commitCount
+        userNotesCount
       }
     }
   }

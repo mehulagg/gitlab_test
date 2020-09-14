@@ -10,7 +10,7 @@ import UnsavedChangesConfirmDialog from '~/static_site_editor/components/unsaved
 
 import {
   sourceContentTitle as title,
-  sourceContent as content,
+  sourceContentYAML as content,
   sourceContentBody as body,
   returnUrl,
 } from '../mock_data';
@@ -81,7 +81,7 @@ describe('~/static_site_editor/components/edit_area.vue', () => {
 
     it('updates parsedSource with new content', () => {
       const newContent = 'New content';
-      const spySyncParsedSource = jest.spyOn(wrapper.vm.parsedSource, 'sync');
+      const spySyncParsedSource = jest.spyOn(wrapper.vm.parsedSource, 'syncContent');
 
       findRichContentEditor().vm.$emit('input', newContent);
 

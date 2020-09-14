@@ -5,6 +5,62 @@ require 'spec_helper'
 RSpec.describe EE::TrialHelper do
   using RSpec::Parameterized::TableSyntax
 
+  describe '#should_ask_company_question?' do
+    before do
+      allow(helper).to receive(:glm_params).and_return(glm_source ? { glm_source: glm_source } : {})
+    end
+
+    subject { helper.should_ask_company_question? }
+
+    where(:glm_source, :result) do
+      'about.gitlab.com'  | false
+      'abouts.gitlab.com' | true
+      'about.gitlab.org'  | true
+      'about.gitlob.com'  | true
+      nil                 | true
+    end
+
+    with_them do
+      it { is_expected.to eq(result) }
+    end
+  end
+
+  describe '#glm_params' do
+    let(:glm_source) { nil }
+    let(:glm_content) { nil }
+    let(:params) do
+      ActionController::Parameters.new({
+        controller: 'FooBar', action: 'stuff', id: '123'
+      }.tap do |p|
+        p[:glm_source] = glm_source if glm_source
+        p[:glm_content] = glm_content if glm_content
+      end)
+    end
+
+    before do
+      allow(helper).to receive(:params).and_return(params)
+    end
+
+    subject { helper.glm_params }
+
+    it 'is memoized' do
+      expect(helper).to receive(:strong_memoize)
+
+      subject
+    end
+
+    where(:glm_source, :glm_content, :result) do
+      nil       | nil       | {}
+      'source'  | nil       | { glm_source: 'source' }
+      nil       | 'content' | { glm_content: 'content' }
+      'source'  | 'content' | { glm_source: 'source', glm_content: 'content' }
+    end
+
+    with_them do
+      it { is_expected.to eq(HashWithIndifferentAccess.new(result)) }
+    end
+  end
+
   describe '#namespace_options_for_select' do
     let_it_be(:user) { create :user }
     let_it_be(:group1) { create :group }
@@ -64,7 +120,7 @@ RSpec.describe EE::TrialHelper do
       let_it_be(:subgroup2) { create :group, parent: group2, name: 'Sub-Group 2' }
       let_it_be(:subsubgroup1) { create :group, parent: subgroup2, name: 'Sub-Sub-Group 1' }
 
-      let(:all_groups) { [group1, group2, subgroup1, subgroup2, subsubgroup1].map(&:id) }
+      let(:top_level_groups) { [group1, group2].map(&:id) }
 
       before do
         group1.add_owner(user)
@@ -72,7 +128,7 @@ RSpec.describe EE::TrialHelper do
       end
 
       context 'and none of the groups have subscriptions' do
-        it { is_expected.to eq(all_groups) }
+        it { is_expected.to eq(top_level_groups) }
       end
 
       context 'and the groups have subscriptions' do
@@ -89,7 +145,7 @@ RSpec.describe EE::TrialHelper do
         let!(:subscription_subsubgroup1) { create :gitlab_subscription, :free, *subsubgroup1_traits, namespace: subsubgroup1 }
 
         context 'and none of the groups have been trialed yet' do
-          it { is_expected.to eq(all_groups) }
+          it { is_expected.to eq(top_level_groups) }
         end
 
         context 'and some of the groups are being or have been trialed' do
@@ -97,9 +153,7 @@ RSpec.describe EE::TrialHelper do
           let(:subgroup1_traits) { :expired_trial }
           let(:subgroup2_traits) { :active_trial }
 
-          let(:some_groups) { [group2, subsubgroup1].map(&:id) }
-
-          it { is_expected.to eq(some_groups) }
+          it { is_expected.to eq([group2.id]) }
         end
 
         context 'and all of the groups are being or have been trialed' do

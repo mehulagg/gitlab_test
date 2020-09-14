@@ -14,6 +14,7 @@ module EE
       include Elastic::ApplicationVersionedSearch
       include DeprecatedApprovalsBeforeMerge
       include UsageStatistics
+      include IterationEventable
 
       has_many :approvers, as: :target, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
       has_many :approver_users, through: :approvers, source: :user
@@ -103,7 +104,7 @@ module EE
     end
 
     override :mergeable?
-    def mergeable?(skip_ci_check: false)
+    def mergeable?(skip_ci_check: false, skip_discussions_check: false)
       return false unless approved?
       return false if has_denied_policies?
       return false if merge_blocked_by_other_mrs?
@@ -164,7 +165,8 @@ module EE
         dast: report_type_enabled?(:dast),
         dependency_scanning: report_type_enabled?(:dependency_scanning),
         license_scanning: report_type_enabled?(:license_scanning),
-        coverage_fuzzing: report_type_enabled?(:coverage_fuzzing)
+        coverage_fuzzing: report_type_enabled?(:coverage_fuzzing),
+        secret_detection: report_type_enabled?(:secret_detection)
       }
     end
 
@@ -255,6 +257,12 @@ module EE
       project_rules.find_each do |project_rule|
         project_rule.apply_report_approver_rules_to(self)
       end
+    end
+
+    def missing_security_scan_types
+      return [] unless actual_head_pipeline && base_pipeline
+
+      (base_pipeline.security_scans.pluck(:scan_type) - actual_head_pipeline.security_scans.pluck(:scan_type)).uniq
     end
 
     private

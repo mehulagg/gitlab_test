@@ -32,7 +32,7 @@ RSpec.describe Ci::BuildTraceChunk, :clean_gitlab_redis_shared_state do
         expect(external_data_counter).to be > 0
         expect(subjects.count).to be > 0
 
-        expect { subjects.first.destroy }.to raise_error('`destroy` and `destroy_all` are forbidden. Please use `fast_destroy_all`')
+        expect { subjects.first.destroy! }.to raise_error('`destroy` and `destroy_all` are forbidden. Please use `fast_destroy_all`')
         expect { subjects.destroy_all }.to raise_error('`destroy` and `destroy_all` are forbidden. Please use `fast_destroy_all`') # rubocop: disable Cop/DestroyAll
 
         expect(subjects.count).to be > 0
@@ -57,7 +57,7 @@ RSpec.describe Ci::BuildTraceChunk, :clean_gitlab_redis_shared_state do
         expect(external_data_counter).to be > 0
         expect(subjects.count).to be > 0
 
-        expect { parent.destroy }.not_to raise_error
+        expect { parent.destroy! }.not_to raise_error
 
         expect(subjects.count).to eq(0)
         expect(external_data_counter).to eq(0)
@@ -222,6 +222,8 @@ RSpec.describe Ci::BuildTraceChunk, :clean_gitlab_redis_shared_state do
             subject
 
             build_trace_chunk.reload
+
+            expect(build_trace_chunk.checksum).to be_present
             expect(build_trace_chunk.fog?).to be_truthy
             expect(build_trace_chunk.data).to eq(new_data)
           end
@@ -500,6 +502,12 @@ RSpec.describe Ci::BuildTraceChunk, :clean_gitlab_redis_shared_state do
             expect(Ci::BuildTraceChunks::Redis.new.data(build_trace_chunk)).to be_nil
             expect(Ci::BuildTraceChunks::Database.new.data(build_trace_chunk)).to be_nil
             expect(Ci::BuildTraceChunks::Fog.new.data(build_trace_chunk)).to eq(data)
+          end
+
+          it 'calculates CRC32 checksum' do
+            subject
+
+            expect(build_trace_chunk.reload.checksum).to eq '3398914352'
           end
 
           it_behaves_like 'Atomic operation'

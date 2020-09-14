@@ -3,7 +3,6 @@
 require 'carrierwave/orm/activerecord'
 
 class Project < ApplicationRecord
-  extend ::Gitlab::Utils::Override
   include Gitlab::ConfigHelper
   include Gitlab::VisibilityLevel
   include AccessRequestable
@@ -254,6 +253,7 @@ class Project < ApplicationRecord
   has_one :import_data, class_name: 'ProjectImportData', inverse_of: :project, autosave: true
   has_one :project_feature, inverse_of: :project
   has_one :statistics, class_name: 'ProjectStatistics'
+  has_one :feature_usage, class_name: 'ProjectFeatureUsage'
 
   has_one :cluster_project, class_name: 'Clusters::Project'
   has_many :clusters, through: :cluster_project, class_name: 'Clusters::Cluster'
@@ -279,10 +279,9 @@ class Project < ApplicationRecord
   # The relation :all_pipelines is intended to be used when we want to get the
   # whole list of pipelines associated to the project
   has_many :all_pipelines, class_name: 'Ci::Pipeline', inverse_of: :project
-  # The relation :ci_pipelines is intended to be used when we want to get only
-  # those pipeline which are directly related to CI. There are
-  # other pipelines, like webide ones, that we won't retrieve
-  # if we use this relation.
+  # The relation :ci_pipelines includes all those that directly contribute to the
+  # latest status of a ref. This does not include dangling pipelines such as those
+  # from webide, child pipelines, etc.
   has_many :ci_pipelines,
           -> { ci_sources },
           class_name: 'Ci::Pipeline',
@@ -343,6 +342,10 @@ class Project < ApplicationRecord
   # Issue https://gitlab.com/gitlab-org/gitlab/-/issues/228637
   has_many :product_analytics_events, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
 
+  has_many :operations_feature_flags, class_name: 'Operations::FeatureFlag'
+  has_one :operations_feature_flags_client, class_name: 'Operations::FeatureFlagsClient'
+  has_many :operations_feature_flags_user_lists, class_name: 'Operations::FeatureFlags::UserList'
+
   accepts_nested_attributes_for :variables, allow_destroy: true
   accepts_nested_attributes_for :project_feature, update_only: true
   accepts_nested_attributes_for :project_setting, update_only: true
@@ -392,6 +395,8 @@ class Project < ApplicationRecord
     :allow_merge_on_skipped_pipeline=, :has_confluence?,
     to: :project_setting
   delegate :active?, to: :prometheus_service, allow_nil: true, prefix: true
+
+  delegate :log_jira_dvcs_integration_usage, :jira_dvcs_server_last_sync_at, :jira_dvcs_cloud_last_sync_at, to: :feature_usage
 
   # Validations
   validates :creator, presence: true, on: :create
@@ -454,14 +459,17 @@ class Project < ApplicationRecord
   # Sometimes queries (e.g. using CTEs) require explicit disambiguation with table name
   scope :projects_order_id_desc, -> { reorder(self.arel_table['id'].desc) }
 
-  scope :sorted_by_similarity_desc, -> (search) do
+  scope :sorted_by_similarity_desc, -> (search, include_in_select: false) do
     order_expression = Gitlab::Database::SimilarityScore.build_expression(search: search, rules: [
       { column: arel_table["path"], multiplier: 1 },
       { column: arel_table["name"], multiplier: 0.7 },
       { column: arel_table["description"], multiplier: 0.2 }
     ])
 
-    reorder(order_expression.desc, arel_table['id'].desc)
+    query = reorder(order_expression.desc, arel_table['id'].desc)
+
+    query = query.select(*query.arel.projections, order_expression.as('similarity')) if include_in_select
+    query
   end
 
   scope :with_packages, -> { joins(:packages) }
@@ -476,6 +484,9 @@ class Project < ApplicationRecord
   scope :for_milestones, ->(ids) { joins(:milestones).where('milestones.id' => ids).distinct }
   scope :with_push, -> { joins(:events).merge(Event.pushed_action) }
   scope :with_project_feature, -> { joins('LEFT JOIN project_features ON projects.id = project_features.project_id') }
+  scope :with_active_jira_services, -> { joins(:services).merge(::JiraService.active) } # rubocop:disable CodeReuse/ServiceClass
+  scope :with_jira_dvcs_cloud, -> { joins(:feature_usage).merge(ProjectFeatureUsage.with_jira_dvcs_integration_enabled(cloud: true)) }
+  scope :with_jira_dvcs_server, -> { joins(:feature_usage).merge(ProjectFeatureUsage.with_jira_dvcs_integration_enabled(cloud: false)) }
   scope :inc_routes, -> { includes(:route, namespace: :route) }
   scope :with_statistics, -> { includes(:statistics) }
   scope :with_namespace, -> { includes(:namespace) }
@@ -544,6 +555,8 @@ class Project < ApplicationRecord
   scope :with_api_commit_entity_associations, -> {
     preload(:project_feature, :route, namespace: [:route, :owner])
   }
+
+  scope :imported_from, -> (type) { where(import_type: type) }
 
   enum auto_cancel_pending_pipelines: { disabled: 0, enabled: 1 }
 
@@ -882,12 +895,12 @@ class Project < ApplicationRecord
   end
 
   def repository
-    @repository ||= Repository.new(full_path, self, shard: repository_storage, disk_path: disk_path)
+    @repository ||= Gitlab::GlRepository::PROJECT.repository_for(self)
   end
 
   def design_repository
     strong_memoize(:design_repository) do
-      DesignManagement::Repository.new(self)
+      Gitlab::GlRepository::DESIGN.repository_for(self)
     end
   end
 
@@ -942,13 +955,12 @@ class Project < ApplicationRecord
     latest_successful_build_for_ref(job_name, ref) || raise(ActiveRecord::RecordNotFound.new("Couldn't find job #{job_name}"))
   end
 
-  def latest_pipeline_for_ref(ref = default_branch)
+  def latest_pipeline(ref = default_branch, sha = nil)
     ref = ref.presence || default_branch
-    sha = commit(ref)&.sha
-
+    sha ||= commit(ref)&.sha
     return unless sha
 
-    ci_pipelines.newest_first(ref: ref, sha: sha).first
+    ci_pipelines.newest_first(ref: ref, sha: sha).take
   end
 
   def merge_base_commit(first_commit_id, second_commit_id)
@@ -1442,6 +1454,10 @@ class Project < ApplicationRecord
     http_url_to_repo
   end
 
+  def feature_usage
+    super.presence || build_feature_usage
+  end
+
   def forked?
     fork_network && fork_network.root_project != self
   end
@@ -1653,21 +1669,6 @@ class Project < ApplicationRecord
     !namespace.share_with_group_lock
   end
 
-  def pipeline_for(ref, sha = nil, id = nil)
-    sha ||= commit(ref).try(:sha)
-    return unless sha
-
-    if id.present?
-      pipelines_for(ref, sha).find_by(id: id)
-    else
-      pipelines_for(ref, sha).take
-    end
-  end
-
-  def pipelines_for(ref, sha)
-    ci_pipelines.order(id: :desc).where(sha: sha, ref: ref)
-  end
-
   def latest_successful_pipeline_for_default_branch
     if defined?(@latest_successful_pipeline_for_default_branch)
       return @latest_successful_pipeline_for_default_branch
@@ -1826,12 +1827,12 @@ class Project < ApplicationRecord
   end
   # rubocop: enable CodeReuse/ServiceClass
 
-  def mark_pages_as_deployed
-    ensure_pages_metadatum.update!(deployed: true)
+  def mark_pages_as_deployed(artifacts_archive: nil)
+    ensure_pages_metadatum.update!(deployed: true, artifacts_archive: artifacts_archive)
   end
 
   def mark_pages_as_not_deployed
-    ensure_pages_metadatum.update!(deployed: false)
+    ensure_pages_metadatum.update!(deployed: false, artifacts_archive: nil)
   end
 
   def write_repository_config(gl_full_path: full_path)
@@ -2140,8 +2141,8 @@ class Project < ApplicationRecord
         data = repository.route_map_for(sha)
 
         Gitlab::RouteMap.new(data) if data
-      rescue Gitlab::RouteMap::FormatError
-        nil
+               rescue Gitlab::RouteMap::FormatError
+                 nil
       end
     end
 
@@ -2424,6 +2425,10 @@ class Project < ApplicationRecord
     false
   end
 
+  def jira_subscription_exists?
+    JiraConnectSubscription.for_project(self).exists?
+  end
+
   def uses_default_ci_config?
     ci_config_path.blank? || ci_config_path == Gitlab::FileDetector::PATTERNS[:gitlab_ci]
   end
@@ -2462,11 +2467,6 @@ class Project < ApplicationRecord
 
   def latest_jira_import
     jira_imports.last
-  end
-
-  override :after_wiki_activity
-  def after_wiki_activity
-    touch(:last_activity_at, :last_repository_updated_at)
   end
 
   def metrics_setting
@@ -2518,6 +2518,20 @@ class Project < ApplicationRecord
       .exists?
   end
 
+  def default_branch_or_master
+    default_branch || 'master'
+  end
+
+  def ci_config_path_or_default
+    ci_config_path.presence || Ci::Pipeline::DEFAULT_CONFIG_PATH
+  end
+
+  def enabled_group_deploy_keys
+    return GroupDeployKey.none unless group
+
+    GroupDeployKey.for_groups(group.self_and_ancestors_ids)
+  end
+
   private
 
   def find_service(services, name)
@@ -2533,11 +2547,11 @@ class Project < ApplicationRecord
   end
 
   def services_templates
-    @services_templates ||= Service.templates
+    @services_templates ||= Service.for_template
   end
 
   def services_instances
-    @services_instances ||= Service.instances
+    @services_instances ||= Service.for_instance
   end
 
   def closest_namespace_setting(name)
@@ -2678,9 +2692,11 @@ class Project < ApplicationRecord
   end
 
   def oids(objects, oids: [])
-    collection = oids.any? ? objects.where(oid: oids) : objects
+    objects = objects.where(oid: oids) if oids.any?
 
-    collection.pluck(:oid)
+    [].tap do |out|
+      objects.each_batch { |relation| out.concat(relation.pluck(:oid)) }
+    end
   end
 end
 

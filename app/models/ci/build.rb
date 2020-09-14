@@ -90,9 +90,9 @@ module Ci
         Ci::BuildMetadata.scoped_build.with_interruptible.select(:id))
     end
 
-    scope :unstarted, ->() { where(runner_id: nil) }
-    scope :ignore_failures, ->() { where(allow_failure: false) }
-    scope :with_downloadable_artifacts, ->() do
+    scope :unstarted, -> { where(runner_id: nil) }
+    scope :ignore_failures, -> { where(allow_failure: false) }
+    scope :with_downloadable_artifacts, -> do
       where('EXISTS (?)',
         Ci::JobArtifact.select(1)
           .where('ci_builds.id = ci_job_artifacts.job_id')
@@ -104,11 +104,11 @@ module Ci
       where('EXISTS (?)', ::Ci::JobArtifact.select(1).where('ci_builds.id = ci_job_artifacts.job_id').merge(query))
     end
 
-    scope :with_archived_trace, ->() do
+    scope :with_archived_trace, -> do
       with_existing_job_artifacts(Ci::JobArtifact.trace)
     end
 
-    scope :without_archived_trace, ->() do
+    scope :without_archived_trace, -> do
       where('NOT EXISTS (?)', Ci::JobArtifact.select(1).where('ci_builds.id = ci_job_artifacts.job_id').trace)
     end
 
@@ -139,11 +139,11 @@ module Ci
         .includes(:metadata, :job_artifacts_metadata)
     end
 
-    scope :with_artifacts_not_expired, ->() { with_downloadable_artifacts.where('artifacts_expire_at IS NULL OR artifacts_expire_at > ?', Time.current) }
-    scope :with_expired_artifacts, ->() { with_downloadable_artifacts.where('artifacts_expire_at < ?', Time.current) }
-    scope :last_month, ->() { where('created_at > ?', Date.today - 1.month) }
-    scope :manual_actions, ->() { where(when: :manual, status: COMPLETED_STATUSES + %i[manual]) }
-    scope :scheduled_actions, ->() { where(when: :delayed, status: COMPLETED_STATUSES + %i[scheduled]) }
+    scope :with_artifacts_not_expired, -> { with_downloadable_artifacts.where('artifacts_expire_at IS NULL OR artifacts_expire_at > ?', Time.current) }
+    scope :with_expired_artifacts, -> { with_downloadable_artifacts.where('artifacts_expire_at < ?', Time.current) }
+    scope :last_month, -> { where('created_at > ?', Date.today - 1.month) }
+    scope :manual_actions, -> { where(when: :manual, status: COMPLETED_STATUSES + %i[manual]) }
+    scope :scheduled_actions, -> { where(when: :delayed, status: COMPLETED_STATUSES + %i[scheduled]) }
     scope :ref_protected, -> { where(protected: true) }
     scope :with_live_trace, -> { where('EXISTS (?)', Ci::BuildTraceChunk.where('ci_builds.id = ci_build_trace_chunks.build_id').select(1)) }
     scope :with_stale_live_trace, -> { with_live_trace.finished_before(12.hours.ago) }
@@ -175,7 +175,6 @@ module Ci
     end
 
     scope :queued_before, ->(time) { where(arel_table[:queued_at].lt(time)) }
-    scope :order_id_desc, -> { order('ci_builds.id DESC') }
 
     scope :preload_project_and_pipeline_project, -> do
       preload(Ci::Pipeline::PROJECT_ROUTE_AND_NAMESPACE_ROUTE,
@@ -212,6 +211,10 @@ module Ci
           .new(build.project, current_user)
           .execute(build)
         # rubocop: enable CodeReuse/ServiceClass
+      end
+
+      def with_preloads
+        preload(:job_artifacts_archive, :job_artifacts, project: [:namespace])
       end
     end
 
@@ -647,6 +650,10 @@ module Ci
       !artifacts_expired? && artifacts_file&.exists?
     end
 
+    def locked_artifacts?
+      pipeline.artifacts_locked? && artifacts_file&.exists?
+    end
+
     # This method is similar to #artifacts? but it includes the artifacts
     # locking mechanics. A new method was created to prevent breaking existing
     # behavior and avoid introducing N+1s.
@@ -867,13 +874,17 @@ module Ci
       options.dig(:release)&.any?
     end
 
-    def hide_secrets(trace)
+    def hide_secrets(data, metrics = ::Gitlab::Ci::Trace::Metrics.new)
       return unless trace
 
-      trace = trace.dup
-      Gitlab::Ci::MaskSecret.mask!(trace, project.runners_token) if project
-      Gitlab::Ci::MaskSecret.mask!(trace, token) if token
-      trace
+      data.dup.tap do |trace|
+        Gitlab::Ci::MaskSecret.mask!(trace, project.runners_token) if project
+        Gitlab::Ci::MaskSecret.mask!(trace, token) if token
+
+        if trace != data
+          metrics.increment_trace_operation(operation: :mutated)
+        end
+      end
     end
 
     def serializable_hash(options = {})

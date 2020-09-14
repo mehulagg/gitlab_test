@@ -93,7 +93,7 @@ must be set.
 
 While you can view and manage the full details of an issue on the [issue page](#issue-page),
 you can also work with multiple issues at a time using the [Issues List](#issues-list),
-[Issue Boards](#issue-boards), Issue references, and [Epics](#epics-premium)**(PREMIUM)**.
+[Issue Boards](#issue-boards), Issue references, and [Epics](#epics)**(PREMIUM)**.
 
 Key actions for Issues include:
 
@@ -112,8 +112,6 @@ and modify them if you have the necessary [permissions](../../permissions.md).
 #### Real-time sidebar **(CORE ONLY)**
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/17589) in GitLab 13.3.
-> - It cannot be enabled or disabled per-project.
-> - It's not recommended for production use.
 
 Assignees in the sidebar are updated in real time. This feature is **disabled by default**.
 To enable, you need to enable [ActionCable in-app mode](https://docs.gitlab.com/omnibus/settings/actioncable.html).
@@ -201,7 +199,7 @@ After an issue is closed, its health status can't be edited and the "Edit" butto
 until the issue is reopened.
 
 You can then see issue statuses on the
-[Epic tree](../../group/epics/index.md#issue-health-status-in-epic-tree-ultimate).
+[Epic tree](../../group/epics/index.md#issue-health-status-in-epic-tree).
 
 #### Disable issue health status
 

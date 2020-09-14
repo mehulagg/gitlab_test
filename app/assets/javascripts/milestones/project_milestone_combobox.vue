@@ -13,6 +13,8 @@ import { __, sprintf } from '~/locale';
 import Api from '~/api';
 import { deprecatedCreateFlash as createFlash } from '~/flash';
 
+const SEARCH_DEBOUNCE_MS = 250;
+
 export default {
   components: {
     GlNewDropdown,
@@ -89,10 +91,21 @@ export default {
       return this.requestCount !== 0;
     },
   },
+  created() {
+    // This method is defined here instead of in `methods`
+    // because we need to access the .cancel() method
+    // lodash attaches to the function, which is
+    // made inaccessible by Vue. More info:
+    // https://stackoverflow.com/a/52988020/1063392
+    this.debouncedSearchMilestones = debounce(this.searchMilestones, SEARCH_DEBOUNCE_MS);
+  },
   mounted() {
     this.fetchMilestones();
   },
   methods: {
+    focusSearchBox() {
+      this.$refs.searchBox.$el.querySelector('input').focus();
+    },
     fetchMilestones() {
       this.requestCount += 1;
 
@@ -108,7 +121,7 @@ export default {
           this.requestCount -= 1;
         });
     },
-    searchMilestones: debounce(function searchMilestones() {
+    searchMilestones() {
       this.requestCount += 1;
       const options = {
         search: this.searchQuery,
@@ -133,7 +146,14 @@ export default {
         .finally(() => {
           this.requestCount -= 1;
         });
-    }, 100),
+    },
+    onSearchBoxInput() {
+      this.debouncedSearchMilestones();
+    },
+    onSearchBoxEnter() {
+      this.debouncedSearchMilestones.cancel();
+      this.searchMilestones();
+    },
     toggleMilestoneSelection(clickedMilestone) {
       if (!clickedMilestone) return [];
 
@@ -168,7 +188,7 @@ export default {
 </script>
 
 <template>
-  <gl-new-dropdown>
+  <gl-new-dropdown v-bind="$attrs" class="project-milestone-combobox" @shown="focusSearchBox">
     <template slot="button-content">
       <span ref="buttonText" class="flex-grow-1 ml-1 text-muted">{{
         selectedMilestonesLabel
@@ -183,10 +203,12 @@ export default {
     <gl-new-dropdown-divider />
 
     <gl-search-box-by-type
+      ref="searchBox"
       v-model.trim="searchQuery"
-      class="m-2"
+      class="gl-m-3"
       :placeholder="this.$options.translations.searchMilestones"
-      @input="searchMilestones"
+      @input="onSearchBoxInput"
+      @keydown.enter.prevent="onSearchBoxEnter"
     />
 
     <gl-new-dropdown-item @click="onMilestoneClicked(null)">

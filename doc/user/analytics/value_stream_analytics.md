@@ -267,7 +267,7 @@ Once a custom stage has been added, you can "drag and drop" stages to rearrange 
 The pre-defined start and end events can cover many use cases involving both issues and merge requests.
 
 For supporting more complex workflows, use stages based on group labels. These events are based on
-labels being added or removed. In particular, [scoped labels](../project/labels.md#scoped-labels-premium)
+labels being added or removed. In particular, [scoped labels](../project/labels.md#scoped-labels)
 are useful for complex workflows.
 
 In this example, we'd like to measure more accurate code review times. The workflow is the following:
@@ -313,6 +313,19 @@ To create a value stream:
 
 ![New value stream](img/new_value_stream_v13_3.png "Creating a new value stream")
 
+### Deleting a value stream
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/221205) in GitLab 13.4.
+
+To delete a custom value stream:
+
+1. Navigate to your group's **Analytics > Value Stream**.
+1. Click the Value stream dropdown and select the value stream you would like to delete.
+1. Click the **Delete (name of value stream)**.
+1. Click the **Delete** button to confirm.
+
+![Delete value stream](img/delete_value_stream_v13.4.png "Deleting a custom value stream")
+
 ### Disabling custom value streams
 
 Custom value streams are enabled by default. If you have a self-managed instance, an
@@ -348,15 +361,6 @@ administrator can open a Rails console and disable it with the following command
 
 ```ruby
 Feature.disable(:cycle_analytics_scatterplot_enabled)
-```
-
-### Disabling chart median line
-
-This chart's median line is enabled by default. If you have a self-managed instance, an
-administrator can open a Rails console and disable it with the following command:
-
-```ruby
-Feature.disable(:cycle_analytics_scatterplot_median_enabled)
 ```
 
 ## Type of work - Tasks by type chart

@@ -1,3 +1,9 @@
+/* global ListIssue */
+/* global List */
+
+import Vue from 'vue';
+import '~/boards/models/list';
+import '~/boards/models/issue';
 import boardsStore from '~/boards/stores/boards_store';
 
 export const boardObj = {
@@ -92,11 +98,40 @@ export const mockMilestone = {
   due_date: '2019-12-31',
 };
 
+export const rawIssue = {
+  title: 'Testing',
+  id: 'gid://gitlab/Issue/1',
+  iid: 1,
+  confidential: false,
+  referencePath: 'gitlab-org/gitlab-test#1',
+  labels: {
+    nodes: [
+      {
+        id: 1,
+        title: 'test',
+        color: 'red',
+        description: 'testing',
+      },
+    ],
+  },
+  assignees: {
+    nodes: [
+      {
+        id: 1,
+        name: 'name',
+        username: 'username',
+        avatar_url: 'http://avatar_url',
+      },
+    ],
+  },
+};
+
 export const mockIssue = {
   title: 'Testing',
   id: 1,
   iid: 1,
   confidential: false,
+  referencePath: 'gitlab-org/gitlab-test#1',
   labels: [
     {
       id: 1,
@@ -114,6 +149,34 @@ export const mockIssue = {
     },
   ],
 };
+
+export const mockIssueWithModel = new ListIssue(mockIssue);
+
+export const mockIssue2 = {
+  title: 'Planning',
+  id: 2,
+  iid: 2,
+  confidential: false,
+  referencePath: 'gitlab-org/gitlab-test#2',
+  labels: [
+    {
+      id: 1,
+      title: 'plan',
+      color: 'blue',
+      description: 'planning',
+    },
+  ],
+  assignees: [
+    {
+      id: 1,
+      name: 'name',
+      username: 'username',
+      avatar_url: 'http://avatar_url',
+    },
+  ],
+};
+
+export const mockIssue2WithModel = new ListIssue(mockIssue2);
 
 export const BoardsMockData = {
   GET: {
@@ -165,3 +228,36 @@ export const setMockEndpoints = (opts = {}) => {
     boardId,
   });
 };
+
+export const mockLists = [
+  {
+    id: 'gid://gitlab/List/1',
+    title: 'Backlog',
+    position: null,
+    listType: 'backlog',
+    collapsed: false,
+    label: null,
+    assignee: null,
+    milestone: null,
+  },
+  {
+    id: 'gid://gitlab/List/2',
+    title: 'To Do',
+    position: 0,
+    listType: 'label',
+    collapsed: false,
+    label: {
+      id: 'gid://gitlab/GroupLabel/121',
+      title: 'To Do',
+      color: '#F0AD4E',
+      textColor: '#FFFFFF',
+      description: null,
+    },
+    assignee: null,
+    milestone: null,
+  },
+];
+
+export const mockListsWithModel = mockLists.map(listMock =>
+  Vue.observable(new List({ ...listMock, doNotFetchIssues: true })),
+);

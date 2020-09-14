@@ -44,7 +44,6 @@ export const createPolicy = ({ state, commit }, { environmentId, policy }) => {
     .post(state.policiesEndpoint, {
       environment_id: environmentId,
       manifest: policy.manifest,
-      is_standard: policy.isStandard,
     })
     .then(({ data }) => {
       commit(types.RECEIVE_CREATE_POLICY_SUCCESS, data);
@@ -72,7 +71,6 @@ export const updatePolicy = ({ state, commit }, { environmentId, policy }) => {
       environment_id: environmentId,
       manifest: policy.manifest,
       enabled: policy.isEnabled,
-      is_standard: policy.isStandard,
     })
     .then(({ data }) => {
       commit(types.RECEIVE_UPDATE_POLICY_SUCCESS, {
@@ -88,5 +86,29 @@ export const updatePolicy = ({ state, commit }, { environmentId, policy }) => {
     })
     .catch(error =>
       commitPolicyError(commit, types.RECEIVE_UPDATE_POLICY_ERROR, error?.response?.data),
+    );
+};
+
+export const deletePolicy = ({ state, commit }, { environmentId, policy }) => {
+  if (!state.policiesEndpoint || !environmentId || !policy) {
+    return commitPolicyError(commit, types.RECEIVE_DELETE_POLICY_ERROR);
+  }
+
+  commit(types.REQUEST_DELETE_POLICY);
+
+  return axios
+    .delete(joinPaths(state.policiesEndpoint, policy.name), {
+      params: {
+        environment_id: environmentId,
+        manifest: policy.manifest,
+      },
+    })
+    .then(() => {
+      commit(types.RECEIVE_DELETE_POLICY_SUCCESS, {
+        policy,
+      });
+    })
+    .catch(error =>
+      commitPolicyError(commit, types.RECEIVE_DELETE_POLICY_ERROR, error?.response?.data),
     );
 };

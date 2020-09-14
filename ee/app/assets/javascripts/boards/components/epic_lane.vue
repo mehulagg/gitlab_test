@@ -1,5 +1,6 @@
 <script>
 import { GlButton, GlIcon, GlLink, GlPopover, GlTooltipDirective } from '@gitlab/ui';
+import { mapGetters } from 'vuex';
 import { __, n__, sprintf } from '~/locale';
 import timeagoMixin from '~/vue_shared/mixins/timeago';
 import { formatDate } from '~/lib/utils/datetime_utility';
@@ -27,10 +28,6 @@ export default {
       type: Array,
       required: true,
     },
-    issues: {
-      type: Object,
-      required: true,
-    },
     isLoadingIssues: {
       type: Boolean,
       required: false,
@@ -44,6 +41,11 @@ export default {
       type: String,
       required: true,
     },
+    canAdminList: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   data() {
     return {
@@ -51,6 +53,7 @@ export default {
     };
   },
   computed: {
+    ...mapGetters(['getIssuesByEpic']),
     isOpen() {
       return this.epic.state === statusType.open;
     },
@@ -70,8 +73,10 @@ export default {
       return this.isOpen ? 'gl-text-green-500' : 'gl-text-blue-500';
     },
     issuesCount() {
-      const { openedIssues, closedIssues } = this.epic.descendantCounts;
-      return openedIssues + closedIssues;
+      return this.lists.reduce(
+        (total, list) => total + this.getIssuesByEpic(list.id, this.epic.id).length,
+        0,
+      );
     },
     issuesCountTooltipText() {
       return n__(`%d issue in this group`, `%d issues in this group`, this.issuesCount);
@@ -90,13 +95,6 @@ export default {
     },
   },
   methods: {
-    epicIssuesForList(listId) {
-      if (this.issues[listId]) {
-        return this.issues[listId].filter(issue => issue.epic && issue.epic.id === this.epic.id);
-      }
-
-      return [];
-    },
     toggleExpanded() {
       this.isExpanded = !this.isExpanded;
     },
@@ -156,10 +154,13 @@ export default {
         v-for="list in lists"
         :key="`${list.id}-issues`"
         :list="list"
-        :issues="epicIssuesForList(list.id)"
+        :issues="getIssuesByEpic(list.id, epic.id)"
         :is-loading="isLoadingIssues"
         :disabled="disabled"
         :root-path="rootPath"
+        :epic-id="epic.id"
+        :epic-is-confidential="epic.confidential"
+        :can-admin-list="canAdminList"
       />
     </div>
   </div>

@@ -136,7 +136,7 @@ module EE
       end
 
       def ci_secrets_management_available?
-        project.beta_feature_available?(:ci_secrets_management)
+        project.feature_available?(:ci_secrets_management)
       end
 
       override :runner_required_feature_names
@@ -148,8 +148,8 @@ module EE
         variable_value('VAULT_SERVER_URL').present?
       end
 
-      def variable_value(key)
-        variables_hash[key]
+      def variable_value(key, default = nil)
+        variables_hash.fetch(key, default)
       end
 
       private

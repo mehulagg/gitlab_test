@@ -11,7 +11,7 @@ import {
   GlSprintf,
 } from '@gitlab/ui';
 import Api from 'ee/api';
-import RelatedIssuesRoot from 'ee/related_issues/components/related_issues_root.vue';
+import RelatedIssuesRoot from '~/related_issues/components/related_issues_root.vue';
 import { s__ } from '~/locale';
 import { deprecatedCreateFlash as flash, FLASH_TYPES } from '~/flash';
 import featureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
@@ -155,6 +155,7 @@ export default {
       return (
         this.glFeatures.featureFlagsNewVersion &&
         this.glFeatures.featureFlagsLegacyReadOnly &&
+        !this.glFeatures.featureFlagsLegacyReadOnlyOverride &&
         this.version === LEGACY_FLAG
       );
     },
@@ -409,7 +410,7 @@ export default {
                     class="col-12"
                     :value="scope.environmentScope"
                     :endpoint="environmentsEndpoint"
-                    :disabled="!canUpdateScope(scope)"
+                    :disabled="!canUpdateScope(scope) || scope.environmentScope !== ''"
                     @selectEnvironment="env => (scope.environmentScope = env)"
                     @createClicked="env => (scope.environmentScope = env)"
                     @clearInput="env => (scope.environmentScope = '')"

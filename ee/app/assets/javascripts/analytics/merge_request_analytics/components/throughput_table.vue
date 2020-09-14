@@ -1,4 +1,5 @@
 <script>
+import { mapState } from 'vuex';
 import dateFormat from 'dateformat';
 import {
   GlTable,
@@ -13,6 +14,7 @@ import {
 } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import { approximateDuration, differenceInSeconds } from '~/lib/utils/datetime_utility';
+import { filterToQueryObject } from '~/vue_shared/components/filtered_search_bar/filtered_search_utils';
 import { dateFormats } from '../../shared/constants';
 import throughputTableQuery from '../graphql/queries/throughput_table.query.graphql';
 import {
@@ -70,6 +72,12 @@ export default {
       thAttr: TH_TEST_ID,
     },
     {
+      key: 'commits',
+      label: s__('Commits'),
+      tdClass: 'merge-request-analytics-td',
+      thAttr: TH_TEST_ID,
+    },
+    {
       key: 'pipelines',
       label: s__('MergeRequestAnalytics|Pipelines'),
       tdClass: 'merge-request-analytics-td',
@@ -108,11 +116,19 @@ export default {
     throughputTableData: {
       query: throughputTableQuery,
       variables() {
+        const options = filterToQueryObject({
+          labels: this.selectedLabelList,
+          authorUsername: this.selectedAuthor,
+          assigneeUsername: this.selectedAssignee,
+          milestoneTitle: this.selectedMilestone,
+        });
+
         return {
           fullPath: this.fullPath,
           limit: MAX_RECORDS,
           startDate: dateFormat(this.startDate, dateFormats.isoDate),
           endDate: dateFormat(this.endDate, dateFormats.isoDate),
+          ...options,
         };
       },
       update: data => data.project.mergeRequests.nodes,
@@ -125,6 +141,12 @@ export default {
     },
   },
   computed: {
+    ...mapState('filters', {
+      selectedMilestone: state => state.milestones.selected,
+      selectedAuthor: state => state.authors.selected,
+      selectedLabelList: state => state.labels.selectedList,
+      selectedAssignee: state => state.assignees.selected,
+    }),
     tableDataAvailable() {
       return this.throughputTableData.length;
     },
@@ -197,15 +219,18 @@ export default {
               />
             </li>
             <li
-              v-if="item.labels.nodes.length"
-              class="gl-mr-3"
+              class="gl-mr-3 gl-display-flex gl-align-items-center"
+              :class="{ 'gl-opacity-5': !item.labels.nodes.length }"
               :data-testid="$options.testIds.LABEL_DETAILS"
             >
-              <span class="gl-display-flex gl-align-items-center"
-                ><gl-icon name="label" class="gl-mr-1" /><span>{{
-                  item.labels.nodes.length
-                }}</span></span
-              >
+              <gl-icon name="label" class="gl-mr-1" /><span>{{ item.labels.nodes.length }}</span>
+            </li>
+            <li
+              class="gl-mr-3 gl-display-flex gl-align-items-center"
+              :class="{ 'gl-opacity-5': !item.userNotesCount }"
+              :data-testid="$options.testIds.COMMENT_COUNT"
+            >
+              <gl-icon name="comments" class="gl-mr-2" /><span>{{ item.userNotesCount }}</span>
             </li>
           </ul>
         </div>
@@ -226,6 +251,10 @@ export default {
       <div v-if="item.milestone" :data-testid="$options.testIds.MILESTONE">
         {{ item.milestone.title }}
       </div>
+    </template>
+
+    <template #cell(commits)="{ item }">
+      <div :data-testid="$options.testIds.COMMITS">{{ item.commitCount }}</div>
     </template>
 
     <template #cell(pipelines)="{ item }">

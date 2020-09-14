@@ -13,16 +13,16 @@ module QA
     end
 
     describe 'Group' do
-      before(:all) do
-        @group = Resource::Group.fabricate_via_api! do |resource|
+      let(:group) do
+        Resource::Group.fabricate_via_api! do |resource|
           resource.path = "test-group-#{SecureRandom.hex(8)}"
         end
       end
 
-      context 'Disable and Enable LFS', status_issue: 'https://gitlab.com/gitlab-org/quality/testcases/-/issues/749' do
+      context 'Disable and Enable LFS', testcase: 'https://gitlab.com/gitlab-org/quality/testcases/-/issues/749' do
         before do
           sign_in
-          @group.visit!
+          group.visit!
           Page::Group::Menu.perform(&:click_group_general_settings_item)
           Page::Group::Settings::General.perform(&:set_lfs_disabled)
 
@@ -33,10 +33,10 @@ module QA
         it_behaves_like 'audit event', ["Changed lfs enabled from false to true", /Changed lfs enabled( from true)? to false/]
       end
 
-      context 'Enable and disable membership lock', status_issue: 'https://gitlab.com/gitlab-org/quality/testcases/-/issues/723' do
+      context 'Enable and disable membership lock', testcase: 'https://gitlab.com/gitlab-org/quality/testcases/-/issues/723' do
         before do
           sign_in
-          @group.visit!
+          group.visit!
           Page::Group::Menu.perform(&:click_group_general_settings_item)
           Page::Group::Settings::General.perform(&:set_membership_lock_enabled)
 
@@ -47,10 +47,10 @@ module QA
         it_behaves_like 'audit event', ["Changed membership lock from true to false", "Changed membership lock from false to true"]
       end
 
-      context 'Enable and disable allow user request access', status_issue: 'https://gitlab.com/gitlab-org/quality/testcases/-/issues/725' do
+      context 'Enable and disable allow user request access', testcase: 'https://gitlab.com/gitlab-org/quality/testcases/-/issues/725' do
         before do
           sign_in
-          @group.visit!
+          group.visit!
           Page::Group::Menu.perform(&:click_group_general_settings_item)
           Page::Group::Settings::General.perform(&:toggle_request_access)
 
@@ -61,7 +61,7 @@ module QA
         it_behaves_like 'audit event', ["Changed request access enabled from true to false", "Changed request access enabled from false to true"]
       end
 
-      context 'Enable and disable 2FA requirement', :requires_admin, :skip_live_env, status_issue: 'https://gitlab.com/gitlab-org/quality/testcases/-/issues/750' do
+      context 'Enable and disable 2FA requirement', :requires_admin, :skip_live_env, testcase: 'https://gitlab.com/gitlab-org/quality/testcases/-/issues/750' do
         let!(:owner_user) do
           Resource::User.fabricate_via_api!
         end
@@ -103,10 +103,10 @@ module QA
         it_behaves_like 'audit event', ["Changed require two factor authentication from true to false", "Changed require two factor authentication from false to true"]
       end
 
-      context 'Change project creation level', status_issue: 'https://gitlab.com/gitlab-org/quality/testcases/-/issues/724' do
+      context 'Change project creation level', testcase: 'https://gitlab.com/gitlab-org/quality/testcases/-/issues/724' do
         before do
           sign_in
-          @group.visit!
+          group.visit!
           Page::Group::Menu.perform(&:click_group_general_settings_item)
           Page::Group::Settings::General.perform do |settings|
             settings.set_project_creation_level("Maintainers")

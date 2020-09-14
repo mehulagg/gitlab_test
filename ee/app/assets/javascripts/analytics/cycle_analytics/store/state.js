@@ -16,17 +16,16 @@ export default () => ({
   selectedGroup: null,
   selectedProjects: [],
   selectedStage: null,
-  selectedAuthor: null,
-  selectedMilestone: null,
-  selectedAssignees: [],
-  selectedLabels: [],
   selectedValueStream: null,
 
   currentStageEvents: [],
 
   isLoadingValueStreams: false,
   isCreatingValueStream: false,
+  isDeletingValueStream: false,
+
   createValueStreamErrors: {},
+  deleteValueStreamError: null,
 
   stages: [],
   summary: [],

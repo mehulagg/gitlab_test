@@ -3,9 +3,9 @@
 require 'spec_helper'
 
 RSpec.describe AuditEventService do
-  let(:project) { create(:project) }
-  let(:user) { create(:user, current_sign_in_ip: '192.168.68.104') }
-  let(:project_member) { create(:project_member, user: user, expires_at: 1.day.from_now) }
+  let(:project) { build_stubbed(:project) }
+  let_it_be(:user) { create(:user, current_sign_in_ip: '192.168.68.104') }
+  let_it_be(:project_member) { create(:project_member, user: user, expires_at: 1.day.from_now) }
   let(:request_ip_address) { '127.0.0.1' }
 
   let(:details) { { action: :destroy, ip_address: request_ip_address } }
@@ -13,23 +13,24 @@ RSpec.describe AuditEventService do
 
   describe '#for_member' do
     let(:event) { service.for_member(project_member).security_event }
+    let(:event_details) { event[:details] }
 
     it 'generates event' do
-      expect(event[:details][:target_details]).to eq(user.name)
+      expect(event_details[:target_details]).to eq(user.name)
     end
 
     it 'handles deleted users' do
       expect(project_member).to receive(:user).and_return(nil)
-      expect(event[:details][:target_details]).to eq('Deleted User')
+      expect(event_details[:target_details]).to eq('Deleted User')
     end
 
     context 'user access expiry' do
       let(:service) { described_class.new(nil, project, { action: :expired }) }
 
       it 'generates a system event' do
-        expect(event[:details][:remove]).to eq('user_access')
-        expect(event[:details][:system_event]).to be_truthy
-        expect(event[:details][:reason]).to include('access expired on')
+        expect(event_details[:remove]).to eq('user_access')
+        expect(event_details[:system_event]).to be_truthy
+        expect(event_details[:reason]).to include('access expired on')
       end
     end
 
@@ -37,9 +38,14 @@ RSpec.describe AuditEventService do
       let(:details) { { action: :create } }
 
       it 'stores author name', :aggregate_failures do
-        expect(event.details[:author_name]).to eq(user.name)
+        expect(event_details[:author_name]).to eq(user.name)
         expect(event.author_name).to eq(user.name)
       end
+    end
+
+    it 'generates a system event' do
+      expect(event_details[:target_type]).to eq('User')
+      expect(event.target_type).to eq('User')
     end
 
     context 'updating membership' do
@@ -68,15 +74,15 @@ RSpec.describe AuditEventService do
       end
 
       it 'does not create an event' do
-        expect(SecurityEvent).not_to receive(:create)
+        expect(AuditEvent).not_to receive(:create)
 
-        expect { service.security_event }.not_to change(SecurityEvent, :count)
+        expect { service.security_event }.not_to change(AuditEvent, :count)
       end
     end
 
     context 'licensed' do
       it 'creates an event' do
-        expect { service.security_event }.to change(SecurityEvent, :count).by(1)
+        expect { service.security_event }.to change(AuditEvent, :count).by(1)
       end
 
       context 'on a read-only instance' do
@@ -85,7 +91,7 @@ RSpec.describe AuditEventService do
         end
 
         it 'does not create an event' do
-          expect { service.security_event }.not_to change(SecurityEvent, :count)
+          expect { service.security_event }.not_to change(AuditEvent, :count)
         end
       end
     end
@@ -277,6 +283,22 @@ RSpec.describe AuditEventService do
     end
   end
 
+  describe '#for_project_group_link' do
+    let_it_be(:current_user) { create(:user) }
+    let_it_be(:project) { create(:project) }
+    let_it_be(:group) { create(:group) }
+    let_it_be(:link) { create(:project_group_link, group: group, project: project) }
+
+    let(:options) { { action: :create } }
+
+    subject(:event) { described_class.new(current_user, project, options).for_project_group_link(link).security_event }
+
+    it 'sets the target_type attribute' do
+      expect(event.details[:target_type]).to eq('Project')
+      expect(event.target_type).to eq('Project')
+    end
+  end
+
   describe '#for_user' do
     let(:author_name) { 'Administrator' }
     let(:current_user) { User.new(name: author_name) }
@@ -351,6 +373,53 @@ RSpec.describe AuditEventService do
     end
   end
 
+  describe '#for_project' do
+    let_it_be(:current_user) { create(:user, name: 'Test User') }
+    let_it_be(:project) { create(:project) }
+    let(:action) { :destroy }
+    let(:options) { { action: action } }
+
+    subject(:event) { described_class.new(current_user, project, options).for_project.security_event }
+
+    it 'sets the details attribute' do
+      expect(event.details).to eq(
+        remove: 'project',
+        author_name: 'Test User',
+        target_id: project.full_path,
+        target_type: 'Project',
+        target_details: project.full_path
+      )
+    end
+
+    it 'sets the target_type column' do
+      expect(event.target_type).to eq('Project')
+    end
+  end
+
+  describe '#for_group' do
+    let_it_be(:user) { create(:user, name: 'Test User') }
+    let_it_be(:group) { create(:group) }
+    let(:action) { :destroy }
+    let(:options) { { action: action } }
+    let(:service) { described_class.new(user, group, options).for_group }
+
+    subject(:event) { service.security_event }
+
+    it 'sets the details attribute' do
+      expect(event.details).to eq(
+        remove: 'group',
+        author_name: 'Test User',
+        target_id: group.full_path,
+        target_type: 'Group',
+        target_details: group.full_path
+      )
+    end
+
+    it 'stores target_type in a database column' do
+      expect(event.target_type).to eq('Group')
+    end
+  end
+
   describe 'license' do
     let(:event) { service.for_project.security_event }
 
@@ -402,7 +471,7 @@ RSpec.describe AuditEventService do
       end
 
       it 'logs an audit event' do
-        expect { event }.to change(AuditEvent, :count).by(1)
+        expect { event }.to change { AuditEvent.count }.by(1)
       end
 
       it 'does not have the entity_path' do

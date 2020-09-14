@@ -3,21 +3,29 @@
 require 'fast_spec_helper'
 
 RSpec.describe Security::CiConfiguration::SastBuildActions do
+  let(:default_sast_values) do
+    { "SECURE_ANALYZERS_PREFIX" => "registry.gitlab.com/gitlab-org/security-products/analyzers",
+      "SAST_EXCLUDED_PATHS" => "spec, test, tests, tmp", "SAST_ANALYZER_IMAGE_TAG" => "2",
+      "stage" => "test",
+      "SEARCH_MAX_DEPTH" => "4" }
+  end
+
+  let(:params) do
+    { 'stage' => 'security',
+      'SEARCH_MAX_DEPTH' => 1,
+      'SECURE_ANALYZERS_PREFIX' => 'new_registry',
+      'SAST_ANALYZER_IMAGE_TAG' => 2,
+      'SAST_EXCLUDED_PATHS' => 'spec,docs' }
+  end
+
   context 'with existing .gitlab-ci.yml' do
     let(:auto_devops_enabled) { false }
 
     context 'sast has not been included' do
       context 'template includes are array' do
-        let(:params) do
-          { 'stage' => 'security',
-            'SEARCH_MAX_DEPTH' => 1,
-            'SECURE_ANALYZERS_PREFIX' => 'new_registry',
-            'SAST_EXCLUDED_PATHS' => 'spec,docs' }
-        end
-
         let(:gitlab_ci_content) { existing_gitlab_ci_and_template_array_without_sast }
 
-        subject(:result) { described_class.new(auto_devops_enabled, params, gitlab_ci_content).generate }
+        subject(:result) { described_class.new(auto_devops_enabled, params, gitlab_ci_content, default_sast_values).generate }
 
         it 'generates the correct YML' do
           expect(result.first[:action]).to eq('update')
@@ -26,16 +34,9 @@ RSpec.describe Security::CiConfiguration::SastBuildActions do
       end
 
       context 'template include is not an array' do
-        let(:params) do
-          { 'stage' => 'security',
-            'SEARCH_MAX_DEPTH' => 1,
-            'SECURE_ANALYZERS_PREFIX' => 'new_registry',
-            'SAST_EXCLUDED_PATHS' => 'spec,docs' }
-        end
-
         let(:gitlab_ci_content) { existing_gitlab_ci_and_single_template_without_sast }
 
-        subject(:result) { described_class.new(auto_devops_enabled, params, gitlab_ci_content).generate }
+        subject(:result) { described_class.new(auto_devops_enabled, params, gitlab_ci_content, default_sast_values).generate }
 
         it 'generates the correct YML' do
           expect(result.first[:action]).to eq('update')
@@ -45,17 +46,9 @@ RSpec.describe Security::CiConfiguration::SastBuildActions do
     end
 
     context 'sast template include is not an array' do
-      let(:params) do
-        { 'stage' => 'security',
-          'SEARCH_MAX_DEPTH' => 1,
-          'SECURE_ANALYZERS_PREFIX' => 'localhost:5000/analyzers',
-          'SAST_ANALYZER_IMAGE_TAG' => 2,
-          'SAST_EXCLUDED_PATHS' => 'docs' }
-      end
+      let(:gitlab_ci_content) { existing_gitlab_ci_and_single_template_with_sast_and_default_stage }
 
-      let(:gitlab_ci_content) { existing_gitlab_ci_and_single_template_with_sast }
-
-      subject(:result) { described_class.new(auto_devops_enabled, params, gitlab_ci_content).generate }
+      subject(:result) { described_class.new(auto_devops_enabled, params, gitlab_ci_content, default_sast_values).generate }
 
       it 'generates the correct YML' do
         expect(result.first[:action]).to eq('update')
@@ -63,17 +56,28 @@ RSpec.describe Security::CiConfiguration::SastBuildActions do
       end
     end
 
-    context 'with an update to the stage and a variable' do
+    context 'with default values' do
+      let(:params) { default_sast_values }
+      let(:gitlab_ci_content) { existing_gitlab_ci_and_single_template_with_sast_and_default_stage }
+
+      subject(:result) { described_class.new(auto_devops_enabled, params, gitlab_ci_content, default_sast_values).generate }
+
+      it 'generates the correct YML' do
+        expect(result.first[:content]).to eq(sast_yaml_with_no_variables_set)
+      end
+    end
+
+    context 'with update stage and SEARCH_MAX_DEPTH and set SECURE_ANALYZERS_PREFIX to default' do
       let(:params) do
         { 'stage' => 'brand_new_stage',
-          'SEARCH_MAX_DEPTH' => 1,
-          'SECURE_ANALYZERS_PREFIX' => 'new_registry',
+          'SEARCH_MAX_DEPTH' => 5,
+          'SECURE_ANALYZERS_PREFIX' => 'registry.gitlab.com/gitlab-org/security-products/analyzers',
           'SAST_EXCLUDED_PATHS' => 'spec,docs' }
       end
 
       let(:gitlab_ci_content) { existing_gitlab_ci }
 
-      subject(:result) { described_class.new(auto_devops_enabled, params, gitlab_ci_content).generate }
+      subject(:result) { described_class.new(auto_devops_enabled, params, gitlab_ci_content, default_sast_values).generate }
 
       it 'generates the correct YML' do
         expect(result.first[:action]).to eq('update')
@@ -82,16 +86,9 @@ RSpec.describe Security::CiConfiguration::SastBuildActions do
     end
 
     context 'with no existing variables' do
-      let(:params) do
-        { 'stage' => 'security',
-          'SEARCH_MAX_DEPTH' => 1,
-          'SECURE_ANALYZERS_PREFIX' => 'new_registry',
-          'SAST_EXCLUDED_PATHS' => 'spec,docs' }
-      end
-
       let(:gitlab_ci_content) { existing_gitlab_ci_with_no_variables }
 
-      subject(:result) { described_class.new(auto_devops_enabled, params, gitlab_ci_content).generate }
+      subject(:result) { described_class.new(auto_devops_enabled, params, gitlab_ci_content, default_sast_values).generate }
 
       it 'generates the correct YML' do
         expect(result.first[:action]).to eq('update')
@@ -100,16 +97,9 @@ RSpec.describe Security::CiConfiguration::SastBuildActions do
     end
 
     context 'with no existing sast config' do
-      let(:params) do
-        { 'stage' => 'security',
-          'SEARCH_MAX_DEPTH' => 1,
-          'SECURE_ANALYZERS_PREFIX' => 'new_registry',
-          'SAST_EXCLUDED_PATHS' => 'spec,docs' }
-      end
-
       let(:gitlab_ci_content) { existing_gitlab_ci_with_no_sast_section }
 
-      subject(:result) { described_class.new(auto_devops_enabled, params, gitlab_ci_content).generate }
+      subject(:result) { described_class.new(auto_devops_enabled, params, gitlab_ci_content, default_sast_values).generate }
 
       it 'generates the correct YML' do
         expect(result.first[:action]).to eq('update')
@@ -118,16 +108,9 @@ RSpec.describe Security::CiConfiguration::SastBuildActions do
     end
 
     context 'with no existing sast variables' do
-      let(:params) do
-        { 'stage' => 'security',
-          'SEARCH_MAX_DEPTH' => 1,
-          'SECURE_ANALYZERS_PREFIX' => 'new_registry',
-          'SAST_EXCLUDED_PATHS' => 'spec,docs' }
-      end
-
       let(:gitlab_ci_content) { existing_gitlab_ci_with_no_sast_variables }
 
-      subject(:result) { described_class.new(auto_devops_enabled, params, gitlab_ci_content).generate }
+      subject(:result) { described_class.new(auto_devops_enabled, params, gitlab_ci_content, default_sast_values).generate }
 
       it 'generates the correct YML' do
         expect(result.first[:action]).to eq('update')
@@ -142,10 +125,10 @@ RSpec.describe Security::CiConfiguration::SastBuildActions do
        "include" => [{ "template" => "existing.yml" }] }
     end
 
-    def existing_gitlab_ci_and_single_template_with_sast
-      { "stages" => %w(test security),
+    def existing_gitlab_ci_and_single_template_with_sast_and_default_stage
+      { "stages" => %w(test),
        "variables" => { "SECURE_ANALYZERS_PREFIX" => "localhost:5000/analyzers" },
-       "sast" => { "variables" => { "SAST_ANALYZER_IMAGE_TAG" => 2, "SEARCH_MAX_DEPTH" => 1 }, "stage" => "security" },
+       "sast" => { "variables" => { "SAST_ANALYZER_IMAGE_TAG" => 2, "SEARCH_MAX_DEPTH" => 1 }, "stage" => "test" },
        "include" => { "template" => "Security/SAST.gitlab-ci.yml" } }
     end
 
@@ -177,7 +160,7 @@ RSpec.describe Security::CiConfiguration::SastBuildActions do
 
     def existing_gitlab_ci
       { "stages" => %w(test security),
-       "variables" => { "RANDOM" => "make sure this persists", "SECURE_ANALYZERS_PREFIX" => "localhost:5000/analyzers" },
+       "variables" => { "RANDOM" => "make sure this persists", "SECURE_ANALYZERS_PREFIX" => "bad_prefix" },
        "sast" => { "variables" => { "SAST_ANALYZER_IMAGE_TAG" => 2, "SEARCH_MAX_DEPTH" => 1 }, "stage" => "security" },
        "include" => [{ "template" => "Security/SAST.gitlab-ci.yml" }] }
     end
@@ -192,23 +175,15 @@ RSpec.describe Security::CiConfiguration::SastBuildActions do
       context 'with one empty parameter' do
         let(:params) { { 'SECURE_ANALYZERS_PREFIX' => '' } }
 
-        subject(:result) { described_class.new(auto_devops_enabled, params, gitlab_ci_content).generate }
+        subject(:result) { described_class.new(auto_devops_enabled, params, gitlab_ci_content, default_sast_values).generate }
 
         it 'generates the correct YML' do
-          expect(result.first[:content]).to eq(sast_yaml_with_nothing_set)
+          expect(result.first[:content]).to eq(sast_yaml_with_no_variables_set)
         end
       end
 
       context 'with all parameters' do
-        let(:params) do
-          { 'stage' => 'security',
-            'SEARCH_MAX_DEPTH' => 1,
-            'SECURE_ANALYZERS_PREFIX' => 'localhost:5000/analyzers',
-            'SAST_ANALYZER_IMAGE_TAG' => 2,
-            'SAST_EXCLUDED_PATHS' => 'docs' }
-        end
-
-        subject(:result) { described_class.new(auto_devops_enabled, params, gitlab_ci_content).generate }
+        subject(:result) { described_class.new(auto_devops_enabled, params, gitlab_ci_content, default_sast_values).generate }
 
         it 'generates the correct YML' do
           expect(result.first[:content]).to eq(sast_yaml_all_params)
@@ -218,9 +193,8 @@ RSpec.describe Security::CiConfiguration::SastBuildActions do
 
     context 'with autodevops enabled' do
       let(:auto_devops_enabled) { true }
-      let(:params) { { 'stage' => 'custom stage' } }
 
-      subject(:result) { described_class.new(auto_devops_enabled, params, gitlab_ci_content).generate }
+      subject(:result) { described_class.new(auto_devops_enabled, params, gitlab_ci_content, default_sast_values).generate }
 
       before do
         allow_any_instance_of(described_class).to receive(:auto_devops_stages).and_return(fast_auto_devops_stages)
@@ -238,7 +212,7 @@ RSpec.describe Security::CiConfiguration::SastBuildActions do
     auto_devops_template['stages']
   end
 
-  def sast_yaml_with_nothing_set
+  def sast_yaml_with_no_variables_set
     <<-CI_YML.strip_heredoc
     # You can override the included template(s) by including variable overrides
     # See https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
@@ -263,11 +237,10 @@ RSpec.describe Security::CiConfiguration::SastBuildActions do
       - test
       - security
       variables:
-        SECURE_ANALYZERS_PREFIX: localhost:5000/analyzers
+        SECURE_ANALYZERS_PREFIX: new_registry
       sast:
         variables:
-          SAST_ANALYZER_IMAGE_TAG: 2
-          SAST_EXCLUDED_PATHS: docs
+          SAST_EXCLUDED_PATHS: spec,docs
           SEARCH_MAX_DEPTH: 1
         stage: security
       include:
@@ -296,9 +269,14 @@ RSpec.describe Security::CiConfiguration::SastBuildActions do
       - incremental rollout 100%
       - performance
       - cleanup
-      - custom stage
+      - security
+      variables:
+        SECURE_ANALYZERS_PREFIX: new_registry
       sast:
-        stage: custom stage
+        variables:
+          SAST_EXCLUDED_PATHS: spec,docs
+          SEARCH_MAX_DEPTH: 1
+        stage: security
       include:
       - template: Auto-DevOps.gitlab-ci.yml
     CI_YML
@@ -404,11 +382,10 @@ RSpec.describe Security::CiConfiguration::SastBuildActions do
       - brand_new_stage
       variables:
         RANDOM: make sure this persists
-        SECURE_ANALYZERS_PREFIX: new_registry
       sast:
         variables:
           SAST_EXCLUDED_PATHS: spec,docs
-          SEARCH_MAX_DEPTH: 1
+          SEARCH_MAX_DEPTH: 5
         stage: brand_new_stage
       include:
       - template: Security/SAST.gitlab-ci.yml

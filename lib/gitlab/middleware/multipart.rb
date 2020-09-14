@@ -57,7 +57,8 @@ module Gitlab
 
           yield
         ensure
-          @open_files.each(&:close)
+          @open_files.compact
+                     .each(&:close)
         end
 
         # This function calls itself recursively
@@ -122,10 +123,11 @@ module Gitlab
 
         def allowed_paths
           [
+            Dir.tmpdir,
             ::FileUploader.root,
-            Gitlab.config.uploads.storage_path,
-            JobArtifactUploader.workhorse_upload_path,
-            LfsObjectUploader.workhorse_upload_path,
+            ::Gitlab.config.uploads.storage_path,
+            ::JobArtifactUploader.workhorse_upload_path,
+            ::LfsObjectUploader.workhorse_upload_path,
             File.join(Rails.root, 'public/uploads/tmp')
           ] + package_allowed_paths
         end
@@ -139,9 +141,9 @@ module Gitlab
         encoded_message = env.delete(RACK_ENV_KEY)
         return @app.call(env) if encoded_message.blank?
 
-        message = Gitlab::Workhorse.decode_jwt(encoded_message)[0]
+        message = ::Gitlab::Workhorse.decode_jwt(encoded_message)[0]
 
-        Handler.new(env, message).with_open_files do
+        ::Gitlab::Middleware::Multipart::Handler.new(env, message).with_open_files do
           @app.call(env)
         end
       rescue UploadedFile::InvalidPathError => e

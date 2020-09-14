@@ -35,8 +35,8 @@ module Ci
           reset_shared_runners_seconds!(namespaces)
           reset_ci_minutes_notifications!(namespaces)
         end
-      rescue ActiveRecord::ActiveRecordError
-        @errors << { count: namespaces.size, first_id: namespaces.first.id, last_id: namespaces.last.id }
+      rescue ActiveRecord::ActiveRecordError => e
+        @errors << { count: namespaces.size, first_id: namespaces.first.id, last_id: namespaces.last.id, error: e.message }
       end
 
       # This service is responsible for the logic that recalculates the extra shared runners
@@ -81,11 +81,9 @@ module Ci
 
       def reset_shared_runners_seconds!(namespaces)
         namespace_relation = NamespaceStatistics.for_namespaces(namespaces)
-        namespace_relation = namespace_relation.with_any_ci_minutes_used unless ::Gitlab::Ci::Features.reset_ci_minutes_for_all_namespaces?
         namespace_relation.update_all(shared_runners_seconds: 0, shared_runners_seconds_last_reset: Time.current)
 
         project_relation = ::ProjectStatistics.for_namespaces(namespaces)
-        project_relation = project_relation.with_any_ci_minutes_used unless ::Gitlab::Ci::Features.reset_ci_minutes_for_all_namespaces?
         project_relation.update_all(shared_runners_seconds: 0, shared_runners_seconds_last_reset: Time.current)
       end
 

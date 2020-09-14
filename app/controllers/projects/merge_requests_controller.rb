@@ -10,8 +10,10 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
   include IssuableCollections
   include RecordUserLastActivity
   include SourcegraphDecorator
+  include DiffHelper
 
   skip_before_action :merge_request, only: [:index, :bulk_update]
+  before_action :apply_diff_view_cookie!, only: [:show]
   before_action :whitelist_query_limiting, only: [:assign_related_issues, :update]
   before_action :authorize_update_issuable!, only: [:close, :edit, :update, :remove_wip, :sort]
   before_action :authorize_read_actual_head_pipeline!, only: [
@@ -25,9 +27,7 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
   before_action :authenticate_user!, only: [:assign_related_issues]
   before_action :check_user_can_push_to_source_branch!, only: [:rebase]
   before_action only: [:show] do
-    push_frontend_feature_flag(:diffs_batch_load, @project, default_enabled: true)
     push_frontend_feature_flag(:deploy_from_footer, @project, default_enabled: true)
-    push_frontend_feature_flag(:single_mr_diff_view, @project, default_enabled: true)
     push_frontend_feature_flag(:suggest_pipeline) if experiment_enabled?(:suggest_pipeline)
     push_frontend_feature_flag(:code_navigation, @project, default_enabled: true)
     push_frontend_feature_flag(:widget_visibility_polling, @project, default_enabled: true)
@@ -36,10 +36,11 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
     push_frontend_feature_flag(:multiline_comments, @project, default_enabled: true)
     push_frontend_feature_flag(:file_identifier_hash)
     push_frontend_feature_flag(:batch_suggestions, @project, default_enabled: true)
-    push_frontend_feature_flag(:auto_expand_collapsed_diffs, @project, default_enabled: true)
     push_frontend_feature_flag(:approvals_commented_by, @project, default_enabled: true)
     push_frontend_feature_flag(:hide_jump_to_next_unresolved_in_threads, default_enabled: true)
     push_frontend_feature_flag(:merge_request_widget_graphql, @project)
+    push_frontend_feature_flag(:unified_diff_lines, @project)
+    push_frontend_feature_flag(:highlight_current_diff_row, @project)
   end
 
   before_action do
@@ -427,7 +428,13 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
     Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-foss/issues/42438')
   end
 
-  def reports_response(report_comparison)
+  def reports_response(report_comparison, pipeline = nil)
+    if pipeline&.active?
+      ::Gitlab::PollingInterval.set_header(response, interval: 3000)
+
+      render json: '', status: :no_content && return
+    end
+
     case report_comparison[:status]
     when :parsing
       ::Gitlab::PollingInterval.set_header(response, interval: 3000)

@@ -115,13 +115,6 @@ export default {
     state.isSavingStageOrder = false;
     state.errorSavingStageOrder = true;
   },
-  [types.SET_SELECTED_FILTERS](state, params) {
-    const { selectedAuthor, selectedAssignees, selectedMilestone, selectedLabels } = params;
-    state.selectedAuthor = selectedAuthor;
-    state.selectedAssignees = selectedAssignees;
-    state.selectedMilestone = selectedMilestone;
-    state.selectedLabels = selectedLabels;
-  },
   [types.REQUEST_CREATE_VALUE_STREAM](state) {
     state.isCreatingValueStream = true;
     state.createValueStreamErrors = {};
@@ -134,6 +127,18 @@ export default {
     state.isCreatingValueStream = false;
     state.createValueStreamErrors = {};
   },
+  [types.REQUEST_DELETE_VALUE_STREAM](state) {
+    state.isDeletingValueStream = true;
+    state.deleteValueStreamError = null;
+  },
+  [types.RECEIVE_DELETE_VALUE_STREAM_ERROR](state, message) {
+    state.isDeletingValueStream = false;
+    state.deleteValueStreamError = message;
+  },
+  [types.RECEIVE_DELETE_VALUE_STREAM_SUCCESS](state) {
+    state.isDeletingValueStream = false;
+    state.deleteValueStreamError = null;
+  },
   [types.SET_SELECTED_VALUE_STREAM](state, streamId) {
     state.selectedValueStream = state.valueStreams?.find(({ id }) => id === streamId) || null;
   },
@@ -141,14 +146,17 @@ export default {
     state.isLoadingValueStreams = true;
     state.valueStreams = [];
   },
-  [types.RECEIVE_VALUE_STREAMS_ERROR](state) {
+  [types.RECEIVE_VALUE_STREAMS_ERROR](state, errCode) {
+    state.errCode = errCode;
     state.isLoadingValueStreams = false;
     state.valueStreams = [];
   },
   [types.RECEIVE_VALUE_STREAMS_SUCCESS](state, data) {
     state.isLoadingValueStreams = false;
-    state.valueStreams = data.sort(({ name: aName = '' }, { name: bName = '' }) => {
-      return aName.toUpperCase() > bName.toUpperCase() ? 1 : -1;
-    });
+    state.valueStreams = data
+      .map(convertObjectPropsToCamelCase)
+      .sort(({ name: aName = '' }, { name: bName = '' }) => {
+        return aName.toUpperCase() > bName.toUpperCase() ? 1 : -1;
+      });
   },
 };

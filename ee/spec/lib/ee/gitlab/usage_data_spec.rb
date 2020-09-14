@@ -28,6 +28,7 @@ RSpec.describe Gitlab::UsageData do
       create(:ci_build, name: 'sast', pipeline: pipeline)
       create(:ci_build, name: 'secret_detection', pipeline: pipeline)
       create(:ci_build, name: 'coverage_fuzzing', pipeline: pipeline)
+      create(:ci_pipeline, source: :ondemand_dast_scan, project: projects[0])
 
       create(:prometheus_alert, project: projects[0])
       create(:prometheus_alert, project: projects[0])
@@ -35,10 +36,6 @@ RSpec.describe Gitlab::UsageData do
 
       create(:service, project: projects[1], type: 'JenkinsService', active: true)
       create(:jira_service, project: projects[0], issues_enabled: true, project_key: 'GL')
-
-      create(:package, project: projects[0])
-      create(:package, project: projects[0])
-      create(:package, project: projects[1])
 
       create(:project_tracing_setting, project: projects[0])
       create(:operations_feature_flag, project: projects[0])
@@ -106,12 +103,9 @@ RSpec.describe Gitlab::UsageData do
         operations_dashboard_users_with_projects_added
         pod_logs_usages_total
         projects_jenkins_active
-        projects_jira_dvcs_cloud_active
-        projects_jira_dvcs_server_active
         projects_jira_issuelist_active
         projects_mirrored_with_pipelines_enabled
         projects_reporting_ci_cd_back_to_github
-        projects_with_packages
         projects_with_prometheus_alerts
         projects_with_tracing_enabled
         sast_jobs
@@ -129,7 +123,6 @@ RSpec.describe Gitlab::UsageData do
 
       expect(count_data[:projects_jenkins_active]).to eq(1)
       expect(count_data[:projects_with_prometheus_alerts]).to eq(2)
-      expect(count_data[:projects_with_packages]).to eq(2)
       expect(count_data[:feature_flags]).to eq(1)
       expect(count_data[:status_page_projects]).to eq(1)
       expect(count_data[:status_page_issues]).to eq(1)
@@ -153,6 +146,7 @@ RSpec.describe Gitlab::UsageData do
       expect(count_data[:sast_jobs]).to eq(1)
       expect(count_data[:secret_detection_jobs]).to eq(1)
       expect(count_data[:coverage_fuzzing_jobs]).to eq(1)
+      expect(count_data[:dast_on_demand_pipelines]).to eq(1)
     end
 
     it 'gathers group overview preferences usage data', :aggregate_failures do
@@ -256,15 +250,6 @@ RSpec.describe Gitlab::UsageData do
     it 'bases counts on active users', :aggregate_failures do
       expect(subject[:operations_dashboard_default_dashboard]).to eq(1)
       expect(subject[:operations_dashboard_users_with_projects_added]).to eq(2)
-    end
-  end
-
-  describe '.uncached_data' do
-    describe '.usage_activity_by_stage' do
-      it 'includes usage_activity_by_stage data' do
-        expect(described_class.uncached_data).to include(:usage_activity_by_stage)
-        expect(described_class.uncached_data).to include(:usage_activity_by_stage_monthly)
-      end
     end
   end
 
@@ -425,21 +410,6 @@ RSpec.describe Gitlab::UsageData do
     end
   end
 
-  describe 'usage_activity_by_stage_package' do
-    it 'includes accurate usage_activity_by_stage data' do
-      for_defined_days_back do
-        create(:project, packages: [create(:package)] )
-      end
-
-      expect(described_class.usage_activity_by_stage_package({})).to eq(
-        projects_with_packages: 2
-      )
-      expect(described_class.usage_activity_by_stage_package(described_class.last_28_days_time_period)).to eq(
-        projects_with_packages: 1
-      )
-    end
-  end
-
   describe 'usage_activity_by_stage_plan' do
     it 'includes accurate usage_activity_by_stage data' do
       stub_licensed_features(board_assignee_lists: true, board_milestone_lists: true)
@@ -452,27 +422,19 @@ RSpec.describe Gitlab::UsageData do
         create(:milestone_list, board: board, milestone: create(:milestone, project: project), user: user)
         create(:list, board: board, label: create(:label, project: project), user: user)
         create(:epic, author: user)
-        create(:jira_service, :jira_cloud_service, active: true, project: create(:project, :jira_dvcs_cloud, creator: user))
-        create(:jira_service, active: true, project: create(:project, :jira_dvcs_server, creator: user))
       end
 
       expect(described_class.usage_activity_by_stage_plan({})).to include(
         assignee_lists: 2,
         epics: 2,
         label_lists: 2,
-        milestone_lists: 2,
-        projects_jira_active: 2,
-        projects_jira_dvcs_cloud_active: 2,
-        projects_jira_dvcs_server_active: 2
+        milestone_lists: 2
       )
       expect(described_class.usage_activity_by_stage_plan(described_class.last_28_days_time_period)).to include(
         assignee_lists: 1,
         epics: 1,
         label_lists: 1,
-        milestone_lists: 1,
-        projects_jira_active: 1,
-        projects_jira_dvcs_cloud_active: 1,
-        projects_jira_dvcs_server_active: 1
+        milestone_lists: 1
       )
     end
   end
@@ -520,11 +482,17 @@ RSpec.describe Gitlab::UsageData do
         user_sast_jobs: 1,
         user_secret_detection_jobs: 1,
         sast_pipeline: 0,
+        sast_scans: 0,
         dependency_scanning_pipeline: 0,
+        dependency_scanning_scans: 0,
         container_scanning_pipeline: 0,
+        container_scanning_scans: 0,
         dast_pipeline: 0,
+        dast_scans: 0,
         secret_detection_pipeline: 0,
+        secret_detection_scans: 0,
         coverage_fuzzing_pipeline: 0,
+        coverage_fuzzing_scans: 0,
         user_unique_users_all_secure_scanners: 1
       )
     end
@@ -532,6 +500,7 @@ RSpec.describe Gitlab::UsageData do
     it 'counts pipelines that have security jobs' do
       for_defined_days_back do
         ds_build = create(:ci_build, name: 'retirejs', user: user, status: 'success')
+        ds_bundler_audit_build = create(:ci_build, :failed, user: user, name: 'retirejs')
         ds_bundler_build = create(:ci_build, name: 'bundler-audit', user: user, commit_id: ds_build.pipeline.id, status: 'success')
         secret_detection_build = create(:ci_build, name: 'secret', user: user, commit_id: ds_build.pipeline.id, status: 'success')
         cs_build = create(:ci_build, name: 'klar', user: user, status: 'success')
@@ -541,6 +510,7 @@ RSpec.describe Gitlab::UsageData do
         create(:security_scan, build: secret_detection_build, scan_type: 'secret_detection')
         create(:security_scan, build: cs_build, scan_type: 'container_scanning')
         create(:security_scan, build: sast_build, scan_type: 'sast')
+        create(:security_scan, build: ds_bundler_audit_build, scan_type: 'dependency_scanning')
       end
 
       expect(described_class.usage_activity_by_stage_secure({})).to include(
@@ -551,7 +521,13 @@ RSpec.describe Gitlab::UsageData do
         user_license_management_jobs: 1,
         user_sast_jobs: 1,
         user_secret_detection_jobs: 1,
-        user_unique_users_all_secure_scanners: 1
+        user_unique_users_all_secure_scanners: 1,
+        sast_scans: 0,
+        dependency_scanning_scans: 4,
+        container_scanning_scans: 2,
+        dast_scans: 0,
+        secret_detection_scans: 2,
+        coverage_fuzzing_scans: 0
       )
 
       expect(described_class.usage_activity_by_stage_secure(described_class.last_28_days_time_period)).to include(
@@ -568,7 +544,13 @@ RSpec.describe Gitlab::UsageData do
         dast_pipeline: 0,
         secret_detection_pipeline: 1,
         coverage_fuzzing_pipeline: 0,
-        user_unique_users_all_secure_scanners: 1
+        user_unique_users_all_secure_scanners: 1,
+        sast_scans: 0,
+        dependency_scanning_scans: 2,
+        container_scanning_scans: 1,
+        dast_scans: 0,
+        secret_detection_scans: 1,
+        coverage_fuzzing_scans: 0
       )
     end
 
@@ -589,11 +571,17 @@ RSpec.describe Gitlab::UsageData do
         user_sast_jobs: 2,
         user_secret_detection_jobs: 1,
         sast_pipeline: 0,
+        sast_scans: 0,
         dependency_scanning_pipeline: 0,
+        dependency_scanning_scans: 0,
         container_scanning_pipeline: 0,
+        container_scanning_scans: 0,
         dast_pipeline: 0,
+        dast_scans: 0,
         secret_detection_pipeline: 0,
+        secret_detection_scans: 0,
         coverage_fuzzing_pipeline: 0,
+        coverage_fuzzing_scans: 0,
         user_unique_users_all_secure_scanners: 3
       )
     end
@@ -613,12 +601,48 @@ RSpec.describe Gitlab::UsageData do
         user_sast_jobs: 1,
         user_secret_detection_jobs: 1,
         sast_pipeline: 0,
+        sast_scans: 0,
         dependency_scanning_pipeline: 0,
+        dependency_scanning_scans: 0,
         container_scanning_pipeline: 0,
+        container_scanning_scans: 0,
         dast_pipeline: 0,
+        dast_scans: 0,
         secret_detection_pipeline: 0,
+        secret_detection_scans: 0,
         coverage_fuzzing_pipeline: 0,
+        coverage_fuzzing_scans: 0,
         user_unique_users_all_secure_scanners: 1
+      )
+    end
+
+    it 'has to resort to 0 for counting license scan' do
+      allow(Gitlab::Database::BatchCount).to receive(:batch_distinct_count).and_raise(ActiveRecord::StatementInvalid)
+      allow(Gitlab::Database::BatchCount).to receive(:batch_count).and_raise(ActiveRecord::StatementInvalid)
+      allow(::Ci::Build).to receive(:distinct_count_by).and_raise(ActiveRecord::StatementInvalid)
+
+      expect(described_class.usage_activity_by_stage_secure(described_class.last_28_days_time_period)).to eq(
+        user_preferences_group_overview_security_dashboard: -1,
+        user_container_scanning_jobs: -1,
+        user_coverage_fuzzing_jobs: -1,
+        user_dast_jobs: -1,
+        user_dependency_scanning_jobs: -1,
+        user_license_management_jobs: -1,
+        user_sast_jobs: -1,
+        user_secret_detection_jobs: -1,
+        sast_pipeline: -1,
+        sast_scans: -1,
+        dependency_scanning_pipeline: -1,
+        dependency_scanning_scans: -1,
+        container_scanning_pipeline: -1,
+        container_scanning_scans: -1,
+        dast_pipeline: -1,
+        dast_scans: -1,
+        secret_detection_pipeline: -1,
+        secret_detection_scans: -1,
+        coverage_fuzzing_pipeline: -1,
+        coverage_fuzzing_scans: -1,
+        user_unique_users_all_secure_scanners: -1
       )
     end
   end

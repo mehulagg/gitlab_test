@@ -1,13 +1,32 @@
-import { sourceContent as content, sourceContentBody as body } from '../mock_data';
+import {
+  sourceContentYAML as content,
+  sourceContentHeaderYAML as yamlFrontMatter,
+  sourceContentHeaderObjYAML as yamlFrontMatterObj,
+  sourceContentBody as body,
+} from '../mock_data';
 
 import parseSourceFile from '~/static_site_editor/services/parse_source_file';
 
-describe('parseSourceFile', () => {
+describe('static_site_editor/services/parse_source_file', () => {
   const contentComplex = [content, content, content].join('');
   const complexBody = [body, content, content].join('');
   const edit = 'and more';
   const newContent = `${content} ${edit}`;
   const newContentComplex = `${contentComplex} ${edit}`;
+
+  describe('unmodified front matter', () => {
+    it.each`
+      parsedSource                       | targetFrontMatter
+      ${parseSourceFile(content)}        | ${yamlFrontMatter}
+      ${parseSourceFile(contentComplex)} | ${yamlFrontMatter}
+    `(
+      'returns $targetFrontMatter when frontMatter queried',
+      ({ parsedSource, targetFrontMatter }) => {
+        expect(targetFrontMatter).toContain(parsedSource.matter());
+        expect(parsedSource.matterObject()).toEqual(yamlFrontMatterObj);
+      },
+    );
+  });
 
   describe('unmodified content', () => {
     it.each`
@@ -34,6 +53,33 @@ describe('parseSourceFile', () => {
     );
   });
 
+  describe('modified front matter', () => {
+    const newYamlFrontMatter = '---\nnewKey: newVal\n---';
+    const newYamlFrontMatterObj = { newKey: 'newVal' };
+    const contentWithNewFrontMatter = content.replace(yamlFrontMatter, newYamlFrontMatter);
+    const contentComplexWithNewFrontMatter = contentComplex.replace(
+      yamlFrontMatter,
+      newYamlFrontMatter,
+    );
+
+    it.each`
+      parsedSource                       | targetContent
+      ${parseSourceFile(content)}        | ${contentWithNewFrontMatter}
+      ${parseSourceFile(contentComplex)} | ${contentComplexWithNewFrontMatter}
+    `(
+      'returns the correct front matter and modified content',
+      ({ parsedSource, targetContent }) => {
+        expect(yamlFrontMatter).toContain(parsedSource.matter());
+
+        parsedSource.syncMatter(newYamlFrontMatter);
+
+        expect(parsedSource.matter()).toBe(newYamlFrontMatter);
+        expect(parsedSource.matterObject()).toEqual(newYamlFrontMatterObj);
+        expect(parsedSource.content()).toBe(targetContent);
+      },
+    );
+  });
+
   describe('modified content', () => {
     const newBody = `${body} ${edit}`;
     const newComplexBody = `${complexBody} ${edit}`;
@@ -47,7 +93,7 @@ describe('parseSourceFile', () => {
     `(
       'returns $isModified after a $targetRaw sync',
       ({ parsedSource, isModified, targetRaw, targetBody }) => {
-        parsedSource.sync(targetRaw);
+        parsedSource.syncContent(targetRaw);
 
         expect(parsedSource.isModified()).toBe(isModified);
         expect(parsedSource.content()).toBe(targetRaw);

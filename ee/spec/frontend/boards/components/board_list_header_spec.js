@@ -6,6 +6,7 @@ import AxiosMockAdapter from 'axios-mock-adapter';
 import BoardListHeader from 'ee/boards/components/board_list_header.vue';
 import { TEST_HOST } from 'helpers/test_constants';
 import { listObj } from 'jest/boards/mock_data';
+import getters from 'ee/boards/stores/getters';
 import List from '~/boards/models/list';
 import { ListType, inactiveId } from '~/boards/constants';
 import axios from '~/lib/utils/axios_utils';
@@ -28,7 +29,7 @@ describe('Board List Header Component', () => {
     window.gon = {};
     axiosMock = new AxiosMockAdapter(axios);
     axiosMock.onGet(`${TEST_HOST}/lists/1/issues`).reply(200, { issues: [] });
-    store = new Vuex.Store({ state: { activeId: inactiveId } });
+    store = new Vuex.Store({ state: { activeId: inactiveId }, getters });
     jest.spyOn(store, 'dispatch').mockImplementation();
   });
 
@@ -157,7 +158,7 @@ describe('Board List Header Component', () => {
       it('when collapsed, it displays info icon', () => {
         createComponent({ isSwimlanesHeader: true, collapsed: true });
 
-        expect(wrapper.contains('.board-header-collapsed-info-icon')).toBe(true);
+        expect(wrapper.find('.board-header-collapsed-info-icon').exists()).toBe(true);
       });
     });
   });

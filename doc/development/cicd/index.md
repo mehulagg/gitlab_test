@@ -25,7 +25,7 @@ On the left side we have the events that can trigger a pipeline based on various
 - The [Web API](../../api/pipelines.md#create-a-new-pipeline).
 - A user clicking the "Run Pipeline" button in the UI.
 - When a [merge request is created or updated](../../ci/merge_request_pipelines/index.md#pipelines-for-merge-requests).
-- When an MR is added to a [Merge Train](../../ci/merge_request_pipelines/pipelines_for_merged_results/merge_trains/index.md#merge-trains-premium).
+- When an MR is added to a [Merge Train](../../ci/merge_request_pipelines/pipelines_for_merged_results/merge_trains/index.md#merge-trains).
 - A [scheduled pipeline](../../ci/pipelines/schedules.md#pipeline-schedules).
 - When project is [subscribed to an upstream project](../../ci/multi_project_pipelines.md#trigger-a-pipeline-when-an-upstream-project-is-rebuilt).
 - When [Auto DevOps](../../topics/autodevops/index.md) is enabled.
@@ -58,7 +58,7 @@ successfully or fail. Each status transition for job within a pipeline triggers 
 looks for the next jobs to be transitioned towards completion. While doing that, `ProcessPipelineService`
 updates the status of jobs, stages and the overall pipeline.
 
-On the right side of the diagram we have a list of [Runners](../../ci/runners/README.md#configuring-gitlab-runners)
+On the right side of the diagram we have a list of [Runners](../../ci/runners/README.md)
 connected to the GitLab instance. These can be Shared Runners, Group Runners or Project-specific Runners.
 The communication between Runners and the Rails server occurs through a set of API endpoints, grouped as
 the `Runner API Gateway`.
@@ -74,7 +74,7 @@ that need to be stored. Also, a job may depend on artifacts from previous jobs i
 case the Runner will download them using a dedicated API endpoint.
 
 Artifacts are stored in object storage, while metadata is kept in the database. An important example of artifacts
-is reports (JUnit, SAST, DAST, etc.) which are parsed and rendered in the merge request.
+are reports (JUnit, SAST, DAST, etc.) which are parsed and rendered in the merge request.
 
 Job status transitions are not all automated. A user may run [manual jobs](../../ci/yaml/README.md#whenmanual), cancel a pipeline, retry
 specific failed jobs or the entire pipeline. Anything that
@@ -100,7 +100,7 @@ A job with the `created` state won't be seen by the Runner yet. To make it possi
 When the Runner is connected, it requests the next `pending` job to run by polling the server continuously.
 
 NOTE: **Note:**
-API endpoints used by the Runner to interact with GitLab are defined in [`lib/api/runner.rb`](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/api/runner.rb)
+API endpoints used by the Runner to interact with GitLab are defined in [`lib/api/ci/runner.rb`](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/api/ci/runner.rb)
 
 After the server receives the request it selects a `pending` job based on the [`Ci::RegisterJobService` algorithm](#ciregisterjobservice), then assigns and sends the job to the Runner.
 

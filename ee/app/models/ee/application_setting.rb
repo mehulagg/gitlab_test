@@ -152,15 +152,20 @@ module EE
       end
     end
 
-    def invalidate_elasticsearch_indexes_project_cache!
-      ::Gitlab::Elastic::ElasticsearchEnabledCache.delete(:project)
-    end
-
     def elasticsearch_indexes_namespace?(namespace)
       return false unless elasticsearch_indexing?
       return true unless elasticsearch_limit_indexing?
 
-      elasticsearch_limited_namespaces.exists?(namespace.id)
+      elasticsearch_limited_namespaces.exists?(namespace.id) unless ::Feature.enabled?(:elasticsearch_indexes_namespace_cache, default_enabled: true)
+
+      ::Gitlab::Elastic::ElasticsearchEnabledCache.fetch(:namespace, namespace.id) do
+        elasticsearch_limited_namespaces.exists?(namespace.id)
+      end
+    end
+
+    def invalidate_elasticsearch_indexes_cache!
+      ::Gitlab::Elastic::ElasticsearchEnabledCache.delete(:project)
+      ::Gitlab::Elastic::ElasticsearchEnabledCache.delete(:namespace)
     end
 
     def elasticsearch_limited_projects(ignore_namespaces = false)
@@ -239,7 +244,7 @@ module EE
       when Project
         elasticsearch_indexes_project?(scope)
       else
-        false # Never use elasticsearch for the global scope when limiting is on
+        ::Feature.enabled?(:advanced_global_search_for_limited_indexing)
       end
     end
 
@@ -306,7 +311,7 @@ module EE
     end
 
     def compliance_frameworks=(values)
-      cleaned = Array.wrap(values).sort.uniq
+      cleaned = Array.wrap(values).reject(&:blank?).sort.uniq
 
       write_attribute(:compliance_frameworks, cleaned)
     end

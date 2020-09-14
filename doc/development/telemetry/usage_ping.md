@@ -37,7 +37,7 @@ More useful links:
 
 - The main purpose of Usage Ping is to build a better GitLab. Data about how GitLab is used is collected to better understand feature/stage adoption and usage, which helps us understand how GitLab is adding value and helps our team better understand the reasons why people use GitLab and with this knowledge we're able to make better product decisions.
 - As a benefit of having the usage ping active, GitLab lets you analyze the users’ activities over time of your GitLab installation.
-- As a benefit of having the usage ping active, GitLab provides you with The DevOps Score,which gives you an overview of your entire instance’s adoption of Concurrent DevOps from planning to monitoring.
+- As a benefit of having the usage ping active, GitLab provides you with The DevOps Report,which gives you an overview of your entire instance’s adoption of Concurrent DevOps from planning to monitoring.
 - You will get better, more proactive support. (assuming that our TAMs and support organization used the data to deliver more value)
 - You will get insight and advice into how to get the most value out of your investment in GitLab. Wouldn't you want to know that a number of features or values are not being adopted in your organization?
 - You get a report that illustrates how you compare against other similar organizations (anonymized), with specific advice and recommendations on how to improve your DevOps processes.
@@ -108,7 +108,7 @@ sequenceDiagram
     S3 Bucket->>Snowflake DW: Import data
     Snowflake DW->>Snowflake DW: Transform data using dbt
     Snowflake DW->>Sisense Dashboards: Data available for querying
-    Versions Application->>GitLab Instance: DevOps Score (Conversational Development Index)
+    Versions Application->>GitLab Instance: DevOps Report (Conversational Development Index)
 ```
 
 ## How Usage Ping works
@@ -236,7 +236,7 @@ Implemented using Redis methods [PFADD](https://redis.io/commands/pfadd) and [PF
    - name: i_compliance_credential_inventory
      category: compliance
      redis_slot: compliance
-     expiry: 42 # 6 weeks
+     expiry: 42  # 6 weeks
      aggregation: weekly
    ```
 
@@ -256,7 +256,90 @@ Implemented using Redis methods [PFADD](https://redis.io/commands/pfadd) and [PF
      keys for data storage. For `daily` we keep a key for metric per day of the year, for `weekly` we
      keep a key for metric per week of the year.
 
-1. Track event using `Gitlab::UsageDataCounters::HLLRedisCounter.track_event(entity_id, event_name)`.
+1. Track event in controller using `RedisTracking` module with `track_redis_hll_event(*controller_actions, name:, feature:, feature_default_enabled: false)`.
+
+   Arguments:
+
+   - `controller_actions`: controller actions we want to track.
+   - `name`: event name.
+   - `feature`: feature name, all metrics we track should be under feature flag.
+   - `feature_default_enabled`: feature flag is disabled by default, set to `true` for it to be enabled by default.
+
+   Example usage:
+
+   ```ruby
+   # controller
+   class ProjectsController < Projects::ApplicationController
+     include RedisTracking
+
+     skip_before_action :authenticate_user!, only: :show
+     track_redis_hll_event :index, :show, name: 'i_analytics_dev_ops_score', feature: :g_compliance_dashboard_feature, feature_default_enabled: true
+
+     def index
+       render html: 'index'
+     end
+
+    def new
+      render html: 'new'
+    end
+
+    def show
+      render html: 'show'
+    end
+   end
+   ```
+
+1. Track event in API using `increment_unique_values(event_name, values)` helper method.
+
+   In order to be able to track the event, Usage Ping must be enabled and the event feature `usage_data_<event_name>` must be enabled.
+
+   Arguments:
+
+   - `event_name`: event name.
+   - `values`: values counted, one value or array of values.
+
+   Example usage:
+
+   ```ruby
+   get ':id/registry/repositories' do
+     repositories = ContainerRepositoriesFinder.new(
+       user: current_user, subject: user_group
+     ).execute
+
+     increment_unique_values('i_list_repositories', current_user.id)
+
+     present paginate(repositories), with: Entities::ContainerRegistry::Repository, tags: params[:tags], tags_count: params[:tags_count]
+   end
+   ```
+
+1. Track event using `UsageData` API
+
+   Increment unique users count using Redis HLL, for given event name.
+
+   Tracking events using the `UsageData` API requires the `usage_data_api` feature flag to be enabled, which is disabled by default.
+
+   API requests are protected by checking for a valid CSRF token.
+
+   In order to be able to increment the values the related feature `usage_data<event_name>` should be enabled.
+
+   ```plaintext
+   POST /usage_data/increment_unique_users
+   ```
+
+   | Attribute | Type | Required | Description |
+   | :-------- | :--- | :------- | :---------- |
+   | `event` | string | yes | The event name it should be tracked |
+
+   Response
+
+   Return 200 if tracking failed for any reason.
+
+   - `200` if event was tracked or any errors
+   - `400 Bad request` if event parameter is missing
+   - `401 Unauthorized` if user is not authenticated
+   - `403 Forbidden` for invalid CSRF token provided
+
+1. Track event using base module `Gitlab::UsageDataCounters::HLLRedisCounter.track_event(entity_id, event_name)`.
 
    Arguments:
 
@@ -401,8 +484,6 @@ When adding, changing, or updating metrics, please update the [Event Dictionary'
 ### 5. Add new metric to Versions Application
 
 Check if new metrics need to be added to the Versions Application. See `usage_data` [schema](https://gitlab.com/gitlab-services/version-gitlab-com/-/blob/master/db/schema.rb#L147) and usage data [parameters accepted](https://gitlab.com/gitlab-services/version-gitlab-com/-/blob/master/app/services/usage_ping.rb). Any metrics added under the `counts` key are saved in the `counts` column.
-
-For further details, see the [Process to add additional instrumentation to the Usage Ping](https://about.gitlab.com/handbook/product/product-processes/#process-to-add-additional-instrumentation-to-the-usage-ping).
 
 ### 6. Add the feature label
 

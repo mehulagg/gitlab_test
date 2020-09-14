@@ -6,7 +6,14 @@
 
 // TODO: need to move this component to graphql - https://gitlab.com/gitlab-org/gitlab/-/issues/221246
 import { escape, isNumber } from 'lodash';
-import { GlLink, GlTooltipDirective as GlTooltip, GlSprintf, GlLabel, GlIcon } from '@gitlab/ui';
+import {
+  GlLink,
+  GlTooltipDirective as GlTooltip,
+  GlSprintf,
+  GlLabel,
+  GlIcon,
+  GlSafeHtmlDirective as SafeHtml,
+} from '@gitlab/ui';
 import jiraLogo from '@gitlab/svgs/dist/illustrations/logos/jira.svg';
 import {
   dateInWords,
@@ -41,6 +48,7 @@ export default {
   },
   directives: {
     GlTooltip,
+    SafeHtml,
   },
   mixins: [glFeatureFlagsMixin()],
   props: {
@@ -157,7 +165,7 @@ export default {
           value: this.issuable.merge_requests_count,
           title: __('Related merge requests'),
           dataTestId: 'merge-requests',
-          class: 'js-merge-requests icon-merge-request-unmerged',
+          class: 'js-merge-requests',
           icon: 'merge-request',
         },
         {
@@ -298,9 +306,9 @@ export default {
           <span class="js-ref-path gl-mr-4 mr-sm-0">
             <span
               v-if="isJiraIssue"
+              v-safe-html="jiraLogo"
               class="svg-container jira-logo-container"
               data-testid="jira-logo"
-              v-html="jiraLogo"
             ></span>
             {{ referencePath }}
           </span>

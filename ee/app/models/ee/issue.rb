@@ -23,10 +23,7 @@ module EE
       scope :order_weight_asc, -> { reorder ::Gitlab::Database.nulls_last_order('weight') }
       scope :no_epic, -> { left_outer_joins(:epic_issue).where(epic_issues: { epic_id: nil }) }
       scope :any_epic, -> { joins(:epic_issue) }
-      scope :in_epics, ->(epics) do
-        issue_ids = EpicIssue.where(epic_id: epics).select(:issue_id)
-        id_in(issue_ids)
-      end
+      scope :in_epics, ->(epics) { joins(:epic_issue).where(epic_issues: { epic_id: epics }) }
       scope :no_iteration, -> { where(sprint_id: nil) }
       scope :any_iteration, -> { where.not(sprint_id: nil) }
       scope :in_iterations, ->(iterations) { where(sprint_id: iterations) }
@@ -114,7 +111,7 @@ module EE
 
     # override
     def weight
-      super if supports_weight?
+      super if weight_available?
     end
 
     # override
@@ -135,8 +132,13 @@ module EE
       changed_fields && (changed_fields & ELASTICSEARCH_PERMISSION_TRACKED_FIELDS).any?
     end
 
+    override :supports_weight?
     def supports_weight?
-      project&.feature_available?(:issue_weights)
+      !incident?
+    end
+
+    def supports_iterations?
+      !incident?
     end
 
     def can_assign_epic?(user)

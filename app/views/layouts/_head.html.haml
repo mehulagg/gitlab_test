@@ -1,6 +1,6 @@
 - page_description brand_title unless page_description
 
--# Needs a redirect on the client side since it's using an anchor to distuingish
+-# Needs a redirect on the client side since it's using an anchor to distinguish
 -# between sign in and registration. We need to inline the JS to not render
 -# anything from this page beforehand.
 -# Part of an experiment to build a new sign up flow. Will be removed again with
@@ -49,6 +49,8 @@
     = stylesheet_link_tag_defer "application_dark"
   - else
     = stylesheet_link_tag_defer "application"
+  - unless use_startup_css?
+    = stylesheet_link_tag_defer "themes/theme_#{user_application_theme_name}"
   = stylesheet_link_tag "disable_animations", media: "all" if Rails.env.test? || Gitlab.config.gitlab['disable_animations']
   = stylesheet_link_tag_defer 'performance_bar' if performance_bar_enabled?
 
@@ -68,7 +70,8 @@
     = yield :page_specific_javascripts
 
   = webpack_controller_bundle_tags
-  = webpack_bundle_tag "chrome_84_icon_fix" if browser.chrome?([">=84", "<85"]) || browser.edge?([">=84", "<85"])
+  = webpack_bundle_tag 'performance_bar' if performance_bar_enabled?
+  = webpack_bundle_tag "chrome_84_icon_fix" if browser.chrome?([">=84", "<84.0.4147.125"]) || browser.edge?([">=84", "<84.0.522.59"])
 
   = yield :project_javascripts
 

@@ -1,6 +1,4 @@
 ---
-last_updated: 2020-01-06
-type: reference, howto
 stage: Release
 group: Release Management
 info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
@@ -190,7 +188,7 @@ pages:
       - public
 ```
 
-Then configure the pipeline to run the job for the master branch only.
+Then configure the pipeline to run the job for the `master` branch only.
 
 ```yaml
 image: ruby:2.7

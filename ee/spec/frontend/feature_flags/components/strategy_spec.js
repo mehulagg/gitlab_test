@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import { GlFormSelect, GlFormTextarea, GlFormInput, GlToken, GlDeprecatedButton } from '@gitlab/ui';
+import { GlFormSelect, GlFormTextarea, GlFormInput, GlToken, GlButton } from '@gitlab/ui';
 import {
   PERCENT_ROLLOUT_GROUP_ID,
   ROLLOUT_STRATEGY_ALL_USERS,
@@ -102,8 +102,16 @@ describe('Feature flags strategy', () => {
     });
 
     it('should not show inputs for other parameters', () => {
-      expect(findStrategy().contains(GlFormTextarea)).toBe(false);
-      expect(findStrategy().contains(GlFormInput)).toBe(false);
+      expect(
+        findStrategy()
+          .find(GlFormTextarea)
+          .exists(),
+      ).toBe(false);
+      expect(
+        findStrategy()
+          .find(GlFormInput)
+          .exists(),
+      ).toBe(false);
     });
 
     it('should show the input for userListId with the correct value', () => {
@@ -204,7 +212,7 @@ describe('Feature flags strategy', () => {
       });
 
       it('should emit a delete if the delete button is clicked', () => {
-        wrapper.find(GlDeprecatedButton).vm.$emit('click');
+        wrapper.find(GlButton).vm.$emit('click');
         expect(wrapper.emitted('delete')).toEqual([[]]);
       });
     });

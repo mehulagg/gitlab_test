@@ -296,6 +296,21 @@ gitlab:setup:
     paths:
       - log/*.log
 
+db:backup_and_restore:
+  extends: .db-job-base
+  variables:
+    SETUP_DB: "false"
+    GITLAB_ASSUME_YES: "1"
+  script:
+    - . scripts/prepare_build.sh
+    - bundle exec rake db:drop db:create db:structure:load db:seed_fu
+    - mkdir -p tmp/tests/public/uploads tmp/tests/{artifacts,pages,lfs-objects,registry}
+    - bundle exec rake gitlab:backup:create
+    - date
+    - bundle exec rake gitlab:backup:restore
+  rules:
+    - changes: ["lib/backup/**/*"]
+
 rspec:coverage:
   extends:
     - .rails-job-base
@@ -493,18 +508,17 @@ rspec-ee system pg12 geo:
 rspec foss-impact:
   extends:
     - .rspec-base-pg11-as-if-foss
-    - .rails:rules:ee-mr-only
+    - .rails:rules:rspec-foss-impact
+  needs: ["setup-test-env", "retrieve-tests-metadata", "compile-test-assets as-if-foss", "detect-tests as-if-foss"]
   script:
-    - install_gitlab_gem
     - run_timed_command "scripts/gitaly-test-build"
     - run_timed_command "scripts/gitaly-test-spawn"
     - source scripts/rspec_helpers.sh
-    - tooling/bin/find_foss_tests tmp/matching_foss_tests.txt
-    - rspec_matched_tests tmp/matching_foss_tests.txt "--tag ~quarantine"
+    - rspec_matched_foss_tests tmp/matching_foss_tests.txt "--tag ~quarantine"
   artifacts:
     expire_in: 7d
     paths:
-      - tmp/matching_foss_tests.txt
       - tmp/capybara/
+
 # EE: Canonical MR pipelines
 ##################################################

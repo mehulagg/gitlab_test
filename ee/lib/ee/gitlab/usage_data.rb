@@ -116,9 +116,13 @@ module EE
 
           # handle license rename https://gitlab.com/gitlab-org/gitlab/issues/8911
           license_scan_count = results.delete(:license_scanning_jobs)
-          results[:license_management_jobs] += license_scan_count > 0 ? license_scan_count : 0
+          results[:license_management_jobs] += license_scan_count > 0 ? license_scan_count : 0 if license_scan_count.is_a?(Integer)
 
           results
+        end
+
+        def on_demand_pipelines_usage
+          { dast_on_demand_pipelines: count(::Ci::Pipeline.ondemand_dast_scan) }
         end
 
         # Note: when adding a preference, check if it's mapped to an attribute of a User model. If so, name
@@ -174,7 +178,6 @@ module EE
                 merge_requests_with_required_codeowners: distinct_count(::ApprovalMergeRequestRule.code_owner_approval_required, :merge_request_id),
                 projects_mirrored_with_pipelines_enabled: count(::Project.mirrored_with_enabled_pipelines),
                 projects_reporting_ci_cd_back_to_github: count(::GithubService.active),
-                projects_with_packages: distinct_count(::Packages::Package, :project_id),
                 projects_with_tracing_enabled: count(ProjectTracingSetting),
                 status_page_projects: count(::StatusPage::ProjectSetting.enabled),
                 status_page_issues: count(::Issue.on_status_page, start: issue_minimum_id, finish: issue_maximum_id),
@@ -182,6 +185,7 @@ module EE
               },
               requirements_counts,
               security_products_usage,
+              on_demand_pipelines_usage,
               epics_deepest_relationship_level,
               operations_dashboard_usage)
           end
@@ -190,8 +194,6 @@ module EE
         override :jira_usage
         def jira_usage
           super.merge(
-            projects_jira_dvcs_cloud_active: count(ProjectFeatureUsage.with_jira_dvcs_integration_enabled),
-            projects_jira_dvcs_server_active: count(ProjectFeatureUsage.with_jira_dvcs_integration_enabled(cloud: false)),
             projects_jira_issuelist_active: projects_jira_issuelist_active
           )
         end
@@ -267,13 +269,6 @@ module EE
           })
         end
 
-        override :usage_activity_by_stage_package
-        def usage_activity_by_stage_package(time_period)
-          super.merge({
-            projects_with_packages: distinct_count(::Project.with_packages.where(time_period), :creator_id)
-          })
-        end
-
         # Omitted because no user, creator or author associated: `boards`, `labels`, `milestones`, `uploads`
         # Omitted because too expensive: `epics_deepest_relationship_level`
         # Omitted because of encrypted properties: `projects_jira_cloud_active`, `projects_jira_server_active`
@@ -283,10 +278,7 @@ module EE
             assignee_lists: distinct_count(::List.assignee.where(time_period), :user_id),
             epics: distinct_count(::Epic.where(time_period), :author_id),
             label_lists: distinct_count(::List.label.where(time_period), :user_id),
-            milestone_lists: distinct_count(::List.milestone.where(time_period), :user_id),
-            projects_jira_active: distinct_count(::Project.with_active_jira_services.where(time_period), :creator_id),
-            projects_jira_dvcs_cloud_active: distinct_count(::Project.with_active_jira_services.with_jira_dvcs_cloud.where(time_period), :creator_id),
-            projects_jira_dvcs_server_active: distinct_count(::Project.with_active_jira_services.with_jira_dvcs_server.where(time_period), :creator_id)
+            milestone_lists: distinct_count(::List.milestone.where(time_period), :user_id)
           })
         end
 
@@ -325,13 +317,14 @@ module EE
           end
 
           results.merge!(count_secure_pipelines(time_period))
+          results.merge!(count_secure_jobs(time_period))
 
           results[:"#{prefix}unique_users_all_secure_scanners"] = distinct_count(::Ci::Build.where(name: SECURE_PRODUCT_TYPES.keys).where(time_period), :user_id)
 
           # handle license rename https://gitlab.com/gitlab-org/gitlab/issues/8911
           combined_license_key = "#{prefix}license_management_jobs".to_sym
           license_scan_count = results.delete("#{prefix}license_scanning_jobs".to_sym)
-          results[combined_license_key] += license_scan_count > 0 ? license_scan_count : 0
+          results[combined_license_key] += license_scan_count > 0 ? license_scan_count : 0 if license_scan_count.is_a?(Integer)
 
           super.merge(results)
         end
@@ -342,6 +335,20 @@ module EE
         # rubocop:disable CodeReuse/ActiveRecord
         # rubocop: disable UsageData/LargeTable
         # rubocop: disable UsageData/DistinctCountByLargeForeignKey
+        def count_secure_jobs(time_period)
+          start = ::Security::Scan.minimum(:build_id)
+          finish = ::Security::Scan.maximum(:build_id)
+
+          {}.tap do |secure_jobs|
+            ::Security::Scan.scan_types.each do |name, scan_type|
+              secure_jobs["#{name}_scans".to_sym] = count(::Security::Scan.joins(:build)
+                .where(scan_type: scan_type)
+                .merge(::CommitStatus.latest.success)
+                .where(time_period), :build_id, start: start, finish: finish)
+            end
+          end
+        end
+
         def count_secure_pipelines(time_period)
           return {} if time_period.blank?
 
@@ -393,7 +400,6 @@ module EE
         # rubocop:enable CodeReuse/ActiveRecord
 
         # rubocop:disable CodeReuse/ActiveRecord
-        # rubocop: disable UsageData/DistinctCountByLargeForeignKey
         def projects_with_sectional_code_owner_rules(time_period)
           distinct_count(
             ::ApprovalMergeRequestRule
@@ -406,7 +412,6 @@ module EE
             finish: project_maximum_id
           )
         end
-        # rubocop: enable UsageData/DistinctCountByLargeForeignKey
         # rubocop:enable CodeReuse/ActiveRecord
       end
     end

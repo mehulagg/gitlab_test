@@ -1,5 +1,5 @@
 <script>
-import { escape, debounce } from 'lodash';
+import { debounce } from 'lodash';
 import {
   GlIcon,
   GlLoadingIcon,
@@ -8,6 +8,7 @@ import {
   GlNewDropdownHeader as GlDropdownHeader,
   GlNewDropdownItem as GlDropdownItem,
   GlSearchBoxByType,
+  GlSafeHtmlDirective as SafeHtml,
 } from '@gitlab/ui';
 import { s__, __ } from '~/locale';
 import Api from '~/api';
@@ -24,6 +25,9 @@ export default {
     GlDropdownHeader,
     GlDropdownItem,
     GlSearchBoxByType,
+  },
+  directives: {
+    SafeHtml,
   },
   props: {
     label: {
@@ -104,9 +108,7 @@ export default {
       const parts = fullName.split('/');
       const lastPart = parts.length - 1;
       return parts
-        .map((part, idx) =>
-          idx === lastPart ? `<strong>${escape(part.trim())}</strong>` : escape(part.trim()),
-        )
+        .map((part, idx) => (idx === lastPart ? `<strong>${part.trim()}</strong>` : part.trim()))
         .join(' / ');
     },
   },
@@ -150,7 +152,10 @@ export default {
           :src="group.avatar_url"
           shape="rect"
         />
-        <div class="js-group-path align-middle" v-html="formatGroupPath(group.full_name)"></div>
+        <div
+          v-safe-html="formatGroupPath(group.full_name)"
+          class="js-group-path align-middle"
+        ></div>
       </div>
     </gl-dropdown-item>
     <gl-dropdown-item v-show="noResultsAvailable" class="gl-pointer-events-none text-secondary">{{

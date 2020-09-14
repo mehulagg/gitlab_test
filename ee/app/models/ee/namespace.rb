@@ -31,7 +31,7 @@ module EE
       has_one :gitlab_subscription
       has_one :elasticsearch_indexed_namespace
 
-      accepts_nested_attributes_for :gitlab_subscription
+      accepts_nested_attributes_for :gitlab_subscription, update_only: true
       accepts_nested_attributes_for :namespace_limit
 
       scope :include_gitlab_subscription, -> { includes(:gitlab_subscription) }
@@ -40,6 +40,7 @@ module EE
       scope :eligible_for_trial, -> do
         left_joins(gitlab_subscription: :hosted_plan)
           .where(
+            parent_id: nil,
             gitlab_subscriptions: { trial: [nil, false], trial_ends_on: [nil] },
             plans: { name: [nil, *::Plan::PLANS_ELIGIBLE_FOR_TRIAL] }
           )
@@ -125,7 +126,7 @@ module EE
     #   it. This is the case when we're ready to enable a feature for anyone
     #   with the correct license.
     def beta_feature_available?(feature)
-      ::Feature.enabled?(feature) ? feature_available?(feature) : ::Feature.enabled?(feature, self)
+      ::Feature.enabled?(feature, type: :licensed) ? feature_available?(feature) : ::Feature.enabled?(feature, self, type: :licensed)
     end
     alias_method :alpha_feature_available?, :beta_feature_available?
 
@@ -135,7 +136,7 @@ module EE
     override :feature_available?
     def feature_available?(feature)
       # This feature might not be behind a feature flag at all, so default to true
-      return false unless ::Feature.enabled?(feature, default_enabled: true)
+      return false unless ::Feature.enabled?(feature, type: :licensed, default_enabled: true)
 
       available_features = strong_memoize(:feature_available) do
         Hash.new do |h, f|
@@ -147,8 +148,6 @@ module EE
     end
 
     def feature_available_in_plan?(feature)
-      return true if ::License.promo_feature_available?(feature)
-
       available_features = strong_memoize(:features_available_in_plan) do
         Hash.new do |h, f|
           h[f] = (plans.map(&:name) & self.class.plans_with_feature(f)).any?

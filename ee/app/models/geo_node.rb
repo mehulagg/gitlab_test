@@ -232,7 +232,7 @@ class GeoNode < ApplicationRecord
     # be called in an initializer and we don't want other callbacks
     # to mess with uninitialized dependencies.
     if clone_url_prefix_changed?
-      Rails.logger.info "Geo: modified clone_url_prefix to #{clone_url_prefix}" # rubocop:disable Gitlab/RailsLogger
+      Gitlab::AppLogger.info "Geo: modified clone_url_prefix to #{clone_url_prefix}"
       update_column(:clone_url_prefix, clone_url_prefix)
     end
   end
@@ -244,8 +244,21 @@ class GeoNode < ApplicationRecord
     ContainerRepository.project_id_in(projects)
   end
 
+  def container_repositories_include?(container_repository_id)
+    return false unless Geo::ContainerRepositoryRegistry.replication_enabled?
+    return true unless selective_sync?
+
+    container_repositories.where(id: container_repository_id).exists?
+  end
+
   def designs
     projects.with_designs
+  end
+
+  def designs_include?(project_id)
+    return true unless selective_sync?
+
+    designs.where(id: project_id).exists?
   end
 
   def lfs_objects

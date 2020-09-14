@@ -62,11 +62,11 @@ RSpec.describe Projects::FeatureFlagsController do
     subject { get(:index, params: view_params, format: :json) }
 
     let!(:feature_flag_active) do
-      create(:operations_feature_flag, project: project, active: true)
+      create(:operations_feature_flag, project: project, active: true, name: 'feature_flag_a')
     end
 
     let!(:feature_flag_inactive) do
-      create(:operations_feature_flag, project: project, active: false)
+      create(:operations_feature_flag, project: project, active: false, name: 'feature_flag_b')
     end
 
     it 'returns all feature flags as json response' do
@@ -219,7 +219,7 @@ RSpec.describe Projects::FeatureFlagsController do
 
     context 'with version 1 and 2 feature flags' do
       let!(:new_version_feature_flag) do
-        create(:operations_feature_flag, :new_version_flag, project: project)
+        create(:operations_feature_flag, :new_version_flag, project: project, name: 'feature_flag_c')
       end
 
       it 'returns all feature flags as json response' do
@@ -915,7 +915,10 @@ RSpec.describe Projects::FeatureFlagsController do
     end
 
     before do
-      stub_feature_flags(feature_flags_legacy_read_only: false)
+      stub_feature_flags(
+        feature_flags_legacy_read_only: false,
+        feature_flags_legacy_read_only_override: false
+      )
     end
 
     subject { put(:update, params: params, format: :json) }
@@ -1305,6 +1308,18 @@ RSpec.describe Projects::FeatureFlagsController do
 
         expect(response).to have_gitlab_http_status(:bad_request)
         expect(json_response['message']).to eq(["Legacy feature flags are read-only"])
+      end
+
+      it 'updates the flag if the legacy read-only override is enabled for a particular project' do
+        stub_feature_flags(
+          feature_flags_legacy_read_only: true,
+          feature_flags_legacy_read_only_override: project
+        )
+
+        put_request(feature_flag, name: 'ci_new_live_trace')
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(json_response['name']).to eq('ci_new_live_trace')
       end
     end
 

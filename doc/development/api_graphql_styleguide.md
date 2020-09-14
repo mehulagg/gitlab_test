@@ -142,7 +142,10 @@ def reply_id
 end
 ```
 
-### Connection Types
+### Connection types
+
+TIP: **Tip:**
+For specifics on implementation, see [Pagination implementation](#pagination-implementation).
 
 GraphQL uses [cursor based
 pagination](https://graphql.org/learn/pagination/#pagination-and-edges)
@@ -1168,6 +1171,10 @@ tested for within the unit test of `Types::MutationType`. The merge request
 can be referred to as an example of this, including the method of testing
 deprecated aliased mutations.
 
+## Pagination implementation
+
+To learn more, visit [GraphQL pagination](graphql_guide/pagination.md).
+
 ## Validating arguments
 
 For validations of single arguments, use the
@@ -1236,6 +1243,9 @@ be used to test if the query renders valid results.
 Using the `GraphqlHelpers#all_graphql_fields_for`-helper, a query
 including all available fields can be constructed. This makes it easy
 to add a test rendering all possible fields for a query.
+
+If you're adding a field to a query that supports pagination and sorting,
+visit [Testing](graphql_guide/pagination.md#testing) for details.
 
 To test GraphQL mutation requests, `GraphqlHelpers` provides 2
 helpers: `graphql_mutation` which takes the name of the mutation, and
@@ -1323,7 +1333,7 @@ end
 More about complexity:
 [GraphQL Ruby documentation](https://graphql-ruby.org/queries/complexity_and_depth.html).
 
-## Documentation and Schema
+## Documentation and schema
 
 Our schema is located at `app/graphql/gitlab_schema.rb`.
 See the [schema reference](../api/graphql/reference/index.md) for details.

@@ -36,7 +36,7 @@ Required approvals enable multiple use cases:
   database, and so on, for all proposed code changes.
 - Designating [Code Owners as eligible approvers](#code-owners-as-eligible-approvers),
   determined by the files changed in a merge request.
-- [Requiring approval from a security team](#security-approvals-in-merge-requests-ultimate)
+- [Requiring approval from a security team](#security-approvals-in-merge-requests)
   before merging code that could introduce a vulnerability.**(ULTIMATE)**
 
 ### Approval Rules
@@ -52,7 +52,7 @@ minimum number of required approvers can still be set in the [project settings f
 
 You can opt to define one single rule to approve a merge request among the available rules
 or choose more than one. Single approval rules are available in GitLab Starter and higher tiers,
-while [multiple approval rules](#multiple-approval-rules-premium) are available in
+while [multiple approval rules](#multiple-approval-rules) are available in
 [GitLab Premium](https://about.gitlab.com/pricing/) and above.
 
 NOTE: **Note:**
@@ -60,6 +60,8 @@ On GitLab.com, you can add a group as an approver if you're a member of that gro
 group is public.
 
 #### Eligible Approvers
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/10294) in [GitLab Starter](https://about.gitlab.com/pricing/) 13.3, when an eligible approver comments on a merge request, it appears in the **Commented by** column of the Approvals widget.
 
 The following users can approve merge requests:
 
@@ -84,8 +86,7 @@ if [**Prevent author approval**](#allowing-merge-request-authors-to-approve-thei
 and [**Prevent committers approval**](#prevent-approval-of-merge-requests-by-their-committers) (disabled by default)
 are enabled on the project settings.
 
-[Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/10294) in [GitLab Starter](https://about.gitlab.com/pricing/) 13.3,
-when an eligible approver comments on a merge request, it appears in the **Commented by** column of the Approvals widget,
+When an eligible approver comments on a merge request, it appears in the **Commented by** column of the Approvals widget,
 indicating who has engaged in the merge request review. Authors and reviewers can also easily identify who they should reach out
 to if they have any questions or inputs about the content of the merge request.
 
@@ -118,7 +119,7 @@ users with Developer or higher permissions, as well as by Code Owners,
 indistinguishably.
 
 Alternatively, you can **require**
-[Code Owner's approvals for Protected Branches](../protected_branches.md#protected-branches-approval-by-code-owners-premium). **(PREMIUM)**
+[Code Owner's approvals for Protected Branches](../protected_branches.md#protected-branches-approval-by-code-owners). **(PREMIUM)**
 
 #### Adding / editing a default approval rule
 
@@ -204,7 +205,7 @@ Alternatively, you can select a very specific protected branch from the **Target
 
 ![Scoped to Protected Branch](img/scoped_to_protected_branch_v12_8.png)
 
-To enable this configuration, see [Code Owner’s approvals for protected branches](../protected_branches.md#protected-branches-approval-by-code-owners-premium).
+To enable this configuration, see [Code Owner’s approvals for protected branches](../protected_branches.md#protected-branches-approval-by-code-owners).
 
 ### Adding or removing an approval
 
@@ -242,9 +243,9 @@ The project settings for Merge request approvals are found by going to
 
 #### Prevent overriding default approvals
 
-By default, users are able to edit the approval rules in merge requests. If disabled,
-the approval rules for all new merge requests will be determined by the
-[default approval rules](#adding--editing-a-default-approval-rule). To disable this feature:
+Regardless of the approval rules you choose for your project, users can edit them in every merge
+request, overriding the rules you set as [default](#adding--editing-a-default-approval-rule).
+To prevent that from happening:
 
 1. Uncheck the **Can override approvers and approvals required per merge request** checkbox.
 1. Click **Save changes**.
@@ -267,13 +268,14 @@ from the UI. However, approvals will be reset if the target branch is changed.
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/3349) in [GitLab Starter](https://about.gitlab.com/pricing/) 11.3.
 
-You can allow merge request authors to self-approve merge requests. Authors
-also need to be included in the approvers list in order to be able to
-approve their merge request. To enable this feature:
+By default, projects are configured to prevent merge requests from being approved by
+their own authors. To change this setting:
 
-1. Uncheck the **Prevent approval of merge requests by merge request author** checkbox,
-   which is enabled by default.
+1. Go to your project's **Settings > General**, expand **Merge request approvals**.
+1. Uncheck the **Prevent approval of merge requests by merge request author** checkbox.
 1. Click **Save changes**.
+
+Note that users can edit the approval rules in every merge request and override pre-defined settings unless it's set [**not to allow** overrides](#prevent-overriding-default-approvals).
 
 #### Prevent approval of merge requests by their committers
 

@@ -292,8 +292,10 @@ module IssuablesHelper
 
     {
       hasClosingMergeRequest: issuable.merge_requests_count(current_user) != 0,
+      issueType: issuable.issue_type,
       zoomMeetingUrl: ZoomMeeting.canonical_meeting_url(issuable),
-      sentryIssueIdentifier: SentryIssue.find_by(issue: issuable)&.sentry_issue_identifier # rubocop:disable CodeReuse/ActiveRecord
+      sentryIssueIdentifier: SentryIssue.find_by(issue: issuable)&.sentry_issue_identifier, # rubocop:disable CodeReuse/ActiveRecord
+      iid: issuable.iid.to_s
     }
   end
 
@@ -301,8 +303,8 @@ module IssuablesHelper
     return { groupPath: parent.path } if parent.is_a?(Group)
 
     {
-        projectPath: ref_project.path,
-        projectNamespace: ref_project.namespace.full_path
+      projectPath: ref_project.path,
+      projectNamespace: ref_project.namespace.full_path
     }
   end
 
@@ -464,6 +466,7 @@ module IssuablesHelper
       rootPath: root_path,
       fullPath: issuable[:project_full_path],
       iid: issuable[:iid],
+      severity: issuable[:severity],
       timeTrackingLimitToHours: Gitlab::CurrentSettings.time_tracking_limit_to_hours
     }
   end

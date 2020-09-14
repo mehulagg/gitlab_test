@@ -3,14 +3,11 @@
 module Projects
   class DastProfilesController < Projects::ApplicationController
     before_action :authorize_read_on_demand_scans!
-
-    def index
+    before_action do
+      push_frontend_feature_flag(:security_on_demand_scans_scanner_profiles, project, default_enabled: false)
     end
 
-    private
-
-    def authorize_read_on_demand_scans!
-      access_denied! unless can?(current_user, :read_on_demand_scans, project)
+    def index
     end
   end
 end

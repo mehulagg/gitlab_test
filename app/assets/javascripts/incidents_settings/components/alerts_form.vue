@@ -34,6 +34,7 @@ export default {
       createIssueEnabled: this.alertSettings.createIssue,
       issueTemplate: this.alertSettings.issueTemplateKey,
       sendEmailEnabled: this.alertSettings.sendEmail,
+      autoCloseIncident: this.alertSettings.autoCloseIncident,
       loading: false,
     };
   },
@@ -49,6 +50,7 @@ export default {
         create_issue: this.createIssueEnabled,
         issue_template_key: this.issueTemplate,
         send_email: this.sendEmailEnabled,
+        auto_close_incident: this.autoCloseIncident,
       };
     },
   },
@@ -121,6 +123,11 @@ export default {
       <gl-form-group class="gl-pl-0 gl-mb-5">
         <gl-form-checkbox v-model="sendEmailEnabled">
           <span>{{ $options.i18n.sendEmail.label }}</span>
+        </gl-form-checkbox>
+      </gl-form-group>
+      <gl-form-group class="gl-pl-0 gl-mb-5">
+        <gl-form-checkbox v-model="autoCloseIncident">
+          <span>{{ $options.i18n.autoCloseIncidents.label }}</span>
         </gl-form-checkbox>
       </gl-form-group>
       <div class="gl-display-flex gl-justify-content-end">

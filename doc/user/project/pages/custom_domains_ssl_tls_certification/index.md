@@ -1,6 +1,4 @@
 ---
-last_updated: 2020-07-25
-type: reference, howto
 disqus_identifier: 'https://docs.gitlab.com/ee/user/project/pages/getting_started_part_three.html'
 stage: Release
 group: Release Management
@@ -100,7 +98,7 @@ as it most likely won't work if you set an [`MX` record](dns_concepts.md#mx-reco
 
 Subdomains (`subdomain.example.com`) require:
 
-- A DNS [CNAME record](dns_concepts.md#cname-record) record pointing your subdomain to the Pages server.
+- A DNS [CNAME record](dns_concepts.md#cname-record) pointing your subdomain to the Pages server.
 - A DNS [TXT record](dns_concepts.md#txt-record) to verify your domain's ownership.
 
 | From                                                    | DNS Record | To                    |

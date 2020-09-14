@@ -238,12 +238,13 @@ this, replace value of the `POSTGRESQL_SERVER_ADDRESS` with corresponding IP or 
 address of the PgBouncer instance.
 
 This documentation doesn't provide PgBouncer installation instructions,
-you can:
+but you can:
 
 - Find instructions on the [official website](https://www.pgbouncer.org/install.html).
 - Use a [Docker image](https://hub.docker.com/r/edoburu/pgbouncer/).
 
-In addition to base PgBouncer configuration options, set the following values:
+In addition to the base PgBouncer configuration options, set the following values in
+your `pgbouncer.ini` file:
 
 - The [Praefect PostgreSQL database](#postgresql) in the `[databases]` section:
 
@@ -274,6 +275,8 @@ PostgreSQL instances. Otherwise you should change the configuration parameter
 `praefect['database_port']` for each Praefect instance to the correct value.
 
 ### Praefect
+
+> [Introduced](https://gitlab.com/gitlab-org/gitaly/-/issues/2634) in GitLab 13.4, Praefect nodes can no longer be designated as `primary`.
 
 NOTE: **Note:**
 If there are multiple Praefect nodes, complete these steps for **each** node.
@@ -379,7 +382,7 @@ application server, or a Gitaly node.
    CAUTION: **Caution:**
    If you have data on an already existing storage called
    `default`, you should configure the virtual storage with another name and
-   [migrate the data to the Praefect storage](#migrating-existing-repositories-to-praefect)
+   [migrate the data to the Gitaly Cluster storage](#migrate-existing-repositories-to-gitaly-cluster)
    afterwards.
 
    Replace `PRAEFECT_INTERNAL_TOKEN` with a strong secret, which will be used by
@@ -391,11 +394,6 @@ application server, or a Gitaly node.
    More Gitaly nodes can be added to the cluster to increase the number of
    replicas. More clusters can also be added for very large GitLab instances.
 
-   NOTE: **Note:**
-   The `gitaly-1` node is currently denoted the primary. This
-   can be used to manually fail from one node to another. This will be removed
-   in the [future](https://gitlab.com/gitlab-org/gitaly/-/issues/2634).
-
    ```ruby
    # Name of storage hash must match storage name in git_data_dirs on GitLab
    # server ('praefect') and in git_data_dirs on Gitaly nodes ('gitaly-1')
@@ -404,7 +402,6 @@ application server, or a Gitaly node.
        'gitaly-1' => {
          'address' => 'tcp://GITALY_HOST:8075',
          'token'   => 'PRAEFECT_INTERNAL_TOKEN',
-         'primary' => true
        },
        'gitaly-2' => {
          'address' => 'tcp://GITALY_HOST:8075',
@@ -802,7 +799,8 @@ Particular attention should be shown to:
 
    CAUTION: **Caution:**
    If you have existing data stored on the default Gitaly storage,
-   you should [migrate the data your Praefect storage first](#migrating-existing-repositories-to-praefect).
+   you should [migrate the data your Gitaly Cluster storage](#migrate-existing-repositories-to-gitaly-cluster)
+   first.
 
    ```ruby
    gitaly['enable'] = false
@@ -944,6 +942,9 @@ cluster.
 
 ## Distributed reads
 
+> - Introduced in GitLab 13.1 in [beta](https://about.gitlab.com/handbook/product/gitlab-the-product/#alpha-beta-ga) with feature flag `gitaly_distributed_reads` set to disabled.
+> - [Made generally available](https://gitlab.com/gitlab-org/gitaly/-/issues/2951) in GitLab 13.3.
+
 Praefect supports distribution of read operations across Gitaly nodes that are
 configured for the virtual node.
 
@@ -991,8 +992,12 @@ information, see the [strong consistency epic](https://gitlab.com/groups/gitlab-
 
 To enable strong consistency:
 
-- In GitLab 13.3 and later, reference transactions are enabled by default with
-  a primary-wins strategy. This strategy causes all transactions to succeed for
+- In GitLab 13.4 and later, the strong consistency voting strategy has been
+  improved. Instead of requiring all nodes to agree, only the primary and half
+  of the secondaries need to agree. To enable this strategy, disable the
+  `:gitaly_reference_transactions_primary_wins` feature flag.
+- In GitLab 13.3, reference transactions are enabled by default with a
+  primary-wins strategy. This strategy causes all transactions to succeed for
   the primary and thus does not ensure strong consistency. To enable strong
   consistency, disable the `:gitaly_reference_transactions_primary_wins`
   feature flag.
@@ -1035,11 +1040,6 @@ current primary node is found to be unhealthy.
   will cause Praefect nodes to elect a new primary, monitor its health,
   and elect a new primary if the current one has not been reachable in
   10 seconds by a majority of the Praefect nodes.
-- **Manual:** Automatic failover is disabled. The primary node can be
-  reconfigured in `/etc/gitlab/gitlab.rb` on the Praefect node. Modify the
-  `praefect['virtual_storages']` field by moving the `primary = true` to promote
-  a different Gitaly node to primary. In the steps above, `gitaly-1` was set to
-  the primary. Requires `praefect['failover_enabled'] = false` in the configuration.
 - **Memory:** Enabled by setting `praefect['failover_election_strategy'] = 'local'`
   in `/etc/gitlab/gitlab.rb` on the Praefect node. If a sufficient number of health
   checks fail for the current primary backend Gitaly node, and new primary will
@@ -1227,17 +1227,30 @@ The command will return a list of repositories that were found to be
 inconsistent against the current primary. Each of these inconsistencies will
 also be logged with an accompanying replication job ID.
 
-## Migrating existing repositories to Praefect
+## Migrate existing repositories to Gitaly Cluster
 
-If your GitLab instance already has repositories, these won't be migrated
-automatically.
+If your GitLab instance already has repositories on single Gitaly nodes, these aren't migrated to
+Gitaly Cluster automatically.
 
 Repositories may be moved from one storage location using the [Project repository storage moves API](../../api/project_repository_storage_moves.md):
 
-```shell
-curl --request POST --header "Private-Token: <your_access_token>" --header "Content-Type: application/json" \
---data '{"destination_storage_name":"praefect"}' "https://gitlab.example.com/api/v4/projects/123/repository_storage_moves"
-```
+To move repositories to Gitaly Cluster:
+
+1. [Schedule a move](../../api/project_repository_storage_moves.md#schedule-a-repository-storage-move-for-a-project)
+   for the first repository using the API. For example:
+
+   ```shell
+   curl --request POST --header "Private-Token: <your_access_token>" --header "Content-Type: application/json" \
+   --data '{"destination_storage_name":"praefect"}' "https://gitlab.example.com/api/v4/projects/123/repository_storage_moves"
+   ```
+
+1. Using the ID that is returned, [query the repository move](../../api/project_repository_storage_moves.md#get-a-single-repository-storage-move-for-a-project)
+   using the API. The query indicates either:
+   - The move has completed successfully. The `state` field is `finished`.
+   - The move is in progress. Re-query the repository move until it completes successfully.
+   - The move has failed. Most failures are temporary and are solved by rescheduling the move.
+
+1. Once the move is successful, repeat these steps for all repositories for your projects.
 
 ## Debugging Praefect
 

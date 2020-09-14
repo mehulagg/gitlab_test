@@ -37,6 +37,7 @@ class IssuableFinder
   include FinderMethods
   include CreatedAtFilter
   include Gitlab::Utils::StrongMemoize
+  prepend OptimizedIssuableLabelFilter
 
   requires_cross_project_access unless: -> { params.project? }
 
@@ -103,8 +104,8 @@ class IssuableFinder
     items = filter_negated_items(items)
 
     # This has to be last as we use a CTE as an optimization fence
-    # for counts by passing the force_cte param and enabling the
-    # attempt_group_search_optimizations feature flag
+    # for counts by passing the force_cte param and passing the
+    # attempt_group_search_optimizations param
     # https://www.postgresql.org/docs/current/static/queries-with.html
     items = by_search(items)
 
@@ -229,13 +230,11 @@ class IssuableFinder
   end
 
   def attempt_group_search_optimizations?
-    params[:attempt_group_search_optimizations] &&
-      Feature.enabled?(:attempt_group_search_optimizations, default_enabled: true)
+    params[:attempt_group_search_optimizations]
   end
 
   def attempt_project_search_optimizations?
-    params[:attempt_project_search_optimizations] &&
-      Feature.enabled?(:attempt_project_search_optimizations, default_enabled: true)
+    params[:attempt_project_search_optimizations]
   end
 
   def count_key(value)

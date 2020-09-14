@@ -70,47 +70,11 @@ describe('Cycle analytics getters', () => {
     });
   });
 
-  describe('currentGroupParentPath', () => {
-    const fullPath = 'cool-beans';
-    const parentId = 'subgroup/parent/id';
-
-    describe('with a subgroup', () => {
-      it('returns the parentId value of the sub group', () => {
-        state = {
-          selectedGroup: {
-            fullPath,
-            parentId,
-          },
-        };
-
-        expect(getters.currentGroupParentPath(state)).toEqual(parentId);
-      });
-    });
-
-    describe('with a parent group', () => {
-      it('returns the fullPath value of the group', () => {
-        const res = getters.currentGroupParentPath(
-          {
-            selectedGroup: {
-              fullPath,
-            },
-          },
-          {
-            ...getters,
-            currentGroupPath: fullPath,
-          },
-        );
-
-        expect(res).toEqual(fullPath);
-      });
-    });
-  });
-
   describe('cycleAnalyticsRequestParams', () => {
     const selectedAuthor = 'Gohan';
     const selectedMilestone = 'SSJ4';
-    const selectedAssignees = ['krillin', 'gotenks'];
-    const selectedLabels = ['cell saga', 'buu saga'];
+    const selectedAssigneeList = ['krillin', 'gotenks'];
+    const selectedLabelList = ['cell saga', 'buu saga'];
 
     beforeEach(() => {
       const fullPath = 'cool-beans';
@@ -121,10 +85,12 @@ describe('Cycle analytics getters', () => {
         startDate,
         endDate,
         selectedProjects,
-        selectedAuthor,
-        selectedMilestone,
-        selectedAssignees,
-        selectedLabels,
+        filters: {
+          authors: { selected: selectedAuthor },
+          milestones: { selected: selectedMilestone },
+          assignees: { selectedList: selectedAssigneeList },
+          labels: { selectedList: selectedLabelList },
+        },
       };
     });
 
@@ -135,8 +101,8 @@ describe('Cycle analytics getters', () => {
       ${'project_ids'}       | ${[1, 2]}
       ${'author_username'}   | ${selectedAuthor}
       ${'milestone_title'}   | ${selectedMilestone}
-      ${'assignee_username'} | ${selectedAssignees}
-      ${'label_name'}        | ${selectedLabels}
+      ${'assignee_username'} | ${selectedAssigneeList}
+      ${'label_name'}        | ${selectedLabelList}
     `('should return the $param with value $value', ({ param, value }) => {
       expect(
         getters.cycleAnalyticsRequestParams(state, { selectedProjectIds: [1, 2] }),
@@ -146,9 +112,9 @@ describe('Cycle analytics getters', () => {
     });
 
     it.each`
-      param                  | stateKey               | value
-      ${'assignee_username'} | ${'selectedAssignees'} | ${[]}
-      ${'label_name'}        | ${'selectedLabels'}    | ${[]}
+      param                  | stateKey                  | value
+      ${'assignee_username'} | ${'selectedAssigneeList'} | ${[]}
+      ${'label_name'}        | ${'selectedLabelList'}    | ${[]}
     `('should not return the $param when $stateKey=$value', ({ param, stateKey, value }) => {
       expect(
         getters.cycleAnalyticsRequestParams(

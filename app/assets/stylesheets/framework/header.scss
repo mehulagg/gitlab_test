@@ -235,9 +235,8 @@
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
 
-        i {
+        svg {
           color: $orange-500;
-          font-size: 20px;
         }
       }
     }
@@ -463,7 +462,7 @@
     }
 
     &.merge-requests-count {
-      background-color: $orange-600;
+      background-color: $orange-500;
     }
 
     &.todos-count {

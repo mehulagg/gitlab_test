@@ -3,6 +3,7 @@ import boardsStoreEE from 'ee/boards/stores/boards_store_ee';
 import actions from 'ee/boards/stores/actions';
 import * as types from 'ee/boards/stores/mutation_types';
 import testAction from 'helpers/vuex_action_helper';
+import { ListType } from '~/boards/constants';
 
 jest.mock('axios');
 
@@ -11,6 +12,44 @@ const expectNotImplemented = action => {
     expect(action).toThrow(new Error('Not implemented!'));
   });
 };
+
+describe('setFilters', () => {
+  it('should commit mutation SET_FILTERS, updates epicId with global id', done => {
+    const state = {
+      filters: {},
+    };
+
+    const filters = { labelName: 'label', epicId: 1 };
+    const updatedFilters = { labelName: 'label', epicId: 'gid://gitlab/Epic/1' };
+
+    testAction(
+      actions.setFilters,
+      filters,
+      state,
+      [{ type: types.SET_FILTERS, payload: updatedFilters }],
+      [],
+      done,
+    );
+  });
+
+  it('should commit mutation SET_FILTERS, updates epicWildcardId', done => {
+    const state = {
+      filters: {},
+    };
+
+    const filters = { labelName: 'label', epicId: 'None' };
+    const updatedFilters = { labelName: 'label', epicWildcardId: 'NONE' };
+
+    testAction(
+      actions.setFilters,
+      filters,
+      state,
+      [{ type: types.SET_FILTERS, payload: updatedFilters }],
+      [],
+      done,
+    );
+  });
+});
 
 describe('setShowLabels', () => {
   it('should commit mutation SET_SHOW_LABELS', done => {
@@ -53,6 +92,34 @@ describe('updateListWipLimit', () => {
         { list: { max_issue_count: maxIssueCount } },
       );
     });
+  });
+});
+
+describe('showPromotionList', () => {
+  it('should dispatch addList action when conditions showPromotion is true', done => {
+    const state = {
+      endpoints: { fullPath: 'gitlab-org', boardId: '1' },
+      boardType: 'group',
+      disabled: false,
+      boardLists: [{ type: 'backlog' }, { type: 'closed' }],
+      showPromotion: true,
+    };
+
+    const promotionList = {
+      id: 'promotion',
+      listType: ListType.promotion,
+      title: 'Improve Issue Boards',
+      position: 0,
+    };
+
+    testAction(
+      actions.showPromotionList,
+      {},
+      state,
+      [],
+      [{ type: 'addList', payload: promotionList }],
+      done,
+    );
   });
 });
 

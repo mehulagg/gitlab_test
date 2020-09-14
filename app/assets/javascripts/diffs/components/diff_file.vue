@@ -1,4 +1,5 @@
 <script>
+/* eslint-disable vue/no-v-html */
 import { mapActions, mapGetters, mapState } from 'vuex';
 import { escape } from 'lodash';
 import { GlLoadingIcon } from '@gitlab/ui';
@@ -93,11 +94,7 @@ export default {
     },
     'file.file_hash': {
       handler: function watchFileHash() {
-        if (
-          this.glFeatures.autoExpandCollapsedDiffs &&
-          this.viewDiffsFileByFile &&
-          this.file.viewer.collapsed
-        ) {
+        if (this.viewDiffsFileByFile && this.file.viewer.collapsed) {
           this.isCollapsed = false;
           this.handleLoadCollapsedDiff();
         } else {
@@ -107,7 +104,7 @@ export default {
       immediate: true,
     },
     'file.viewer.collapsed': function setIsCollapsed(newVal) {
-      if (!this.viewDiffsFileByFile && !this.glFeatures.autoExpandCollapsedDiffs) {
+      if (!this.viewDiffsFileByFile) {
         this.isCollapsed = newVal;
       }
     },

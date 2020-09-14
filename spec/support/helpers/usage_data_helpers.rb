@@ -88,6 +88,8 @@ module UsageDataHelpers
       projects_jira_active
       projects_jira_server_active
       projects_jira_cloud_active
+      projects_jira_dvcs_cloud_active
+      projects_jira_dvcs_server_active
       projects_slack_active
       projects_slack_slash_commands_active
       projects_custom_issue_tracker_active
@@ -136,6 +138,7 @@ module UsageDataHelpers
   USAGE_DATA_KEYS = %i(
       active_user_count
       counts
+      counts_monthly
       recorded_at
       edition
       version
@@ -160,6 +163,7 @@ module UsageDataHelpers
       web_ide_clientside_preview_enabled
       ingress_modsecurity_enabled
       object_store
+      topology
     ).freeze
 
   def stub_usage_data_connections

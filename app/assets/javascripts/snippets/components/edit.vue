@@ -4,21 +4,23 @@ import { GlButton, GlLoadingIcon } from '@gitlab/ui';
 import { deprecatedCreateFlash as Flash } from '~/flash';
 import { __, sprintf } from '~/locale';
 import TitleField from '~/vue_shared/components/form/title.vue';
-import { redirectTo } from '~/lib/utils/url_utility';
+import { redirectTo, joinPaths } from '~/lib/utils/url_utility';
 import FormFooterActions from '~/vue_shared/components/form/form_footer_actions.vue';
+import { SNIPPET_MARK_EDIT_APP_START } from '~/performance_constants';
 
 import UpdateSnippetMutation from '../mutations/updateSnippet.mutation.graphql';
 import CreateSnippetMutation from '../mutations/createSnippet.mutation.graphql';
 import { getSnippetMixin } from '../mixins/snippets';
 import {
-  SNIPPET_VISIBILITY_PRIVATE,
   SNIPPET_CREATE_MUTATION_ERROR,
   SNIPPET_UPDATE_MUTATION_ERROR,
+  SNIPPET_VISIBILITY_PRIVATE,
 } from '../constants';
+import defaultVisibilityQuery from '../queries/snippet_visibility.query.graphql';
+
 import SnippetBlobActionsEdit from './snippet_blob_actions_edit.vue';
 import SnippetVisibilityEdit from './snippet_visibility_edit.vue';
 import SnippetDescriptionEdit from './snippet_description_edit.vue';
-import { SNIPPET_MARK_EDIT_APP_START } from '~/performance_constants';
 
 export default {
   components: {
@@ -31,6 +33,15 @@ export default {
     GlLoadingIcon,
   },
   mixins: [getSnippetMixin],
+  apollo: {
+    defaultVisibility: {
+      query: defaultVisibilityQuery,
+      manual: true,
+      result({ data: { selectedLevel } }) {
+        this.selectedLevelDefault = selectedLevel;
+      },
+    },
+  },
   props: {
     markdownPreviewPath: {
       type: String,
@@ -56,6 +67,7 @@ export default {
       isUpdating: false,
       newSnippet: false,
       actions: [],
+      selectedLevelDefault: SNIPPET_VISIBILITY_PRIVATE,
     };
   },
   computed: {
@@ -63,7 +75,7 @@ export default {
       return this.actions.length > 0;
     },
     hasValidBlobs() {
-      return this.actions.every(x => x.filePath && x.content);
+      return this.actions.every(x => x.content);
     },
     updatePrevented() {
       return this.snippet.title === '' || !this.hasValidBlobs || this.isUpdating;
@@ -88,9 +100,7 @@ export default {
     },
     cancelButtonHref() {
       if (this.newSnippet) {
-        return this.projectPath
-          ? `${gon.relative_url_root}${this.projectPath}/-/snippets`
-          : `${gon.relative_url_root}-/snippets`;
+        return joinPaths('/', gon.relative_url_root, this.projectPath, '-/snippets');
       }
       return this.snippet.webUrl;
     },
@@ -99,6 +109,13 @@ export default {
     },
     descriptionFieldId() {
       return `${this.isProjectSnippet ? 'project' : 'personal'}_snippet_description`;
+    },
+    newSnippetSchema() {
+      return {
+        title: '',
+        description: '',
+        visibilityLevel: this.selectedLevelDefault,
+      };
     },
   },
   beforeCreate() {
@@ -128,7 +145,7 @@ export default {
     },
     onNewSnippetFetched() {
       this.newSnippet = true;
-      this.snippet = this.$options.newSnippetSchema;
+      this.snippet = this.newSnippetSchema;
     },
     onExistingSnippetFetched() {
       this.newSnippet = false;
@@ -185,11 +202,6 @@ export default {
     updateActions(actions) {
       this.actions = actions;
     },
-  },
-  newSnippetSchema: {
-    title: '',
-    description: '',
-    visibilityLevel: SNIPPET_VISIBILITY_PRIVATE,
   },
 };
 </script>

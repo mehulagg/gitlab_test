@@ -283,7 +283,7 @@ RSpec.describe RemoteMirror, :mailer do
     let(:remote_mirror) { create(:project, :repository, :remote_mirror).remote_mirrors.first }
 
     around do |example|
-      Timecop.freeze { example.run }
+      freeze_time { example.run }
     end
 
     context 'with remote mirroring disabled' do
@@ -397,7 +397,7 @@ RSpec.describe RemoteMirror, :mailer do
     let(:timestamp) { Time.current - 5.minutes }
 
     around do |example|
-      Timecop.freeze { example.run }
+      freeze_time { example.run }
     end
 
     before do
@@ -442,16 +442,18 @@ RSpec.describe RemoteMirror, :mailer do
   end
 
   describe '#disabled?' do
+    let_it_be(:project) { create(:project, :repository) }
+
     subject { remote_mirror.disabled? }
 
     context 'when disabled' do
-      let(:remote_mirror) { build(:remote_mirror, enabled: false) }
+      let(:remote_mirror) { build(:remote_mirror, project: project, enabled: false) }
 
       it { is_expected.to be_truthy }
     end
 
     context 'when enabled' do
-      let(:remote_mirror) { build(:remote_mirror, enabled: true) }
+      let(:remote_mirror) { build(:remote_mirror, project: project, enabled: true) }
 
       it { is_expected.to be_falsy }
     end
