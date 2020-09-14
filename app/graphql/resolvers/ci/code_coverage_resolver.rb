@@ -2,13 +2,15 @@
 
 module Resolvers
   module Ci
-    class DailyBuildGroupReportResultResolver < BaseResolver
-      type Types::Ci::DailyBuildGroupReportResultType, null: true
+    class CodeCoverageResolver < BaseResolver
+      type Types::Ci::CodeCoverageType, null: true
 
       alias_method :project, :object
 
       def resolve(**args)
-        ::Ci::DailyBuildGroupReportResultsFinder.new(finder_params).execute
+        report_results = ::Ci::DailyBuildGroupReportResultsFinder.new(finder_params).execute
+
+        ::Ci::CodeCoverage.new(report_results: report_results)
       end
 
       def finder_params

@@ -286,10 +286,10 @@ module Types
           description: 'The container expiration policy of the project'
 
     field :code_coverage,
-          Types::Ci::DailyBuildGroupReportResultType,
+          Types::Ci::CodeCoverageType,
           null: true,
           description: 'The code coverage of the project',
-          resolver: Resolvers::Ci::DailyBuildGroupReportResultResolver.single,
+          resolver: Resolvers::Ci::CodeCoverageResolver,
           feature_flag: :code_coverage_graphql
       #     authorize: :read_build_report_results
 
