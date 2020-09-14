@@ -1641,7 +1641,7 @@ RSpec.describe Projects::IssuesController do
       end
 
       it 'allows CSV export' do
-        expect(ExportCsvWorker).to receive(:perform_async).with(viewer.id, project.id, anything)
+        expect(IssuableExportCsvWorker).to receive(:perform_async).with(viewer.id, project.id, anything)
 
         request_csv
 
@@ -1656,7 +1656,7 @@ RSpec.describe Projects::IssuesController do
       it 'redirects to the sign in page' do
         request_csv
 
-        expect(ExportCsvWorker).not_to receive(:perform_async)
+        expect(IssuableExportCsvWorker).not_to receive(:perform_async)
         expect(response).to redirect_to(new_user_session_path)
       end
     end
