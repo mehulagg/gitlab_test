@@ -8,27 +8,17 @@ import { removeFlash, handleErrorOrRethrow, isStageNameExistsError } from '../ut
 const appendExtension = path => (path.indexOf('.') > -1 ? path : `${path}.json`);
 
 export const setPaths = ({ dispatch }, options) => {
-  const { group, milestonesPath = '', labelsPath = '' } = options;
-  // TODO: After we remove instance VSA we can rely on the paths from the BE
-  // https://gitlab.com/gitlab-org/gitlab/-/issues/223735
-  const groupPath = group?.parentId || group?.fullPath || '';
-  const milestonesEndpoint = milestonesPath || `/groups/${groupPath}/-/milestones`;
-  const labelsEndpoint = labelsPath || `/groups/${groupPath}/-/labels`;
+  const { groupPath, milestonesPath = '', labelsPath = '' } = options;
 
   return dispatch('filters/setEndpoints', {
-    labelsEndpoint: appendExtension(labelsEndpoint),
-    milestonesEndpoint: appendExtension(milestonesEndpoint),
+    labelsEndpoint: appendExtension(labelsPath),
+    milestonesEndpoint: appendExtension(milestonesPath),
     groupEndpoint: groupPath,
   });
 };
 
 export const setFeatureFlags = ({ commit }, featureFlags) =>
   commit(types.SET_FEATURE_FLAGS, featureFlags);
-
-export const setSelectedGroup = ({ commit, dispatch }, group) => {
-  commit(types.SET_SELECTED_GROUP, group);
-  return dispatch('filters/initialize', { groupPath: group.full_path });
-};
 
 export const setSelectedProjects = ({ commit }, projects) =>
   commit(types.SET_SELECTED_PROJECTS, projects);
@@ -285,25 +275,23 @@ export const initializeCycleAnalytics = ({ dispatch, commit }, initialData = {})
     selectedMilestone,
     selectedAssigneeList,
     selectedLabelList,
+    group,
   } = initialData;
   commit(types.SET_FEATURE_FLAGS, featureFlags);
 
-  if (initialData.group?.fullPath) {
-    return Promise.all([
-      dispatch('setPaths', { group: initialData.group, milestonesPath, labelsPath }),
-      dispatch('filters/initialize', {
-        selectedAuthor,
-        selectedMilestone,
-        selectedAssigneeList,
-        selectedLabelList,
-      }),
-      dispatch('durationChart/setLoading', true),
-      dispatch('typeOfWork/setLoading', true),
-    ])
-      .then(() => dispatch('fetchCycleAnalyticsData'))
-      .then(() => dispatch('initializeCycleAnalyticsSuccess'));
-  }
-  return dispatch('initializeCycleAnalyticsSuccess');
+  return Promise.all([
+    dispatch('setPaths', { groupPath: group.fullPath, milestonesPath, labelsPath }),
+    dispatch('filters/initialize', {
+      selectedAuthor,
+      selectedMilestone,
+      selectedAssigneeList,
+      selectedLabelList,
+    }),
+    dispatch('durationChart/setLoading', true),
+    dispatch('typeOfWork/setLoading', true),
+  ])
+    .then(() => dispatch('fetchCycleAnalyticsData'))
+    .then(() => dispatch('initializeCycleAnalyticsSuccess'));
 };
 
 export const requestReorderStage = ({ commit }) => commit(types.REQUEST_REORDER_STAGE);
