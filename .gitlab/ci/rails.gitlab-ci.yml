@@ -323,9 +323,13 @@ rspec:coverage:
   dependencies:
     - setup-test-env
     - rspec migration pg11
+    - rspec migration pg11-as-if-foss
     - rspec unit pg11
+    - rspec unit pg11-as-if-foss
     - rspec integration pg11
+    - rspec integration pg11-as-if-foss
     - rspec system pg11
+    - rspec system pg11-as-if-foss
     - rspec-ee migration pg11
     - rspec-ee unit pg11
     - rspec-ee integration pg11
