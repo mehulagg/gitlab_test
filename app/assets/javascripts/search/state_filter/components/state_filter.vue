@@ -93,7 +93,8 @@ export default {
       :is-checked="isFilterSelected(filter.value)"
       :class="dropDownItemClass(filter)"
       @click="handleFilterChange(filter.value)"
-      >{{ filter.label }}</gl-dropdown-item
     >
+      {{ filter.label }}
+    </gl-dropdown-item>
   </gl-dropdown>
 </template>

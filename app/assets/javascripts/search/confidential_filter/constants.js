@@ -18,3 +18,11 @@ export const FILTER_STATES = {
     value: 'no',
   },
 };
+
+export const SCOPES = {
+  ISSUES: 'issues',
+};
+
+export const FILTER_STATES_BY_SCOPE = {
+  [SCOPES.ISSUES]: [FILTER_STATES.ANY, FILTER_STATES.CONFIDENTIAL, FILTER_STATES.NOT_CONFIDENTIAL],
+};
