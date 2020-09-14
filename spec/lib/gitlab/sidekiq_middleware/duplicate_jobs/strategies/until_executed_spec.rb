@@ -10,9 +10,15 @@ RSpec.describe Gitlab::SidekiqMiddleware::DuplicateJobs::Strategies::UntilExecut
   subject(:strategy) { described_class.new(fake_duplicate_job) }
 
   describe '#perform' do
+    let(:proc) { -> {} }
+
     it 'deletes the lock after executing' do
-      expect { |b| strategy.perform({}, &b) }.to yield_control
+      expect(proc).to receive(:call).ordered
       expect(fake_duplicate_job).to receive(:delete!).ordered
+
+      strategy.perform({}) do
+        proc.call
+      end
     end
   end
 end
