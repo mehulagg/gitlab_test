@@ -34,6 +34,7 @@ module Gitlab
         attribute :created_before, :datetime
         attribute :group
         attribute :current_user
+        attribute :value_stream
 
         FINDER_PARAM_NAMES.each do |param_name|
           attribute param_name
@@ -47,6 +48,7 @@ module Gitlab
 
         def initialize(params = {})
           super(params)
+          print "INITIALIZE #{params}"
 
           self.created_before = (self.created_before || Time.current).at_end_of_day
           self.created_after  = (created_after || default_created_after).at_beginning_of_day
@@ -61,7 +63,8 @@ module Gitlab
             current_user: current_user,
             from: created_after,
             to: created_before,
-            project_ids: project_ids
+            project_ids: project_ids,
+            value_stream: value_stream
           }.merge(attributes.symbolize_keys.slice(*FINDER_PARAM_NAMES))
         end
 
@@ -71,10 +74,12 @@ module Gitlab
             attrs[:created_after] = created_after.to_date.iso8601
             attrs[:created_before] = created_before.to_date.iso8601
             attrs[:projects] = group_projects(project_ids) if group && project_ids.present?
+            # TODO: fetch group value streams on load too
             attrs[:labels] = label_name.to_json if label_name.present?
             attrs[:assignees] = assignee_username.to_json if assignee_username.present?
             attrs[:author] = author_username if author_username.present?
             attrs[:milestone] = milestone_title if milestone_title.present?
+            attrs[:value_stream] = value_stream_attributes if value_stream.present?
           end
         end
 
@@ -87,6 +92,14 @@ module Gitlab
             parent_id: group.parent_id,
             full_path: group.full_path,
             avatar_url: group.avatar_url
+          }
+        end
+
+        def value_stream_attributes
+          {
+            id: value_stream.id,
+            name: value_stream.name,
+            custom: value_stream.custom?,
           }
         end
 

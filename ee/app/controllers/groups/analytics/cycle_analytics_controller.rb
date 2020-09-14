@@ -9,6 +9,7 @@ class Groups::Analytics::CycleAnalyticsController < Groups::Analytics::Applicati
   increment_usage_counter Gitlab::UsageDataCounters::CycleAnalyticsCounter, :views, only: :show
 
   before_action :load_group, only: :show
+  before_action :load_value_stream, only: :show
   before_action :load_project, only: :show
   before_action :request_params, only: :show
 
@@ -28,6 +29,6 @@ class Groups::Analytics::CycleAnalyticsController < Groups::Analytics::Applicati
 
   override :all_cycle_analytics_params
   def all_cycle_analytics_params
-    super.merge({ group: @group })
+    super.merge({ group: @group, value_stream: @value_stream })
   end
 end

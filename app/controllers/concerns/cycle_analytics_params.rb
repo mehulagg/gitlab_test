@@ -12,11 +12,11 @@ module CycleAnalyticsParams
   def cycle_analytics_group_params
     return {} unless params.present?
 
-    params.permit(:group_id, :start_date, :created_after, :created_before, project_ids: [])
+    params.permit(:group_id, :value_stream_id, :start_date, :created_after, :created_before, project_ids: [])
   end
 
   def options(params)
-    @options ||= { from: start_date(params), current_user: current_user }.merge(date_range(params))
+    @options ||= { from: start_date(params), current_user: current_user, value_stream: value_stream }.merge(date_range(params))
   end
 
   def start_date(params)

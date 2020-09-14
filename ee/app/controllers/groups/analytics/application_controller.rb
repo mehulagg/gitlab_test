@@ -30,6 +30,13 @@ class Groups::Analytics::ApplicationController < ApplicationController
     @group = find_routable!(Group, params['group_id'])
   end
 
+  # move into cycle_analytics_controller?
+  def load_value_stream
+    return unless @group && params['value_stream_id']
+
+    @value_stream = @group.value_streams.find(params['value_stream_id'])
+  end
+
   def load_project
     return unless @group && params['project_id']
 
