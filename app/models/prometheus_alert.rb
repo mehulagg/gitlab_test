@@ -35,7 +35,6 @@ class PrometheusAlert < ApplicationRecord
   scope :for_metric, -> (metric) { where(prometheus_metric: metric) }
   scope :for_project, -> (project) { where(project_id: project) }
   scope :for_environment, -> (environment) { where(environment_id: environment) }
-  scope :for_prometheus_metric_id, -> (prometheus_metric_id) { where(prometheus_metric_id: prometheus_metric_id) }
   scope :distinct_project_and_environment, -> do
     order('project_id, environment_id DESC')
       .select(Arel.sql("DISTINCT project_id, environment_id"))

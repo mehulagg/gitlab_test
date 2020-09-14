@@ -18,7 +18,7 @@ module Gitlab
 
           def execute
             import
-          rescue ActiveRecord::RecordInvalid, ::Gitlab::Metrics::Dashboard::Transformers::TransformerError
+          rescue ActiveRecord::RecordInvalid, Dashboard::Transformers::Errors::BaseError
             false
           end
 
@@ -49,21 +49,25 @@ module Gitlab
           # rubocop: enable CodeReuse/ActiveRecord
 
           def delete_stale_metrics
-            identifiers = prometheus_metrics_attributes.map { |metric_attributes| metric_attributes[:identifier] }
+            identifiers_from_yml = prometheus_metrics_attributes.map { |metric_attributes| metric_attributes[:identifier] }
 
             stale_metrics = PrometheusMetric.for_project(project)
               .for_dashboard_path(dashboard_path)
               .for_group(Enums::PrometheusMetric.groups[:custom])
-              .not_identifier(identifiers)
+              .not_identifier(identifiers_from_yml)
 
-            @affected_metric_ids << stale_metrics.map(&:id)
+            return unless stale_metrics.present?
 
-            delete_stale_alerts(stale_metrics)
+            stale_metric_ids = stale_metrics.map(&:id)
+            @affected_metric_ids << stale_metric_ids
+
+            delete_stale_alerts(stale_metric_ids)
             stale_metrics.delete_all
           end
 
-          def delete_stale_alerts(stale_metrics)
-            stale_metrics.prometheus_alerts.delete_all
+          def delete_stale_alerts(stale_metric_ids)
+            stale_alerts = Projects::Prometheus::AlertsFinder.new(project: project, metric: stale_metric_ids).execute
+            stale_alerts.delete_all
           end
 
           def prometheus_metrics_attributes
@@ -77,7 +81,7 @@ module Gitlab
           end
 
           def update_prometheus_alerts
-            affected_alerts = PrometheusAlert.for_prometheus_metric_id(@affected_metric_ids.flatten.uniq)
+            affected_alerts = PrometheusAlert.for_metric(@affected_metric_ids.flatten.uniq)
               .distinct_project_and_environment
 
             affected_alerts.each do |affected_alert|
