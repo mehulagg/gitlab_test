@@ -163,6 +163,7 @@ module Ci
 
     scope :downloadable, -> { where(file_type: DOWNLOADABLE_TYPES) }
     scope :unlocked, -> { joins(job: :pipeline).merge(::Ci::Pipeline.unlocked).order(expire_at: :desc) }
+    scope :with_destroy_preloads, -> { includes(project: :route) }
 
     scope :scoped_project, -> { where('ci_job_artifacts.project_id = projects.id') }
 

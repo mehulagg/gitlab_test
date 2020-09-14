@@ -16,13 +16,47 @@ RSpec.describe Ci::DestroyExpiredJobArtifactsService, :clean_gitlab_redis_shared
     end
 
     context 'when artifact is expired' do
+      context 'with preloaded relationships' do
+        before do
+          artifacts = create_list(:ci_job_artifact, 2, :archive, :expired)
+          artifacts.each { |artifact| artifact.job.pipeline.unlocked! }
+
+          stub_const('Ci::DestroyExpiredJobArtifactsService::LOOP_LIMIT', 1)
+        end
+
+        it 'performs the smallest number of queries for job_artifacts' do
+          log = ActiveRecord::QueryRecorder.new { subject }
+
+          # SELECT expired ci_job_artifacts
+          # PRELOAD projects, routes
+          # INSERT into ci_deleted_objects
+          # UPDATE project_statistics x 2 (for each project)
+          # DELETE loaded ci_job_artifacts
+          expect(log.count).to eq(7)
+        end
+      end
+
       context 'when artifact is not locked' do
+        let(:artifact) { create(:ci_job_artifact, :archive, :expired) }
+
         before do
           artifact.job.pipeline.unlocked!
         end
 
-        it 'destroys job artifact' do
+        it 'deletes job artifact record' do
           expect { subject }.to change { Ci::JobArtifact.count }.by(-1)
+        end
+
+        it 'creates a deleted object' do
+          expect { subject }.to change { Ci::DeletedObject.count }.by(1)
+        end
+
+        it 'resets project statistics' do
+          expect { subject }.to change { artifact.project.statistics.reload.build_artifacts_size }
+        end
+
+        it 'does not remove the files' do
+          expect { subject }.not_to change { artifact.file.exists? }
         end
       end
 
@@ -55,6 +89,7 @@ RSpec.describe Ci::DestroyExpiredJobArtifactsService, :clean_gitlab_redis_shared
 
     context 'when failed to destroy artifact' do
       before do
+        stub_feature_flags(ci_delete_objects: false)
         stub_const('Ci::DestroyExpiredJobArtifactsService::LOOP_LIMIT', 10)
 
         allow_any_instance_of(Ci::JobArtifact)

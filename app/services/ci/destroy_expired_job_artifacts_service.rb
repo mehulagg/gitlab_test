@@ -28,17 +28,50 @@ module Ci
     private
 
     def destroy_batch(klass)
-      artifact_batch = if klass == Ci::JobArtifact
-                         klass.expired(BATCH_SIZE).unlocked
-                       else
-                         klass.expired(BATCH_SIZE)
-                       end
-
-      artifacts = artifact_batch.to_a
+      artifacts = artifact_batch(klass).load
 
       return false if artifacts.empty?
 
+      if klass == Ci::JobArtifact && parallel_destroy?
+        parallel_destroy_batch(artifacts)
+      else
+        legacy_destroy_batch(artifacts)
+      end
+    end
+
+    def artifact_batch(klass)
+      if klass == Ci::JobArtifact
+        klass.expired(BATCH_SIZE).unlocked.with_destroy_preloads
+      else
+        klass.expired(BATCH_SIZE)
+      end
+    end
+
+    def parallel_destroy?
+      ::Feature.enabled?(:ci_delete_objects)
+    end
+
+    def legacy_destroy_batch(artifacts)
       artifacts.each(&:destroy!)
     end
+
+    def parallel_destroy_batch(artifacts)
+      DeletedObject.bulk_import(artifacts)
+      update_statistics_for(artifacts)
+      Ci::JobArtifact.id_in(artifacts.map(&:id)).delete_all
+    end
+
+    # rubocop: disable CodeReuse/ActiveRecord
+    def update_statistics_for(artifacts)
+      deltas = artifacts
+        .group_by(&:project)
+        .transform_values { |batch| -batch.sum(&:size) }
+
+      Projects::BulkUpdateStatisticsService.new(
+        deltas,
+        statistic: Ci::JobArtifact.project_statistics_name
+      ).execute
+    end
+    # rubocop: enable CodeReuse/ActiveRecord
   end
 end
