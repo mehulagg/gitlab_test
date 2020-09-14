@@ -5166,6 +5166,61 @@
         },
         {
           "kind": "OBJECT",
+          "name": "CodeCoverage",
+          "description": "Represents a the daily code coverage for a project",
+          "fields": [
+            {
+              "name": "coverage",
+              "description": "Percent of coverage for the project",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "coverageCount",
+              "description": "Number of coverage for the project",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "lastUpdate",
+              "description": "Latest date of coverage for the project",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
           "name": "Commit",
           "description": null,
           "fields": [
@@ -34346,6 +34401,20 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "ClusterAgentConnection",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "codeCoverage",
+              "description": "The code coverage of the project. Available only when feature flag `code_coverage_graphql` is enabled",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "CodeCoverage",
                 "ofType": null
               },
               "isDeprecated": false,

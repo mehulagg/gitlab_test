@@ -1877,6 +1877,26 @@ Identifier of Clusters::AgentToken
 """
 scalar ClustersAgentTokenID
 
+"""
+Represents a the daily code coverage for a project
+"""
+type CodeCoverage {
+  """
+  Percent of coverage for the project
+  """
+  coverage: Float
+
+  """
+  Number of coverage for the project
+  """
+  coverageCount: Int
+
+  """
+  Latest date of coverage for the project
+  """
+  lastUpdate: String
+}
+
 type Commit {
   """
   Author of the commit
@@ -11513,6 +11533,11 @@ type Project {
     """
     last: Int
   ): ClusterAgentConnection
+
+  """
+  The code coverage of the project. Available only when feature flag `code_coverage_graphql` is enabled
+  """
+  codeCoverage: CodeCoverage
 
   """
   Compliance frameworks associated with the project
