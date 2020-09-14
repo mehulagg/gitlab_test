@@ -19,6 +19,7 @@ class License < ApplicationRecord
     group_activity_analytics
     group_bulk_edit
     group_webhooks
+    group_wikis
     issuable_default_templates
     issue_weights
     iterations
@@ -83,6 +84,7 @@ class License < ApplicationRecord
     group_ip_restriction
     group_merge_request_analytics
     group_project_templates
+    group_repository_analytics
     group_saml
     issues_analytics
     jira_issues_integration
@@ -108,6 +110,7 @@ class License < ApplicationRecord
     smartcard_auth
     group_timelogs
     type_of_work_analytics
+    minimal_access_role
     unprotection_restrictions
     ci_project_subscriptions
   ]
@@ -132,6 +135,7 @@ class License < ApplicationRecord
     prometheus_alerts
     pseudonymizer
     release_evidence_test_artifacts
+    environment_alerts
     report_approver_rules
     requirements
     sast
@@ -378,7 +382,7 @@ class License < ApplicationRecord
     return false if trial? && expired?
 
     # This feature might not be behind a feature flag at all, so default to true
-    return false unless ::Feature.enabled?(feature, default_enabled: true)
+    return false unless ::Feature.enabled?(feature, type: :licensed, default_enabled: true)
 
     features.include?(feature)
   end

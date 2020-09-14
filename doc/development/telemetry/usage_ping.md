@@ -236,7 +236,7 @@ Implemented using Redis methods [PFADD](https://redis.io/commands/pfadd) and [PF
    - name: i_compliance_credential_inventory
      category: compliance
      redis_slot: compliance
-     expiry: 42 # 6 weeks
+     expiry: 42  # 6 weeks
      aggregation: weekly
    ```
 
@@ -311,6 +311,33 @@ Implemented using Redis methods [PFADD](https://redis.io/commands/pfadd) and [PF
      present paginate(repositories), with: Entities::ContainerRegistry::Repository, tags: params[:tags], tags_count: params[:tags_count]
    end
    ```
+
+1. Track event using `UsageData` API
+
+   Increment unique users count using Redis HLL, for given event name.
+
+   Tracking events using the `UsageData` API requires the `usage_data_api` feature flag to be enabled, which is disabled by default.
+
+   API requests are protected by checking for a valid CSRF token.
+
+   In order to be able to increment the values the related feature `usage_data<event_name>` should be enabled.
+
+   ```plaintext
+   POST /usage_data/increment_unique_users
+   ```
+
+   | Attribute | Type | Required | Description |
+   | :-------- | :--- | :------- | :---------- |
+   | `event` | string | yes | The event name it should be tracked |
+
+   Response
+
+   Return 200 if tracking failed for any reason.
+
+   - `200` if event was tracked or any errors
+   - `400 Bad request` if event parameter is missing
+   - `401 Unauthorized` if user is not authenticated
+   - `403 Forbidden` for invalid CSRF token provided
 
 1. Track event using base module `Gitlab::UsageDataCounters::HLLRedisCounter.track_event(entity_id, event_name)`.
 

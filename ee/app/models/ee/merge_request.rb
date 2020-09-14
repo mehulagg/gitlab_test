@@ -14,6 +14,7 @@ module EE
       include Elastic::ApplicationVersionedSearch
       include DeprecatedApprovalsBeforeMerge
       include UsageStatistics
+      include IterationEventable
 
       has_many :approvers, as: :target, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
       has_many :approver_users, through: :approvers, source: :user
@@ -164,7 +165,8 @@ module EE
         dast: report_type_enabled?(:dast),
         dependency_scanning: report_type_enabled?(:dependency_scanning),
         license_scanning: report_type_enabled?(:license_scanning),
-        coverage_fuzzing: report_type_enabled?(:coverage_fuzzing)
+        coverage_fuzzing: report_type_enabled?(:coverage_fuzzing),
+        secret_detection: report_type_enabled?(:secret_detection)
       }
     end
 

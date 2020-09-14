@@ -95,7 +95,7 @@ module QA
         end
 
         Page::Project::Packages::Index.perform do |index|
-          expect(index).to have_content("Package was removed")
+          expect(index).to have_content("Package deleted successfully")
           expect(index).to have_no_package(package_name)
         end
       end

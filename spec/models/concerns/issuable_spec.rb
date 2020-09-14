@@ -837,6 +837,24 @@ RSpec.describe Issuable do
     end
   end
 
+  describe '#supports_severity?' do
+    using RSpec::Parameterized::TableSyntax
+
+    where(:issuable_type, :supports_severity) do
+      :issue         | false
+      :incident      | true
+      :merge_request | false
+    end
+
+    with_them do
+      let(:issuable) { build_stubbed(issuable_type) }
+
+      subject { issuable.supports_severity? }
+
+      it { is_expected.to eq(supports_severity) }
+    end
+  end
+
   describe '#incident?' do
     using RSpec::Parameterized::TableSyntax
 
@@ -852,6 +870,23 @@ RSpec.describe Issuable do
       subject { issuable.incident? }
 
       it { is_expected.to eq(incident) }
+    end
+  end
+
+  describe '#supports_issue_type?' do
+    using RSpec::Parameterized::TableSyntax
+
+    where(:issuable_type, :supports_issue_type) do
+      :issue         | true
+      :merge_request | false
+    end
+
+    with_them do
+      let(:issuable) { build_stubbed(issuable_type) }
+
+      subject { issuable.supports_issue_type? }
+
+      it { is_expected.to eq(supports_issue_type) }
     end
   end
 

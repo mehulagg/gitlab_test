@@ -156,7 +156,7 @@ module EE
       return false unless elasticsearch_indexing?
       return true unless elasticsearch_limit_indexing?
 
-      elasticsearch_limited_namespaces.exists?(namespace.id) unless ::Feature.enabled?(:elasticsearch_indexes_namespace_cache)
+      elasticsearch_limited_namespaces.exists?(namespace.id) unless ::Feature.enabled?(:elasticsearch_indexes_namespace_cache, default_enabled: true)
 
       ::Gitlab::Elastic::ElasticsearchEnabledCache.fetch(:namespace, namespace.id) do
         elasticsearch_limited_namespaces.exists?(namespace.id)
@@ -244,7 +244,7 @@ module EE
       when Project
         elasticsearch_indexes_project?(scope)
       else
-        false # Never use elasticsearch for the global scope when limiting is on
+        ::Feature.enabled?(:advanced_global_search_for_limited_indexing)
       end
     end
 
