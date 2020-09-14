@@ -23400,9 +23400,6 @@ msgstr ""
 msgid "SignUp|Last Name is too long (maximum is %{max_length} characters)."
 msgstr ""
 
-msgid "SignUp|Name is too long (maximum is %{max_length} characters)."
-msgstr ""
-
 msgid "SignUp|Username is too long (maximum is %{max_length} characters)."
 msgstr ""
 
