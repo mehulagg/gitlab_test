@@ -5167,11 +5167,11 @@
         {
           "kind": "OBJECT",
           "name": "CodeCoverage",
-          "description": "Represents a the daily code coverage for a project",
+          "description": "Represents the daily code coverage for a project",
           "fields": [
             {
-              "name": "coverage",
-              "description": "Percent of coverage for the project",
+              "name": "average",
+              "description": "Percentage of coverage for the project",
               "args": [
 
               ],
@@ -5184,7 +5184,7 @@
               "deprecationReason": null
             },
             {
-              "name": "coverageCount",
+              "name": "count",
               "description": "Number of coverage for the project",
               "args": [
 
@@ -5198,14 +5198,14 @@
               "deprecationReason": null
             },
             {
-              "name": "lastUpdate",
+              "name": "lastUpdateAt",
               "description": "Latest date of coverage for the project",
               "args": [
 
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "Time",
                 "ofType": null
               },
               "isDeprecated": false,

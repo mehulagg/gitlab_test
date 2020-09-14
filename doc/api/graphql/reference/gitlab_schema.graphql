@@ -1878,23 +1878,23 @@ Identifier of Clusters::AgentToken
 scalar ClustersAgentTokenID
 
 """
-Represents a the daily code coverage for a project
+Represents the daily code coverage for a project
 """
 type CodeCoverage {
   """
-  Percent of coverage for the project
+  Percentage of coverage for the project
   """
-  coverage: Float
+  average: Float
 
   """
   Number of coverage for the project
   """
-  coverageCount: Int
+  count: Int
 
   """
   Latest date of coverage for the project
   """
-  lastUpdate: String
+  lastUpdateAt: Time
 }
 
 type Commit {

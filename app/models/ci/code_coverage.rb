@@ -8,22 +8,22 @@ module Ci
       @report_results = report_results
     end
 
-    def coverage
-      strong_memoize(:coverage) do
-        return 0 if coverage_count.zero?
+    def average
+      strong_memoize(:average) do
+        return 0 if count.zero?
 
-        @report_results.sum(&:coverage) / coverage_count
+        @report_results.sum(&:coverage) / count
       end
     end
 
-    def coverage_count
-      strong_memoize(:coverage_count) do
+    def count
+      strong_memoize(:count) do
         @report_results.size
       end
     end
 
-    def last_update
-      strong_memoize(:last_update) do
+    def last_update_at
+      strong_memoize(:last_update_at) do
         @report_results.last&.date
       end
     end
