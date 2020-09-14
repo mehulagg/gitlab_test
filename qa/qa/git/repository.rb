@@ -59,6 +59,10 @@ module QA
         self.username, self.password = default_credentials
       end
 
+      def use_default_identity
+        configure_identity('GitLab QA', 'root@gitlab.com')
+      end
+
       def clone(opts = '')
         clone_result = run("git clone #{opts} #{uri} ./", max_attempts: 3)
         return clone_result.response unless clone_result.success?
@@ -122,8 +126,28 @@ module QA
         run("git rev-parse --abbrev-ref HEAD").to_s
       end
 
-      def push_changes(branch = 'master')
-        run("git push #{uri} #{branch}", max_attempts: 3).to_s
+      def push_changes(branch = 'master', push_options: nil)
+        opts = if push_options
+                 o = push_options.each_with_object([]) do |(k, v), options|
+                   if k.to_s.end_with?('label')
+                     v.each do |label|
+                       options << "-o merge_request.#{k}=\"#{label}\""
+                     end
+                   elsif k == :create
+                     options << "-o merge_request.#{k}"
+                   else
+                     options << "-o merge_request.#{k}=\"#{v}\""
+                   end
+                 end
+
+                 o.join(' ')
+               end
+
+        cmd = ['git push']
+        cmd << opts
+        cmd << uri
+        cmd << branch
+        run(cmd.compact.join(' '), max_attempts: 3).to_s
       end
 
       def push_all_branches
