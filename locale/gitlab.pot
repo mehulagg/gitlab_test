@@ -17229,6 +17229,9 @@ msgstr ""
 msgid "Notification settings saved"
 msgstr ""
 
+msgid "NotificationEvent|Change reviewer merge request"
+msgstr ""
+
 msgid "NotificationEvent|Close issue"
 msgstr ""
 
