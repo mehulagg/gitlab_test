@@ -12,9 +12,13 @@ module Resolvers
              required: false,
              description: 'Search query for project name, path, or description'
 
+    argument :ids, [GraphQL::ID_TYPE],
+            required: false,
+            description: 'Find projects by IDs'
+
     def resolve(**args)
       ProjectsFinder
-        .new(current_user: current_user, params: project_finder_params(args))
+        .new(current_user: current_user, params: project_finder_params(args), project_ids_relation: args[:ids])
         .execute
     end
 
