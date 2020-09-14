@@ -746,8 +746,8 @@ Use GitLab as a [dependency proxy](../packages/dependency_proxy/index.md) for up
 
 ## Group Wikis
 
-> - [Introduced](link-to-issue) in GitLab 12.0.
-> - It's deployed behind a `group_wiki` feature flag , disabled by default.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/13195) in GitLab 13.5.
+> - It's deployed behind a `group_wiki` feature flag, disabled by default.
 > - It's disabled on GitLab.com.
 > - It's not recommended for production use.
 > - To use it in GitLab self-managed instances, ask a GitLab administrator to [enable it](#enable-or-disable-group-wiki-core-only). **(CORE ONLY)**
