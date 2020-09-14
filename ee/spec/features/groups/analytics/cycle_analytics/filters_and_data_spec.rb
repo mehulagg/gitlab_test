@@ -278,6 +278,22 @@ RSpec.describe 'Group value stream analytics filters and data', :js do
     it_behaves_like 'has default filters'
   end
 
+  context 'with a value stream' do
+    # Create 2 value streams
+    # Select the second one
+    let(:selected_value_stream) { sub_group }
+
+    before do
+      select_group(sub_group)
+    end
+
+    it_behaves_like 'group value stream analytics'
+
+    it_behaves_like 'has overview metrics'
+
+    it_behaves_like 'has default filters'
+  end
+
   context 'with lots of data', :js do
     let_it_be(:issue) { create(:issue, project: project, created_at: 5.days.ago) }
 

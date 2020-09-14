@@ -169,6 +169,8 @@ RSpec.describe Gitlab::Analytics::CycleAnalytics::RequestParams do
   end
 
   describe 'optional `value_stream_id`' do
+    let(:default_value_stream_id){ Analytics::CycleAnalytics::Stages::BaseService::DEFAULT_VALUE_STREAM_NAME }
+
     context 'when `value_stream_id` is not empty' do
       let(:value_stream_id){ create(:cycle_analytics_group_value_stream, group: sub_group).id }
 
@@ -181,10 +183,20 @@ RSpec.describe Gitlab::Analytics::CycleAnalytics::RequestParams do
 
     context 'when `value_stream_id` is nil' do
       before do
+        params[:group] = root_group.id
         params[:value_stream] = nil
       end
 
       it { expect(subject.value_stream).to eq(nil) }
+    end
+
+    context 'when `value_stream_id` is "default"' do
+      before do
+        params[:group] = root_group.id
+        params[:value_stream] = default_value_stream_id
+      end
+
+      it { expect(subject.value_stream).to eq(default_value_stream_id) }
     end
   end
 
