@@ -6,6 +6,18 @@ our users to follow with regards to security results. These should be used as
 guidelines so you can build an integration that fits with the workflow GitLab
 users are already familiar with.
 
+## Critiera for Partnership
+
+Do you fill a one of the below product/feature gaps?
+- mobile scanning
+- IaaS
+- Dependency scanning
+
+Do you emove a barrier for a customer?
+- i.e. joint customer is currently using you?
+
+Have you integrated with GitLab Ultimate?
+
 This page also provides resources for the technical work associated
 with [onboarding as a partner](https://about.gitlab.com/partners/integrate/).
 The steps below are a high-level view of what needs to be done to complete an
@@ -19,6 +31,18 @@ use case. All the features are in those tiers. This includes the APIs and standa
 framework needed to provide a consistent experience for users to easily bring their preferred
 security tools into GitLab. We ask that our integration partners focus their work on those license
 tiers so that we can provide the most value to our mutual customers.
+
+
+
+Step 1: do they fill a gap?
+- [ ] 1. mobile scanning
+- [ ] 1. iaas
+- [ ] 1. dependency scanning
+
+Step 2: do they remove a barrier?
+
+Step 3: did they integrate with ultimate - yes or no?
+
 
 ## What is the GitLab Developer Workflow?
 
