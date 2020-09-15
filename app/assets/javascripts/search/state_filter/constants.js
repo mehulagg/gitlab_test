@@ -2,8 +2,6 @@ import { __ } from '~/locale';
 
 export const FILTER_HEADER = __('Status');
 
-export const FILTER_TEXT = __('Any Status');
-
 export const FILTER_STATES = {
   ANY: {
     label: __('Any'),
