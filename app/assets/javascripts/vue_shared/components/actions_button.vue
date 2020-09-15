@@ -50,6 +50,7 @@ export default {
 <template>
   <gl-dropdown
     v-if="hasMultipleActions"
+    v-gl-tooltip="selectedAction.tooltip"
     class="gl-button-deprecated-adapter"
     :text="selectedAction.text"
     :split-href="selectedAction.href"
@@ -65,7 +66,6 @@ export default {
       <gl-dropdown-item
         :key="action.key"
         class="gl-dropdown-item-deprecated-adapter"
-        v-bind="action.attrs"
         :is-check-item="true"
         :is-checked="action.key === selectedAction.key"
         :secondary-text="action.secondaryText"

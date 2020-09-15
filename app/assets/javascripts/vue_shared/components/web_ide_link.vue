@@ -65,6 +65,7 @@ export default {
         key: KEY_WEB_IDE,
         text: __('Web IDE'),
         secondaryText: __('Quickly and easily edit multiple files in your project.'),
+        tooltip: '',
         attrs: {
           'data-qa-selector': 'web_ide_button',
         },
@@ -80,10 +81,13 @@ export default {
         ? { href: this.gitpodUrl }
         : { href: '#modal-enable-gitpod', handle: () => this.showModal('#modal-enable-gitpod') };
 
+      const secondaryText = __('Launch a ready-to-code development environment for your project.');
+
       return {
         key: KEY_GITPOD,
         text: __('Gitpod'),
-        secondaryText: __('Launch a ready-to-code development environment for your project.'),
+        secondaryText,
+        tooltip: secondaryText,
         attrs: {
           'data-qa-selector': 'gitpod_button',
         },

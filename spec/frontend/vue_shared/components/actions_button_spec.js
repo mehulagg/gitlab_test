@@ -7,6 +7,7 @@ const TEST_ACTION = {
   key: 'action1',
   text: 'Sample',
   secondaryText: 'Lorem ipsum.',
+  tooltip: '',
   href: '/sample',
   attrs: { 'data-test': '123' },
 };
@@ -14,6 +15,7 @@ const TEST_ACTION_2 = {
   key: 'action2',
   text: 'Sample 2',
   secondaryText: 'Dolar sit amit.',
+  tooltip: 'Dolar sit amit.',
   href: '#',
   attrs: { 'data-test': '456' },
 };
@@ -33,13 +35,15 @@ describe('Actions button component', () => {
     wrapper.destroy();
   });
 
-  const findLink = () => wrapper.find(GlLink);
-  const findLinkTooltip = () => {
-    const directiveBinding = getBinding(findLink().element, 'gl-tooltip');
+  const getTooltip = child => {
+    const directiveBinding = getBinding(child.element, 'gl-tooltip');
 
     return directiveBinding.value;
   };
+  const findLink = () => wrapper.find(GlLink);
+  const findLinkTooltip = () => getTooltip(findLink());
   const findDropdown = () => wrapper.find(GlNewDropdown);
+  const findDropdownTooltip = () => getTooltip(findDropdown());
   const parseDropdownItems = () =>
     findDropdown()
       .findAll('gl-dropdown-item-stub,gl-dropdown-divider-stub')
@@ -52,7 +56,6 @@ describe('Actions button component', () => {
 
         return {
           type: 'item',
-          attrs: x.attributes(),
           isCheckItem,
           isChecked,
           secondaryText,
@@ -83,8 +86,12 @@ describe('Actions button component', () => {
       expect(link.text()).toBe(TEST_ACTION.text);
     });
 
-    it('should not have tooltip', () => {
-      expect(findLinkTooltip()).toBeUndefined();
+    it('should have tooltip', () => {
+      expect(findLinkTooltip()).toBe(TEST_ACTION.tooltip);
+    });
+
+    it('should have attrs', () => {
+      expect(findLink().attributes()).toMatchObject(TEST_ACTION.attrs);
     });
 
     it('can click', () => {
@@ -140,7 +147,6 @@ describe('Actions button component', () => {
       expect(parseDropdownItems()).toEqual([
         {
           type: 'item',
-          attrs: expect.objectContaining(TEST_ACTION.attrs),
           isCheckItem: true,
           isChecked: true,
           secondaryText: TEST_ACTION.secondaryText,
@@ -149,7 +155,6 @@ describe('Actions button component', () => {
         { type: 'divider' },
         {
           type: 'item',
-          attrs: expect.objectContaining(TEST_ACTION_2.attrs),
           isCheckItem: true,
           isChecked: false,
           secondaryText: TEST_ACTION_2.secondaryText,
@@ -165,6 +170,10 @@ describe('Actions button component', () => {
       action2.vm.$emit('click');
 
       expect(wrapper.emitted('select')).toEqual([[TEST_ACTION_2.key]]);
+    });
+
+    it('should have tooltip value', () => {
+      expect(findDropdownTooltip()).toBe(TEST_ACTION.tooltip);
     });
   });
 
@@ -185,6 +194,10 @@ describe('Actions button component', () => {
           isChecked: true,
         }),
       ]);
+    });
+
+    it('should have tooltip value', () => {
+      expect(findDropdownTooltip()).toBe(TEST_ACTION_2.tooltip);
     });
   });
 });

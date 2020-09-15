@@ -10,6 +10,7 @@ const ACTION_WEB_IDE = {
   href: TEST_WEB_IDE_URL,
   key: 'webide',
   secondaryText: 'Quickly and easily edit multiple files in your project.',
+  tooltip: '',
   text: 'Web IDE',
   attrs: {
     'data-qa-selector': 'web_ide_button',
@@ -24,6 +25,7 @@ const ACTION_GITPOD = {
   href: TEST_GITPOD_URL,
   key: 'gitpod',
   secondaryText: 'Launch a ready-to-code development environment for your project.',
+  tooltip: 'Launch a ready-to-code development environment for your project.',
   text: 'Gitpod',
   attrs: {
     'data-qa-selector': 'gitpod_button',
