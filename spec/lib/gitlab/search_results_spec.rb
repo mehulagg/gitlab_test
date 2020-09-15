@@ -30,11 +30,9 @@ RSpec.describe Gitlab::SearchResults do
       end
 
       it 'uses page and per_page to paginate results' do
-        project1 = create(:project, name: 'bar')
-        project2 = create(:project, name: 'bar')
-        results = described_class.new(user, 'bar', Project.all, filters: filters)
+        project2 = create(:project, name: 'foo')
 
-        expect(results.objects('projects', page: 1, per_page: 1).to_a).to eq([project1])
+        expect(results.objects('projects', page: 1, per_page: 1).to_a).to eq([project])
         expect(results.objects('projects', page: 2, per_page: 1).to_a).to eq([project2])
         expect(results.objects('projects', page: 1, per_page: 2).count).to eq(2)
       end
