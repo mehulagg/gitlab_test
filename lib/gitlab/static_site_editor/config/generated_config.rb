@@ -4,7 +4,7 @@ module Gitlab
   module StaticSiteEditor
     module Config
       class GeneratedConfig
-        SUPPORTED_EXTENSIONS = %w[.md].freeze
+        SUPPORTED_EXTENSIONS = %w[.md .md.erb].freeze
 
         def initialize(repository, ref, path, return_url)
           @repository = repository
@@ -48,8 +48,6 @@ module Gitlab
         end
 
         def extension_supported?
-          return true if path.end_with?('.md.erb') && Feature.enabled?(:sse_erb_support, project)
-
           SUPPORTED_EXTENSIONS.any? { |ext| path.end_with?(ext) }
         end
 
