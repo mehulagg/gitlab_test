@@ -190,18 +190,34 @@ Once you have the route mapping set up, it will take effect in the following loc
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/10761) in GitLab Starter 12.0.
 
-With Visual Reviews, you can provide a feedback form to your Review Apps so
-that reviewers can post comments directly from the app back to the merge request
-that spawned the Review App.
+Getting feedback about changes back to a developer in a context that is not lost in chat, email or water cooler conversation is problematic. with the help of Visual Reviews team members (Produc Managers, designers and other developers) can quickly provide feedback about changes as Merge Request comments back on the merge request that spawned the Review App.
+
+### Using Visual Reviews
+
+After Visual Reviews has been [enabled](#configuring-visual-reviews) for the
+Review App, the Visual Reviews feedback form is overlaid on the app's pages at
+the bottom-right corner.
+
+![Visual review feedback form](img/toolbar_feeback_form.png)
+
+To use the feedback form:
+
+1. Make a comment on the visual review. You can make use of all the
+   [Markdown annotations](../../user/markdown.md) that are also available in
+   merge request comments.
+1. If `data-require-auth` is `true`, you must enter your [personal access token](../../user/profile/personal_access_tokens.md). Otherwise, you must enter your name, and optionally, your email.
+1. Finally, click **Send feedback**.
+
+Watch a quick walkthrough of Visual Reviews in action:
+
+<div class="video-fallback">
+  See the video: <a href=https://youtu.be/1_tvWTlPfM4>Visaul Reviews Walk through</a>.
+</div>
+<figure class="video-container">
+  <iframe src="https://www.youtube.com/embed/1_tvWTlPfM4" frameborder="0" allowfullscreen="true"> </iframe>
+</figure>
 
 ### Configuring Visual Reviews
-
-Ensure that the `anonymous_visual_review_feedback` feature flag is enabled.
-Administrators can enable with a Rails console as follows:
-
-```ruby
-Feature.enable(:anonymous_visual_review_feedback)
-```
 
 The feedback form is served through a script you add to pages in your Review App.
 If you have [Developer permissions](../../user/permissions.md) to the project,
@@ -213,17 +229,17 @@ if [route maps](#route-maps) are configured in the project.
 
 The provided script should be added to the `<head>` of your application and
 consists of some project and merge request specific values. Here's what it
-looks like:
+looks for a project on Gitlab.com:
 
 ```html
 <script
   data-project-id='11790219'
   data-merge-request-id='1'
-  data-mr-url='https://gitlab.example.com'
+  data-mr-url='https://gitlab.com'
   data-project-path='sarah/review-app-tester'
   data-require-auth='true'
   id='review-app-toolbar-script'
-  src='https://gitlab.example.com/assets/webpack/visual_review_toolbar.js'>
+  src='https://gitlab.com/assets/webpack/visual_review_toolbar.js'>
 </script>
 ```
 
@@ -244,16 +260,16 @@ to replace those values at runtime when each review app is created:
 - `src` is the source of the review toolbar script, which resides in the
   respective GitLab instance and will be the same for all review apps.
 
-For example, in a Ruby application, you would need to have this script:
+For example, in a Ruby application being hosted on Gitlab.com, you would need to have this script:
 
 ```html
 <script
   data-project-id="ENV['CI_PROJECT_ID']"
   data-merge-request-id="ENV['CI_MERGE_REQUEST_IID']"
-  data-mr-url='https://gitlab.example.com'
+  data-mr-url='https://gitlab.com'
   data-project-path="ENV['CI_PROJECT_PATH']"
   id='review-app-toolbar-script'
-  src='https://gitlab.example.com/assets/webpack/visual_review_toolbar.js'>
+  src='https://gitlab.com/assets/webpack/visual_review_toolbar.js'>
 </script>
 ```
 
@@ -272,6 +288,15 @@ can supply the ID by either:​​
 - Hard-coding it in the script tag via the data attribute `data-merge-request-id` of the app.
 - Dynamically adding the `data-merge-request-id` value during the build of the app.
 - Supplying it manually through the visual review form in the app.
+
+### Accepting anonymous comments
+
+Public projects can be configured to accept anonymous feedback. To do this ensure that the `anonymous_visual_review_feedback` feature flag is enabled. Private and Internal projects cannot access anonymous feedback.
+Administrators can enable with a Rails console as follows:
+
+```ruby
+Feature.enable(:anonymous_visual_review_feedback)
+```
 
 ### Visual Reviews in private or internal projects
 
@@ -300,6 +325,8 @@ To use the feedback form:
 
 After you make and submit a comment in the visual review box, it will appear
 automatically in the respective merge request.
+
+![Merge Request Comment from Visual Review toolbar](img/merge_request_toolbar_comment.png)
 
 ## Limitations
 
