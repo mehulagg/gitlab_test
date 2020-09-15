@@ -72,7 +72,7 @@ module LimitedCapacity
 
     def remaining_capacity
       [
-        max_running_jobs - running_jobs - self.class.queue_size,
+        max_running_jobs - running_jobs_count - self.class.queue_size,
         0
       ].max
     end
@@ -98,7 +98,7 @@ module LimitedCapacity
     end
 
     def report_prometheus_metrics
-      running_jobs_gauge.set({ worker: self.class.name }, running_jobs)
+      running_jobs_gauge.set({ worker: self.class.name }, running_jobs_count)
     end
 
     private
@@ -113,7 +113,7 @@ module LimitedCapacity
       has_capacity? && has_work?
     end
 
-    def running_jobs
+    def running_jobs_count
       with_redis do |redis|
         redis.scard(running_jobs_set_key).to_i
       end

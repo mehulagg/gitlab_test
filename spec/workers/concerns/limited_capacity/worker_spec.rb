@@ -220,7 +220,7 @@ RSpec.describe LimitedCapacity::Worker do
 
       before do
         expect(worker_class).to receive(:queue_size).and_return(5)
-        expect(worker).to receive(:running_jobs).and_return(3)
+        expect(worker).to receive(:running_jobs_count).and_return(3)
       end
 
       it { expect(remaining_capacity).to eq(2) }
@@ -267,7 +267,7 @@ RSpec.describe LimitedCapacity::Worker do
     subject(:report_prometheus_metrics) { worker.report_prometheus_metrics }
 
     it 'reports number of running jobs' do
-      expect(worker).to receive(:running_jobs).and_return(5)
+      expect(worker).to receive(:running_jobs_count).and_return(5)
 
       report_prometheus_metrics
 
