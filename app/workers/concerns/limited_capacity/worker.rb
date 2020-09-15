@@ -141,11 +141,9 @@ module LimitedCapacity
       "worker:#{self.class.name.underscore}:running"
     end
 
-    # rubocop: disable CodeReuse/ActiveRecord
     def with_redis(&block)
-      Gitlab::Redis::Queues.with(&block)
+      Gitlab::Redis::Queues.with(&block) # rubocop: disable CodeReuse/ActiveRecord
     end
-    # rubocop: enable CodeReuse/ActiveRecord
 
     def running_jobs_gauge
       strong_memoize(:running_jobs_gauge) do
