@@ -1,6 +1,6 @@
 <script>
 /* eslint-disable vue/no-v-html */
-import { GlLoadingIcon } from '@gitlab/ui';
+import { GlButton } from '@gitlab/ui';
 import { escape } from 'lodash';
 import simplePoll from '../../../lib/utils/simple_poll';
 import eventHub from '../../event_hub';
@@ -12,7 +12,7 @@ export default {
   name: 'MRWidgetRebase',
   components: {
     statusIcon,
-    GlLoadingIcon,
+    GlButton,
   },
   props: {
     mr: {
@@ -118,14 +118,15 @@ export default {
         <div
           class="accept-merge-holder clearfix js-toggle-container accept-action media space-children"
         >
-          <button
-            :disabled="isMakingRequest"
-            type="button"
-            class="btn btn-sm btn-reopen btn-success qa-mr-rebase-button"
+          <gl-button
+            :loading="isMakingRequest"
+            variant="success"
+            size="sm"
+            class="qa-mr-rebase-button"
             @click="rebase"
           >
-            <gl-loading-icon v-if="isMakingRequest" />{{ __('Rebase') }}
-          </button>
+            {{ __('Rebase') }}
+          </gl-button>
           <span v-if="!rebasingError" class="bold">{{
             __(
               'Fast-forward merge is not possible. Rebase the source branch onto the target branch.',
