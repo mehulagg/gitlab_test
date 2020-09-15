@@ -40,7 +40,7 @@ module Gitlab
           def create_or_update_metrics
             # TODO: use upsert and worker for callbacks?
             prometheus_metrics_attributes.each do |attributes|
-              prometheus_metric = PrometheusMetric.find_or_initialize_by(attributes.slice(:identifier, :project))
+              prometheus_metric = PrometheusMetric.find_or_initialize_by(attributes.slice(:dashboard_path, :identifier, :project))
               prometheus_metric.update!(attributes.slice(*ALLOWED_ATTRIBUTES))
 
               @affected_metric_ids << prometheus_metric.id
@@ -83,6 +83,8 @@ module Gitlab
           def update_prometheus_alerts
             affected_alerts = PrometheusAlert.for_metric(@affected_metric_ids.flatten.uniq)
               .distinct_project_and_environment
+
+            return unless affected_alerts.present?
 
             affected_alerts.each do |affected_alert|
               ::Clusters::Applications::ScheduleUpdateService.new(
