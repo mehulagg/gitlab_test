@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :merge_request_diff do
-    association :merge_request, :without_merge_request_diff
+    association :merge_request
     state { :collected }
     commits_count { 1 }
 
