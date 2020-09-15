@@ -8,7 +8,7 @@ export default {
   components: {
     statusIcon,
     GlLoadingIcon,
-    GlButton
+    GlButton,
   },
   props: {
     mr: {
