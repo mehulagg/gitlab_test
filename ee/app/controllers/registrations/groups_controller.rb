@@ -2,7 +2,7 @@
 
 module Registrations
   class GroupsController < ApplicationController
-    layout 'checkout'
+    layout 'onboarding'
 
     before_action :authorize_create_group!, only: :new
     before_action :check_experiment_enabled

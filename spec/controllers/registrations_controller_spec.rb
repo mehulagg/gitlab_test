@@ -460,43 +460,4 @@ RSpec.describe RegistrationsController do
       end
     end
   end
-
-  describe '#welcome' do
-    subject { get :welcome }
-
-    it 'renders the devise_experimental_separate_sign_up_flow layout' do
-      sign_in(create(:user))
-
-      expected_layout = Gitlab.ee? ? :checkout : :devise_experimental_separate_sign_up_flow
-
-      expect(subject).to render_template(expected_layout)
-    end
-
-    context '2FA is required from group' do
-      before do
-        user = create(:user, require_two_factor_authentication_from_group: true)
-        sign_in(user)
-      end
-
-      it 'does not perform a redirect' do
-        expect(subject).not_to redirect_to(profile_two_factor_auth_path)
-      end
-    end
-  end
-
-  describe '#update_registration' do
-    subject(:update_registration) do
-      patch :update_registration, params: { user: { role: 'software_developer', setup_for_company: 'false' } }
-    end
-
-    before do
-      sign_in(create(:user))
-    end
-
-    it 'sets flash message' do
-      subject
-
-      expect(flash[:notice]).to eq(I18n.t('devise.registrations.signed_up'))
-    end
-  end
 end

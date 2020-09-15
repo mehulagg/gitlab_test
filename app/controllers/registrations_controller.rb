@@ -52,30 +52,6 @@ class RegistrationsController < Devise::RegistrationsController
     end
   end
 
-  def welcome
-    return redirect_to new_user_registration_path unless current_user
-    return redirect_to path_for_signed_in_user(current_user) if current_user.role.present? && !current_user.setup_for_company.nil?
-  end
-
-  def update_registration
-    user_params = params.require(:user).permit(:role, :setup_for_company)
-    result = ::Users::SignupService.new(current_user, user_params).execute
-
-    if result[:status] == :success
-      if ::Gitlab.com? && show_onboarding_issues_experiment?
-        track_experiment_event(:onboarding_issues, 'signed_up')
-        record_experiment_user(:onboarding_issues)
-      end
-
-      return redirect_to new_users_sign_up_group_path if experiment_enabled?(:onboarding_issues) && show_onboarding_issues_experiment?
-
-      set_flash_message! :notice, :signed_up
-      redirect_to path_for_signed_in_user(current_user)
-    else
-      render :welcome
-    end
-  end
-
   protected
 
   def persist_accepted_terms_if_required(new_user)
@@ -183,22 +159,6 @@ class RegistrationsController < Devise::RegistrationsController
     Gitlab::Utils.to_boolean(params[:terms_opt_in])
   end
 
-  def path_for_signed_in_user(user)
-    if requires_confirmation?(user)
-      users_almost_there_path
-    else
-      stored_location_for(user) || dashboard_projects_path
-    end
-  end
-
-  def requires_confirmation?(user)
-    return false if user.confirmed?
-    return false if Feature.enabled?(:soft_email_confirmation)
-    return false if experiment_enabled?(:signup_flow)
-
-    true
-  end
-
   def track_terms_experiment(new_user)
     return unless new_user.persisted?
 
@@ -213,7 +173,7 @@ class RegistrationsController < Devise::RegistrationsController
   # Part of an experiment to build a new sign up flow. Will be resolved
   # with https://gitlab.com/gitlab-org/growth/engineering/issues/64
   def choose_layout
-    if %w(welcome update_registration).include?(action_name) || experiment_enabled?(:signup_flow)
+    if experiment_enabled?(:signup_flow)
       'devise_experimental_separate_sign_up_flow'
     else
       'devise'

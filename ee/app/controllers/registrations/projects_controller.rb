@@ -2,7 +2,7 @@
 
 module Registrations
   class ProjectsController < ApplicationController
-    layout 'checkout'
+    layout 'onboarding'
 
     before_action :check_experiment_enabled
     before_action :find_namespace, only: :new
