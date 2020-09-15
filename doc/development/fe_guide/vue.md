@@ -181,23 +181,26 @@ Check this [page](vuex.md) for more details.
 
 ### Mixing Vue and JavaScript classes (in the data function)
 
-In the Vue docs the Data function/object is defined as follow
+In the [Vue documentation](https://vuejs.org/v2/api/#Options-Data) the Data function/object is defined as follows:
 
 > The data object for the Vue instance. Vue will recursively convert its properties into getter/setters to make it “reactive”. The object must be plain: native objects such as browser API objects and prototype properties are ignored. A rule of thumb is that data should just be data - it is not recommended to observe objects with their own stateful behavior.
 
-- Do not use or create a JavaScript class in your [data function](https://vuejs.org/v2/api/#data), eg. `user: new User()`
-- Rather use [GraphQL](../api_graphql_styleguide.md), [Vuex](vuex.md) or a set of components if cannot use simple primitives or objects.
+Based on the Vue guidance:
+
+- Do not use or create a JavaScript class in your [data function](https://vuejs.org/v2/api/#data), such as `user: new User()`.
+- Instead, use [GraphQL](../api_graphql_styleguide.md), [Vuex](vuex.md) or a set of components if cannot use simple primitives or objects.
+- It's okay to maintain existing implementations using such approaches. Do not add new JavaScript class implementations. Whenever there are changes in the components which use such implementations, migrate them to a pure object model.
 - It's okay to maintain existing implementations using such approach but not to add new ones. Whenever there are changes in the components which use such implementations, it's also advised to migrate them to a pure object model either in a follow up issue or within the same MR if it doesn't bloat the MR size.
 - You can add business logic to helpers or utils, so you can test them separately from your component.
 
 #### Why
 
-Beside the official recomendation from the vue docs here are some examples on why having a JavaScript class is a problem for maintainability on a huge codebase:
+There are additional reasons why having a JavaScript class presents maintainability issues on a huge codebase:
 
-- Once a class is created is easy to extend it in a way that can infringe vue reactivity and vue best practices
-- Using a class adds another layer of abstraction, making the component API and its inner workings less clear
-- Testing with the class becomes harder, since the class is instantiated by the component data function is harder to 'manage' component and class separately
-- Adding OOP to a functional codebase adds yet another way of writing code, reducing consistency and clarity
+- Once a class is created, it is easy to extend it in a way that can infringe Vue reactivity and best practices.
+- A class adds a layer of abstraction, which makes the component API and its inner workings less clear.
+- It makes it harder to test. Since the class is instantiated by the component data function, it is harder to 'manage' component and class separately.
+- Adding OOP to a functional codebase adds yet another way of writing code, reducing consistency and clarity.
 
 ## Style guide
 
