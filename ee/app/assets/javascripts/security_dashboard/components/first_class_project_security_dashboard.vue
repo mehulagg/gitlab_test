@@ -1,4 +1,6 @@
 <script>
+import Cookies from 'js-cookie';
+import AutoFixUserCallout from './auto_fix_user_callout.vue';
 import ProjectVulnerabilitiesApp from './project_vulnerabilities.vue';
 import ReportsNotConfigured from './empty_states/reports_not_configured.vue';
 import SecurityDashboardLayout from './security_dashboard_layout.vue';
@@ -10,6 +12,7 @@ export const BANNER_COOKIE_KEY = 'hide_vulnerabilities_introduction_banner';
 
 export default {
   components: {
+    AutoFixUserCallout,
     ProjectVulnerabilitiesApp,
     ReportsNotConfigured,
     SecurityDashboardLayout,
@@ -39,14 +42,20 @@ export default {
     },
   },
   data() {
+    const shoudShowAutoFixUserCallout = !Cookies.get('auto_fix_user_callout_dismissed');
     return {
       filters: {},
+      shoudShowAutoFixUserCallout,
     };
   },
   inject: ['dashboardDocumentation'],
   methods: {
     handleFilterChange(filters) {
       this.filters = filters;
+    },
+    handleAutoFixUserCalloutClose() {
+      Cookies.set('auto_fix_user_callout_dismissed', 'true');
+      this.shoudShowAutoFixUserCallout = false;
     },
   },
 };
@@ -55,6 +64,11 @@ export default {
 <template>
   <div>
     <template v-if="hasVulnerabilities">
+      <auto-fix-user-callout
+        v-if="shoudShowAutoFixUserCallout"
+        help-page-path="#"
+        @close="handleAutoFixUserCalloutClose"
+      />
       <security-dashboard-layout>
         <template #header>
           <div class="mt-4 d-flex">
