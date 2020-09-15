@@ -77,6 +77,17 @@ module Groups::GroupMembersHelper
       avatar_url: avatar_icon_for_user(user, AVATAR_SIZE),
       blocked: user.blocked?,
       two_factor_enabled: user.two_factor_enabled?
+    }.merge(member_user_status(user.status))
+  end
+
+  def member_user_status(status)
+    return {} unless status.present?
+
+    {
+      status: {
+        emoji: status.emoji,
+        message_html: status.message_html
+      }
     }
   end
 

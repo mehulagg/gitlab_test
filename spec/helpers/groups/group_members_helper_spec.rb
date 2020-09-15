@@ -48,6 +48,14 @@ RSpec.describe Groups::GroupMembersHelper do
       let(:group_member) { create(:group_member, group: group, created_by: current_user) }
 
       it_behaves_like 'group_members.json'
+
+      context 'with user status set' do
+        let(:user) { create(:user) }
+        let!(:status) { create(:user_status, user: user) }
+        let(:group_member) { create(:group_member, group: group, user: user, created_by: current_user) }
+
+        it_behaves_like 'group_members.json'
+      end
     end
 
     context 'for an invited group member' do
