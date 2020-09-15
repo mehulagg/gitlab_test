@@ -1,5 +1,5 @@
 <script>
-import { GlLoadingIcon } from '@gitlab/ui';
+import { GlLoadingIcon, GlButton } from '@gitlab/ui';
 import eventHub from '../../event_hub';
 import statusIcon from '../mr_widget_status_icon.vue';
 
@@ -8,6 +8,7 @@ export default {
   components: {
     statusIcon,
     GlLoadingIcon,
+    GlButton
   },
   props: {
     mr: {
@@ -38,15 +39,16 @@ export default {
         <template v-if="mr.mergeError">{{ mr.mergeError }}</template>
         {{ s__('mrWidget|This merge request failed to be merged automatically') }}
       </span>
-      <button
+      <gl-button
         :disabled="isRefreshing"
-        type="button"
-        class="btn btn-sm btn-default"
+        category="secondary"
+        variant="default"
+        size="small"
         @click="refreshWidget"
       >
         <gl-loading-icon v-if="isRefreshing" :inline="true" />
         {{ s__('mrWidget|Refresh') }}
-      </button>
+      </gl-button>
     </div>
   </div>
 </template>
