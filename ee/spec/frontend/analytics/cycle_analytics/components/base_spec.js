@@ -204,8 +204,79 @@ describe('Cycle Analytics component', () => {
     wrapper = null;
   });
 
-  describe('displays the components as required', () => {
-    describe('the user has access to the group', () => {
+  describe('the user does not have access to the group', () => {
+    beforeEach(async () => {
+      await store.dispatch('receiveCycleAnalyticsDataError', {
+        response: { status: httpStatusCodes.FORBIDDEN },
+      });
+    });
+
+    it('renders the no access information', () => {
+      const emptyState = wrapper.find(GlEmptyState);
+
+      expect(emptyState.exists()).toBe(true);
+      expect(emptyState.props('svgPath')).toBe(noAccessSvgPath);
+    });
+
+    it('does not display the projects filter', () => {
+      displaysProjectsDropdownFilter(false);
+    });
+
+    it('does not display the date range picker', () => {
+      displaysDateRangePicker(false);
+    });
+
+    it('does not display the metrics', () => {
+      displaysMetrics(false);
+    });
+
+    it('does not display the stage table', () => {
+      displaysStageTable(false);
+    });
+
+    it('does not display the add stage button', () => {
+      displaysAddStageButton(false);
+    });
+
+    it('does not display the tasks by type chart', () => {
+      displaysTypeOfWork(false);
+    });
+
+    it('does not display the duration chart', () => {
+      displaysDurationChart(false);
+    });
+
+    describe('path navigation', () => {
+      describe('disabled', () => {
+        it('does not display the path navigation', () => {
+          displaysPathNavigation(false);
+        });
+      });
+
+      describe('enabled', () => {
+        beforeEach(async () => {
+          wrapper = await createComponent({
+            withValueStreamSelected: false,
+            withStageSelected: true,
+            pathNavigationEnabled: true,
+          });
+
+          mock = new MockAdapter(axios);
+          mockRequiredRoutes(mock);
+          mock.onAny().reply(httpStatusCodes.FORBIDDEN);
+
+          await waitForPromises();
+        });
+
+        it('does not display the path navigation', () => {
+          displaysPathNavigation(false);
+        });
+      });
+    });
+  });
+
+  describe('the user has access to the group', () => {
+    describe('displays the components as required', () => {
       beforeEach(async () => {
         mock = new MockAdapter(axios);
         mockRequiredRoutes(mock);
@@ -405,155 +476,84 @@ describe('Cycle Analytics component', () => {
           });
         });
       });
+    });
 
-      describe('the user does not have access to the group', () => {
-        beforeEach(async () => {
-          await store.dispatch('receiveCycleAnalyticsDataError', {
-            response: { status: httpStatusCodes.FORBIDDEN },
-          });
-        });
+    describe('with failed requests while loading', () => {
+      beforeEach(async () => {
+        setFixtures('<div class="flash-container"></div>');
 
-        it('renders the no access information', () => {
-          const emptyState = wrapper.find(GlEmptyState);
-
-          expect(emptyState.exists()).toBe(true);
-          expect(emptyState.props('svgPath')).toBe(noAccessSvgPath);
-        });
-
-        it('does not display the projects filter', () => {
-          displaysProjectsDropdownFilter(false);
-        });
-
-        it('does not display the date range picker', () => {
-          displaysDateRangePicker(false);
-        });
-
-        it('does not display the metrics', () => {
-          displaysMetrics(false);
-        });
-
-        it('does not display the stage table', () => {
-          displaysStageTable(false);
-        });
-
-        it('does not display the add stage button', () => {
-          displaysAddStageButton(false);
-        });
-
-        it('does not display the tasks by type chart', () => {
-          displaysTypeOfWork(false);
-        });
-
-        it('does not display the duration chart', () => {
-          displaysDurationChart(false);
-        });
-
-        describe('path navigation', () => {
-          describe('disabled', () => {
-            it('does not display the path navigation', () => {
-              displaysPathNavigation(false);
-            });
-          });
-
-          describe('enabled', () => {
-            beforeEach(async () => {
-              wrapper = await createComponent({
-                withValueStreamSelected: false,
-                withStageSelected: true,
-                pathNavigationEnabled: true,
-              });
-
-              mock = new MockAdapter(axios);
-              mockRequiredRoutes(mock);
-              mock.onAny().reply(httpStatusCodes.FORBIDDEN);
-
-              await waitForPromises();
-            });
-
-            it('does not display the path navigation', () => {
-              displaysPathNavigation(false);
-            });
-          });
-        });
+        mock = new MockAdapter(axios);
+        mockRequiredRoutes(mock);
       });
-    });
-  });
 
-  describe('with failed requests while loading', () => {
-    beforeEach(async () => {
-      setFixtures('<div class="flash-container"></div>');
+      afterEach(() => {
+        wrapper.destroy();
+        mock.restore();
+      });
 
-      mock = new MockAdapter(axios);
-      mockRequiredRoutes(mock);
-    });
+      const findFlashError = () => document.querySelector('.flash-container .flash-text');
+      const findError = async msg => {
+        await waitForPromises();
+        expect(findFlashError().innerText.trim()).toEqual(msg);
+      };
 
-    afterEach(() => {
-      wrapper.destroy();
-      mock.restore();
-    });
+      it('will display an error if the fetchGroupStagesAndEvents request fails', async () => {
+        expect(await findFlashError()).toBeNull();
 
-    const findFlashError = () => document.querySelector('.flash-container .flash-text');
-    const findError = async msg => {
-      await waitForPromises();
-      expect(findFlashError().innerText.trim()).toEqual(msg);
-    };
+        mock
+          .onGet(mockData.endpoints.baseStagesEndpoint)
+          .reply(httpStatusCodes.NOT_FOUND, { response: { status: httpStatusCodes.NOT_FOUND } });
+        wrapper = await createComponent();
 
-    it('will display an error if the fetchGroupStagesAndEvents request fails', async () => {
-      // expect(await findFlashError()).toBeNull();
+        await findError('There was an error fetching value stream analytics stages.');
+      });
 
-      mock
-        .onGet(mockData.endpoints.baseStagesEndpoint)
-        .reply(httpStatusCodes.NOT_FOUND, { response: { status: httpStatusCodes.NOT_FOUND } });
-      wrapper = await createComponent();
+      it('will display an error if the fetchStageData request fails', async () => {
+        expect(await findFlashError()).toBeNull();
 
-      await findError('There was an error fetching value stream analytics stages.');
-    });
+        mock
+          .onGet(mockData.endpoints.stageData)
+          .reply(httpStatusCodes.NOT_FOUND, { response: { status: httpStatusCodes.NOT_FOUND } });
+        await createComponent();
 
-    it('will display an error if the fetchStageData request fails', async () => {
-      // expect(await findFlashError()).toBeNull();
+        await findError('There was an error fetching data for the selected stage');
+      });
 
-      mock
-        .onGet(mockData.endpoints.stageData)
-        .reply(httpStatusCodes.NOT_FOUND, { response: { status: httpStatusCodes.NOT_FOUND } });
-      await createComponent();
+      it('will display an error if the fetchTopRankedGroupLabels request fails', async () => {
+        expect(await findFlashError()).toBeNull();
 
-      await findError('There was an error fetching data for the selected stage');
-    });
+        mock
+          .onGet(mockData.endpoints.tasksByTypeTopLabelsData)
+          .reply(httpStatusCodes.NOT_FOUND, { response: { status: httpStatusCodes.NOT_FOUND } });
+        await createComponent();
 
-    it('will display an error if the fetchTopRankedGroupLabels request fails', async () => {
-      // expect(await findFlashError()).toBeNull();
+        await findError('There was an error fetching the top labels for the selected group');
+      });
 
-      mock
-        .onGet(mockData.endpoints.tasksByTypeTopLabelsData)
-        .reply(httpStatusCodes.NOT_FOUND, { response: { status: httpStatusCodes.NOT_FOUND } });
-      await createComponent();
+      it('will display an error if the fetchTasksByTypeData request fails', async () => {
+        expect(await findFlashError()).toBeNull();
 
-      await findError('There was an error fetching the top labels for the selected group');
-    });
+        mock
+          .onGet(mockData.endpoints.tasksByTypeData)
+          .reply(httpStatusCodes.NOT_FOUND, { response: { status: httpStatusCodes.NOT_FOUND } });
+        await createComponent();
 
-    it('will display an error if the fetchTasksByTypeData request fails', async () => {
-      // expect(await findFlashError()).toBeNull();
+        await findError('There was an error fetching data for the tasks by type chart');
+      });
 
-      mock
-        .onGet(mockData.endpoints.tasksByTypeData)
-        .reply(httpStatusCodes.NOT_FOUND, { response: { status: httpStatusCodes.NOT_FOUND } });
-      await createComponent();
+      it('will display an error if the fetchStageMedian request fails', async () => {
+        expect(await findFlashError()).toBeNull();
 
-      await findError('There was an error fetching data for the tasks by type chart');
-    });
+        mock
+          .onGet(mockData.endpoints.stageMedian)
+          .reply(httpStatusCodes.NOT_FOUND, { response: { status: httpStatusCodes.NOT_FOUND } });
+        await createComponent();
 
-    it('will display an error if the fetchStageMedian request fails', async () => {
-      // expect(await findFlashError()).toBeNull();
-
-      mock
-        .onGet(mockData.endpoints.stageMedian)
-        .reply(httpStatusCodes.NOT_FOUND, { response: { status: httpStatusCodes.NOT_FOUND } });
-      await createComponent();
-
-      await waitForPromises();
-      expect(await findFlashError().innerText.trim()).toEqual(
-        'There was an error fetching median data for stages',
-      );
+        await waitForPromises();
+        expect(await findFlashError().innerText.trim()).toEqual(
+          'There was an error fetching median data for stages',
+        );
+      });
     });
   });
 
