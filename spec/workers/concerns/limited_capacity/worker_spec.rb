@@ -214,6 +214,17 @@ RSpec.describe LimitedCapacity::Worker do
 
       it { expect(remaining_capacity).to eq(1) }
     end
+
+    context 'with both running jobs and queued jobs' do
+      let(:max_capacity) { 10 }
+
+      before do
+        expect(worker_class).to receive(:queue_size).and_return(5)
+        expect(worker).to receive(:running_jobs).and_return(3)
+      end
+
+      it { expect(remaining_capacity).to eq(2) }
+    end
   end
 
   describe '#remove_completed_jobs_from_queue_set', :clean_gitlab_redis_shared_state, :clean_gitlab_redis_queues do
