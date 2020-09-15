@@ -153,6 +153,7 @@ module QA
 
         module Pipeline
           autoload :Show, 'qa/ee/page/project/pipeline/show'
+          autoload :Index, 'qa/ee/page/project/pipeline/index'
         end
 
         module Secure
