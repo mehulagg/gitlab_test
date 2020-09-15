@@ -198,7 +198,7 @@ After Visual Reviews has been [enabled](#configuring-visual-reviews) for the
 Review App, the Visual Reviews feedback form is overlaid on the app's pages at
 the bottom-right corner.
 
-![Visual review feedback form](img/toolbar_feeback_form.png)
+![Visual review feedback form](img/toolbar_feedback_form.png)
 
 To use the feedback form:
 
