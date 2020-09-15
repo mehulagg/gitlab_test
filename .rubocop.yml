@@ -5,6 +5,7 @@ inherit_gem:
 require:
   - ./rubocop/rubocop
   - rubocop-rspec
+  - test_prof/rubocop
 
 inherit_from:
   - .rubocop_todo.yml
@@ -548,3 +549,6 @@ Gitlab/RailsLogger:
   Exclude:
     - 'spec/**/*.rb'
     - 'ee/spec/**/*.rb'
+
+RSpec/AggregateExamples:
+  Enabled: false
