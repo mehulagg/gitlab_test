@@ -47,10 +47,10 @@ module Groups::GroupMembersHelper
         }
       }.merge(member_created_by_data(member.created_by))
 
-      if user.present?
-        data[:user] = member_user_data(user)
-      else
+      if member.invite?
         data[:invite] = member_invite_data(member)
+      elsif user.present?
+        data[:user] = member_user_data(user)
       end
 
       data
