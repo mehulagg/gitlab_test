@@ -3041,9 +3041,6 @@ msgstr ""
 msgid "Any Author"
 msgstr ""
 
-msgid "Any Confidentiality"
-msgstr ""
-
 msgid "Any branch"
 msgstr ""
 
