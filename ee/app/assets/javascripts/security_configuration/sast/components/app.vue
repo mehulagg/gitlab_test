@@ -3,6 +3,7 @@ import { GlAlert, GlLink, GlLoadingIcon, GlSprintf } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import sastCiConfigurationQuery from '../graphql/sast_ci_configuration.query.graphql';
+import sastCiConfigurationWithAnalyzersQuery from '../graphql/sast_ci_configuration_with_analyzers.query.graphql';
 import ConfigurationForm from './configuration_form.vue';
 
 export default {
@@ -24,13 +25,21 @@ export default {
       default: '',
     },
   },
-  apollo: {
-    sastCiConfiguration: {
-      query: sastCiConfigurationQuery,
+  data() {
+    return {
+      sastCiConfiguration: null,
+      hasLoadingError: false,
+      showFeedbackAlert: true,
+    };
+  },
+  created() {
+    this.$apollo.addSmartQuery('sastCiConfiguration', {
+      query: this.glFeatures.sastConfigurationUiAnalyzers
+        ? sastCiConfigurationWithAnalyzersQuery
+        : sastCiConfigurationQuery,
       variables() {
         return {
           fullPath: this.projectPath,
-          includeAnalyzers: Boolean(this.glFeatures.sastConfigurationUiAnalyzers),
         };
       },
       update({ project }) {
@@ -44,14 +53,7 @@ export default {
       error() {
         this.onError();
       },
-    },
-  },
-  data() {
-    return {
-      sastCiConfiguration: null,
-      hasLoadingError: false,
-      showFeedbackAlert: true,
-    };
+    });
   },
   methods: {
     dismissFeedbackAlert() {
