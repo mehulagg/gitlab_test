@@ -2,8 +2,12 @@
 
 module Security
   class StoreScansService
-    def initialize(build)
-      @build = build
+    def self.execute(pipeline)
+      new(pipeline).execute
+    end
+
+    def initialize(pipeline)
+      @pipeline = pipeline
     end
 
     def execute
@@ -14,7 +18,7 @@ module Security
 
     private
 
-    attr_reader :build
+    attr_reader :pipeline
 
     def canceled_or_skipped?
       build.canceled? || build.skipped?
