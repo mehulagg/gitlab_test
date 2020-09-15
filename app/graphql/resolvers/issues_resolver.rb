@@ -11,6 +11,12 @@ module Resolvers
               description: 'Sort issues by this criteria',
               required: false,
               default_value: 'created_desc'
+    argument :author_username, [GraphQL::STRING_TYPE],
+              required: false,
+              description: 'Filter requirements by author username'
+    argument :assignee_username, [GraphQL::STRING_TYPE],
+              required: false,
+              description: 'Filter requirements by assignee username'
 
     type Types::IssueType, null: true
 

@@ -18,7 +18,10 @@ RSpec.describe Projects::IncidentsHelper do
         'incident-template-name' => 'incident',
         'incident-type' => 'incident',
         'issue-path' => issue_path,
-        'empty-list-svg-path' => match_asset_path('/assets/illustrations/incident-empty-state.svg')
+        'empty-list-svg-path' => match_asset_path('/assets/illustrations/incident-empty-state.svg'),
+        'text-query': 'search',
+        'author-usernames-query': 'root',
+        'assignee-usernames-query': 'root'
       }
     end
 

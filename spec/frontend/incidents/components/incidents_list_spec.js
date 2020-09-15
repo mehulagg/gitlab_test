@@ -5,7 +5,6 @@ import {
   GlTable,
   GlAvatar,
   GlPagination,
-  GlSearchBoxByType,
   GlTab,
   GlTabs,
   GlBadge,
@@ -15,13 +14,17 @@ import { visitUrl, joinPaths, mergeUrlParams } from '~/lib/utils/url_utility';
 import IncidentsList from '~/incidents/components/incidents_list.vue';
 import SeverityToken from '~/sidebar/components/severity/severity.vue';
 import TimeAgoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
+import FilteredSearchBar from '~/vue_shared/components/filtered_search_bar/filtered_search_bar_root.vue';
 import { I18N, INCIDENT_STATUS_TABS } from '~/incidents/constants';
 import mockIncidents from '../mocks/incidents.json';
+import mockFilters from '../mocks/incidents_filter.json';
 
 jest.mock('~/lib/utils/url_utility', () => ({
   visitUrl: jest.fn().mockName('visitUrlMock'),
   joinPaths: jest.fn().mockName('joinPaths'),
   mergeUrlParams: jest.fn().mockName('mergeUrlParams'),
+  setUrlParams: jest.fn().mockName('setUrlParams'),
+  updateHistory: jest.fn().mockName('updateHistory'),
 }));
 
 describe('Incidents List', () => {
@@ -43,7 +46,7 @@ describe('Incidents List', () => {
   const findTimeAgo = () => wrapper.findAll(TimeAgoTooltip);
   const findDateColumnHeader = () =>
     wrapper.find('[data-testid="incident-management-created-at-sort"]');
-  const findSearch = () => wrapper.find(GlSearchBoxByType);
+  const findSearch = () => wrapper.find(FilteredSearchBar);
   const findAssingees = () => wrapper.findAll('[data-testid="incident-assignees"]');
   const findCreateIncidentBtn = () => wrapper.find('[data-testid="createIncidentBtn"]');
   const findClosedIcon = () => wrapper.findAll("[data-testid='incident-closed']");
@@ -76,6 +79,9 @@ describe('Incidents List', () => {
         issuePath: '/project/isssues',
         publishedAvailable: true,
         emptyListSvgPath,
+        textQuery: '',
+        authorUsernamesQuery: '',
+        assigneeUsernamesQuery: '',
       },
       stubs: {
         GlButton: true,
@@ -315,7 +321,7 @@ describe('Incidents List', () => {
       });
     });
 
-    describe('Search', () => {
+    describe('Filtered search component', () => {
       beforeEach(() => {
         mountComponent({
           data: {
@@ -334,12 +340,26 @@ describe('Incidents List', () => {
         expect(findSearch().exists()).toBe(true);
       });
 
-      it('sets the `searchTerm` graphql variable', () => {
-        const SEARCH_TERM = 'Simple Incident';
+      it('returns correctly applied filter search values', async () => {
+        wrapper.setData({
+          authorUsernames: 'root',
+          searchTerm: 'foo',
+        });
 
-        findSearch().vm.$emit('input', SEARCH_TERM);
+        await wrapper.vm.$nextTick();
+        expect(wrapper.vm.getFilteredSearchValue()).toEqual(mockFilters);
+      });
 
-        expect(wrapper.vm.$data.searchTerm).toBe(SEARCH_TERM);
+      it('updates props `searchTerm` and `authorUsernames` with empty values when passed filters param is empty', async () => {
+        wrapper.setData({
+          authorUsernames: 'foo',
+          searchTerm: 'bar',
+        });
+
+        wrapper.vm.handleFilterIncidents([]);
+
+        expect(wrapper.vm.authorUsernames).toEqual([]);
+        expect(wrapper.vm.searchTerm).toBe('');
       });
     });
 

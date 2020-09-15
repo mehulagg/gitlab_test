@@ -4,6 +4,13 @@ module Resolvers
   class IssueStatusCountsResolver < BaseResolver
     prepend IssueResolverArguments
 
+    argument :author_username, [GraphQL::STRING_TYPE],
+              required: false,
+              description: 'Filter requirements by author username'
+    argument :assignee_username, [GraphQL::STRING_TYPE],
+              required: false,
+              description: 'Filter requirements by assignee username'
+
     type Types::IssueStatusCountsType, null: true
 
     def continue_issue_resolve(parent, finder, **args)
