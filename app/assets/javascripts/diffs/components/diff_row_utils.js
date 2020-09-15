@@ -21,7 +21,7 @@ export const isContextLine = type => type === CONTEXT_LINE_TYPE;
 export const isMatchLine = type => type === MATCH_LINE_TYPE;
 
 export const isMetaLine = type =>
-  type === OLD_NO_NEW_LINE_TYPE || type === NEW_NO_NEW_LINE_TYPE || type === EMPTY_CELL_TYPE;
+         [OLD_NO_NEW_LINE_TYPE, NEW_NO_NEW_LINE_TYPE, EMPTY_CELL_TYPE].includes(type);
 
 export const shouldRenderCommentButton = (isLoggedIn, isCommentButtonRendered) => {
   if (!isCommentButtonRendered) {
@@ -36,15 +36,13 @@ export const shouldRenderCommentButton = (isLoggedIn, isCommentButtonRendered) =
   return false;
 };
 
-export const hasDiscussions = line => line?.discussions && line?.discussions?.length > 0;
+export const hasDiscussions = line => line?.discussions?.length > 0;
 
 export const lineHref = line => `#${line?.line_code || ''}`;
 
 export const lineCode = line => {
   if (!line) return '';
-  return (
-    line.line_code || (line.left && line.left.line_code) || (line.right && line.right.line_code)
-  );
+  return line.line_code || line.left?.line_code || line.right?.line_code || '';
 };
 
 export const classNameMapCell = (line, hll, isLoggedIn, isHover) => {
@@ -82,11 +80,11 @@ export const addCommentTooltip = line => {
 };
 
 export const parallelViewLeftLineType = (line, hll) => {
-  if (line.right && line.right.type === NEW_NO_NEW_LINE_TYPE) {
+  if (line?.right?.type === NEW_NO_NEW_LINE_TYPE) {
     return OLD_NO_NEW_LINE_TYPE;
   }
 
-  const lineTypeClass = line.left ? line.left.type : EMPTY_CELL_TYPE;
+  const lineTypeClass = line?.left ? line.left.type : EMPTY_CELL_TYPE;
 
   return [lineTypeClass, { hll }];
 };
