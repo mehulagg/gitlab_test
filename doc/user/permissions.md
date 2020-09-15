@@ -174,7 +174,7 @@ The following table depicts the various user permission levels in a project.
 
 \* Owner permission is only available at the group or personal namespace level (and for instance admins) and is inherited by its projects.
 
-1. Guest users are able to perform this action on public and internal projects, but not private projects.
+1. Internal guest users are able to perform this action on public and internal projects, but not private projects.
 1. Guest users can only view the confidential issues they created themselves.
 1. If **Public pipelines** is enabled in **Project Settings > CI/CD**.
 1. Not allowed for Guest, Reporter, Developer, Maintainer, or Owner. See [Protected Branches](./project/protected_branches.md).
@@ -309,14 +309,12 @@ External users:
 Access can be granted by adding the user as member to the project or group.
 Like usual users, they receive a role in the project or group with all
 the abilities that are mentioned in the [permissions table above](#project-members-permissions).
-For example, if an external user is added as Guest, and your project is
+For example, if an external user is added as Guest, and your project is internal or
 private, they do not have access to the code; you need to grant the external
 user access at the Reporter level or above if you want them to have access to the code. You should
 always take into account the
 [project's visibility and permissions settings](project/settings/index.md#sharing-and-permissions)
 as well as the permission level of the user.
-
-The only difference from the permissions table with external users is that internal projects are considered like private projects for external users. For example, in an internal project you need to grant an external user access at the Reporter level or above if you want them to have access to the code.
 
 NOTE: **Note:**
 External users still count towards a license seat.
