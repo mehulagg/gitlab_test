@@ -208,6 +208,8 @@ To use the feedback form:
 1. If `data-require-auth` is `true`, you must enter your [personal access token](../../user/profile/personal_access_tokens.md). Otherwise, you must enter your name, and optionally, your email.
 1. Finally, click **Send feedback**.
 
+![Merge Request Comment from Visual Review toolbar](img/merge_request_toolbar_comment.png)
+
 Watch a quick walkthrough of Visual Reviews in action:
 
 <div class="video-fallback">
@@ -229,7 +231,7 @@ if [route maps](#route-maps) are configured in the project.
 
 The provided script should be added to the `<head>` of your application and
 consists of some project and merge request specific values. Here's what it
-looks for a project on Gitlab.com:
+looks for a project on GitLab.com:
 
 ```html
 <script
@@ -260,7 +262,7 @@ to replace those values at runtime when each review app is created:
 - `src` is the source of the review toolbar script, which resides in the
   respective GitLab instance and will be the same for all review apps.
 
-For example, in a Ruby application being hosted on Gitlab.com, you would need to have this script:
+For example, in a Ruby application being hosted on GitLab.com, you would need to have this script:
 
 ```html
 <script
@@ -306,27 +308,6 @@ To enable visual reviews for private and internal projects, set the
 [`data-require-auth` variable](#configuring-visual-reviews) to `true`. When enabled,
 the user must enter a [personal access token](../../user/profile/personal_access_tokens.md)
 with `api` scope before submitting feedback.
-
-### Using Visual Reviews
-
-After Visual Reviews has been [enabled](#configuring-visual-reviews) for the
-Review App, the Visual Reviews feedback form is overlaid on the app's pages at
-the bottom-right corner.
-
-![Visual review feedback form](img/toolbar_feeback_form.png)
-
-To use the feedback form:
-
-1. Make a comment on the visual review. You can make use of all the
-   [Markdown annotations](../../user/markdown.md) that are also available in
-   merge request comments.
-1. If `data-require-auth` is `true`, you must enter your [personal access token](../../user/profile/personal_access_tokens.md). Otherwise, you must enter your name, and optionally, your email.
-1. Finally, click **Send feedback**.
-
-After you make and submit a comment in the visual review box, it will appear
-automatically in the respective merge request.
-
-![Merge Request Comment from Visual Review toolbar](img/merge_request_toolbar_comment.png)
 
 ## Limitations
 
