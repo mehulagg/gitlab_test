@@ -6,10 +6,10 @@ RSpec.describe Gitlab::SearchResults do
   include ProjectForksHelper
   include SearchHelpers
 
-  let_it_be(:user) { create(:user) }
-  let_it_be(:project) { create(:project, name: 'foo') }
-  let_it_be(:issue) { create(:issue, project: project, title: 'foo') }
-  let_it_be(:milestone) { create(:milestone, project: project, title: 'foo') }
+  let!(:user) { create(:user) }
+  let!(:project) { create(:project, name: 'foo') }
+  let!(:issue) { create(:issue, project: project, title: 'foo') }
+  let!(:milestone) { create(:milestone, project: project, title: 'foo') }
   let(:merge_request) { create(:merge_request, source_project: project, title: 'foo') }
   let(:filters) { {} }
 
@@ -178,9 +178,8 @@ RSpec.describe Gitlab::SearchResults do
 
       context 'filtering' do
         let(:scope) { 'issues' }
-
-        let_it_be(:closed_result) { create(:issue, :closed, project: project, title: 'foo closed') }
-        let_it_be(:opened_result) { create(:issue, :opened, project: project, title: 'foo open') }
+        let!(:closed_result) { create(:issue, :closed, project: project, title: 'foo closed') }
+        let!(:opened_result) { create(:issue, :opened, project: project, title: 'foo open') }
 
         include_examples 'search results filtered by state'
       end
