@@ -147,7 +147,7 @@ module LimitedCapacity
 
     def running_jobs_gauge
       strong_memoize(:running_jobs_gauge) do
-        Gitlab::Metrics.gauge(:limited_capacity_worker_running_jobs, 'Number of jobs running')
+        Gitlab::Metrics.gauge(:limited_capacity_worker_running_jobs, 'Number of running jobs')
       end
     end
   end
