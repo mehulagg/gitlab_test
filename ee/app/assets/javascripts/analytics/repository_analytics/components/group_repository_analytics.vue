@@ -1,6 +1,6 @@
 <script>
 import { GlButton } from '@gitlab/ui';
-import { __ } from '~/locale';
+import { s__ } from '~/locale';
 import { pikadayToString } from '~/lib/utils/datetime_utility';
 
 export default {
@@ -24,8 +24,8 @@ export default {
     },
   },
   text: {
-    codeCoverageHeader: __('RepositoriesAnalytics|Test Code Coverage'),
-    downloadCSVButton: __('RepositoriesAnalytics|Download historic test coverage data (.csv)'),
+    codeCoverageHeader: s__('RepositoriesAnalytics|Test Code Coverage'),
+    downloadCSVButton: s__('RepositoriesAnalytics|Download historic test coverage data (.csv)'),
   },
 };
 </script>
