@@ -19,6 +19,11 @@ RSpec.describe Groups::GroupMembersHelper do
 
   describe '#linked_groups_data_json' do
     include_context 'group_group_link'
+    let(:current_user) { create(:user) }
+
+    before do
+      allow(helper).to receive(:current_user).and_return(current_user)
+    end
 
     it 'matches json schema' do
       json = helper.linked_groups_data_json(shared_group.shared_with_group_links)
