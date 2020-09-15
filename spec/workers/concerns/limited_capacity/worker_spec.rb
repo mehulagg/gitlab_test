@@ -18,7 +18,7 @@ RSpec.describe LimitedCapacity::Worker do
 
   describe 'required methods' do
     it { expect { worker.perform_work }.to raise_error(NotImplementedError) }
-    it { expect { worker.remaining_work }.to raise_error(NotImplementedError) }
+    it { expect { worker.remaining_work_count }.to raise_error(NotImplementedError) }
     it { expect { worker.max_running_jobs }.to raise_error(NotImplementedError) }
   end
 
@@ -29,13 +29,13 @@ RSpec.describe LimitedCapacity::Worker do
       expect_next_instance_of(worker_class) do |instance|
         expect(instance).to receive(:remove_completed_jobs_from_queue_set)
         expect(instance).to receive(:report_prometheus_metrics)
-        expect(instance).to receive(:remaining_work).and_return(remaining_work)
+        expect(instance).to receive(:remaining_work_count).and_return(remaining_work_count)
         expect(instance).to receive(:remaining_capacity).and_return(remaining_capacity)
       end
     end
 
     context 'when capacity is larger than work' do
-      let(:remaining_work) { 2 }
+      let(:remaining_work_count) { 2 }
       let(:remaining_capacity) { 3 }
 
       it 'enqueues jobs for remaining work' do
@@ -48,7 +48,7 @@ RSpec.describe LimitedCapacity::Worker do
     end
 
     context 'when capacity is lower than work' do
-      let(:remaining_work) { 5 }
+      let(:remaining_work_count) { 5 }
       let(:remaining_capacity) { 3 }
 
       it 'enqueues jobs for remaining work' do

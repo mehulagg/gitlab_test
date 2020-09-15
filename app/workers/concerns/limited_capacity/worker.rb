@@ -11,7 +11,7 @@
 #   def perform_work(*args)
 #   end
 #
-#   def remaining_work
+#   def remaining_work_count
 #     5
 #   end
 #
@@ -44,7 +44,7 @@ module LimitedCapacity
         worker.report_prometheus_metrics
 
         required_job_count = [
-          worker.remaining_work,
+          worker.remaining_work_count,
           worker.remaining_capacity
         ].min
 
@@ -82,14 +82,14 @@ module LimitedCapacity
     end
 
     def has_work?
-      remaining_work > 0
+      remaining_work_count > 0
     end
 
     def perform_work(*args)
       raise NotImplementedError
     end
 
-    def remaining_work
+    def remaining_work_count
       raise NotImplementedError
     end
 
