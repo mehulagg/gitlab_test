@@ -1,7 +1,7 @@
 ---
 name: status_page_attachments
-introduced_by_url: 
-rollout_issue_url: 
-group: 
+introduced_by_url: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/31269
+rollout_issue_url: https://gitlab.com/gitlab-org/gitlab/-/issues/219286
+group: group::health
 type: development
 default_enabled: true
