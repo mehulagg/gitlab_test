@@ -8,9 +8,9 @@ module Security
     # rubocop: disable CodeReuse/ActiveRecord
     def perform(pipeline_id)
       ::Ci::Pipeline.find_by(id: pipeline_id).try do |pipeline|
-        break unless pipeline.project.can_store_security_reports?
+        break unless pipeline.can_store_security_reports?
 
-        Security::StoreScansService.new(pipeline).execute
+        Security::StoreScansService.execute(pipeline)
       end
     end
   end
