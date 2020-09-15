@@ -4280,14 +4280,9 @@ RSpec.describe MergeRequest, factory_default: :keep do
   end
 
   describe '#reviewer_list' do
-    let(:merge_request) { build(:merge_request) }
-
+    let(:merge_request) { build(:merge_request, reviewers: [user1, user2]) }
     let(:user1) { build(:user, name: 'John') }
     let(:user2) { build(:user, name: 'Mary') }
-
-    before do
-      merge_request.reviewers = [user1, user2]
-    end
 
     it 'returns current reviewers in a sentence' do
       expect(merge_request.reviewer_list).to eq "John and Mary"
