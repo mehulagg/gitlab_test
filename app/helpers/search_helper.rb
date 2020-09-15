@@ -297,7 +297,7 @@ module SearchHelper
   def simple_search_highlight_and_truncate(text, phrase, options = {})
     text = truncate(text, length: 200)
     phrase = phrase.split
-    ActionView::Helpers::TextHelper.instance_method(:highlight).bind(self).call(text, phrase, options)
+    highlight(text, phrase, options)
   end
 
   def show_user_search_tab?
