@@ -1,5 +1,37 @@
 # frozen_string_literal: true
 
+# Usage:
+#
+# Worker that performs the tasks:
+#
+# class DummyWorker
+#   include ApplicationWorker
+#   include LimitedCapacity::Worker
+#
+#   def perform_work(*args)
+#   end
+#
+#   def remaining_work
+#     5
+#   end
+#
+#   def max_running_jobs
+#     25
+#   end
+# end
+#
+# Cron worker to fill the pool of regular workers:
+#
+# class ScheduleDummyCronWorker
+#   include ApplicationWorker
+#   include CronjobQueue
+#
+#   def perform(*args)
+#     DummyWorker.perform_with_capacity(*args)
+#   end
+# end
+#
+
 module LimitedCapacity
   module Worker
     extend ActiveSupport::Concern
