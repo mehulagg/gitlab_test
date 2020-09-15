@@ -9,8 +9,8 @@ import {
   GlFormInput,
   GlFormSelect,
   GlLink,
-  GlNewDropdown,
-  GlNewDropdownItem,
+  GlDropdown,
+  GlDropdownItem,
   GlSearchBoxByType,
   GlSprintf,
 } from '@gitlab/ui';
@@ -37,8 +37,8 @@ export default {
     GlFormInput,
     GlFormSelect,
     GlLink,
-    GlNewDropdown,
-    GlNewDropdownItem,
+    GlDropdown,
+    GlDropdownItem,
     GlSearchBoxByType,
     GlSprintf,
   },
@@ -173,13 +173,13 @@ export default {
       >{{ error }}</gl-alert
     >
     <gl-form-group :label="s__('Pipeline|Run for')">
-      <gl-new-dropdown :text="refValue" block>
+      <gl-dropdown :text="refValue" block>
         <gl-search-box-by-type
           v-model.trim="searchTerm"
           :placeholder="__('Search branches and tags')"
           class="gl-p-2"
         />
-        <gl-new-dropdown-item
+        <gl-dropdown-item
           v-for="(ref, index) in filteredRefs"
           :key="index"
           class="gl-font-monospace"
@@ -188,8 +188,8 @@ export default {
           @click="setRefSelected(ref)"
         >
           {{ ref }}
-        </gl-new-dropdown-item>
-      </gl-new-dropdown>
+        </gl-dropdown-item>
+      </gl-dropdown>
 
       <template #description>
         <div>

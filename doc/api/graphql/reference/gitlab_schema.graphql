@@ -3143,6 +3143,11 @@ Represents a DAST scanner profile.
 """
 type DastScannerProfile {
   """
+  Relative web path to the edit page of a scanner profile
+  """
+  editPath: String
+
+  """
   ID of the DAST scanner profile
   """
   globalId: DastScannerProfileID!
@@ -5673,6 +5678,11 @@ type EpicHealthStatus {
 }
 
 """
+Identifier of Epic
+"""
+scalar EpicID
+
+"""
 Relationship between an epic and an issue
 """
 type EpicIssue implements CurrentUserTodos & Noteable {
@@ -6705,6 +6715,36 @@ type Group {
   Full path of the namespace
   """
   fullPath: ID!
+
+  """
+  A membership of a user within this group
+  """
+  groupMembers(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+
+    """
+    Search query
+    """
+    search: String
+  ): GroupMemberConnection
 
   """
   Indicates if Group timelogs are enabled for namespace
@@ -8060,6 +8100,11 @@ input IssueMoveListInput {
   A unique identifier for the client performing the mutation.
   """
   clientMutationId: String
+
+  """
+  The ID of the parent epic. NULL when removing the association
+  """
+  epicId: EpicID
 
   """
   ID of the board list that the issue will be moved from
@@ -14323,6 +14368,11 @@ type Release {
   Relative web path to the tag associated with the release
   """
   tagPath: String
+
+  """
+  Indicates the release is an upcoming release
+  """
+  upcomingRelease: Boolean
 }
 
 """
@@ -16049,6 +16099,7 @@ enum ServiceType {
   DISCORD_SERVICE
   DRONE_CI_SERVICE
   EMAILS_ON_PUSH_SERVICE
+  EWM_SERVICE
   EXTERNAL_WIKI_SERVICE
   FLOWDOCK_SERVICE
   GITHUB_SERVICE

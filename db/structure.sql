@@ -9271,6 +9271,7 @@ CREATE TABLE public.application_settings (
     elasticsearch_indexed_file_size_limit_kb integer DEFAULT 1024 NOT NULL,
     enforce_namespace_storage_limit boolean DEFAULT false NOT NULL,
     container_registry_delete_tags_service_timeout integer DEFAULT 250 NOT NULL,
+    elasticsearch_client_request_timeout integer DEFAULT 0 NOT NULL,
     CONSTRAINT check_51700b31b5 CHECK ((char_length(default_branch_name) <= 255)),
     CONSTRAINT check_9c6c447a13 CHECK ((char_length(maintenance_mode_message) <= 255)),
     CONSTRAINT check_d03919528d CHECK ((char_length(container_registry_vendor) <= 255)),
@@ -9537,6 +9538,27 @@ CREATE SEQUENCE public.audit_events_id_seq
     CACHE 1;
 
 ALTER SEQUENCE public.audit_events_id_seq OWNED BY public.audit_events.id;
+
+CREATE TABLE public.authentication_events (
+    id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    user_id bigint,
+    result smallint NOT NULL,
+    ip_address inet,
+    provider text NOT NULL,
+    user_name text NOT NULL,
+    CONSTRAINT check_45a6cc4e80 CHECK ((char_length(user_name) <= 255)),
+    CONSTRAINT check_c64f424630 CHECK ((char_length(provider) <= 64))
+);
+
+CREATE SEQUENCE public.authentication_events_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.authentication_events_id_seq OWNED BY public.authentication_events.id;
 
 CREATE TABLE public.award_emoji (
     id integer NOT NULL,
@@ -14085,7 +14107,9 @@ ALTER SEQUENCE public.packages_packages_id_seq OWNED BY public.packages_packages
 
 CREATE TABLE public.packages_pypi_metadata (
     package_id bigint NOT NULL,
-    required_python character varying(50) NOT NULL
+    required_python text,
+    CONSTRAINT check_0d9aed55b2 CHECK ((required_python IS NOT NULL)),
+    CONSTRAINT check_379019d5da CHECK ((char_length(required_python) <= 255))
 );
 
 CREATE TABLE public.packages_tags (
@@ -16963,6 +16987,8 @@ ALTER TABLE ONLY public.atlassian_identities ALTER COLUMN user_id SET DEFAULT ne
 
 ALTER TABLE ONLY public.audit_events ALTER COLUMN id SET DEFAULT nextval('public.audit_events_id_seq'::regclass);
 
+ALTER TABLE ONLY public.authentication_events ALTER COLUMN id SET DEFAULT nextval('public.authentication_events_id_seq'::regclass);
+
 ALTER TABLE ONLY public.award_emoji ALTER COLUMN id SET DEFAULT nextval('public.award_emoji_id_seq'::regclass);
 
 ALTER TABLE ONLY public.background_migration_jobs ALTER COLUMN id SET DEFAULT nextval('public.background_migration_jobs_id_seq'::regclass);
@@ -17893,6 +17919,9 @@ ALTER TABLE ONLY public.audit_events_part_5fc467ac26
 
 ALTER TABLE ONLY public.audit_events
     ADD CONSTRAINT audit_events_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.authentication_events
+    ADD CONSTRAINT authentication_events_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY public.award_emoji
     ADD CONSTRAINT award_emoji_pkey PRIMARY KEY (id);
@@ -19331,6 +19360,10 @@ CREATE INDEX index_approvers_on_user_id ON public.approvers USING btree (user_id
 
 CREATE UNIQUE INDEX index_atlassian_identities_on_extern_uid ON public.atlassian_identities USING btree (extern_uid);
 
+CREATE INDEX index_authentication_events_on_provider ON public.authentication_events USING btree (provider);
+
+CREATE INDEX index_authentication_events_on_user_id ON public.authentication_events USING btree (user_id);
+
 CREATE INDEX index_award_emoji_on_awardable_type_and_awardable_id ON public.award_emoji USING btree (awardable_type, awardable_id);
 
 CREATE INDEX index_award_emoji_on_user_id_and_name ON public.award_emoji USING btree (user_id, name);
@@ -20327,6 +20360,8 @@ CREATE INDEX index_merge_requests_on_sprint_id ON public.merge_requests USING bt
 
 CREATE INDEX index_merge_requests_on_target_branch ON public.merge_requests USING btree (target_branch);
 
+CREATE INDEX index_merge_requests_on_target_project_id_and_created_at_and_id ON public.merge_requests USING btree (target_project_id, created_at, id);
+
 CREATE UNIQUE INDEX index_merge_requests_on_target_project_id_and_iid ON public.merge_requests USING btree (target_project_id, iid);
 
 CREATE INDEX index_merge_requests_on_target_project_id_and_target_branch ON public.merge_requests USING btree (target_project_id, target_branch) WHERE ((state_id = 1) AND (merge_when_pipeline_succeeds = true));
@@ -20338,8 +20373,6 @@ CREATE INDEX index_merge_requests_on_title_trigram ON public.merge_requests USIN
 CREATE INDEX index_merge_requests_on_tp_id_and_merge_commit_sha_and_id ON public.merge_requests USING btree (target_project_id, merge_commit_sha, id);
 
 CREATE INDEX index_merge_requests_on_updated_by_id ON public.merge_requests USING btree (updated_by_id) WHERE (updated_by_id IS NOT NULL);
-
-CREATE INDEX index_merge_requests_target_project_id_created_at ON public.merge_requests USING btree (target_project_id, created_at);
 
 CREATE UNIQUE INDEX index_merge_trains_on_merge_request_id ON public.merge_trains USING btree (merge_request_id);
 
@@ -21400,6 +21433,8 @@ CREATE INDEX terraform_states_verification_failure_partial ON public.terraform_s
 CREATE INDEX tmp_build_stage_position_index ON public.ci_builds USING btree (stage_id, stage_idx) WHERE (stage_idx IS NOT NULL);
 
 CREATE INDEX tmp_index_for_email_unconfirmation_migration ON public.emails USING btree (id) WHERE (confirmed_at IS NOT NULL);
+
+CREATE INDEX tmp_index_for_fixing_inconsistent_vulnerability_occurrences ON public.vulnerability_occurrences USING btree (id) WHERE ((length(location_fingerprint) = 40) AND (report_type = 2));
 
 CREATE UNIQUE INDEX unique_merge_request_metrics_by_merge_request_id ON public.merge_request_metrics USING btree (merge_request_id);
 
@@ -23157,6 +23192,9 @@ ALTER TABLE ONLY public.webauthn_registrations
 
 ALTER TABLE ONLY public.packages_build_infos
     ADD CONSTRAINT fk_rails_b18868292d FOREIGN KEY (package_id) REFERENCES public.packages_packages(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.authentication_events
+    ADD CONSTRAINT fk_rails_b204656a54 FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE SET NULL;
 
 ALTER TABLE ONLY public.merge_trains
     ADD CONSTRAINT fk_rails_b29261ce31 FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;

@@ -8547,6 +8547,20 @@
           "description": "Represents a DAST scanner profile.",
           "fields": [
             {
+              "name": "editPath",
+              "description": "Relative web path to the edit page of a scanner profile",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "globalId",
               "description": "ID of the DAST scanner profile",
               "args": [
@@ -15877,6 +15891,16 @@
           "possibleTypes": null
         },
         {
+          "kind": "SCALAR",
+          "name": "EpicID",
+          "description": "Identifier of Epic",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
           "kind": "OBJECT",
           "name": "EpicIssue",
           "description": "Relationship between an epic and an issue",
@@ -18647,6 +18671,69 @@
                   "name": "ID",
                   "ofType": null
                 }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "groupMembers",
+              "description": "A membership of a user within this group",
+              "args": [
+                {
+                  "name": "search",
+                  "description": "Search query",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "after",
+                  "description": "Returns the elements in the list that come after the specified cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "before",
+                  "description": "Returns the elements in the list that come before the specified cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "first",
+                  "description": "Returns the first _n_ elements from the list.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "last",
+                  "description": "Returns the last _n_ elements from the list.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "GroupMemberConnection",
+                "ofType": null
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -22330,6 +22417,16 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "ID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "epicId",
+              "description": "The ID of the parent epic. NULL when removing the association",
+              "type": {
+                "kind": "SCALAR",
+                "name": "EpicID",
                 "ofType": null
               },
               "defaultValue": null
@@ -41755,6 +41852,20 @@
               },
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "upcomingRelease",
+              "description": "Indicates the release is an upcoming release",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
             }
           ],
           "inputFields": null,
@@ -46935,6 +47046,12 @@
             },
             {
               "name": "EMAILS_ON_PUSH_SERVICE",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "EWM_SERVICE",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null

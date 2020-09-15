@@ -537,6 +537,7 @@ Represents a DAST scanner profile.
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
+| `editPath` | String | Relative web path to the edit page of a scanner profile |
 | `globalId` | DastScannerProfileID! | ID of the DAST scanner profile |
 | `id` **{warning-solid}** | ID! | **Deprecated:** Use `global_id`. Deprecated in 13.4 |
 | `profileName` | String | Name of the DAST scanner profile |
@@ -1958,6 +1959,7 @@ Represents a release
 | `releasedAt` | Time | Timestamp of when the release was released |
 | `tagName` | String | Name of the tag associated with the release |
 | `tagPath` | String | Relative web path to the tag associated with the release |
+| `upcomingRelease` | Boolean | Indicates the release is an upcoming release |
 
 ### ReleaseAssetLink
 
@@ -3372,6 +3374,7 @@ State of a Sentry error
 | `DISCORD_SERVICE` |  |
 | `DRONE_CI_SERVICE` |  |
 | `EMAILS_ON_PUSH_SERVICE` |  |
+| `EWM_SERVICE` |  |
 | `EXTERNAL_WIKI_SERVICE` |  |
 | `FLOWDOCK_SERVICE` |  |
 | `GITHUB_SERVICE` |  |

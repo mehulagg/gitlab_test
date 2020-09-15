@@ -361,4 +361,101 @@ RSpec.describe EmailsHelper do
       end
     end
   end
+
+  describe '#change_reviewer_notification_text' do
+    let(:mary) { build(:user, name: 'Mary') }
+    let(:john) { build(:user, name: 'John') }
+    let(:ted) { build(:user, name: 'Ted') }
+
+    context 'to new reviewers only' do
+      let(:previous_reviewers) { [] }
+      let(:new_reviewers) { [john] }
+
+      context 'with no html tag' do
+        let(:expected_output) do
+          'Reviewer changed to John'
+        end
+
+        specify do
+          expect(change_reviewer_notification_text(new_reviewers, previous_reviewers)).to eq(expected_output)
+        end
+      end
+
+      context 'with <strong> tag' do
+        let(:expected_output) do
+          'Reviewer changed to <strong>John</strong>'
+        end
+
+        specify do
+          expect(change_reviewer_notification_text(new_reviewers, previous_reviewers, :strong)).to eq(expected_output)
+        end
+      end
+    end
+
+    context 'from previous reviewers to new reviewers' do
+      let(:previous_reviewers) { [john, mary] }
+      let(:new_reviewers) { [ted] }
+
+      context 'with no html tag' do
+        let(:expected_output) do
+          'Reviewer changed from John and Mary to Ted'
+        end
+
+        specify do
+          expect(change_reviewer_notification_text(new_reviewers, previous_reviewers)).to eq(expected_output)
+        end
+      end
+
+      context 'with <strong> tag' do
+        let(:expected_output) do
+          'Reviewer changed from <strong>John and Mary</strong> to <strong>Ted</strong>'
+        end
+
+        specify do
+          expect(change_reviewer_notification_text(new_reviewers, previous_reviewers, :strong)).to eq(expected_output)
+        end
+      end
+    end
+
+    context 'from previous reviewers to no reviewers' do
+      let(:previous_reviewers) { [john, mary] }
+      let(:new_reviewers) { [] }
+
+      context 'with no html tag' do
+        let(:expected_output) do
+          'Reviewer changed from John and Mary to Unassigned'
+        end
+
+        specify do
+          expect(change_reviewer_notification_text(new_reviewers, previous_reviewers)).to eq(expected_output)
+        end
+      end
+
+      context 'with <strong> tag' do
+        let(:expected_output) do
+          'Reviewer changed from <strong>John and Mary</strong> to <strong>Unassigned</strong>'
+        end
+
+        specify do
+          expect(change_reviewer_notification_text(new_reviewers, previous_reviewers, :strong)).to eq(expected_output)
+        end
+      end
+    end
+
+    context 'escapes html tags from the text' do
+      let(:previous_reviewers) { [] }
+      let(:new_reviewers) { [fishy_user] }
+      let(:fishy_user) { build(:user, name: "<script>alert('hi')</script>") }
+
+      context 'with <strong> tag' do
+        let(:expected_output) do
+          'Reviewer changed to <strong>&lt;script&gt;alert(&#39;hi&#39;)&lt;/script&gt;</strong>'
+        end
+
+        specify do
+          expect(change_reviewer_notification_text(new_reviewers, previous_reviewers, :strong)).to eq(expected_output)
+        end
+      end
+    end
+  end
 end
