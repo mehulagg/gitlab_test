@@ -3035,13 +3035,13 @@ msgstr ""
 msgid "Any"
 msgstr ""
 
+msgid "Any %{header}"
+msgstr ""
+
 msgid "Any Author"
 msgstr ""
 
 msgid "Any Confidentiality"
-msgstr ""
-
-msgid "Any Status"
 msgstr ""
 
 msgid "Any branch"
