@@ -229,6 +229,7 @@ RSpec.describe Gitlab::Danger::Roulette do
             'tz_offset_hours' => backend_tz_offset_hours
           )
         end
+
         let(:categories) { [:backend] }
 
         it 'assigns the hungry reviewer' do
