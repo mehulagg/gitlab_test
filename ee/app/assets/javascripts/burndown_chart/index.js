@@ -33,40 +33,58 @@ export default () => {
     const milestoneId = $chartEl.data('milestoneId');
     const burndownEventsPath = $chartEl.data('burndownEventsPath');
 
-    axios
-      .get(burndownEventsPath)
-      .then(burndownResponse => {
-        const burndownEvents = burndownResponse.data;
-        const burndownChartData = new BurndownChartData(
-          burndownEvents,
-          startDate,
-          dueDate,
-        ).generateBurndownTimeseries();
-
-        const openIssuesCount = burndownChartData.map(d => [d[0], d[1]]);
-        const openIssuesWeight = burndownChartData.map(d => [d[0], d[2]]);
-
-        return new Vue({
-          el: container,
-          components: {
-            BurnCharts,
-          },
-          apolloProvider,
-          render(createElement) {
-            return createElement('burn-charts', {
-              props: {
+    // eslint-disable-next-line no-new
+    new Vue({
+      el: container,
+      components: {
+        BurnCharts,
+      },
+      data() {
+        return {
+          openIssuesCount: [],
+          openIssuesWeight: [],
+        };
+      },
+      mounted() {
+        if (!gon?.features?.burnupCharts) {
+          this.fetchLegacyBurndownEvents();
+        }
+      },
+      methods: {
+        fetchLegacyBurndownEvents() {
+          axios
+            .get(burndownEventsPath)
+            .then(burndownResponse => {
+              const burndownEvents = burndownResponse.data;
+              const burndownChartData = new BurndownChartData(
+                burndownEvents,
                 startDate,
                 dueDate,
-                openIssuesCount,
-                openIssuesWeight,
-                milestoneId,
-              },
+              ).generateBurndownTimeseries();
+
+              this.openIssuesCount = burndownChartData.map(d => [d[0], d[1]]);
+              this.openIssuesWeight = burndownChartData.map(d => [d[0], d[2]]);
+            })
+            .catch(() => {
+              createFlash(__('Error loading burndown chart data'));
             });
+        },
+      },
+      apolloProvider,
+      render(createElement) {
+        return createElement('burn-charts', {
+          props: {
+            startDate,
+            dueDate,
+            openIssuesCount: this.openIssuesCount,
+            openIssuesWeight: this.openIssuesCount,
+            milestoneId,
+          },
+          on: {
+            fetchLegacyBurndownEvents: this.fetchLegacyBurndownEvents,
           },
         });
-      })
-      .catch(() => {
-        createFlash(__('Error loading burndown chart data'));
-      });
+      },
+    });
   }
 };

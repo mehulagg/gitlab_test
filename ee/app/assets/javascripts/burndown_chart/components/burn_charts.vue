@@ -67,6 +67,8 @@ export default {
     return {
       issuesSelected: true,
       burnupData: [],
+      useLegacyBurndown: !this.glFeatures.burnupCharts,
+      showInfo: true,
       error: '',
     };
   },
@@ -80,8 +82,34 @@ export default {
     weightButtonCategory() {
       return this.issuesSelected ? 'secondary' : 'primary';
     },
+    issuesCount() {
+      if (this.useLegacyBurndown) {
+        return this.openIssuesCount;
+      }
+      return this.burnupData.map(({ date, scopeCount, completedCount }) => {
+        return [date, scopeCount - completedCount];
+      });
+    },
+    issuesWeight() {
+      if (this.useLegacyBurndown) {
+        return this.openIssuesWeight;
+      }
+      return this.burnupData.map(({ date, scopeWeight, completedWeight }) => {
+        return [date, scopeWeight - completedWeight];
+      });
+    },
   },
   methods: {
+    fetchLegacyBurndownEvents() {
+      this.fetchedLegacyData = true;
+      this.$emit('fetchLegacyBurndownEvents');
+    },
+    toggleLegacyBurndown(enabled) {
+      if (!this.fetchedLegacyData) {
+        this.fetchLegacyBurndownEvents();
+      }
+      this.useLegacyBurndown = enabled;
+    },
     setIssueSelected(selected) {
       this.issuesSelected = selected;
     },
@@ -164,7 +192,17 @@ export default {
 
 <template>
   <div>
-    <div class="burndown-header d-flex align-items-center">
+    <gl-alert
+      v-if="glFeatures.burnupCharts && showInfo"
+      variant="info"
+      class="col-12 gl-mt-3"
+      @dismiss="showInfo = false"
+    >
+      {{
+        __('Burndown charts are now immutable. You can view the old chart using the toggle below.')
+      }}
+    </gl-alert>
+    <div class="burndown-header d-flex align-items-center gl-flex-wrap">
       <h3 ref="chartsTitle">{{ title }}</h3>
       <gl-button-group class="ml-3 js-burndown-data-selector">
         <gl-button
@@ -187,6 +225,25 @@ export default {
           {{ __('Issue weight') }}
         </gl-button>
       </gl-button-group>
+
+      <gl-button-group v-if="glFeatures.burnupCharts" class="ml-3">
+        <gl-button
+          :category="useLegacyBurndown ? 'primary' : 'secondary'"
+          variant="info"
+          size="small"
+          @click="toggleLegacyBurndown(true)"
+        >
+          {{ __('Old burndown chart') }}
+        </gl-button>
+        <gl-button
+          :category="useLegacyBurndown ? 'secondary' : 'primary'"
+          variant="info"
+          size="small"
+          @click="toggleLegacyBurndown(false)"
+        >
+          {{ __('New burndown chart') }}
+        </gl-button>
+      </gl-button-group>
     </div>
     <div v-if="glFeatures.burnupCharts" class="row">
       <gl-alert v-if="error" variant="danger" class="col-12" @dismiss="error = ''">
@@ -195,8 +252,8 @@ export default {
       <burndown-chart
         :start-date="startDate"
         :due-date="dueDate"
-        :open-issues-count="openIssuesCount"
-        :open-issues-weight="openIssuesWeight"
+        :open-issues-count="issuesCount"
+        :open-issues-weight="issuesWeight"
         :issues-selected="issuesSelected"
         class="col-md-6"
       />
