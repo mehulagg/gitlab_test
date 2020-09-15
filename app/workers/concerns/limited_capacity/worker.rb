@@ -43,12 +43,12 @@ module LimitedCapacity
         worker.remove_completed_jobs_from_queue_set
         worker.report_prometheus_metrics
 
-        required_jobs = [
+        required_job_count = [
           worker.remaining_work,
           worker.remaining_capacity
         ].min
 
-        arguments = Array.new(required_jobs) { args }
+        arguments = Array.new(required_job_count) { args }
         self.bulk_perform_async(arguments) # rubocop:disable Scalability/BulkPerformWithContext
       end
     end
