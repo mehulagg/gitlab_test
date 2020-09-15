@@ -1,6 +1,6 @@
 # This file is used by Rack-based servers to start the application.
 
-if defined?(Unicorn)
+if defined?(Unicorn) || defined?(BlooBlah)
   require 'unicorn'
 
   if ENV['RAILS_ENV'] == 'production' || ENV['RAILS_ENV'] == 'staging'
