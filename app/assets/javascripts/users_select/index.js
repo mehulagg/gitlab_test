@@ -572,8 +572,9 @@ function UsersSelect(currentUser, els, options = {}) {
           const showAnyUser = $(select).data('anyUser');
           const showEmailUser = $(select).data('emailUser');
           const firstUser = $(select).data('firstUser');
+          const placeHolder = $(select).data('placeholder') || __('Search for a user');
           return $(select).select2({
-            placeholder: __('Search for a user'),
+            placeholder: placeHolder,
             multiple: $(select).hasClass('multiselect'),
             minimumInputLength: 0,
             query(query) {

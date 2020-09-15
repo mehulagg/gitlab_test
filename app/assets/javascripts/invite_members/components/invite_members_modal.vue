@@ -11,6 +11,7 @@ import {
 import eventHub from '../event_hub';
 import { s__ } from '~/locale';
 import Api from '~/api';
+import MembersSelect from '~/invite_members/components/members_select.vue';
 
 export default {
   name: 'InviteMembersModal',
@@ -22,6 +23,7 @@ export default {
     GlDropdownItem,
     GlSprintf,
     GlSearchBoxByType,
+    MembersSelect,
   },
   props: {
     groupId: {
@@ -150,14 +152,13 @@ export default {
 
       <label class="gl-font-weight-bold gl-mt-5">{{ $options.labels.userToInvite }}</label>
       <div class="gl-mt-2">
-        <gl-search-box-by-type
+        <members-select
           v-model="newUsersToInvite"
+          :label="$options.labels.usersToInvite"
+          field-name="Users"
           :placeholder="$options.labels.userPlaceholder"
+          wrapper-class="assignee"
           type="text"
-          autocomplete="off"
-          autocorrect="off"
-          autocapitalize="off"
-          spellcheck="false"
         />
       </div>
 
