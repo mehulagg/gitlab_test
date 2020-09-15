@@ -13,7 +13,7 @@ Do you fill a one of the below product/feature gaps?
 - IaaS
 - Dependency scanning
 
-Do you emove a barrier for a customer?
+Do you remove a barrier for a customer?
 - i.e. joint customer is currently using you?
 
 Have you integrated with GitLab Ultimate?
