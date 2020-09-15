@@ -263,4 +263,26 @@ RSpec.describe LimitedCapacity::Worker do
       expect(Gitlab::Metrics.registry.get(:limited_capacity_worker_running_jobs).get({ worker: 'DummyWorker' })).to eq(5)
     end
   end
+
+  describe '#can_re_enqueue?' do
+    using RSpec::Parameterized::TableSyntax
+
+    subject(:can_re_enqueue) { worker.send(:can_re_enqueue?) }
+
+    before do
+      allow(worker).to receive(:has_capacity?).and_return(capacity)
+      allow(worker).to receive(:has_work?).and_return(work)
+    end
+
+    where(:capacity, :work, :expected) do
+      true  | true   | true
+      true  | false  | false
+      false | true   | false
+      false | false  | false
+    end
+
+    with_them do
+      it { expect(can_re_enqueue).to eq(expected) }
+    end
+  end
 end
