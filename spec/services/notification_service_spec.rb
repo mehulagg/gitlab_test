@@ -1788,7 +1788,7 @@ RSpec.describe NotificationService, :mailer do
       end
     end
 
-    describe '#changed_reviewer_merge_request' do
+    describe '#changed_reviewer_of_merge_request' do
       let(:merge_request) { create :merge_request, author: author, source_project: project, reviewers: [reviewer], description: 'cc @participant' }
 
       let_it_be(:current_user) { create(:user) }
@@ -1800,7 +1800,7 @@ RSpec.describe NotificationService, :mailer do
       end
 
       it do
-        notification.changed_reviewer_merge_request(merge_request, current_user, [reviewer])
+        notification.changed_reviewer_of_merge_request(merge_request, current_user, [reviewer])
 
         merge_request.reviewers.each { |reviewer| should_email(reviewer) }
         should_email(merge_request.author)
@@ -1818,7 +1818,7 @@ RSpec.describe NotificationService, :mailer do
       end
 
       it 'adds "review requested" reason for new reviewer' do
-        notification.changed_reviewer_merge_request(merge_request, current_user, [reviewer])
+        notification.changed_reviewer_of_merge_request(merge_request, current_user, [reviewer])
 
         merge_request.reviewers.each do |assignee|
           email = find_email_for(assignee)
@@ -1830,7 +1830,7 @@ RSpec.describe NotificationService, :mailer do
       context 'participating notifications with reviewers' do
         let(:participant) { create(:user, username: 'user-participant') }
         let(:issuable) { merge_request }
-        let(:notification_trigger) { notification.changed_reviewer_merge_request(merge_request, current_user, [reviewer]) }
+        let(:notification_trigger) { notification.changed_reviewer_of_merge_request(merge_request, current_user, [reviewer]) }
 
         it_behaves_like 'participating notifications'
         it_behaves_like 'participating by reviewer notification'
@@ -1838,7 +1838,7 @@ RSpec.describe NotificationService, :mailer do
 
       it_behaves_like 'project emails are disabled' do
         let(:notification_target)  { merge_request }
-        let(:notification_trigger) { notification.changed_reviewer_merge_request(merge_request, current_user, [reviewer]) }
+        let(:notification_trigger) { notification.changed_reviewer_of_merge_request(merge_request, current_user, [reviewer]) }
       end
     end
 

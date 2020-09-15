@@ -35,7 +35,7 @@ module Emails
     # rubocop: enable CodeReuse/ActiveRecord
 
     # rubocop: disable CodeReuse/ActiveRecord
-    def changed_reviewer_merge_request_email(recipient_id, merge_request_id, previous_reviewer_ids, updated_by_user_id, reason = nil)
+    def changed_reviewer_of_merge_request_email(recipient_id, merge_request_id, previous_reviewer_ids, updated_by_user_id, reason = nil)
       setup_merge_request_mail(merge_request_id, recipient_id)
 
       @previous_reviewers = []
