@@ -11,7 +11,7 @@ module Ci
 
     validates :data, json_schema: { filename: "daily_build_group_report_result_data" }
 
-    store :data, accessors: [ :coverage ], coder: JSON
+    store :data, accessors: [:coverage], coder: JSON
 
     def self.upsert_reports(data)
       upsert_all(data, unique_by: :index_daily_build_group_report_results_unique_columns) if data.any?

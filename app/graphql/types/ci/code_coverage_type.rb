@@ -6,6 +6,8 @@ module Types
       graphql_name 'CodeCoverage'
       description 'Represents the daily code coverage for a project'
 
+      authorize :read_build_report_results
+
       field :average, GraphQL::FLOAT_TYPE, null: true,
             description: 'Percentage of coverage for the project'
 

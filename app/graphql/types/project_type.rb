@@ -291,7 +291,6 @@ module Types
           description: 'The code coverage of the project',
           resolver: Resolvers::Ci::CodeCoverageResolver,
           feature_flag: :code_coverage_graphql
-      #     authorize: :read_build_report_results
 
     field :label,
           Types::LabelType,

@@ -10,9 +10,11 @@ module Ci
 
     def average
       strong_memoize(:average) do
-        return 0 if count.zero?
-
-        @report_results.sum(&:coverage) / count
+        if count == 0
+          0
+        else
+          @report_results.sum(&:coverage) / count
+        end
       end
     end
 
