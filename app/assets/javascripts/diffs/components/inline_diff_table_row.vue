@@ -1,9 +1,7 @@
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex';
 import { GlTooltipDirective, GlIcon, GlSafeHtmlDirective as SafeHtml } from '@gitlab/ui';
-import {
-  CONTEXT_LINE_CLASS_NAME,
-} from '../constants';
+import { CONTEXT_LINE_CLASS_NAME } from '../constants';
 import DiffGutterAvatars from './diff_gutter_avatars.vue';
 import * as utils from './diff_row_utils';
 
@@ -50,11 +48,11 @@ export default {
     ...mapGetters('diffs', ['fileLineCoverage']),
     ...mapState({
       isHighlighted(state) {
-        return utils.isHighlighted(state, this.line, this.isCommented)
+        return utils.isHighlighted(state, this.line, this.isCommented);
       },
     }),
     isContextLine() {
-      return utils.isContextLine(this.line.type)
+      return utils.isContextLine(this.line.type);
     },
     classNameMap() {
       return [
@@ -86,7 +84,12 @@ export default {
       return utils.shouldRenderCommentButton(this.isLoggedIn, true);
     },
     shouldShowCommentButton() {
-      return utils.shouldRenderCommentButton(this.isHover, this.isContextLine, this.isMetaLine, this.hasDiscussions);
+      return utils.shouldRenderCommentButton(
+        this.isHover,
+        this.isContextLine,
+        this.isMetaLine,
+        this.hasDiscussions,
+      );
     },
     hasDiscussions() {
       return utils.hasDiscussions(this.line);
