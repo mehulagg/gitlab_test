@@ -108,6 +108,20 @@ RSpec.describe Gitlab::Database::BatchCount do
         expect { described_class.batch_count(model.distinct(column)) }.to raise_error 'Use distinct count for optimized distinct counting'
       end
     end
+
+    context 'when a relation is grouped' do
+      let(:count) do
+        described_class.batch_count(model.group(column), batch_size: 2, start: model.minimum(:id), finish: model.maximum(:id))
+      end
+
+      before do
+        stub_const('Gitlab::Database::BatchCounter::MIN_REQUIRED_BATCH_SIZE', 1)
+      end
+
+      it 'counts grouped records' do
+        expect(count).to eq({ user.id => 3, another_user.id => 2 })
+      end
+    end
   end
 
   describe '#batch_distinct_count' do

@@ -77,12 +77,12 @@ module Gitlab
         raise "Batch counting expects positive values only for #{@column}" if start < 0 || finish < 0
         return FALLBACK if unwanted_configuration?(finish, batch_size, start)
 
-        counter = 0
+        results = nil
         batch_start = start
 
         while batch_start <= finish
           begin
-            counter += batch_fetch(batch_start, batch_start + batch_size, mode)
+            results = merge_results(results, batch_fetch(batch_start, batch_start + batch_size, mode))
             batch_start += batch_size
           rescue ActiveRecord::QueryCanceled
             # retry with a safe batch size & warmer cache
@@ -95,7 +95,17 @@ module Gitlab
           sleep(SLEEP_TIME_IN_SECONDS)
         end
 
-        counter
+        results
+      end
+
+      def merge_results(results, object)
+        return object unless results
+
+        if object.is_a?(Hash)
+          results.merge(object) { |_, a, b| a + b }
+        else
+          results + object
+        end
       end
 
       def batch_fetch(start, finish, mode)
