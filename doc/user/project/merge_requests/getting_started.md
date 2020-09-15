@@ -117,15 +117,22 @@ It is also possible to manage multiple assignees:
 > - It's [deployed behind a feature flag](../../../user/feature_flags.md), disabled by default.
 > - It's disabled on GitLab.com.
 > - It's not recommended for production use.
-> - To use it in GitLab self-managed instances, ask a GitLab administrator to [enable it](#enable-or-disable-merge-request-reviewers-core-only). **(CORE ONLY)**
+> - To use it in GitLab self-managed instances, ask a GitLab administrator to [enable it](#enable-or-disable-merge-request-reviewers). **(CORE ONLY)**
 
-CAUTION: **Caution:**
+CAUTION: **Warning:**
 This feature might not be available to you. Check the **version history** note above for details.
 
-Requesting a code review is an important part of contributing code. However, deciding who should review your code and asking for a review are no easy tasks. Using the "assignee" field for both authors and reviewers makes it hard for others to determine who's doing what on a merge request.
-Merge request reviewers easily allow authors to request a review as well as see the status of the review. By simply selecting one or more users from the **"reviewers"** field, the assigned reviewers will receive a notification of the request to review the merge request. This makes it easy to determine the relevant roles for the users involved in the merge request, as well as formally requesting a review form a peer.
+Requesting a code review is an important part of contributing code. However, deciding who should review
+your code and asking for a review are no easy tasks. Using the "assignee" field for both authors and
+reviewers makes it hard for others to determine who's doing what on a merge request.
 
-Open the drop down box to search for the user you wish to review.
+GitLab's Merge Request Reviewers easily allow authors to request a review as well as see the status of the
+review. By selecting one or more users from the **Reviewers** field in the merge request's right-hand
+sidebar, the assigned reviewers will receive a notification of the request to review the merge request.
+
+This makes it easy to determine the relevant roles for the users involved in the merge request, as well as formally requesting a review from a peer.
+
+To request it, open the **Reviewers** drop-down box to search for the user you wish to get a review from.
 
 ### Enable or disable Merge Request Reviewers **(CORE ONLY)**
 
