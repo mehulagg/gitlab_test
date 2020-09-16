@@ -224,18 +224,18 @@ class FeatureFlagCreator
   private
 
   def contents
-    YAML.dump(config_hash.stringify_keys)
+    YAML.dump(config_hash)
   end
 
   def config_hash
     {
-      name:              options.name,
-      introduced_by_url: options.introduced_by_url,
-      rollout_issue_url: options.rollout_issue_url,
-      group:             options.group.to_s,
-      type:              options.type.to_s,
-      default_enabled:   FeatureFlagOptionParser.read_default_enabled(options)
-    }.slice(FeatureFlagOptionParser::PARAMS)
+      'name'              => options.name,
+      'introduced_by_url' => options.introduced_by_url,
+      'rollout_issue_url' => options.rollout_issue_url,
+      'group'             => options.group.to_s,
+      'type'              => options.type.to_s,
+      'default_enabled'   => FeatureFlagOptionParser.read_default_enabled(options)
+    }.slice(*::Feature::Shared::PARAMS.map(&:to_s))
   end
 
   def write
