@@ -450,7 +450,7 @@ export default {
     <div class="filtered-search-wrapper">
       <filtered-search-bar
         :namespace="projectPath"
-        :search-input-placeholder="__('Search Incidents')"
+        :search-input-placeholder="__('Search or filter results…')"
         :tokens="getFilteredSearchTokens()"
         :sort-options="[]"
         :initial-filter-value="getFilteredSearchValue()"

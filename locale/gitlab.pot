@@ -22152,9 +22152,6 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-msgid "Search Incidents"
-msgstr ""
-
 msgid "Search Jira issues"
 msgstr ""
 
