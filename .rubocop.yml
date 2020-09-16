@@ -550,5 +550,6 @@ Gitlab/RailsLogger:
     - 'spec/**/*.rb'
     - 'ee/spec/**/*.rb'
 
+# WIP: See https://gitlab.com/gitlab-org/gitlab/-/issues/250316
 RSpec/AggregateExamples:
   Enabled: false
