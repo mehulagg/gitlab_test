@@ -10728,9 +10728,6 @@ msgstr ""
 msgid "Faster as it re-uses the project workspace (falling back to clone if it doesn't exist)"
 msgstr ""
 
-msgid "Faster releases. Better code. Less pain."
-msgstr ""
-
 msgid "Favicon was successfully removed."
 msgstr ""
 
@@ -28441,9 +28438,6 @@ msgid "Weight %{weight}"
 msgstr ""
 
 msgid "Welcome back! Your account had been deactivated due to inactivity but is now reactivated."
-msgstr ""
-
-msgid "Welcome to GitLab"
 msgstr ""
 
 msgid "Welcome to GitLab%{br_tag}%{name}!"
