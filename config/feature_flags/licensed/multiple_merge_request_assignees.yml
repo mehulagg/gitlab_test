@@ -1,7 +1,7 @@
 ---
 name: multiple_merge_request_assignees
-default_enabled: false
-type: development
+default_enabled: true
+type: licensed
 introduced_by_url: 
 rollout_issue_url: 
 group: 
