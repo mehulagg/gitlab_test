@@ -45,10 +45,10 @@ export default {
         variant="default"
         size="small"
         @click="refreshWidget"
-      ><gl-loading-icon 
-          v-if="isRefreshing" 
-          :inline="true" /
-      >{{ s__('mrWidget|Refresh') }}</gl-button>
+      >
+        <gl-loading-icon v-if="isRefreshing" :inline="true" />
+        {{ s__('mrWidget|Refresh') }}
+      </gl-button>
     </div>
   </div>
 </template>
