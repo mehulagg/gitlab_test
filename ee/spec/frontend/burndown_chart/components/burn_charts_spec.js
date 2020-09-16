@@ -16,6 +16,8 @@ describe('burndown_chart', () => {
     wrapper.findAll(GlButton).filter(button => button.attributes().category === 'primary');
   const findBurndownChart = () => wrapper.find(BurndownChart);
   const findBurnupChart = () => wrapper.find(BurnupChart);
+  const findOldBurndownChartButton = () => wrapper.find({ ref: 'oldBurndown' });
+  const findNewBurndownChartButton = () => wrapper.find({ ref: 'newBurndown' });
 
   const defaultProps = {
     startDate: '2019-08-07',
@@ -24,11 +26,14 @@ describe('burndown_chart', () => {
     openIssuesWeight: [],
   };
 
-  const createComponent = ({ props = {}, featureEnabled = false } = {}) => {
+  const createComponent = ({ props = {}, featureEnabled = false, data = {} } = {}) => {
     wrapper = shallowMount(BurnCharts, {
       propsData: {
         ...defaultProps,
         ...props,
+      },
+      data() {
+        return data;
       },
       provide: {
         glFeatures: { burnupCharts: featureEnabled },
@@ -84,6 +89,35 @@ describe('burndown_chart', () => {
       expect(findChartsTitle().text()).toBe('Burndown chart');
       expect(findBurndownChart().props().showTitle).toBe(false);
     });
+
+    it('does not show old/new burndown buttons', () => {
+      expect(findOldBurndownChartButton().exists()).toBe(false);
+      expect(findNewBurndownChartButton().exists()).toBe(false);
+    });
+
+    it('uses burndown data from props', () => {
+      const expectedCount = [day2.date, day2.scopeCount];
+      const expectedWeight = [day2.date, day2.scopeWeight];
+
+      const props = {
+        milestoneId: '1234',
+        openIssuesCount: [expectedCount],
+        openIssuesWeight: [expectedWeight],
+      };
+
+      createComponent({
+        data: {
+          burnupData: [day1],
+        },
+        props,
+        featureEnabled: false,
+      });
+
+      const { openIssuesCount, openIssuesWeight } = findBurndownChart().props();
+
+      expect(openIssuesCount).toEqual([expectedCount]);
+      expect(openIssuesWeight).toEqual([expectedWeight]);
+    });
   });
 
   describe('feature enabled', () => {
@@ -106,6 +140,37 @@ describe('burndown_chart', () => {
       await wrapper.vm.$nextTick();
 
       expect(findBurnupChart().props('issuesSelected')).toBe(false);
+    });
+
+    it('shows old/new burndown buttons', () => {
+      expect(findOldBurndownChartButton().exists()).toBe(true);
+      expect(findNewBurndownChartButton().exists()).toBe(true);
+    });
+
+    it('uses burndown data computed from burnup data', () => {
+      createComponent({
+        data: {
+          burnupData: [day1],
+        },
+        featureEnabled: true,
+      });
+      const { openIssuesCount, openIssuesWeight } = findBurndownChart().props();
+
+      const expectedCount = [day1.date, day1.scopeCount - day1.completedCount];
+      const expectedWeight = [day1.date, day1.scopeWeight - day1.completedWeight];
+
+      expect(openIssuesCount).toEqual([expectedCount]);
+      expect(openIssuesWeight).toEqual([expectedWeight]);
+    });
+
+    it('emits fetchLegacyBurndownEvents to trigger fetch, but only once', () => {
+      findOldBurndownChartButton().vm.$emit('click');
+
+      expect(wrapper.emitted().fetchLegacyBurndownEvents).toHaveLength(1);
+
+      findOldBurndownChartButton().vm.$emit('click');
+
+      expect(wrapper.emitted().fetchLegacyBurndownEvents).toHaveLength(1);
     });
   });
 

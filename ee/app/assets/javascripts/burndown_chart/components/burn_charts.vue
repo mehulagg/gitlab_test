@@ -228,6 +228,7 @@ export default {
 
       <gl-button-group v-if="glFeatures.burnupCharts" class="ml-3">
         <gl-button
+          ref="oldBurndown"
           :category="useLegacyBurndown ? 'primary' : 'secondary'"
           variant="info"
           size="small"
@@ -236,6 +237,7 @@ export default {
           {{ __('Old burndown chart') }}
         </gl-button>
         <gl-button
+          ref="newBurndown"
           :category="useLegacyBurndown ? 'secondary' : 'primary'"
           variant="info"
           size="small"
