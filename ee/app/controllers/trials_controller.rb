@@ -13,6 +13,7 @@ class TrialsController < ApplicationController
   end
 
   def select
+    record_experiment_user(:group_only_trials)
   end
 
   def create_lead
@@ -31,6 +32,7 @@ class TrialsController < ApplicationController
     @result = GitlabSubscriptions::ApplyTrialService.new.execute(apply_trial_params)
 
     if @result&.dig(:success)
+      track_experiment_event(:group_only_trials, 'apply_trial', @namespace.id)
       redirect_to group_url(@namespace, { trial: true })
     else
       render :select

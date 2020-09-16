@@ -203,4 +203,34 @@ RSpec.describe EE::TrialHelper do
       end
     end
   end
+
+  describe '#experiment_tracking_data_for_skip_trial' do
+    subject { helper.experiment_tracking_data_for_skip_trial }
+
+    context 'when the group-only trials experiment is not active' do
+      it { is_expected.to eq({}) }
+    end
+
+    context 'when the group-only trials experiment is active' do
+      before do
+        params[:glm_source] = source
+        stub_experiment(group_only_trials: true)
+        allow(helper).to receive(:experiment_tracking_category_and_group).and_return(
+          'category:group'
+        )
+      end
+
+      where(source: [nil, 'some-source'])
+
+      with_them do
+        specify do
+          is_expected.to eq({
+            track_event: 'skip_trial',
+            track_label: "source:#{source}",
+            track_property: 'category:group'
+          })
+        end
+      end
+    end
+  end
 end

@@ -57,6 +57,16 @@ module EE
       namespace&.errors&.full_messages&.to_sentence&.presence || service_result&.dig(:errors)&.presence
     end
 
+    def experiment_tracking_data_for_skip_trial
+      return {} unless ::Gitlab::Experimentation.enabled?(:group_only_trials)
+
+      {
+        track_event: 'skip_trial',
+        track_label: "source:#{params[:glm_source]}",
+        track_property: experiment_tracking_category_and_group(:group_only_trials)
+      }
+    end
+
     private
 
     def trial_group_namespaces
@@ -66,6 +76,8 @@ module EE
     end
 
     def trial_user_namespaces
+      return [] if experiment_enabled?(:group_only_trials)
+
       strong_memoize(:trial_user_namespaces) do
         user_namespace = current_user.namespace
         user_namespace.eligible_for_trial? ? [user_namespace] : []

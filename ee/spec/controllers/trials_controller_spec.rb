@@ -120,6 +120,10 @@ RSpec.describe TrialsController do
   end
 
   describe '#select' do
+    before do
+      allow(controller).to receive(:record_experiment_user)
+    end
+
     subject do
       get :select
       response
@@ -127,6 +131,12 @@ RSpec.describe TrialsController do
 
     it_behaves_like 'an authenticated endpoint'
     it_behaves_like 'a dot-com only feature'
+
+    it 'records the user as being part of the group-only trials experiment' do
+      subject
+
+      expect(controller).to have_received(:record_experiment_user).with(:group_only_trials)
+    end
   end
 
   describe '#apply' do
@@ -159,6 +169,25 @@ RSpec.describe TrialsController do
 
         it 'creates the Group' do
           expect { subject }.to change { Group.count }.to(1)
+        end
+      end
+
+      context 'when the group-only trials experiment is active', :snowplow do
+        before do
+          allow(controller).to receive(:experimentation_subject_id).and_return('exp_subj_id')
+          stub_experiment(group_only_trials: true)
+        end
+
+        it 'tracks the "apply_trial" event with the namespace id' do
+          subject
+
+          expect_snowplow_event(
+            category: 'Growth::Conversion::Experiment::GroupOnlyTrials',
+            action: 'apply_trial',
+            label: 'exp_subj_id',
+            property: 'control_group',
+            value: namespace.id
+          )
         end
       end
     end
