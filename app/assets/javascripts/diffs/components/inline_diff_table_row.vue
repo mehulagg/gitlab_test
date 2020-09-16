@@ -84,7 +84,7 @@ export default {
       return utils.shouldRenderCommentButton(this.isLoggedIn, true);
     },
     shouldShowCommentButton() {
-      return utils.shouldRenderCommentButton(
+      return utils.shouldShowCommentButton(
         this.isHover,
         this.isContextLine,
         this.isMetaLine,

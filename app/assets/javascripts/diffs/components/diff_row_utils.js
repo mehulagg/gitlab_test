@@ -21,7 +21,7 @@ export const isContextLine = type => type === CONTEXT_LINE_TYPE;
 export const isMatchLine = type => type === MATCH_LINE_TYPE;
 
 export const isMetaLine = type =>
-         [OLD_NO_NEW_LINE_TYPE, NEW_NO_NEW_LINE_TYPE, EMPTY_CELL_TYPE].includes(type);
+  [OLD_NO_NEW_LINE_TYPE, NEW_NO_NEW_LINE_TYPE, EMPTY_CELL_TYPE].includes(type);
 
 export const shouldRenderCommentButton = (isLoggedIn, isCommentButtonRendered) => {
   if (!isCommentButtonRendered) {
@@ -41,8 +41,8 @@ export const hasDiscussions = line => line?.discussions?.length > 0;
 export const lineHref = line => `#${line?.line_code || ''}`;
 
 export const lineCode = line => {
-  if (!line) return '';
-  return line.line_code || line.left?.line_code || line.right?.line_code || '';
+  if (!line) return undefined;
+  return line.line_code || line.left?.line_code || line.right?.line_code;
 };
 
 export const classNameMapCell = (line, hll, isLoggedIn, isHover) => {

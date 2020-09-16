@@ -2,7 +2,6 @@ import * as utils from '~/diffs/components/diff_row_utils';
 import {
   MATCH_LINE_TYPE,
   CONTEXT_LINE_TYPE,
-  LINE_HOVER_CLASS_NAME,
   OLD_NO_NEW_LINE_TYPE,
   NEW_NO_NEW_LINE_TYPE,
   EMPTY_CELL_TYPE,
@@ -112,10 +111,10 @@ describe('lineHref', () => {
 });
 
 describe('lineCode', () => {
-  it(`should return '' if line_code is undefined`, () => {
-    expect(utils.lineCode()).toEqual('');
-    expect(utils.lineCode({ left: {} })).toEqual('');
-    expect(utils.lineCode({ right: {} })).toEqual('');
+  it(`should return undefined if line_code is undefined`, () => {
+    expect(utils.lineCode()).toEqual(undefined);
+    expect(utils.lineCode({ left: {} })).toEqual(undefined);
+    expect(utils.lineCode({ right: {} })).toEqual(undefined);
   });
 
   it(`should return ${LINE_CODE}`, () => {
