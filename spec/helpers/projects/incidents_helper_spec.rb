@@ -9,6 +9,13 @@ RSpec.describe Projects::IncidentsHelper do
   let(:project_path) { project.full_path }
   let(:new_issue_path) { new_project_issue_path(project) }
   let(:issue_path) { project_issues_path(project) }
+  let(:params) do 
+    {
+      search: 'search text',
+      author_username: 'root',
+      assignee_username: 'max.power'
+    }
+  end
 
   describe '#incidents_data' do
     subject(:data) { helper.incidents_data(project, params) }
@@ -21,9 +28,9 @@ RSpec.describe Projects::IncidentsHelper do
         'incident-type' => 'incident',
         'issue-path' => issue_path,
         'empty-list-svg-path' => match_asset_path('/assets/illustrations/incident-empty-state.svg'),
-        'text-query': nil,
-        'author-usernames-query': nil,
-        'assignee-usernames-query': nil
+        'text-query': 'search text',
+        'author-usernames-query': 'root',
+        'assignee-usernames-query': 'max.power'
       )
     end
   end
