@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import { GlNewDropdown, GlLink } from '@gitlab/ui';
+import { GlDropdown, GlLink } from '@gitlab/ui';
 import { createMockDirective, getBinding } from 'helpers/vue_mock_directive';
 import ActionsButton from '~/vue_shared/components/actions_button.vue';
 
@@ -42,7 +42,7 @@ describe('Actions button component', () => {
   };
   const findLink = () => wrapper.find(GlLink);
   const findLinkTooltip = () => getTooltip(findLink());
-  const findDropdown = () => wrapper.find(GlNewDropdown);
+  const findDropdown = () => wrapper.find(GlDropdown);
   const findDropdownTooltip = () => getTooltip(findDropdown());
   const parseDropdownItems = () =>
     findDropdown()

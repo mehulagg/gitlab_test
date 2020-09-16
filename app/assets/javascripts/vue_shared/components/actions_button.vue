@@ -1,17 +1,17 @@
 <script>
 import {
-  GlNewDropdown,
-  GlNewDropdownItem,
-  GlNewDropdownDivider,
+  GlDropdown,
+  GlDropdownItem,
+  GlDropdownDivider,
   GlLink,
   GlTooltipDirective,
 } from '@gitlab/ui';
 
 export default {
   components: {
-    GlDropdown: GlNewDropdown,
-    GlDropdownItem: GlNewDropdownItem,
-    GlDropdownDivider: GlNewDropdownDivider,
+    GlDropdown,
+    GlDropdownItem,
+    GlDropdownDivider,
     GlLink,
   },
   directives: {
