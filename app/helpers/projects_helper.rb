@@ -624,7 +624,6 @@ module ProjectsHelper
 
   def project_permissions_panel_data(project)
     {
-      isGitlabCom: ::Gitlab.dev_env_or_com?,
       packagesAvailable: ::Gitlab.config.packages.enabled,
       packagesHelpPath: help_page_path('user/packages/index'),
       currentSettings: project_permissions_settings(project),

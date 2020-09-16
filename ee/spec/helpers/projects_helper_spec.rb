@@ -1,4 +1,4 @@
-# frozen_string_literal: true
+# frozen_string_literal:allow_all_instances_oo true
 
 require 'spec_helper'
 
@@ -317,6 +317,60 @@ RSpec.describe ProjectsHelper do
       let_it_be(:archived_project) { create(:project, :archived, marked_for_deletion_at: 10.minutes.ago) }
 
       it { expect(helper.scheduled_for_deletion?(archived_project)).to be true }
+    end
+  end
+
+  describe '#project_permissions_settings' do
+    let(:perm_settings) { helper.project_permissions_settings(project) }
+
+    context 'default settings' do
+      it 'cveIdRequestEnabled defaults to true' do
+        expect(perm_settings[:cveIdRequestEnabled]).to equal(true)
+      end
+    end
+
+    context 'security_settings.cve_id_request_enabled' do
+      tests = [true, false]
+      tests.each do |cve_enabled|
+        context "is #{cve_enabled}" do
+          before do
+            security_setting = ProjectSecuritySetting.safe_find_or_create_for(project)
+            security_setting.cve_id_request_enabled = cve_enabled
+            security_setting.save!
+          end
+          it "sets cveIdRequestEnabled to #{cve_enabled}" do
+            expect(perm_settings[:cveIdRequestEnabled]).to equal(cve_enabled)
+          end
+        end
+      end
+    end
+  end
+
+  describe '#request_cve_enabled?' do
+    opts = {
+      gitlab_com: [true, false],
+      setting_enabled: [true, false],
+      visibility: [:PUBLIC, :INTERNAL, :PRIVATE]
+    }
+    opts[:gitlab_com].product(opts[:setting_enabled], opts[:visibility]) do |settings|
+      gitlab_com, setting_enabled, visibility = settings
+      context "GitLab.com: #{gitlab_com}, setting_enabled: #{setting_enabled}, visibility: #{visibility}" do
+        before do
+          allow(::Gitlab).to receive(:com?).and_return(gitlab_com)
+          vis_val = Gitlab::VisibilityLevel.const_get(visibility, false)
+          project.visibility_level = vis_val
+          project.save!
+
+          security_setting = ProjectSecuritySetting.safe_find_or_create_for(project)
+          security_setting.cve_id_request_enabled = setting_enabled
+          security_setting.save!
+        end
+
+        expected = gitlab_com && setting_enabled && visibility == :PUBLIC
+        it "returns #{expected}" do
+          expect(helper.request_cve_enabled?(project)).to equal(expected)
+        end
+      end
     end
   end
 end

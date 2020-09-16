@@ -104,7 +104,7 @@ CVSS scores can be computed by means of the [NVD CVSS Calculator](https://nvd.ni
 /label ~"devops::secure" ~"group::vulnerability research" ~"vulnerability research::cve" ~"advisory::queued"
         `,
       };
-      Object.keys(params).forEach((k, _) => newUrl.searchParams.append(k, params[k]));
+      Object.keys(params).forEach(k => newUrl.searchParams.append(k, params[k]));
 
       return newUrl.toString();
     },

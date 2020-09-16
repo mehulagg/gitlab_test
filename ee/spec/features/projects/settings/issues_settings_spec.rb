@@ -72,4 +72,65 @@ RSpec.describe 'Project settings > Issues', :js do
       expect(page).to have_selector('#project_issues_template')
     end
   end
+
+  context 'when viewing project settings' do
+    tests = [
+      {
+        conf: { gitlab_com: true, project_visibility: :PUBLIC, cve_enabled: true },
+        expect: { toggle_checked: true, toggle_disabled: false, has_toggle: true }
+      },
+      {
+        conf: { gitlab_com: true, project_visibility: :INTERNAL, cve_enabled: true },
+        expect: { toggle_checked: false, toggle_disabled: true, has_toggle: true }
+      },
+      {
+        conf: { gitlab_com: true, project_visibility: :PRIVATE, cve_enabled: true },
+        expect: { toggle_checked: false, toggle_disabled: true, has_toggle: true }
+      },
+      {
+        conf: { gitlab_com: false, project_visibility: :PUBLIC, cve_enabled: true },
+        expect: { has_toggle: false }
+      }
+    ]
+
+    tests.each do |test|
+      test_conf = test[:conf]
+      test_expect = test[:expect]
+      gl_desc = test_conf[:gitlab_com] ? '' : 'not '
+      context "#{gl_desc}on GitLab.com" do
+        before do
+          allow(::Gitlab).to receive(:com?).and_return(test_conf[:gitlab_com])
+        end
+
+        context "on a #{test_conf[:project_visibility]} project" do
+          before do
+            vis_val = Gitlab::VisibilityLevel.const_get(test_conf[:project_visibility], false)
+            project.visibility_level = vis_val
+            project.save!
+
+            security_setting = ProjectSecuritySetting.safe_find_or_create_for(project)
+            security_setting.cve_id_request_enabled = test_conf[:cve_enabled]
+            security_setting.save!
+
+            visit edit_project_path(project)
+          end
+
+          desc = test_expect[:has_toggle] ? '' : 'not '
+          it "CVE ID Request toggle should #{desc}be visible" do
+            method = test_expect[:has_toggle] ? :to : :not_to
+            expect(page).method(method).call have_selector('#cve_id_request_toggle')
+            next unless test_expect[:has_toggle]
+
+            toggle_btn = find('#cve_id_request_toggle .project-feature-toggle')
+
+            toggle_disabled = test_expect[:toggle_disabled] ? :to : :not_to
+            expect(toggle_btn).method(toggle_disabled).call have_css('is-disabled')
+
+            toggle_checked = test_expect[:toggle_checked] ? :to : :not_to
+            expect(toggle_btn).method(toggle_checked).call have_css('is-checked')
+          end
+        end
+      end
+    end
+  end
 end

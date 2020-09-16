@@ -31,9 +31,10 @@ export default {
   mixins: [settingsMixin],
 
   props: {
-    isGitlabCom: {
+    requestCveAvailable: {
       type: Boolean,
-      required: true,
+      required: false,
+      default: false,
     },
     currentSettings: {
       type: Object,
@@ -362,7 +363,8 @@ export default {
           name="project[project_feature_attributes][issues_access_level]"
         />
         <project-feature-labeled-toggle
-          v-if="isGitlabCom"
+          v-if="requestCveAvailable"
+          id="cve_id_request_toggle"
           v-model="cveIdRequestEnabled"
           :label="s__('CVE|Enable CVE ID requests in the issue sidebar')"
           :disabled-input="visibilityLevel != visibilityOptions.PUBLIC"

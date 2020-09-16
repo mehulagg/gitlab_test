@@ -13,6 +13,25 @@ module EE
       })
     end
 
+    override :project_permissions_panel_data
+    def project_permissions_panel_data(project)
+      super(project).merge({
+        requestCveAvailable: project.request_cve_available?(project)
+      })
+    end
+
+    def request_cve_enabled?(project)
+      security_setting = ProjectSecuritySetting.safe_find_or_create_for(project)
+
+      request_cve_available?(project) \
+        && security_setting.cve_id_request_enabled == true \
+        && project.visibility_level == ::Gitlab::VisibilityLevel::PUBLIC
+    end
+
+    def request_cve_available?(project)
+      ::Gitlab.dev_env_or_com?
+    end
+
     override :sidebar_settings_paths
     def sidebar_settings_paths
       super + %w[
