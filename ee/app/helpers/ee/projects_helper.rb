@@ -16,7 +16,7 @@ module EE
     override :project_permissions_panel_data
     def project_permissions_panel_data(project)
       super(project).merge({
-        requestCveAvailable: project.request_cve_available?(project)
+        requestCveAvailable: request_cve_available?(project)
       })
     end
 

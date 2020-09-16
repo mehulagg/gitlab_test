@@ -1,4 +1,4 @@
-# frozen_string_literal:allow_all_instances_oo true
+# frozen_string_literal: true
 
 require 'spec_helper'
 
