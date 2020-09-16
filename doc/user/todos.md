@@ -85,7 +85,7 @@ for filtering purposes; otherwise, they appear as normal.
 
 ### Manually creating a To Do
 
-You can also add the following to your To-Do List by clicking the **Add a To Do** button on an:
+You can also add the following to your To-Do List by clicking the **Add a to-do** button on an:
 
 - Issue
 - Merge Request
