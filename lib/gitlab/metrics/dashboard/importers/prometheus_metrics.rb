@@ -80,8 +80,10 @@ module Gitlab
             end
           end
 
+          # rubocop: disable CodeReuse/ActiveRecord
           def update_prometheus_alerts
-            affected_alerts = PrometheusAlert.for_metric(@affected_metric_ids.flatten.uniq)
+            affected_alerts = PrometheusAlert.includes(:environment, :project)
+              .for_metric(@affected_metric_ids.flatten.uniq)
               .distinct_project_and_environment
 
             return unless affected_alerts.present?
@@ -93,6 +95,7 @@ module Gitlab
               ).execute
             end
           end
+          # rubocop: enable CodeReuse/ActiveRecord
         end
       end
     end

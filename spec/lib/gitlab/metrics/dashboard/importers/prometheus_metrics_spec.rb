@@ -93,6 +93,18 @@ RSpec.describe Gitlab::Metrics::Dashboard::Importers::PrometheusMetrics do
             alert
           end
 
+          it 'updates existing PrometheusMetrics' do
+            subject.execute
+
+            expect(existing_metric.reload.attributes.with_indifferent_access).to include({
+              title:   'Super Chart B',
+              y_label: 'y_label',
+              query:   'query',
+              unit:    'unit',
+              legend:  'Legend Label'
+            })
+          end
+
           it 'deletes stale metrics' do
             subject.execute
 
