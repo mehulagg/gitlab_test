@@ -124,6 +124,10 @@ RSpec.describe StubFeatureFlags do
   end
 
   describe 'stub timing' do
+    before do
+      allow_undefined_feature_flags
+    end
+
     context 'let_it_be variable' do
       let_it_be(:let_it_be_var) { Feature.enabled?(:any_feature_flag) }
 

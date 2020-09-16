@@ -64,6 +64,7 @@ module StubFeatureFlags
   end
 
   def allow_undefined_feature_flags
+    allow(Feature::Definition).to receive(:auto_create!)
     allow(Feature::Definition).to receive(:valid_usage!)
   end
 end

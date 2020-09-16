@@ -9,7 +9,7 @@ RSpec.describe 'bin/feature-flag' do
   using RSpec::Parameterized::TableSyntax
 
   before do
-    stub_env('LAZILY_CREATE_FEATURE_FLAG', 'false')
+    allow_undefined_feature_flags
   end
 
   describe FeatureFlagCreator do

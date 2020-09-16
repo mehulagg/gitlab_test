@@ -14,7 +14,7 @@ RSpec.describe Feature::Definition do
   let(:yaml_content) { attributes.deep_stringify_keys.to_yaml }
 
   before do
-    stub_env('LAZILY_CREATE_FEATURE_FLAG', '0')
+    allow_undefined_feature_flags
   end
 
   describe '#key' do
