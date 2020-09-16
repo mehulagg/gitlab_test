@@ -190,7 +190,6 @@ Based on the Vue guidance:
 - Do not use or create a JavaScript class in your [data function](https://vuejs.org/v2/api/#data), such as `user: new User()`.
 - Instead, use [GraphQL](../api_graphql_styleguide.md), [Vuex](vuex.md) or a set of components if cannot use simple primitives or objects.
 - It's okay to maintain existing implementations using such approaches. Do not add new JavaScript class implementations. Whenever there are changes in the components which use such implementations, migrate them to a pure object model.
-- It's okay to maintain existing implementations using such approach but not to add new ones. Whenever there are changes in the components which use such implementations, it's also advised to migrate them to a pure object model either in a follow up issue or within the same MR if it doesn't bloat the MR size.
 - You can add business logic to helpers or utils, so you can test them separately from your component.
 
 #### Why
