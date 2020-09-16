@@ -1,23 +1,22 @@
 - page_title _("Sign in")
+- render_signup_link = local_assigns.fetch(:render_signup_link, true)
 
 #signin-container
   - if any_form_based_providers_enabled?
     = render 'devise/shared/tabs_ldap'
-  - else
-    - unless experiment_enabled?(:signup_flow)
-      = render 'devise/shared/tabs_normal'
   .tab-content
     - if password_authentication_enabled_for_web? || ldap_sign_in_enabled? || crowd_enabled?
       = render 'devise/shared/signin_box'
-
-    -# Signup only makes sense if you can also sign-in
-    - if allow_signup?
-      = render 'devise/shared/signup_box'
 
   -# Show a message if none of the mechanisms above are enabled
   - if !password_authentication_enabled_for_web? && !ldap_sign_in_enabled? && !(omniauth_enabled? && devise_mapping.omniauthable?)
     %div
       No authentication methods configured.
+
+- if render_signup_link && allow_signup?
+  %p.light.gl-mt-3
+    = _("Don't have an account yet?")
+    = link_to _("Register now"), new_registration_path(:user)
 
   - if omniauth_enabled? && devise_mapping.omniauthable? && button_based_providers_enabled?
     .clearfix

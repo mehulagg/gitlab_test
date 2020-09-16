@@ -51,8 +51,8 @@ RSpec.describe RegistrationsController do
       sign_in(user)
     end
 
-    it 'renders the checkout layout' do
-      expect(subject).to render_template(:checkout)
+    it 'renders the onboarding layout' do
+      expect(subject).to render_template(:onboarding)
     end
   end
 

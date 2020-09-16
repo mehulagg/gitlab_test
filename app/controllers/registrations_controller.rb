@@ -16,13 +16,9 @@ class RegistrationsController < Devise::RegistrationsController
   before_action :load_recaptcha, only: :new
 
   def new
-    if experiment_enabled?(:signup_flow)
-      track_experiment_event(:terms_opt_in, 'start')
+    track_experiment_event(:terms_opt_in, 'start')
 
-      @resource = build_resource
-    else
-      redirect_to new_user_session_path(anchor: 'register-pane')
-    end
+    @resource = build_resource
   end
 
   def create
@@ -209,11 +205,9 @@ class RegistrationsController < Devise::RegistrationsController
     Gitlab::Recaptcha.load_configurations!
   end
 
-  # Part of an experiment to build a new sign up flow. Will be resolved
-  # with https://gitlab.com/gitlab-org/growth/engineering/issues/64
   def choose_layout
-    if %w(welcome update_registration).include?(action_name) || experiment_enabled?(:signup_flow)
-      'devise_experimental_separate_sign_up_flow'
+    if %w(welcome update_registration).include?(action_name)
+      'onboarding'
     else
       'devise'
     end

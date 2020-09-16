@@ -15,6 +15,3 @@
   - if show_password_form
     %li.nav-item
       = link_to _('Standard'), '#login-pane', class: 'nav-link', data: { toggle: 'tab', qa_selector: 'standard_tab' }
-  - if render_signup_link && allow_signup?
-    %li.nav-item
-      = link_to 'Register', '#register-pane', class: 'nav-link', data: { toggle: 'tab', qa_selector: 'register_tab' }
