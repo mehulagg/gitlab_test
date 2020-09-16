@@ -207,6 +207,31 @@ const TEST_TODOS = [
 const TEST_NEW_TODO = 'New todo title';
 const TEST_TODO_PATH = '/todos';
 
+// NOTE: It is very helpful to separate setting up the component from
+// its collaborators (i.e. Vuex, axios, etc.)
+function createWrapper({ props = {} }){
+    return shallowMount(App, {
+      propsData: {
+        path: TEST_TODO_PATH,
+        ...props
+      }
+    });
+}
+
+// NOTE: Helper methods greatly help test maintainability and readability.
+function findLoader(wrapper){
+  return wrapper.find(GlLoadingIcon);
+}
+function findAddButton(wrapper){
+  return wrapper.find('[data-testid="add-button"]');
+}
+function findTextInput(wrapper){
+  return wrapper.find('[data-testid="text-input"]');
+}
+function findTodoData(wrapper){
+  return wrapper.findAll('[data-testid="todo-item"]').wrappers.map(wrapper => ({ text: wrapper.text() }));
+}
+
 describe('~/todos/app.vue', () => {
   let wrapper;
   let mock;
@@ -226,27 +251,11 @@ describe('~/todos/app.vue', () => {
     mock.restore();
   });
 
-  // NOTE: It is very helpful to separate setting up the component from
-  // its collaborators (i.e. Vuex, axios, etc.)
-  const createWrapper = (props = {}) => {
-    wrapper = shallowMount(App, {
-      propsData: {
-        path: TEST_TODO_PATH,
-        ...props,
-      },
-    });
-  };
-  // NOTE: Helper methods greatly help test maintainability and readability.
-  const findLoader = () => wrapper.find(GlLoadingIcon);
-  const findAddButton = () => wrapper.find('[data-testid="add-button"]');
-  const findTextInput = () => wrapper.find('[data-testid="text-input"]');
-  const findTodoData = () => wrapper.findAll('[data-testid="todo-item"]').wrappers.map(wrapper => ({ text: wrapper.text() }));
-
   describe('when mounted and loading', () => {
     beforeEach(() => {
       // Create request which will never resolve
       mock.onGet(TEST_TODO_PATH).reply(() => new Promise(() => {}));
-      createWrapper();
+      wrapper = createWrapper();
     });
 
     it('should render the loading state', () => {
@@ -256,7 +265,7 @@ describe('~/todos/app.vue', () => {
 
   describe('when todos are loaded', () => {
     beforeEach(() => {
-      createWrapper();
+      wrapper = createWrapper();
       // IMPORTANT: This component fetches data asynchronously on mount, so let's wait for the Vue template to update
       return wrapper.vm.$nextTick();
     });
