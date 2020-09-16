@@ -53,6 +53,15 @@ module Emails
 
       subject_line = subject("Invitation to join the #{member_source.human_name} #{member_source.model_name.singular}")
 
+      if member.invite? && member_source_type == 'Group' && Gitlab::Experimentation.enabled?(:invitation_reminders)
+        Gitlab::Tracking.event(
+          Gitlab::Experimentation.experiment(:invitation_reminders).tracking_category,
+          'sent',
+          property: Gitlab::Experimentation.enabled_for_attribute?(:invitation_reminders, member.invite_email) ? 'experimental_group' : 'control_group',
+          label: Digest::MD5.hexdigest(member.to_global_id.to_s)
+        )
+      end
+
       if member.invite_to_unknown_user? && Feature.enabled?(:invite_email_experiment)
         subject_line = subject("#{member.created_by.name} invited you to join GitLab") if member.created_by
         @invite_url_params = { new_user_invite: 'experiment' }
@@ -77,6 +86,52 @@ module Emails
           Gitlab::Tracking.event(Gitlab::Experimentation::EXPERIMENTS[:invite_email][:tracking_category], 'sent', property: 'control_group')
         end
       end
+    end
+
+    def member_invited_first_reminder_email(member_source_type, member_id, token)
+      @member_source_type = member_source_type
+      @member_id = member_id
+      @token = token
+
+      return unless member_exists?
+
+      subject_line = member.expires_at ? "#{member.created_by.name} is waiting for you to join GitLab" : "#{member.created_by.name}'s invitation to GitLab is pending"
+
+      member_email_with_layout(
+        to: member.invite_email,
+        subject: subject_line,
+        layout: 'experiment_mailer'
+      )
+    end
+
+    def member_invited_second_reminder_email(member_source_type, member_id, token)
+      @member_source_type = member_source_type
+      @member_id = member_id
+      @token = token
+
+      return unless member_exists?
+
+      member_email_with_layout(
+        to: member.invite_email,
+        subject: "#{member.created_by.name} is waiting for you to join GitLab",
+        layout: 'experiment_mailer'
+      )
+    end
+
+    def member_invited_third_reminder_email(member_source_type, member_id, token)
+      @member_source_type = member_source_type
+      @member_id = member_id
+      @token = token
+
+      return unless member_exists?
+
+      subject_line = member.expires_at ? "#{member.created_by.name}'s invite to joining GitLab is expiring soon" : "#{member.created_by.name} is still waiting for you to join GitLab"
+
+      member_email_with_layout(
+        to: member.invite_email,
+        subject: subject_line,
+        layout: 'experiment_mailer'
+      )
     end
 
     def member_invite_accepted_email(member_source_type, member_id)

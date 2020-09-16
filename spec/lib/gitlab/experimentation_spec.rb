@@ -377,4 +377,32 @@ RSpec.describe Gitlab::Experimentation do
       end
     end
   end
+
+  describe '.enabled_for_attribute?' do
+    subject { described_class.enabled_for_attribute?(:test_experiment, attribute) }
+
+    let(:attribute) { 'abcd' } # Digest::SHA1.hexdigest('abcd').hex % 100 = 7
+
+    context 'experiment is disabled' do
+      before do
+        allow(described_class).to receive(:enabled?).and_return(false)
+      end
+
+      it { is_expected.to be false }
+    end
+
+    context 'experiment is enabled' do
+      before do
+        allow(described_class).to receive(:enabled?).and_return(true)
+      end
+
+      it { is_expected.to be true }
+
+      context 'outside enabled ratio' do
+        let(:attribute) { 'abc' } # Digest::SHA1.hexdigest('abc').hex % 100 = 17
+
+        it { is_expected.to be false }
+      end
+    end
+  end
 end

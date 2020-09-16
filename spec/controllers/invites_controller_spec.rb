@@ -21,6 +21,26 @@ RSpec.describe InvitesController, :snowplow do
     controller.instance_variable_set(:@member, member)
   end
 
+  shared_examples 'tracks an event for the invitation reminders experiment' do |experimental_group, action|
+    before do
+      stub_experiment(invitation_reminders: true)
+      allow(Gitlab::Experimentation).to receive(:enabled_for_attribute?).with(:invitation_reminders, member.invite_email).and_return(experimental_group)
+    end
+
+    let(:group_type) { experimental_group ? 'experimental_group' : 'control_group' }
+
+    it "tracks the #{action} event for a user in the #{experimental_group ? 'experimental' : 'control'} group" do
+      request
+
+      expect_snowplow_event(
+        category: 'Growth::Acquisition::Experiment::InvitationReminders',
+        label: md5_member_global_id,
+        property: group_type,
+        action: action
+      )
+    end
+  end
+
   describe 'GET #show' do
     subject(:request) { get :show, params: params }
 
@@ -80,6 +100,16 @@ RSpec.describe InvitesController, :snowplow do
           expect_snowplow_event(snowplow_event.merge(action: 'accepted'))
         end
       end
+
+      context 'when invite email is in the experimental group' do
+        it_behaves_like 'tracks an event for the invitation reminders experiment', true, 'opened'
+        it_behaves_like 'tracks an event for the invitation reminders experiment', true, 'accepted'
+      end
+
+      context 'when invite email is in the control group' do
+        it_behaves_like 'tracks an event for the invitation reminders experiment', false, 'opened'
+        it_behaves_like 'tracks an event for the invitation reminders experiment', false, 'accepted'
+      end
     end
 
     context 'when not logged in' do
@@ -127,6 +157,9 @@ RSpec.describe InvitesController, :snowplow do
 
         expect_snowplow_event(snowplow_event.merge(action: 'accepted'))
       end
+
+      it_behaves_like 'tracks an event for the invitation reminders experiment', true, 'accepted'
+      it_behaves_like 'tracks an event for the invitation reminders experiment', false, 'accepted'
     end
 
     context 'when new_user_invite is control' do
@@ -138,6 +171,9 @@ RSpec.describe InvitesController, :snowplow do
 
         expect_snowplow_event(snowplow_event.merge(action: 'accepted'))
       end
+
+      it_behaves_like 'tracks an event for the invitation reminders experiment', true, 'accepted'
+      it_behaves_like 'tracks an event for the invitation reminders experiment', false, 'accepted'
     end
   end
 end

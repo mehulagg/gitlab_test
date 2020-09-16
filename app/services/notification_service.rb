@@ -408,6 +408,17 @@ class NotificationService
     mailer.member_invited_email(group_member.real_source_type, group_member.id, token).deliver_later
   end
 
+  # Group invite reminder
+  def invite_group_member_reminder(group_member, token, reminder_index)
+    if reminder_index == 0
+      mailer.member_invited_first_reminder_email(group_member.real_source_type, group_member.id, token).deliver_later
+    elsif reminder_index == 1
+      mailer.member_invited_second_reminder_email(group_member.real_source_type, group_member.id, token).deliver_later
+    elsif reminder_index == 2
+      mailer.member_invited_third_reminder_email(group_member.real_source_type, group_member.id, token).deliver_later
+    end
+  end
+
   def accept_group_invite(group_member)
     mailer.member_invite_accepted_email(group_member.real_source_type, group_member.id).deliver_later
   end

@@ -885,7 +885,7 @@ RSpec.describe Notify do
       let(:project_member) { invite_to_project(project, inviter: inviter) }
       let(:inviter) { maintainer }
 
-      subject { described_class.member_invited_email('project', project_member.id, project_member.invite_token) }
+      subject { described_class.member_invited_email('Project', project_member.id, project_member.invite_token) }
 
       context 'when invite_email_experiment is disabled' do
         before do
@@ -1508,12 +1508,30 @@ RSpec.describe Notify do
       )
     end
 
-    describe 'group invitation' do
+    describe 'group invitation', :snowplow do
       let(:owner) { create(:user).tap { |u| group.add_user(u, Gitlab::Access::OWNER) } }
       let(:group_member) { invite_to_group(group, inviter: inviter) }
       let(:inviter) { owner }
 
-      subject { described_class.member_invited_email('group', group_member.id, group_member.invite_token) }
+      subject { described_class.member_invited_email('Group', group_member.id, group_member.invite_token) }
+
+      describe "tracking a 'sent' event for the invitation reminders experiment" do
+        before do
+          stub_experiment(invitation_reminders: true)
+          allow(Gitlab::Experimentation).to receive(:enabled_for_attribute?).with(:invitation_reminders, group_member.invite_email).and_return(true)
+        end
+
+        it "tracks the event" do
+          subject.deliver_now
+
+          expect_snowplow_event(
+            category: 'Growth::Acquisition::Experiment::InvitationReminders',
+            action: 'sent',
+            label: Digest::MD5.hexdigest(group_member.to_global_id.to_s),
+            property: 'experimental_group'
+          )
+        end
+      end
 
       context 'when invite_email_experiment is disabled' do
         before do

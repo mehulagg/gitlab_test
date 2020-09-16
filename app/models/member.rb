@@ -79,6 +79,11 @@ class Member < ApplicationRecord
   scope :non_request, -> { where(requested_at: nil) }
 
   scope :not_accepted_invitations_by_user, -> (user) { invite.where(invite_accepted_at: nil, created_by: user) }
+  scope :not_accepted_or_expired_recent_invitations, -> (today = Time.zone.today) do
+    invite.where(invite_accepted_at: nil)
+    .where(created_at: today - 10..today)
+    .where(arel_table[:expires_at].gt(today).or(arel_table[:expires_at].eq(nil)))
+  end
 
   scope :has_access, -> { active.where('access_level > 0') }
 
@@ -370,6 +375,14 @@ class Member < ApplicationRecord
     send_invite
   end
 
+  def send_invitation_reminder(reminder_index)
+    return unless invite?
+
+    generate_invite_token! unless @raw_invite_token
+
+    send_reminder(reminder_index)
+  end
+
   def create_notification_setting
     user.notification_settings.find_or_create_for(source)
   end
@@ -407,6 +420,10 @@ class Member < ApplicationRecord
   private
 
   def send_invite
+    # override in subclass
+  end
+
+  def send_reminder(reminder_index)
     # override in subclass
   end
 
