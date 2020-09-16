@@ -99,6 +99,15 @@ call-out responsibilities for other team members or teams.
 - [ ] ~frontend Step 2
 -->
 
+### Non-functional Requirements
+<!--
+Non-functional requirements capture needs that don't immediately pertain to the user experience. 
+
+- [ ] Feature Flag - Should this work be controlled by a feature flag?
+- [ ] End to end tests - Will this affect existing or require new end to end tests? 
+- [ ] Performance - Should there be additional consideration for performance of this feature?
+-->
+
 ### Links / references
 
 <!--  Label reminders - you should have one of each of the following labels if you can figure out the correct ones -->
