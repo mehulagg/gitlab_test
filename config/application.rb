@@ -177,11 +177,6 @@ module Gitlab
     config.assets.precompile << "mailer_client_specific.css"
     config.assets.precompile << "notify.css"
     config.assets.precompile << "mailers/*.css"
-    config.assets.precompile << "page_bundles/_mixins_and_variables_and_functions.css"
-    config.assets.precompile << "page_bundles/ide.css"
-    config.assets.precompile << "page_bundles/jira_connect.css"
-    config.assets.precompile << "page_bundles/todos.css"
-    config.assets.precompile << "page_bundles/xterm.css"
     config.assets.precompile << "performance_bar.css"
     config.assets.precompile << "lib/ace.js"
     config.assets.precompile << "disable_animations.css"
@@ -208,6 +203,15 @@ module Gitlab
 
     # Import css for xterm
     config.assets.paths << "#{config.root}/node_modules/xterm/src/"
+    config.assets.precompile << "xterm.css"
+
+    # Page specific bundles
+    config.assets.paths << "#{config.root}/ee/app/assets/stylesheets/page_bundles" if Gitlab.ee?
+    config.assets.paths << "#{config.root}app/assets/stylesheets/page_bundles"
+    config.assets.precompile << "_mixins_and_variables_and_functions.css"
+    config.assets.precompile << "ide.css"
+    config.assets.precompile << "jira_connect.css"
+    config.assets.precompile << "todos.css"
     config.assets.precompile << "xterm.css"
 
     # Add EE assets

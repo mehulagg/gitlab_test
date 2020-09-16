@@ -245,6 +245,10 @@ module ApplicationHelper
     end
   end
 
+  def page_specific_stylesheet(path)
+    stylesheet_link_tag_defer(path.gsub('page_bundles/', ''))
+  end
+
   def outdated_browser?
     browser.ie?
   end
