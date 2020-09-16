@@ -123,10 +123,6 @@ RSpec.describe 'Project settings > Issues', :js do
             end
 
             toggle_btn = find('#cve_id_request_toggle button.project-feature-toggle')
-            puts test
-            puts toggle_btn['outerHTML']
-            puts "matched is-disabled? #{toggle_btn.matches_css?('.is-disabled', wait: 0)}"
-            puts "matched is-checked? #{toggle_btn.matches_css?('.is-checked', wait: 0)}"
 
             if test_expect[:toggle_disabled]
               expect(toggle_btn).to match_css('.is-disabled', wait: 0)

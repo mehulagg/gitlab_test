@@ -44,13 +44,10 @@ RSpec.describe EE::IssueSidebarBasicEntity do
 
       desc = test_conf[:request_cve_enabled] ? '' : 'not '
       context "with CVE Requests #{desc}enabled for the project," do
-
         desc = test_conf[:maintainer] ? '' : 'not '
         context "the current user is #{desc}a maintainer," do
-
           desc = test_conf[:confidential] ? '' : 'not '
           context "the current issue is #{desc}confidential," do
-
             desc = test_expect[:request_cve_enabled] ? 'enabled' : 'disabled'
             it "reports CVE requests as #{desc}" do
               expect(subject[:request_cve_enabled]).to equal(test_expect[:request_cve_enabled])
