@@ -4,6 +4,8 @@ import initConfidentialFilter from '~/search/confidential_filter';
 
 document.addEventListener('DOMContentLoaded', () => {
   initStateFilter();
-  initConfidentialFilter();
+  if (gon.features.searchFilterByConfidential) {
+    initConfidentialFilter();
+  }
   return new Search();
 });

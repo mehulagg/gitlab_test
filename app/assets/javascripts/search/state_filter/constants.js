@@ -35,3 +35,5 @@ export const FILTER_STATES_BY_SCOPE = {
     FILTER_STATES.CLOSED,
   ],
 };
+
+export const FILTER_PARAM = 'state';
