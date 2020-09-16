@@ -246,7 +246,7 @@ module ApplicationHelper
   end
 
   def page_specific_stylesheet(path)
-    stylesheet_link_tag_defer(path.gsub('page_bundles/', ''))
+    stylesheet_link_tag(path.gsub('page_bundles/', ''))
   end
 
   def outdated_browser?
