@@ -28,6 +28,7 @@ RSpec.describe Gitlab::RobotsTxt::Parser do
         '/api/grapql' | true
         '/api/index.html' | true
         '/projects' | false
+        '/my-namespace/projects' | false
       end
 
       with_them do
