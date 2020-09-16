@@ -60,7 +60,7 @@ module Gitlab
         source_ids = intersected_set.collect { |rule| rule[0] }.uniq
 
         rule_sources = ApprovalMergeRequestRuleSource.where(id: source_ids + different_names_or_approval_sources)
-        changed_merge_request_rules = ApprovalMergeRequestRule.where(id: rule_sources.select(&:approval_merge_request_rule_id))
+        changed_merge_request_rules = ApprovalMergeRequestRule.where(id: rule_sources.select(:approval_merge_request_rule_id))
 
         changed_merge_request_rules.update_all(modified_from_project_rule: true)
       end
