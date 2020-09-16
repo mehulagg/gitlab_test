@@ -14,8 +14,8 @@ class Feature
     TYPES = {
       development: {
         description: 'Short lived, used to enable unfinished code to be deployed',
-        required: false,
-        auto_create: true,
+        required: true,
+        auto_create: false,
         rollout_issue: true,
         default_enabled: false,
         example: <<-EOS
