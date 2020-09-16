@@ -9,7 +9,7 @@ RSpec.describe Projects::IncidentsHelper do
   let(:project_path) { project.full_path }
   let(:new_issue_path) { new_project_issue_path(project) }
   let(:issue_path) { project_issues_path(project) }
-  let(:params) do 
+  let(:params) do
     {
       search: 'search text',
       author_username: 'root',

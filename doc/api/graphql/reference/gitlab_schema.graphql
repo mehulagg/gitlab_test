@@ -6776,12 +6776,12 @@ type Group {
     assigneeId: String
 
     """
-    Filter requirements by assignee username
+    Username of a assignees assigned to the issue
     """
     assigneeUsername: [String!]
 
     """
-    Filter requirements by author username
+    Username of a users assigned to the issue
     """
     authorUsername: [String!]
 
@@ -12251,12 +12251,12 @@ type Project {
     assigneeId: String
 
     """
-    Filter requirements by assignee username
+    Username of a assignees assigned to the issue
     """
     assigneeUsername: [String!]
 
     """
-    Filter requirements by author username
+    Username of a users assigned to the issue
     """
     authorUsername: [String!]
 
@@ -12431,12 +12431,12 @@ type Project {
     assigneeId: String
 
     """
-    Filter requirements by assignee username
+    Username of a assignees assigned to the issue
     """
     assigneeUsername: [String!]
 
     """
-    Filter requirements by author username
+    Username of a users assigned to the issue
     """
     authorUsername: [String!]
 

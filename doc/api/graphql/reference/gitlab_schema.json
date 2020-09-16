@@ -18849,8 +18849,26 @@
                   "defaultValue": null
                 },
                 {
+                  "name": "authorUsername",
+                  "description": "Username of a users assigned to the issue",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": null
+                },
+                {
                   "name": "assigneeUsername",
-                  "description": "Filter requirements by assignee username",
+                  "description": "Username of a assignees assigned to the issue",
                   "type": {
                     "kind": "LIST",
                     "name": null,
@@ -18983,24 +19001,6 @@
                     "ofType": null
                   },
                   "defaultValue": "created_desc"
-                },
-                {
-                  "name": "authorUsername",
-                  "description": "Filter requirements by author username",
-                  "type": {
-                    "kind": "LIST",
-                    "name": null,
-                    "ofType": {
-                      "kind": "NON_NULL",
-                      "name": null,
-                      "ofType": {
-                        "kind": "SCALAR",
-                        "name": "String",
-                        "ofType": null
-                      }
-                    }
-                  },
-                  "defaultValue": null
                 },
                 {
                   "name": "iterationId",
@@ -36446,8 +36446,26 @@
                   "defaultValue": null
                 },
                 {
+                  "name": "authorUsername",
+                  "description": "Username of a users assigned to the issue",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": null
+                },
+                {
                   "name": "assigneeUsername",
-                  "description": "Filter requirements by assignee username",
+                  "description": "Username of a assignees assigned to the issue",
                   "type": {
                     "kind": "LIST",
                     "name": null,
@@ -36580,24 +36598,6 @@
                     "ofType": null
                   },
                   "defaultValue": "created_desc"
-                },
-                {
-                  "name": "authorUsername",
-                  "description": "Filter requirements by author username",
-                  "type": {
-                    "kind": "LIST",
-                    "name": null,
-                    "ofType": {
-                      "kind": "NON_NULL",
-                      "name": null,
-                      "ofType": {
-                        "kind": "SCALAR",
-                        "name": "String",
-                        "ofType": null
-                      }
-                    }
-                  },
-                  "defaultValue": null
                 },
                 {
                   "name": "iterationId",
@@ -36683,6 +36683,24 @@
                   "defaultValue": null
                 },
                 {
+                  "name": "authorUsername",
+                  "description": "Filter requirements by author username",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": null
+                },
+                {
                   "name": "assigneeUsername",
                   "description": "Filter requirements by assignee username",
                   "type": {
@@ -36797,24 +36815,6 @@
                     }
                   },
                   "defaultValue": null
-                },
-                {
-                  "name": "authorUsername",
-                  "description": "Filter requirements by author username",
-                  "type": {
-                    "kind": "LIST",
-                    "name": null,
-                    "ofType": {
-                      "kind": "NON_NULL",
-                      "name": null,
-                      "ofType": {
-                        "kind": "SCALAR",
-                        "name": "String",
-                        "ofType": null
-                      }
-                    }
-                  },
-                  "defaultValue": null
                 }
               ],
               "type": {
@@ -36886,8 +36886,26 @@
                   "defaultValue": null
                 },
                 {
+                  "name": "authorUsername",
+                  "description": "Username of a users assigned to the issue",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": null
+                },
+                {
                   "name": "assigneeUsername",
-                  "description": "Filter requirements by assignee username",
+                  "description": "Username of a assignees assigned to the issue",
                   "type": {
                     "kind": "LIST",
                     "name": null,
@@ -37020,24 +37038,6 @@
                     "ofType": null
                   },
                   "defaultValue": "created_desc"
-                },
-                {
-                  "name": "authorUsername",
-                  "description": "Filter requirements by author username",
-                  "type": {
-                    "kind": "LIST",
-                    "name": null,
-                    "ofType": {
-                      "kind": "NON_NULL",
-                      "name": null,
-                      "ofType": {
-                        "kind": "SCALAR",
-                        "name": "String",
-                        "ofType": null
-                      }
-                    }
-                  },
-                  "defaultValue": null
                 },
                 {
                   "name": "iterationId",
