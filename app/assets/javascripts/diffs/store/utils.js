@@ -1,4 +1,4 @@
-import { property, isEqual } from 'lodash';
+import { property, isEqual, cloneDeep } from 'lodash';
 import { truncatePathMiddleToLength } from '~/lib/utils/text_utility';
 import { diffModes, diffViewerModes } from '~/ide/constants';
 import {
@@ -373,8 +373,11 @@ function cleanRichText(text) {
 }
 
 function prepareLine(line, file) {
+  let updatedLine = line;
+
   if (!line.alreadyPrepared) {
-    Object.assign(line, {
+    updatedLine = {
+      ...cloneDeep(line),
       commentsDisabled: file.brokenSymlink,
       rich_text: cleanRichText(line.rich_text),
       discussionsExpanded: true,
@@ -382,8 +385,10 @@ function prepareLine(line, file) {
       hasForm: false,
       text: undefined,
       alreadyPrepared: true,
-    });
+    };
   }
+
+  return updatedLine;
 }
 
 export function prepareLineForRenamedFile({ line, diffViewType, diffFile, index = 0 }) {
@@ -402,14 +407,15 @@ export function prepareLineForRenamedFile({ line, diffViewType, diffFile, index 
     ==> https://gitlab.com/groups/gitlab-org/-/epics/2852#note_304803402
   */
   const lineNumber = index + 1;
-  const cleanLine = {
-    ...line,
-    line_code: `${diffFile.file_hash}_${lineNumber}_${lineNumber}`,
-    new_line: lineNumber,
-    old_line: lineNumber,
-  };
-
-  prepareLine(cleanLine, diffFile); // WARNING: In-Place Mutations!
+  const cleanLine = prepareLine(
+    {
+      ...line,
+      line_code: `${diffFile.file_hash}_${lineNumber}_${lineNumber}`,
+      new_line: lineNumber,
+      old_line: lineNumber,
+    },
+    diffFile,
+  );
 
   if (diffViewType === PARALLEL_DIFF_VIEW_TYPE) {
     return {
@@ -423,32 +429,38 @@ export function prepareLineForRenamedFile({ line, diffViewType, diffFile, index 
 }
 
 function prepareDiffFileLines(file) {
-  const inlineLines = file.highlighted_diff_lines;
-  const parallelLines = file.parallel_diff_lines;
+  let inlineLines = file.highlighted_diff_lines;
+  let parallelLines = file.parallel_diff_lines;
   let parallelLinesCount = 0;
 
-  inlineLines.forEach(line => prepareLine(line, file)); // WARNING: In-Place Mutations!
+  inlineLines = inlineLines.map(line => prepareLine(line, file));
 
-  parallelLines.forEach((line, index) => {
-    Object.assign(line, { line_code: getLineCode(line, index) });
+  parallelLines = parallelLines.map((line, index) => {
+    const updatedLine = {
+      ...cloneDeep(line),
+      line_code: getLineCode(line, index),
+    };
 
-    if (line.left) {
+    if (updatedLine.left) {
       parallelLinesCount += 1;
-      prepareLine(line.left, file); // WARNING: In-Place Mutations!
+      updatedLine.left = prepareLine(updatedLine.left, file);
     }
 
-    if (line.right) {
+    if (updatedLine.right) {
       parallelLinesCount += 1;
-      prepareLine(line.right, file); // WARNING: In-Place Mutations!
+      updatedLine.right = prepareLine(updatedLine.right, file);
     }
+
+    return updatedLine;
   });
 
-  Object.assign(file, {
+  return {
+    ...cloneDeep(file),
     inlineLinesCount: inlineLines.length,
     parallelLinesCount,
-  });
-
-  return file;
+    inlineLines,
+    parallelLines,
+  };
 }
 
 function getVisibleDiffLines(file) {
