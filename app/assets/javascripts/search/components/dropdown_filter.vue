@@ -91,7 +91,7 @@ export default {
     v-if="showDropdown"
     :text="selectedFilterText"
     class="col-3 gl-pt-4 gl-pl-0 gl-pr-0 gl-mr-4"
-    menu-class="w-100 gl-pl-0"
+    menu-class="gl-w-full gl-pl-0"
   >
     <header class="gl-text-center gl-font-weight-bold gl-font-lg">
       {{ header }}
