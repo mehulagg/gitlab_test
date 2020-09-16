@@ -138,19 +138,19 @@ RSpec.describe PipelineSerializer do
 
       let(:resource) { Ci::Pipeline.all }
 
-      before do
-        # Since RequestStore.active? is true we have to allow the
-        # gitaly calls in this block
-        # Issue: https://gitlab.com/gitlab-org/gitlab-foss/issues/37772
-        Gitlab::GitalyClient.allow_n_plus_1_calls do
-          Ci::Pipeline::COMPLETED_STATUSES.each do |status|
-            create_pipeline(status)
-          end
-        end
-        Gitlab::GitalyClient.reset_counts
-      end
-
       context 'with the same ref' do
+        before do
+          # Since RequestStore.active? is true we have to allow the
+          # gitaly calls in this block
+          # Issue: https://gitlab.com/gitlab-org/gitlab-foss/issues/37772
+          Gitlab::GitalyClient.allow_n_plus_1_calls do
+            Ci::Pipeline::COMPLETED_STATUSES.each do |status|
+              create_pipeline(status)
+            end
+          end
+          Gitlab::GitalyClient.reset_counts
+        end
+
         let(:ref) { 'feature' }
 
         it 'verifies number of queries', :request_store do
@@ -163,6 +163,19 @@ RSpec.describe PipelineSerializer do
       end
 
       context 'with different refs' do
+        before do
+          # Since RequestStore.active? is true we have to allow the
+          # gitaly calls in this block
+          # Issue: https://gitlab.com/gitlab-org/gitlab-foss/issues/37772
+          Gitlab::GitalyClient.allow_n_plus_1_calls do
+            Ci::Pipeline::COMPLETED_STATUSES.each do |status|
+              create_pipeline(status)
+            end
+          end
+          Gitlab::GitalyClient.reset_counts
+        end
+
+        let(:ref) { 'feature' }
         def ref
           @sequence ||= 0
           @sequence += 1
@@ -186,27 +199,38 @@ RSpec.describe PipelineSerializer do
       context 'with triggered pipelines' do
         let(:ref) { 'feature' }
 
-        before do
-          pipeline_1 = create(:ci_pipeline)
-          build_1 = create(:ci_build, pipeline: pipeline_1)
-          create(:ci_sources_pipeline, source_job: build_1)
-
-          pipeline_2 = create(:ci_pipeline)
-          build_2 = create(:ci_build, pipeline: pipeline_2)
-          create(:ci_sources_pipeline, source_job: build_2)
-        end
-
         it 'verifies number of queries', :request_store do
-          recorded = ActiveRecord::QueryRecorder.new { subject }
+          Gitlab::GitalyClient.allow_n_plus_1_calls do
+            Ci::Pipeline::COMPLETED_STATUSES.each do |status|
+              pipeline = create_pipeline(status)
+              build = pipeline.builds.first
 
-          # 99 queries by default + 2 related to preloading
-          # :source_pipeline and :source_job
-          # Existing numbers are high and require performance optimization
-          # https://gitlab.com/gitlab-org/gitlab/-/issues/225156
-          expected_queries = Gitlab.ee? ? 95 : 86
+              create(:ci_sources_pipeline, source_job: build)
+            end
+          end
+          Gitlab::GitalyClient.reset_counts
 
-          expect(recorded.count).to be_within(2).of(expected_queries)
-          expect(recorded.cached_count).to eq(0)
+          control_query = ActiveRecord::QueryRecorder.new do
+            serializer.represent(::Ci::Pipeline.all, preload: true)
+          end
+
+          Gitlab::GitalyClient.allow_n_plus_1_calls do
+            Ci::Pipeline::COMPLETED_STATUSES.each do |status|
+              pipeline = create_pipeline(status)
+              build = pipeline.builds.first
+
+              create(:ci_sources_pipeline, source_job: build)
+            end
+          end
+          Gitlab::GitalyClient.reset_counts
+
+          test_query = ActiveRecord::QueryRecorder.new do
+            serializer.represent(::Ci::Pipeline.all, preload: true)
+          end
+
+          expect(test_query.count).to be(control_query.count)
+          expect(test_query.count).to be <= 99
+          expect(test_query.cached_count).to be_zero
         end
       end
 
