@@ -89,6 +89,16 @@ In which enterprise tier should this feature go? See https://about.gitlab.com/ha
 
 <!-- Communicate if this change will affect multiple Stage Groups or product areas. We recommend always start with the assumption that a feature request will have an impact into another Group. Loop in the most relevant PM and Product Designer from that Group to provide strategic support to help align the Group's broader plan and vision, as well as to avoid UX and technical debt. https://about.gitlab.com/handbook/product/#cross-stage-features -->
 
+### Implementation Plan
+<!--
+Steps and the parts of the code that will need to get updated. The plan can also
+call-out responsibilities for other team members or teams.
+
+- [ ] ~backend Step 1
+  - [ ] @person Step 1a
+- [ ] ~frontend Step 2
+-->
+
 ### Links / references
 
 <!--  Label reminders - you should have one of each of the following labels if you can figure out the correct ones -->
