@@ -121,7 +121,6 @@ export default {
           <gl-button
             :loading="isMakingRequest"
             variant="success"
-            size="sm"
             class="qa-mr-rebase-button"
             @click="rebase"
           >
