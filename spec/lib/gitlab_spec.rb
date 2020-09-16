@@ -70,6 +70,26 @@ RSpec.describe Gitlab do
     end
   end
 
+  describe '.live?' do
+    it 'is true when on GitLab.com' do
+      stub_config_setting(url: 'https://gitlab.com')
+
+      expect(described_class.live?).to eq true
+    end
+
+    it 'is false when on gitlab subdomain' do
+      stub_config_setting(url: 'https://example.gitlab.com')
+
+      expect(described_class.live?).to eq false
+    end
+
+    it 'is false when not on GitLab.com' do
+      stub_config_setting(url: 'http://example.com')
+
+      expect(described_class.live?).to eq false
+    end
+  end
+
   describe '.com?' do
     it 'is true when on GitLab.com' do
       stub_config_setting(url: 'https://gitlab.com')

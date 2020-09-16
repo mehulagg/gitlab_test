@@ -43,9 +43,13 @@ module Gitlab
   INSTALLATION_TYPE = File.read(root.join("INSTALLATION_TYPE")).strip.freeze
   HTTP_PROXY_ENV_VARS = %w(http_proxy https_proxy HTTP_PROXY HTTPS_PROXY).freeze
 
+  def self.live?
+    Gitlab.config.gitlab.url == COM_URL
+  end
+
   def self.com?
     # Check `gl_subdomain?` as well to keep parity with gitlab.com
-    Gitlab.config.gitlab.url == COM_URL || gl_subdomain?
+    live? || gl_subdomain?
   end
 
   def self.staging?
