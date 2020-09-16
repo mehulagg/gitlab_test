@@ -1,5 +1,7 @@
+---
 name: create_epic_form
+introduced_by_url: 
+rollout_issue_url: 
+group: 
 type: development
-# This feature flag is used as feature with `default_enabled: true`
-# and is used as feature flag with `default_enabled: false`
-default_enabled: [false, true]
+default_enabled: true

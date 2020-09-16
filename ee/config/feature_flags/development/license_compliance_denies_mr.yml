@@ -1,7 +1,7 @@
 ---
 name: license_compliance_denies_mr
-# There's a collision between
-# - push_frontend_feature_flag
-# - Feature.enabled?
-default_enabled: [false, true]
+introduced_by_url: 
+rollout_issue_url: 
+group: 
 type: development
+default_enabled: true
