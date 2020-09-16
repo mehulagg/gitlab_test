@@ -16,70 +16,17 @@ export const ERROR_MESSAGES = {
   ),
 };
 
-export const getProfilesSettings = ({
-  scannerProfilesLibraryPath,
-  newScannerProfilePath,
-  siteProfilesLibraryPath,
-  newSiteProfilePath,
-}) => ({
+export const PROFILE_QUERIES = {
   scannerProfiles: {
     field: 'dastScannerProfileId',
     fetchQuery: dastScannerProfilesQuery,
     fetchError: ERROR_FETCH_SCANNER_PROFILES,
     queryKind: 'scannerProfiles',
-    libraryPath: scannerProfilesLibraryPath,
-    newProfilePath: newScannerProfilePath,
-    selectedProfileDropdownLabel: profile => profile.profileName,
-    i18n: {
-      title: s__('OnDemandScans|Scanner profile'),
-      formGroupLabel: s__('OnDemandScans|Use existing scanner profile'),
-      noProfilesText: s__(
-        'OnDemandScans|No profile yet. In order to create a new scan, you need to have at least one completed scanner profile.',
-      ),
-      newProfileLabel: s__('OnDemandScans|Create a new scanner profile'),
-    },
-    summary: [
-      [
-        {
-          label: s__('DastProfiles|Scan mode'),
-          valueGetter: () => s__('DastProfiles|Passive'),
-        },
-      ],
-      [
-        {
-          label: s__('DastProfiles|Spider timeout'),
-          valueGetter: profile => profile.spiderTimeout,
-        },
-        {
-          label: s__('DastProfiles|Target timeout'),
-          valueGetter: profile => profile.targetTimeout,
-        },
-      ],
-    ],
   },
   siteProfiles: {
     field: 'dastSiteProfileId',
     fetchQuery: dastSiteProfilesQuery,
     fetchError: ERROR_FETCH_SITE_PROFILES,
     queryKind: 'siteProfiles',
-    libraryPath: siteProfilesLibraryPath,
-    newProfilePath: newSiteProfilePath,
-    selectedProfileDropdownLabel: profile => `${profile.profileName}: ${profile.targetUrl}`,
-    i18n: {
-      title: s__('OnDemandScans|Site profile'),
-      formGroupLabel: s__('OnDemandScans|Use existing site profile'),
-      noProfilesText: s__(
-        'OnDemandScans|No profile yet. In order to create a new scan, you need to have at least one completed site profile.',
-      ),
-      newProfileLabel: s__('OnDemandScans|Create a new site profile'),
-    },
-    summary: [
-      [
-        {
-          label: s__('DastProfiles|Target URL'),
-          valueGetter: profile => profile.targetUrl,
-        },
-      ],
-    ],
   },
-});
+};

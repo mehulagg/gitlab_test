@@ -1,6 +1,5 @@
 <script>
 import { GlButton, GlCard, GlFormGroup, GlDropdown, GlDropdownItem } from '@gitlab/ui';
-import { s__ } from '~/locale';
 
 const MODEL = {
   PROP: 'selectedProfileId',
@@ -21,8 +20,12 @@ export default {
     event: MODEL.EVENT,
   },
   props: {
-    settings: {
-      type: Object,
+    libraryPath: {
+      type: String,
+      required: true,
+    },
+    newProfilePath: {
+      type: String,
       required: true,
     },
     profiles: {
@@ -42,11 +45,6 @@ export default {
         ? this.profiles.find(({ id }) => this.selectedProfileId === id)
         : null;
     },
-    profileText() {
-      return this.selectedProfile
-        ? this.settings.selectedProfileDropdownLabel(this.selectedProfile)
-        : s__('OnDemandScans|Select one of the existing profiles');
-    },
   },
   methods: {
     setProfile({ id }) {
@@ -61,11 +59,13 @@ export default {
     <template #header>
       <div class="row">
         <div class="col-7">
-          <h3 class="gl-font-lg gl-display-inline">{{ settings.i18n.title }}</h3>
+          <h3 class="gl-font-lg gl-display-inline">
+            <slot name="title"></slot>
+          </h3>
         </div>
         <div class="col-5 gl-text-right">
           <gl-button
-            :href="profiles.length ? settings.libraryPath : null"
+            :href="profiles.length ? libraryPath : null"
             :disabled="!profiles.length"
             variant="success"
             category="secondary"
@@ -79,11 +79,14 @@ export default {
     </template>
     <gl-form-group v-if="profiles.length">
       <template #label>
-        {{ settings.i18n.formGroupLabel }}
+        <slot name="label"></slot>
       </template>
       <gl-dropdown
-        v-model="selectedProfileId"
-        :text="profileText"
+        :text="
+          selectedProfile
+            ? selectedProfile.dropdownLabel
+            : s__('OnDemandScans|Select one of the existing profiles')
+        "
         class="mw-460"
         data-testid="profiles-dropdown"
       >
@@ -97,42 +100,22 @@ export default {
           {{ profile.profileName }}
         </gl-dropdown-item>
       </gl-dropdown>
-      <div
-        v-if="selectedProfileId && settings.summary.length"
-        data-testid="selected-profile-summary"
-      >
+      <div v-if="selectedProfile && $scopedSlots.summary" data-testid="selected-profile-summary">
         <hr />
-        <div
-          v-for="(row, rowIndex) in settings.summary"
-          :key="`summaryRow_${rowIndex}`"
-          class="row"
-        >
-          <div
-            v-for="({ label, valueGetter }, cellIndex) in row"
-            :key="`cell_${rowIndex}_${cellIndex}`"
-            class="col-md-6"
-          >
-            <div class="row">
-              <div class="col-md-3">{{ label }}:</div>
-              <div class="col-md-9 gl-font-weight-bold">
-                {{ valueGetter(selectedProfile) }}
-              </div>
-            </div>
-          </div>
-        </div>
+        <slot name="summary" :profile="selectedProfile"></slot>
       </div>
     </gl-form-group>
     <template v-else>
       <p class="gl-text-gray-700">
-        {{ settings.i18n.noProfilesText }}
+        <slot name="no-profiles"></slot>
       </p>
       <gl-button
-        :href="settings.newProfilePath"
+        :href="newProfilePath"
         variant="success"
         category="secondary"
         data-testid="create-profile-link"
       >
-        {{ settings.i18n.newProfileLabel }}
+        <slot name="new-profile"></slot>
       </gl-button>
     </template>
   </gl-card>
