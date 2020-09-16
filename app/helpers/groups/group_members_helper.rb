@@ -77,10 +77,10 @@ module Groups::GroupMembersHelper
       avatar_url: avatar_icon_for_user(user, AVATAR_SIZE),
       blocked: user.blocked?,
       two_factor_enabled: user.two_factor_enabled?
-    }.merge(member_user_status(user.status))
+    }.merge(member_user_status_data(user.status))
   end
 
-  def member_user_status(status)
+  def member_user_status_data(status)
     return {} unless status.present?
 
     {

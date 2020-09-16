@@ -17,13 +17,13 @@ RSpec.describe GroupGroupLinkEntity do
   end
 
   context 'a user with :admin_group_member permissions' do
-    let(:json) { entity.as_json }
-
     before do
       allow(entity).to receive(:can?).with(current_user, :admin_group_member, shared_group).and_return(true)
     end
 
     it 'sets `can_update` and `can_remove` to `true`' do
+      json = entity.as_json
+
       expect(json[:can_update]).to be true
       expect(json[:can_remove]).to be true
     end

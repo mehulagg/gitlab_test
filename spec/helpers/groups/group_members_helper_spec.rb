@@ -5,6 +5,8 @@ require "spec_helper"
 RSpec.describe Groups::GroupMembersHelper do
   include MembersPresentation
 
+  let_it_be(:current_user) { create(:user) }
+
   describe '.group_member_select_options' do
     let(:group) { create(:group) }
 
@@ -19,7 +21,6 @@ RSpec.describe Groups::GroupMembersHelper do
 
   describe '#linked_groups_data_json' do
     include_context 'group_group_link'
-    let(:current_user) { create(:user) }
 
     before do
       allow(helper).to receive(:current_user).and_return(current_user)
@@ -33,7 +34,6 @@ RSpec.describe Groups::GroupMembersHelper do
   end
 
   describe '#members_data_json' do
-    let(:current_user) { create(:user) }
     let(:group) { create(:group) }
 
     before do
