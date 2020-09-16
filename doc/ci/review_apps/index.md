@@ -196,7 +196,7 @@ Getting feedback about changes back to a developer in a context that is not lost
 
 After Visual Reviews has been [enabled](#configuring-visual-reviews) for the
 Review App, the Visual Reviews feedback form is overlaid on the app's pages at
-the bottom-right corner.
+the middle of the page on the right hand side.
 
 ![Visual review feedback form](img/toolbar_feedback_form.png)
 
@@ -213,7 +213,7 @@ To use the feedback form:
 Watch a quick walkthrough of Visual Reviews in action:
 
 <div class="video-fallback">
-  See the video: <a href=https://youtu.be/1_tvWTlPfM4>Visaul Reviews Walk through</a>.
+  See the video: <a href=https://youtu.be/1_tvWTlPfM4>Visual Reviews Walk through</a>.
 </div>
 <figure class="video-container">
   <iframe src="https://www.youtube.com/embed/1_tvWTlPfM4" frameborder="0" allowfullscreen="true"> </iframe>
@@ -230,8 +230,8 @@ if [route maps](#route-maps) are configured in the project.
 ![review button](img/review_button.png)
 
 The provided script should be added to the `<head>` of your application and
-consists of some project and merge request specific values. Here's what it
-looks for a project on GitLab.com:
+consists of some project and merge request specific values. Here's how it
+looks for a project with code hosted on GitLab.com:
 
 ```html
 <script
@@ -262,7 +262,7 @@ to replace those values at runtime when each review app is created:
 - `src` is the source of the review toolbar script, which resides in the
   respective GitLab instance and will be the same for all review apps.
 
-For example, in a Ruby application being hosted on GitLab.com, you would need to have this script:
+For example, in a Ruby application whose code is hosted on GitLab.com, you would need to have this script:
 
 ```html
 <script
