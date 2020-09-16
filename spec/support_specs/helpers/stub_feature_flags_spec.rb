@@ -5,8 +5,12 @@ require 'spec_helper'
 RSpec.describe StubFeatureFlags do
   let(:feature_name) { :test_feature }
 
-  before do
-    allow_undefined_feature_flags
+  before(:all) do
+    Feature.validate_usage = false
+  end
+
+  after(:all) do
+    Feature.validate_usage = true
   end
 
   describe '#stub_feature_flags' do
@@ -124,10 +128,6 @@ RSpec.describe StubFeatureFlags do
   end
 
   describe 'stub timing' do
-    before do
-      allow_undefined_feature_flags
-    end
-
     context 'let_it_be variable' do
       let_it_be(:let_it_be_var) { Feature.enabled?(:any_feature_flag) }
 

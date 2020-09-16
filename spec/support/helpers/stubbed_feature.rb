@@ -5,13 +5,14 @@ module StubbedFeature
   extend ActiveSupport::Concern
 
   class_methods do
-    # Turn stubbed feature flags on or off.
-    def stub=(stub)
-      @stub = stub
-    end
+    attr_writer :stub, :validate_usage
 
     def stub?
       @stub.nil? ? true : @stub
+    end
+
+    def validate_usage?
+      @validate_usage.nil? ? true : @validate_usage
     end
 
     # Wipe any previously set feature flags.
@@ -41,6 +42,10 @@ module StubbedFeature
       end
 
       feature_flag
+    end
+
+    def check_feature_flags_definition?
+      super && validate_usage?
     end
   end
 end

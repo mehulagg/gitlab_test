@@ -12,6 +12,7 @@ RSpec.describe API::Features, stub_feature_flags: false do
     Flipper.register(:perf_team) do |actor|
       actor.respond_to?(:admin) && actor.admin?
     end
+    allow_undefined_feature_flags
   end
 
   describe 'GET /features' do
