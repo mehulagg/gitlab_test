@@ -89,10 +89,14 @@ export default {
     notImplemented();
   },
 
-  [mutationTypes.RECEIVE_ISSUES_FOR_LIST_SUCCESS]: (state, { listIssues, listId }) => {
+  [mutationTypes.RECEIVE_ISSUES_FOR_LIST_SUCCESS]: (
+    state,
+    { listIssues, listPageInfo, listId },
+  ) => {
     const { listData, issues } = listIssues;
     Vue.set(state, 'issues', { ...state.issues, ...issues });
     Vue.set(state.issuesByListId, listId, listData[listId]);
+    Vue.set(state.pageInfoByListId, listId, listPageInfo[listId]);
     const listIndex = state.boardLists.findIndex(l => l.id === listId);
     Vue.set(state.boardLists[listIndex], 'loading', false);
   },

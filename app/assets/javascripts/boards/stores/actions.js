@@ -7,7 +7,7 @@ import createDefaultClient from '~/lib/graphql';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import { BoardType, ListType, inactiveId } from '~/boards/constants';
 import * as types from './mutation_types';
-import { formatListIssues, fullBoardId } from '../boards_util';
+import { formatListIssues, fullBoardId, formatListsPageInfo } from '../boards_util';
 import boardStore from '~/boards/stores/boards_store';
 
 import listsIssuesQuery from '../queries/lists_issues.query.graphql';
@@ -221,7 +221,8 @@ export default {
       .then(({ data }) => {
         const { lists } = data[boardType]?.board;
         const listIssues = formatListIssues(lists);
-        commit(types.RECEIVE_ISSUES_FOR_LIST_SUCCESS, { listIssues, listId });
+        const listPageInfo = formatListsPageInfo(lists);
+        commit(types.RECEIVE_ISSUES_FOR_LIST_SUCCESS, { listIssues, listPageInfo, listId });
       })
       .catch(() => commit(types.RECEIVE_ISSUES_FOR_LIST_FAILURE, listId));
   },
