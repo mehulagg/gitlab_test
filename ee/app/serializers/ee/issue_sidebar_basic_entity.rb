@@ -22,7 +22,7 @@ module EE
       expose :request_cve_enabled do |issuable|
         request_cve_enabled?(issuable.project) \
           && issuable.to_ability_name == 'issue' \
-          && issuable.respond_to?(:confidential) && issuable.confidential \
+          && issuable.confidential \
           && can?(current_user, :admin_project, issuable.project)
       end
     end
