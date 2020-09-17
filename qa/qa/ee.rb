@@ -166,6 +166,10 @@ module QA
         module PathLocks
           autoload :Index, 'qa/ee/page/project/path_locks/index'
         end
+
+        module Snippet
+          autoload :Index, 'qa/ee/page/project/snippet/index'
+        end
       end
 
       module MergeRequest
