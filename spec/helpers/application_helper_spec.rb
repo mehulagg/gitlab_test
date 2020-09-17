@@ -222,6 +222,12 @@ RSpec.describe ApplicationHelper do
     end
   end
 
+  describe '#help_page_path' do
+    it 'returns default help page path' do
+      expect(helper.help_page_path).to eq('')
+    end
+  end
+
   describe '#locale_path' do
     it 'returns the locale path with an `_`' do
       Gitlab::I18n.with_locale('pt-BR') do

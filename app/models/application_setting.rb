@@ -91,6 +91,11 @@ class ApplicationSetting < ApplicationRecord
             addressable_url: true,
             if: :help_page_support_url_column_exists?
 
+  validates :help_page_documentation_url,
+            allow_blank: true,
+            addressable_url: true,
+            if: :help_page_documentation_url_column_exists?
+
   validates :after_sign_out_path,
             allow_blank: true,
             addressable_url: true
