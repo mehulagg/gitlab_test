@@ -26,6 +26,10 @@ class Groups::AutocompleteSourcesController < Groups::ApplicationController
     render json: @autocomplete_service.epics(confidential_only: params[:confidential_only])
   end
 
+  def vulnerabilities
+    render json: issuable_serializer.represent(@autocomplete_service.vulnerabilities, parent_group: @group)
+  end
+
   def commands
     render json: @autocomplete_service.commands(target)
   end
