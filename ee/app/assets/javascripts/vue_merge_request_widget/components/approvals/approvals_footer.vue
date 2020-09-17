@@ -1,5 +1,5 @@
 <script>
-import { GlButton, GlLoadingIcon, GlIcon } from '@gitlab/ui';
+import { GlButton, GlDeprecatedButton, GlLoadingIcon, GlIcon } from '@gitlab/ui';
 import { __ } from '~/locale';
 import UserAvatarList from '~/vue_shared/components/user_avatar/user_avatar_list.vue';
 import ApprovalsList from './approvals_list.vue';
@@ -8,6 +8,7 @@ export default {
   components: {
     GlIcon,
     GlButton,
+    GlDeprecatedButton,
     GlLoadingIcon,
     UserAvatarList,
     ApprovalsList,
