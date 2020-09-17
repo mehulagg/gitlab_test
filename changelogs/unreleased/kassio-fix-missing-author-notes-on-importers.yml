@@ -1,0 +1,5 @@
+---
+title: Use the original author id to find it on the members when importing from GitLab
+merge_request: 42648
+author:
+type: fixed
