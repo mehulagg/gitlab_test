@@ -9316,6 +9316,7 @@ CREATE TABLE public.approval_merge_request_rules (
     rule_type smallint DEFAULT 1 NOT NULL,
     report_type smallint,
     section text,
+    modified_from_project_rule boolean DEFAULT false NOT NULL,
     CONSTRAINT check_6fca5928b2 CHECK ((char_length(section) <= 255))
 );
 
