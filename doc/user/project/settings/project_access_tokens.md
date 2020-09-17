@@ -1,6 +1,6 @@
 ---
-stage: Create
-group: Source Code
+stage: Manage
+group: Access
 info: "To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers"
 type: reference, howto
 ---
@@ -47,6 +47,9 @@ API calls made with a project access token are associated with the corresponding
 
 These users will appear in **Members** but can not be modified.
 Furthermore, the bot user can not be added to any other project.
+
+- The username is set to `project_{project_id}_bot` for the first access token, such as `project_123_bot`.
+- The username is set to `project_{project_id}_bot{bot_count}` for further access tokens, such as `project_123_bot1`.
 
 After the project access token is [revoked](#revoking-a-project-access-token), the bot user is removed from the project and blocked. All associated records are moved to a system-wide user named "Ghost User". For more information, see [Associated Records](../../profile/account/delete_account.md#associated-records).
 
