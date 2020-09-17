@@ -58,6 +58,37 @@ CPU and Memory consumption is monitored, but requires [naming conventions](prome
 
 The [NGINX Ingress](../clusters/index.md#installing-applications) that is deployed by GitLab to clusters, is automatically annotated for monitoring providing key response metrics: latency, throughput, and error rates.
 
+##### Example of Kubernetes service annotations and labels
+
+To activate the Prometheus monitoring of a service you need to add:
+
+- At least this annotation `prometheus.io/scrape: 'true'`.
+- And two labels: `application: ${CI_ENVIRONMENT_SLUG}` and `release: ${CI_ENVIRONMENT_SLUG}` to allow GitLab to retrieve metrics dynamically for any environment.
+
+Then, for example you will be able to create dynamic PromQL query like: `temperature{application="{{ci_environment_slug}}",release="{{ci_environment_slug}}"}` to add [custom metrics](../../../operations/metrics/index.md#adding-custom-metrics) or to define [custom dashboards](../../../operations/metrics/dashboards/index.md).
+
+```yaml
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}
+  # === Prometheus annotations ===
+  annotations:
+    prometheus.io/scrape: 'true'
+  labels:
+    application: ${CI_ENVIRONMENT_SLUG}
+    release: ${CI_ENVIRONMENT_SLUG}
+  # === End of Prometheus ===
+spec:
+  selector:
+    app: ${CI_PROJECT_NAME}
+  ports:
+    - port: ${EXPOSED_PORT}
+      targetPort: ${CONTAINER_PORT}
+```
+
 ### Manual configuration of Prometheus
 
 #### Requirements
