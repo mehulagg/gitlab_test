@@ -1355,7 +1355,7 @@ As of GitLab 13.3, PostgreSQL 11.7 and 12.3 are both shipped with Omnibus GitLab
 uses PostgreSQL 11 by default. Therefore `gitlab-ctl pg-upgrade` does not automatically upgrade
 to PostgreSQL 12. If you want to upgrade to PostgreSQL 12, you must ask for it explicitly.
 
-CAUTION: **Important:** 
+CAUTION: **Warning:**
 The procedure for upgrading PostgreSQL in a Patroni cluster is different than when upgrading using repmgr.
 The following outlines the key differences and important considerations that need to be accounted for when
 upgrading PostgreSQL.
@@ -1433,7 +1433,7 @@ export SERVER_ENCODING='...'
 sudo -E gitlab-ctl pg-upgrade -V 12
 ```
 
-CAUTION: **Important:** 
+CAUTION: **Warning:**
 Reverting PostgreSQL upgrade with `gitlab-ctl revert-pg-upgrade` has the same considerations as
 `gitlab-ctl pg-upgrade`. It can be complicated and may involve deletion of the data directory.
 If you need to do that, please contact GitLab support.
