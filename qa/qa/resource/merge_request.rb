@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'securerandom'
+require 'active_support/core_ext/object/blank'
 
 module QA
   module Resource
@@ -89,6 +90,7 @@ module QA
         resource_web_url(api_get)
       rescue ResourceNotFoundError
         populate(:target, :source) unless @no_preparation
+
         super
       end
 
@@ -125,6 +127,14 @@ module QA
         project.wait_for_merge(result[:title]) if @wait_for_merge
 
         result
+      end
+
+      private
+
+      def transform_api_resource(api_resource)
+        raise ResourceNotFoundError if api_resource.blank?
+
+        api_resource
       end
     end
   end
