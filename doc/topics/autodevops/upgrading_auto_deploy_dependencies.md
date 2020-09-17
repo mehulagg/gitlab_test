@@ -5,10 +5,10 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 type: reference
 ---
 
-# Upgrading deployments for newer Auto Deploy assets (Auto Deploy template, auto-deploy-image and auto-deploy-app chart)
+# Upgrading deployments for newer Auto Deploy dependencies (Auto Deploy template, auto-deploy-image and auto-deploy-app chart)
 
 [Auto Deploy](stages.md#auto-deploy) is a feature to deploy your application to the Kubernetes cluster,
-that consists of several assets:
+that consists of several dependencies:
 
 - [Auto Deploy template](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Jobs/Deploy.gitlab-ci.yml) ... The set of pipeline jobs and scripts that mainly leverages `auto-deploy-image`.
 - [auto-deploy-image](https://gitlab.com/gitlab-org/cluster-integration/auto-deploy-image) ... The executable image that communicates with the Kubernetes cluster.
@@ -16,12 +16,12 @@ that consists of several assets:
 
 Currently, `auto-deploy-image` and `auto-deploy-app` chart are managed in [Semantic Versioning](https://semver.org/),
 By default, your Auto DevOps project keeps using the stable and non-breaking version,
-however, if there is a major version update in GitLab, these assets could contain
+however, if there is a major version update in GitLab, these dependencies could contain
 a breaking change that asks you to upgrade your deployments.
 
-This guide provides instructions how to upgrade your deployments with newer and different major version of Auto Deploy assets.
+This guide provides instructions how to upgrade your deployments with newer and different major version of Auto Deploy dependencies.
 
-## Which asset version is my project currently using?
+## Which dependency version is my project currently using?
 
 To check the current versions,
 
@@ -45,7 +45,7 @@ After you figured out what template is being used, take a look inside:
 
 ## Compatibility
 
-The following table lists the version compatibility between GitLab and Auto Deploy assets.
+The following table lists the version compatibility between GitLab and Auto Deploy dependencies.
 
 | GitLab version                       | auto-deploy-image version              | Notes                                      |
 |------------------                    |---------------------------             |--------------------------------------------|
@@ -121,17 +121,17 @@ For more details, see the [v2 auto-deploy-app chart resource architecture](#v2-c
 
 **Upgrade steps**
 
-1. [Make sure](#which-asset-version-is-my-project-currently-using) your project is using v1 auto-deploy-image. If not, [speicfy the version](#use-a-specific-version-of-auto-deploy-assets)
+1. [Make sure](#which-dependency-version-is-my-project-currently-using) your project is using v1 auto-deploy-image. If not, [speicfy the version](#use-a-specific-version-of-auto-deploy-dependencies)
 1. If you're at the middle of `canary` or `rollout` deployments, promote it to `production` at first in order to delete the unstable tracks.
-1. [Make sure](#which-asset-version-is-my-project-currently-using) your project is using v2 auto-deploy-image. If not, [speicfy the version](#use-a-specific-version-of-auto-deploy-assets)
+1. [Make sure](#which-dependency-version-is-my-project-currently-using) your project is using v2 auto-deploy-image. If not, [speicfy the version](#use-a-specific-version-of-auto-deploy-dependencies)
 1. Set `AUTO_DEVOPS_FORCE_DEPLOY_V2` environment variable with a value `true` in the GitLab CI.
 1. Create a new pipeline and execute `production` job to renew the resource architecture with v2 auto-deploy-app chart.
 1. Remove `AUTO_DEVOPS_FORCE_DEPLOY_V2` environment variable.
 
-### Use a specific version of Auto Deploy assets
+### Use a specific version of Auto Deploy dependencies
 
-To use a specifc version of Auto Deploy assets, the most recommended way is to specify
-the previous Auto Deploy stable template that [contains the desired version of `auto-deploy-image` and `auto-deploy-app` chart](#which-asset-version-is-my-project-currently-using).
+To use a specifc version of Auto Deploy dependencies, the most recommended way is to specify
+the previous Auto Deploy stable template that [contains the desired version of `auto-deploy-image` and `auto-deploy-app` chart](#which-dependency-version-is-my-project-currently-using).
 
 For example, if the template is bundled in GitLab v13.3, change your `.gitlab-ci.yml` to:
 
@@ -237,7 +237,7 @@ A new major version might not be backward compatible with the current release (p
 To clear this error message and resume deployments, you must do one of the following:
 
 - Manually [upgrade the chart version](#upgrade-guide).
-- [Use a specific chart version](#use-a-specific-version-of-auto-deploy-assets).
+- [Use a specific chart version](#use-a-specific-version-of-auto-deploy-dependencies).
 
 ### Error: `missing key "app.kubernetes.io/managed-by": must be set to "Helm"`
 
