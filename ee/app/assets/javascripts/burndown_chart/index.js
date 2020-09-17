@@ -2,6 +2,7 @@ import Vue from 'vue';
 import VueApollo from 'vue-apollo';
 import $ from 'jquery';
 import Cookies from 'js-cookie';
+import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import createDefaultClient from '~/lib/graphql';
 import BurnCharts from './components/burn_charts.vue';
 import BurndownChartData from './burn_chart_data';
@@ -39,6 +40,7 @@ export default () => {
       components: {
         BurnCharts,
       },
+      mixins: [glFeatureFlagsMixin],
       data() {
         return {
           openIssuesCount: [],
@@ -46,7 +48,7 @@ export default () => {
         };
       },
       mounted() {
-        if (!gon?.features?.burnupCharts) {
+        if (!this.glFeatures.burnupCharts) {
           this.fetchLegacyBurndownEvents();
         }
       },
