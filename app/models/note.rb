@@ -322,14 +322,10 @@ class Note < ApplicationRecord
   end
 
   def contributor?
-    return false unless ::Feature.enabled?(:show_contributor_on_note, project)
-
     project&.team&.contributor?(self.author_id)
   end
 
   def noteable_author?(noteable)
-    return false unless ::Feature.enabled?(:show_author_on_note, project)
-
     noteable.author == self.author
   end
 
