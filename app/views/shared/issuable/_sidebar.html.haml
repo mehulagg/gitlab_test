@@ -29,7 +29,7 @@
         .block.assignee.qa-assignee-block
           = render "shared/issuable/sidebar_assignees", issuable_sidebar: issuable_sidebar, assignees: assignees
 
-        - if reviewers
+        - if Feature.enabled?(:merge_request_reviewers) && reviewers
           .block.reviewer.qa-reviewer-block
             = render "shared/issuable/sidebar_reviewers", issuable_sidebar: issuable_sidebar, reviewers: reviewers
 
