@@ -49,6 +49,7 @@ module QA
           run_time: example.execution_result.run_time,
           pending_message: example.execution_result.pending_message,
           testcase: example.metadata[:testcase],
+          ci_job: ENV['CI_JOB_URL'],
           quarantine: example.metadata[:quarantine],
           screenshot: example.metadata[:screenshot]
         }
