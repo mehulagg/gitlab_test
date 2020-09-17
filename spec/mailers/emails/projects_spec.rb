@@ -80,6 +80,8 @@ RSpec.describe Emails::Projects do
         is_expected.to have_body_text(project.full_path)
         is_expected.to have_body_text('Description:')
         is_expected.to have_body_text('alert description')
+        is_expected.not_to have_body_text('Environment:')
+        is_expected.not_to have_body_text('Metric:')
       end
     end
 
@@ -101,6 +103,8 @@ RSpec.describe Emails::Projects do
         is_expected.to have_body_text(project.full_path)
         is_expected.to have_body_text('Environment:')
         is_expected.to have_body_text(environment.name)
+        is_expected.not_to have_body_text('Description:')
+        is_expected.not_to have_body_text('Metric:')
       end
     end
 
@@ -136,6 +140,7 @@ RSpec.describe Emails::Projects do
         is_expected.to have_body_text('Metric:')
         is_expected.to have_body_text(prometheus_alert.full_query)
         is_expected.to have_body_text(metrics_url)
+        is_expected.not_to have_body_text('Description:')
       end
     end
   end
