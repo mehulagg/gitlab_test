@@ -79,7 +79,7 @@
             = render_if_exists 'projects/sidebar/repository_locked_files'
 
       - if project_nav_tab? :issues
-        = nav_link(controller: @project.issues_enabled? ? ['projects/issues', :labels, :milestones, :boards] : 'projects/issues') do
+        = nav_link(controller: @project.issues_enabled? ? ['projects/issues', :labels, :milestones, :boards] : 'projects/issues', unless: -> { incident_issue? }) do
           = link_to project_issues_path(@project), class: 'shortcuts-issues qa-issues-item' do
             .nav-icon-container
               = sprite_icon('issues')
@@ -90,7 +90,7 @@
                 = number_with_delimiter(@project.open_issues_count(current_user))
 
           %ul.sidebar-sub-level-items
-            = nav_link(controller: 'projects/issues', action: :index, html_options: { class: "fly-out-top-item" } ) do
+            = nav_link(controller: 'projects/issues', action: :index, html_options: { class: "fly-out-top-item" }, unless: -> { incident_issue? }) do
               = link_to project_issues_path(@project) do
                 %strong.fly-out-top-item-name
                   = _('Issues')
@@ -209,7 +209,7 @@
       = render_if_exists 'layouts/nav/sidebar/project_security_link' # EE-specific
 
       - if project_nav_tab? :operations
-        = nav_link(controller: sidebar_operations_paths) do
+        = nav_link(if: -> { current_controller?(*sidebar_operations_paths) || incident_issue? }) do
           = link_to sidebar_operations_link_path, class: 'shortcuts-operations', data: { qa_selector: 'operations_link' } do
             .nav-icon-container
               = sprite_icon('cloud-gear')
@@ -236,7 +236,7 @@
                     = _('Alerts')
 
               - if project_nav_tab?(:incidents)
-                = nav_link(controller: :incidents) do
+                = nav_link if: -> { current_controller?(:incidents) || incident_issue? } do
                   = link_to project_incidents_path(@project), title: _('Incidents'), data: { qa_selector: 'operations_incidents_link' } do
                     %span
                       = _('Incidents')

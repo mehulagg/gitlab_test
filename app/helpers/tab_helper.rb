@@ -100,6 +100,8 @@ module TabHelper
       page.any? do |single_page|
         current_page?(single_page)
       end
+    elsif if_block = options.delete(:if)
+      if_block.call
     else
       c = options.delete(:controller)
       a = options.delete(:action)
@@ -112,6 +114,12 @@ module TabHelper
         current_controller?(*c) || current_action?(*a)
       end
     end
+  end
+
+  def incident_issue?
+    return false unless defined?(@issue)
+
+    @issue.incident?
   end
 
   def current_path?(path)
