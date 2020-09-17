@@ -389,7 +389,7 @@ have that label.
 
 Create a new list by clicking the **Add list** button in the upper right corner of the issue board.
 
-![issue board welcome message](img/issue_board_add_list.png)
+![creating a new list in an issue board](img/issue_board_add_list.png)
 
 Then, choose the label or user to create the list from. The new list will be inserted
 at the end of the lists, before **Done**. Moving and reordering lists is as
