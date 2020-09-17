@@ -14,7 +14,7 @@
           .dropdown-title
             %span Version:
             %button.dropdown-title-button.dropdown-menu-close{ aria: { label: "Close" } }
-              = icon('times', class: 'dropdown-menu-close-icon')
+              = sprite_icon('close', css_class: 'dropdown-menu-close-icon')
           .dropdown-content
             %ul
               - @merge_request_diffs.each do |merge_request_diff|
@@ -46,7 +46,7 @@
             .dropdown-title
               %span Compared with:
               %button.dropdown-title-button.dropdown-menu-close{ aria: { label: "Close" } }
-                = icon('times', class: 'dropdown-menu-close-icon')
+                = sprite_icon('close', css_class: 'dropdown-menu-close-icon')
             .dropdown-content
               %ul
                 - @comparable_diffs.each do |merge_request_diff|
