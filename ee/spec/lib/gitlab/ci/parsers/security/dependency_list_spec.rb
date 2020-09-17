@@ -28,6 +28,9 @@ RSpec.describe Gitlab::Ci::Parsers::Security::DependencyList do
         expect(report.dependencies[12][:packager]).to eq('JavaScript (Yarn)')
         expect(report.dependencies[0][:location][:path]).to eq('rails/Gemfile.lock')
         expect(report.dependencies[12][:location][:blob_path]).to eq(blob_path)
+        expect(report.dependencies[0][:iid]).to eq(1)
+        expect(report.dependencies[12][:location][:ancestors]).not_to be_empty
+        expect(report.dependencies[1][:location][:top_level]).to be_truthy
       end
 
       it 'merge vulnerabilities data' do
