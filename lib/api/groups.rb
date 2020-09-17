@@ -314,14 +314,14 @@ module API
         present_groups params, groups
       end
 
-      desc 'Get a list of group descendants of this group.' do
+      desc 'Get a list of descendant groups of this group.' do
         success Entities::Group
       end
       params do
         use :group_list_params
         use :with_custom_attributes
       end
-      get ":id/descendants" do
+      get ":id/descendant_groups" do
         finder_params = declared_params(include_missing: false).merge(include_descendants: true)
         groups = find_groups(finder_params, params[:id])
         present_groups params, groups
