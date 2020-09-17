@@ -287,7 +287,7 @@ FactoryBot.define do
       end
     end
 
-    factory :merge_request_without_merge_request_diff, parent: 'MergeRequestWithoutMergeRequestDiff' do
+    factory :merge_request_without_merge_request_diff, class: 'MergeRequestWithoutMergeRequestDiff' do
     end
   end
 end
