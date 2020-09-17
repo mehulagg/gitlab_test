@@ -1,0 +1,13 @@
+stages:
+  - review
+
+.create-stack:
+  image: 'registry.gitlab.com/ebaque/cloud-deploy/aws-cloudformation:latest'
+  script:
+    - cloudformation create-stack
+
+review_cloudformation:
+  extends: .create-stack
+  stage: review
+
+
