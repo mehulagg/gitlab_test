@@ -3,6 +3,7 @@
 FactoryBot.define do
   factory :dependency, class: 'Hash' do
     sequence(:name) { |n| "library#{n}" }
+    iid { 42 }
     packager { 'Ruby (Bundler)' }
     package_manager { 'Ruby (Bundler)' }
     version { '1.8.0' }

@@ -10,6 +10,7 @@ RSpec.describe Gitlab::Ci::Reports::DependencyList::Dependency do
       dep = described_class.new(dependency_nokogiri)
 
       expect(dep.to_hash).to eq({ name: 'nokogiri',
+                                  iid: 42,
                                   packager: 'Ruby (Bundler)',
                                   package_manager: 'Ruby (Bundler)',
                                   location: { blob_path: '/some_project/path/package_file.lock', path: 'package_file.lock', top_level: true, ancestors: [] },

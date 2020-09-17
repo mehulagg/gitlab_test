@@ -5,10 +5,11 @@ module Gitlab
     module Reports
       module DependencyList
         class Dependency
-          attr_reader :name, :packager, :package_manager, :location, :version, :licenses, :vulnerabilities
+          attr_reader :name, :iid, :packager, :package_manager, :location, :version, :licenses, :vulnerabilities
 
           def initialize(params = {})
             @name = params.fetch(:name)
+            @iid = params.fetch(:iid)
             @packager = params.fetch(:packager)
             @package_manager = params.fetch(:package_manager)
             @location = params.fetch(:location)
@@ -34,6 +35,7 @@ module Gitlab
           def to_hash
             {
               name: self.name,
+              iid: self.iid,
               packager: self.packager,
               package_manager: self.package_manager,
               location: self.location,
