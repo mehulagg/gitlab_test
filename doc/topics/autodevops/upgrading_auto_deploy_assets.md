@@ -1,3 +1,10 @@
+---
+stage: Release
+group: Progressive Delivery
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+type: reference
+---
+
 # Upgrading deployments for newer Auto Deploy assets (Auto Deploy template, auto-deploy-image and auto-deploy-app chart)
 
 [Auto Deploy](stages.md#auto-deploy) is a feature to deploy your application to the Kubernetes cluster,
@@ -20,15 +27,15 @@ To check the current versions,
 
 [The stable Auto Deploy template](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Jobs/Deploy.gitlab-ci.yml) is being used, IF:
 
-- Your Auto DevOps project doesn't have .gitlab-ci.yml, OR
-- Your Auto DevOps project has .gitlab-ci.yml and [include](https://docs.gitlab.com/ee/ci/yaml/#includetemplate) `Auto-DevOps.gitlab-ci.yml` template
+- Your Auto DevOps project doesn't have a `.gitlab-ci.yml` file, OR
+- Your Auto DevOps project has a `.gitlab-ci.yml` and [includes](../../ci/yaml/README.md#includetemplate) the `Auto-DevOps.gitlab-ci.yml` template
 
 NOTE: **Note:**
-If you're on-premises user, [the stable Auto Deploy template that bundled in the GitLab package](../../../lib/gitlab/ci/templates/Jobs/Deploy.gitlab-ci.yml) is being used.
+If you're on-premises user, [the stable Auto Deploy template that bundled in the GitLab package](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Jobs/Deploy.gitlab-ci.yml) is being used.
 
 [The latest Auto Deploy template](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Jobs/Deploy.gitlab-ci.yml) is being used, IF:
 
-- Your Auto DevOps project has .gitlab-ci.yml and [include](https://docs.gitlab.com/ee/ci/yaml/#includetemplate) `Auto-DevOps.gitlab-ci.yml` template, AND
+- Your Auto DevOps project has a `.gitlab-ci.yml` file and [includes](../../ci/yaml/README.md#includetemplate) the `Auto-DevOps.gitlab-ci.yml` template, AND
 - It also includes [the latest Auto Deploy template](#early-adopters)
 
 After you figured out what template is being used, take a look inside:
@@ -64,7 +71,7 @@ Otherwise, you can skip this process.
 
 #### Started using Helm 3
 
-> Introduced by https://gitlab.com/gitlab-org/cluster-integration/auto-deploy-image/-/merge_requests/110
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/228609) in GitLab 13.4
 
 auto-deploy-image uses the `helm` binary to manipulate the releases.
 Previously, auto-deploy-image was using Helm v2 which requires creating Tiller in a cluster.
@@ -76,7 +83,8 @@ In v2 auto-deploy-image, it uses Helm v3 that doesn't require Tiller anymore.
 
 **Upgrade steps**
 
-1. Modify your .gitlab-ci.yml with the following content.
+1. Modify your `.gitlab-ci.yml` with the following content.
+
 ```yaml
 include:
   - template: Auto-DevOps.gitlab-ci.yml
@@ -85,19 +93,20 @@ include:
 
 variables:
   # If this variable is not present, the migration jobs will not show up
-  MIGRATE_HELM_2TO3: "true" 
+  MIGRATE_HELM_2TO3: "true"
 
 .auto-deploy:
   image: registry.gitlab.com/gitlab-org/cluster-integration/auto-deploy-image:v2.0.0-beta.1
   variables:
     AUTO_DEVOPS_FORCE_DEPLOY_V2: 1
 ```
+
 1. Execute `<environment-name>:helm-2to3:migrate` job.
 1. Execute `<environment-name>:helm-2to3:manual` job.
 
 #### Traffic routing change for canary deployment and incremental rollout
 
-> Introduced by https://gitlab.com/gitlab-org/cluster-integration/auto-deploy-image/-/merge_requests/109
+> [Introduced](https://gitlab.com/gitlab-org/cluster-integration/auto-deploy-image/-/merge_requests/109) in GitLab 13.4.
 
 Auto Deploy supports advanced deployment strategy such as [canary deployment](customize.md#deploy-policy-for-canary-environments)
 and [incremental rollout](../../ci/environments/incremental_rollouts.md).
@@ -124,7 +133,7 @@ For more details, see the [v2 auto-deploy-app chart resource architecture](#v2-c
 To use a specifc version of Auto Deploy assets, the most recommended way is to specify
 the previous Auto Deploy stable template that [contains the desired version of `auto-deploy-image` and `auto-deploy-app` chart](#which-asset-version-is-my-project-currently-using).
 
-For example, if the template is bundled in GitLab v13.3, change your .gitlab-ci.yml to:
+For example, if the template is bundled in GitLab v13.3, change your `.gitlab-ci.yml` to:
 
 ```yaml
 include:
@@ -228,7 +237,7 @@ A new major version might not be backward compatible with the current release (p
 To clear this error message and resume deployments, you must do one of the following:
 
 - Manually [upgrade the chart version](#upgrade-guide).
-- [Use a specific chart version](#use-a-specific-chart-version).
+- [Use a specific chart version](#use-a-specific-version-of-auto-deploy-assets).
 
 ### Error: `missing key "app.kubernetes.io/managed-by": must be set to "Helm"`
 
