@@ -3,7 +3,6 @@
 module EE
   module IssuableSidebarBasicEntity
     extend ActiveSupport::Concern
-    include ProjectsHelper
 
     prepended do
       expose :scoped_labels_available do |issuable|
