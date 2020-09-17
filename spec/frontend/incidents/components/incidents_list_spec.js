@@ -338,9 +338,7 @@ describe('Incidents List', () => {
       });
 
       it('renders the search component for incidents', () => {
-        expect(findSearch().props('searchInputPlaceholder')).toBe(
-          'Search or filter results…',
-        );
+        expect(findSearch().props('searchInputPlaceholder')).toBe('Search or filter results…');
         expect(findSearch().props('tokens')).toEqual([
           {
             type: 'author_username',
@@ -365,16 +363,14 @@ describe('Incidents List', () => {
             fetchAuthors: expect.any(Function),
           },
         ]);
-        expect(findSearch().props('recentSearchesStorageKey')).toBe(
-          'incidents',
-        );
+        expect(findSearch().props('recentSearchesStorageKey')).toBe('incidents');
       });
 
       it('returns correctly applied filter search values', async () => {
         wrapper.setData({
           searchTerm: 'foo',
         });
-        
+
         await wrapper.vm.$nextTick();
         expect(wrapper.vm.getFilteredSearchValue()).toEqual(['foo']);
       });
