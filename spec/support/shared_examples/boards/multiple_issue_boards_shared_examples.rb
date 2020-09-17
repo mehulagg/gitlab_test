@@ -64,38 +64,6 @@ RSpec.shared_examples 'multiple issue boards' do
       end
     end
 
-    it 'adds a list to the none default board' do
-      in_boards_switcher_dropdown do
-        click_link board2.name
-      end
-
-      wait_for_requests
-
-      page.within('.boards-switcher') do
-        expect(page).to have_content(board2.name)
-      end
-
-      click_button 'Add list'
-
-      wait_for_requests
-
-      page.within '.dropdown-menu-issues-board-new' do
-        click_link planning.title
-      end
-
-      wait_for_requests
-
-      expect(page).to have_selector('.board', count: 3)
-
-      in_boards_switcher_dropdown do
-        click_link board.name
-      end
-
-      wait_for_requests
-
-      expect(page).to have_selector('.board', count: 4)
-    end
-
     it 'maintains sidebar state over board switch' do
       assert_boards_nav_active
 
