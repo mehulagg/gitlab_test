@@ -1355,7 +1355,10 @@ As of GitLab 13.3, PostgreSQL 11.7 and 12.3 are both shipped with Omnibus GitLab
 uses PostgreSQL 11 by default. Therefore `gitlab-ctl pg-upgrade` does not automatically upgrade
 to PostgreSQL 12. If you want to upgrade to PostgreSQL 12, you must ask for it explicitly.
 
-CAUTION: **Important:** The procedure for upgrading PostgreSQL in a Patroni cluster is different than when upgrading using `repmgr`. The following outlines the key differences and important considerations that need to be accounted for when upgrading PostgreSQL.
+CAUTION: **Important:** 
+The procedure for upgrading PostgreSQL in a Patroni cluster is different than when upgrading using repmgr.
+The following outlines the key differences and important considerations that need to be accounted for when
+upgrading PostgreSQL.
 
 Here are a few key facts that you must consider before upgrading PostgreSQL:
 
@@ -1366,7 +1369,7 @@ Here are a few key facts that you must consider before upgrading PostgreSQL:
 - Upgrading PostgreSQL creates a new data directory with a new control data. From Patroni's perspective
   this is a new cluster that needs to be bootstrapped again. Therefore, as part of the upgrade procedure,
   the cluster state, which is stored in Consul, will be wiped out. Once the upgrade is completed, Patroni
-will be instructed to bootstrap a new cluster. **Note that this will change your _cluster ID_**.
+  will be instructed to bootstrap a new cluster. **Note that this will change your _cluster ID_**.
 
 - The procedures for upgrading leader and replicas are not the same. That is why it is important to use the
   right procedure on each node.
@@ -1383,7 +1386,7 @@ Considering these, you should carefully plan your PostgreSQL upgrade:
 1. Find out which node is the leader and which node is a replica:
 
    ```shell
-   sudo gitlab-ctl patroni members
+   gitlab-ctl patroni members
    ```
 
    NOTE: **Note:**
@@ -1406,11 +1409,11 @@ Considering these, you should carefully plan your PostgreSQL upgrade:
 1. Check the status of the leader and cluster. You can only proceed if you have a healthy leader:
 
    ```shell
-   sudo gitlab-ctl patroni check-leader
+   gitlab-ctl patroni check-leader
 
    # OR 
 
-   sudo gitlab-ctl patroni members
+   gitlab-ctl patroni members
    ```
 
 1. Upgrade PostgreSQL on all replicas (you can do this in parallel on all of them):
@@ -1419,10 +1422,9 @@ Considering these, you should carefully plan your PostgreSQL upgrade:
    sudo gitlab-ctl pg-upgrade -V 12
    ```
 
-If you are using a non-default database locale, collation, or encoding (the default is `C.UTF-8`)
-you must pass them to `gitlab-ctl pg-upgrade` with environment variables when upgrading a Patroni
-replica node. These parameters are usually detected from the existing database. However it does
-not work on Patroni replicas and you will need to use environment variables.
+Generally, database locale, collation, and encoding are detected from the existing database. But
+it does not work for Patroni **replicas**. You will need to use environment variables if your are
+using a non-default database locale, collation, or encoding (the default is `C.UTF-8`):
 
 ```shell
 export LC_CTYPE='...'
