@@ -64,9 +64,32 @@ RSpec.describe 'Admin Dashboard' do
       expect(page).to have_content("Users with highest role Maintainer 6")
       expect(page).to have_content("Users with highest role Owner 5")
       expect(page).to have_content("Bots 2")
-      expect(page).to have_content("Active users (Billable users) 71")
       expect(page).to have_content("Blocked users 7")
       expect(page).to have_content("Total users 78")
+    end
+
+    context 'if EE' do
+      before do
+        allow(Gitlab).to receive(:com?).and_return(false)
+      end
+
+      it 'shows correct amount of billable users' do
+        visit admin_dashboard_stats_path
+
+        expect(page).to have_content("Billable users 71")
+      end
+    end
+
+    context 'if .com' do
+      before do
+        allow(Gitlab).to receive(:com?).and_return(true)
+      end
+
+      it 'shows correct amount of active (billable) users' do
+        visit admin_dashboard_stats_path
+
+        expect(page).to have_content("Active users 71")
+      end
     end
   end
 end

@@ -54,8 +54,10 @@
   %tr.bg-gray-light.gl-text-gray-900
     %td.p-3
       %strong
-        = s_('AdminArea|Active users')
-        = render_if_exists 'admin/dashboard/billable_users_text'
+        - if Gitlab.com?
+          = s_('AdminArea|Active users')
+        - else
+          = s_('AdminArea|Billable users')
     %td.p-3.text-right
       %strong
         = @users_statistics&.active.to_i
