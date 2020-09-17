@@ -10847,7 +10847,7 @@ type Mutation {
   pipelineRetry(input: PipelineRetryInput!): PipelineRetryPayload
   removeAwardEmoji(input: RemoveAwardEmojiInput!): RemoveAwardEmojiPayload @deprecated(reason: "Use awardEmojiRemove. Deprecated in 13.2")
   removeProjectFromSecurityDashboard(input: RemoveProjectFromSecurityDashboardInput!): RemoveProjectFromSecurityDashboardPayload
-  runDastScan(input: RunDASTScanInput!): RunDASTScanPayload
+  runDastScan(input: RunDASTScanInput!): RunDASTScanPayload @deprecated(reason: "Use DastOnDemandScanCreate. Deprecated in 13.4")
   todoMarkDone(input: TodoMarkDoneInput!): TodoMarkDonePayload
   todoRestore(input: TodoRestoreInput!): TodoRestorePayload
   todoRestoreMany(input: TodoRestoreManyInput!): TodoRestoreManyPayload
@@ -13980,6 +13980,11 @@ type Query {
     Returns the first _n_ elements from the list.
     """
     first: Int
+
+    """
+    Filter projects by IDs
+    """
+    ids: [ID!]
 
     """
     Returns the last _n_ elements from the list.
