@@ -5,13 +5,13 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 type: reference, howto
 ---
 
-# Test Coverage Visualization **(CORE ONLY)**
+# Test Coverage Visualization **(CORE)**
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/3708) in GitLab 12.9.
 > - [Feature flag enabled](https://gitlab.com/gitlab-org/gitlab/-/issues/211410) in GitLab 13.4.
 > - It's enabled on GitLab.com.
 > - It can be disabled per-project.
-> - To use it in GitLab self-managed instances, ask a GitLab administrator to [enable it](#enabling-the-feature). **(CORE ONLY)**
+> - To use it in GitLab self-managed instances before version 13.4, ask a GitLab administrator to [enable it](#enabling-the-feature).
 
 With the help of [GitLab CI/CD](../../../ci/README.md), you can collect the test
 coverage information of your favorite testing or coverage-analysis tool, and visualize
