@@ -1,0 +1,3 @@
+mutation lintCI($endpoint: String, $content: String, $dry: Boolean) {
+  lintCI(endpoint: $endpoint, content: $content, dry_run: $dry) @client
+}
