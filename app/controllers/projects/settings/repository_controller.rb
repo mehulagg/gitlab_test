@@ -126,6 +126,7 @@ module Projects
         gon.push(protectable_tags_for_dropdown)
         gon.push(protectable_branches_for_dropdown)
         gon.push(access_levels_options)
+        gon.push(current_project_id: project.id) if project
       end
     end
   end
