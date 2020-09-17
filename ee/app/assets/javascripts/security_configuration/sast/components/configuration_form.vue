@@ -133,7 +133,7 @@ export default {
     analyzersSubHeading: s__(
       `SecurityConfiguration|By default, all analyzers are applied in order to
       cover all languages across your project, and only run if the language is
-      detected in the MR.`,
+      detected in the Merge Request.`,
     ),
   },
 };
