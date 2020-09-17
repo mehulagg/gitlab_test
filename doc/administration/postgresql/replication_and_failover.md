@@ -1391,7 +1391,7 @@ Considering these, you should carefully plan your PostgreSQL upgrade:
    does not work or you believe it did not detect the role correctly, you can use the `--leader` or `--replica`
    arguments to manually override it.
 
-1. Stop Patroni on **all replicas**.
+1. Stop Patroni on **only the replicas**.
 
    ```shell
    sudo gitlab-ctl stop patroni
