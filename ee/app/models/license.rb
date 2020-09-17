@@ -288,6 +288,10 @@ class License < ApplicationRecord
       all.sort_by { |license| [license.starts_at, license.created_at, license.expires_at] }.reverse
     end
 
+    def current_active_users
+      User.active.without_bots
+    end
+
     private
 
     def load_future_dated
@@ -400,11 +404,9 @@ class License < ApplicationRecord
 
   def current_active_users_count
     @current_active_users_count ||= begin
-      if exclude_guests_from_active_count?
-        User.active.excluding_guests.count
-      else
-        User.active.count
-      end
+      scope = self.class.current_active_users
+      scope = scope.excluding_guests if exclude_guests_from_active_count?
+      scope.count
     end
   end
 
