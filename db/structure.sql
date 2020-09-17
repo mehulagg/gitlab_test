@@ -15947,6 +15947,21 @@ CREATE SEQUENCE public.terraform_states_id_seq
 
 ALTER SEQUENCE public.terraform_states_id_seq OWNED BY public.terraform_states.id;
 
+CREATE TABLE public.testing (
+    id integer NOT NULL,
+    foobar text
+);
+
+CREATE SEQUENCE public.testing_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.testing_id_seq OWNED BY public.testing.id;
+
 CREATE TABLE public.timelogs (
     id integer NOT NULL,
     time_spent integer NOT NULL,
@@ -17483,6 +17498,8 @@ ALTER TABLE ONLY public.term_agreements ALTER COLUMN id SET DEFAULT nextval('pub
 
 ALTER TABLE ONLY public.terraform_states ALTER COLUMN id SET DEFAULT nextval('public.terraform_states_id_seq'::regclass);
 
+ALTER TABLE ONLY public.testing ALTER COLUMN id SET DEFAULT nextval('public.testing_id_seq'::regclass);
+
 ALTER TABLE ONLY public.timelogs ALTER COLUMN id SET DEFAULT nextval('public.timelogs_id_seq'::regclass);
 
 ALTER TABLE ONLY public.todos ALTER COLUMN id SET DEFAULT nextval('public.todos_id_seq'::regclass);
@@ -18785,6 +18802,9 @@ ALTER TABLE ONLY public.term_agreements
 
 ALTER TABLE ONLY public.terraform_states
     ADD CONSTRAINT terraform_states_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.testing
+    ADD CONSTRAINT testing_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY public.timelogs
     ADD CONSTRAINT timelogs_pkey PRIMARY KEY (id);
