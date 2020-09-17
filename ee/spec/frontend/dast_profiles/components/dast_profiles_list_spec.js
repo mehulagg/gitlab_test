@@ -12,6 +12,7 @@ describe('EE - DastProfilesList', () => {
   const createComponentFactory = (mountFn = shallowMount) => (options = {}) => {
     const defaultProps = {
       profiles: [],
+      fields: ['profileName', 'targetUrl', 'validationStatus'],
       hasMorePages: false,
       profilesPerPage: 10,
       errorMessage: '',
@@ -116,6 +117,13 @@ describe('EE - DastProfilesList', () => {
         editPath: '/2/edit',
         validationStatus: 'Pending',
       },
+      {
+        id: 3,
+        profileName: 'Profile 2',
+        targetUrl: 'http://example-2.com',
+        editPath: '/3/edit',
+        validationStatus: 'Pending',
+      },
     ];
 
     const getTableRowForProfile = profile => getAllTableRows()[profiles.indexOf(profile)];
@@ -169,12 +177,12 @@ describe('EE - DastProfilesList', () => {
           expect(getLoadMoreButton().exists()).toBe(true);
         });
 
-        it('emits "loadMoreProfiles" when the load-more button is clicked', async () => {
-          expect(wrapper.emitted('loadMoreProfiles')).toBe(undefined);
+        it('emits "load-more-profiles" when the load-more button is clicked', async () => {
+          expect(wrapper.emitted('load-more-profiles')).toBe(undefined);
 
           await getLoadMoreButton().trigger('click');
 
-          expect(wrapper.emitted('loadMoreProfiles')).toEqual(expect.any(Array));
+          expect(wrapper.emitted('load-more-profiles')).toEqual(expect.any(Array));
         });
       });
     });
@@ -200,7 +208,7 @@ describe('EE - DastProfilesList', () => {
       });
 
       it(`emits "@deleteProfile" with the right payload when the modal's primary action is triggered`, async () => {
-        expect(wrapper.emitted('deleteProfile')).toBe(undefined);
+        expect(wrapper.emitted('delete-profile')).toBe(undefined);
 
         getCurrentProfileDeleteButton().trigger('click');
 
@@ -208,7 +216,7 @@ describe('EE - DastProfilesList', () => {
 
         getModal().vm.$emit('ok');
 
-        expect(wrapper.emitted('deleteProfile')[0]).toEqual([profile.id]);
+        expect(wrapper.emitted('delete-profile')[0]).toEqual([profile.id]);
       });
     });
   });

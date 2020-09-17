@@ -42,7 +42,7 @@ module QA
           @group = Resource::Group.fabricate_via_api!
         end
 
-        it 'successfully imports the project using template', status_issue: 'https://gitlab.com/gitlab-org/quality/testcases/-/issues/905' do
+        it 'successfully imports the project using template', testcase: 'https://gitlab.com/gitlab-org/quality/testcases/-/issues/905' do
           built_in = 'Ruby on Rails'
 
           @group.visit!
@@ -65,8 +65,7 @@ module QA
         end
       end
 
-      # Skipping on staging due to: https://gitlab.com/gitlab-org/gitlab/-/issues/228624
-      context 'instance level', :requires_admin, :skip_live_env do
+      context 'instance level', :requires_admin, quarantine: { only: { subdomain: :staging }, issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/228624' } do
         before do
           Flow::Login.sign_in_as_admin
 
@@ -92,7 +91,7 @@ module QA
           QA::Flow::Project.go_to_create_project_from_template
         end
 
-        it 'successfully imports the project using template', status_issue: 'https://gitlab.com/gitlab-org/quality/testcases/-/issues/914' do
+        it 'successfully imports the project using template', testcase: 'https://gitlab.com/gitlab-org/quality/testcases/-/issues/914' do
           Page::Project::New.perform do |new_page|
             new_page.retry_until do
               new_page.go_to_create_from_template_instance_tab
@@ -141,7 +140,7 @@ module QA
           Page::Project::New.perform(&:go_to_create_from_template_group_tab)
         end
 
-        it 'successfully imports the project using template', status_issue: 'https://gitlab.com/gitlab-org/quality/testcases/-/issues/915' do
+        it 'successfully imports the project using template', testcase: 'https://gitlab.com/gitlab-org/quality/testcases/-/issues/915' do
           Page::Project::New.perform do |new_page|
             expect(new_page.group_template_tab_badge_text).to eq "1"
             expect(new_page).to have_text(@template_container_group_name)

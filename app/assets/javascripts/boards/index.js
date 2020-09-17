@@ -82,6 +82,11 @@ export default () => {
       BoardAddIssuesModal,
       BoardSettingsSidebar: () => import('~/boards/components/board_settings_sidebar.vue'),
     },
+    provide: {
+      boardId: $boardApp.dataset.boardId,
+      groupId: Number($boardApp.dataset.groupId) || null,
+      rootPath: $boardApp.dataset.rootPath,
+    },
     store,
     apolloProvider,
     data() {
@@ -91,10 +96,7 @@ export default () => {
         boardsEndpoint: $boardApp.dataset.boardsEndpoint,
         recentBoardsEndpoint: $boardApp.dataset.recentBoardsEndpoint,
         listsEndpoint: $boardApp.dataset.listsEndpoint,
-        boardId: $boardApp.dataset.boardId,
         disabled: parseBoolean($boardApp.dataset.disabled),
-        issueLinkBase: $boardApp.dataset.issueLinkBase,
-        rootPath: $boardApp.dataset.rootPath,
         bulkUpdatePath: $boardApp.dataset.bulkUpdatePath,
         detailIssue: boardsStore.detail,
         parent: $boardApp.dataset.parent,
@@ -112,7 +114,7 @@ export default () => {
         recentBoardsEndpoint: this.recentBoardsEndpoint,
         listsEndpoint: this.listsEndpoint,
         bulkUpdatePath: this.bulkUpdatePath,
-        boardId: this.boardId,
+        boardId: $boardApp.dataset.boardId,
         fullPath: $boardApp.dataset.fullPath,
       };
       this.setInitialBoardData({
@@ -161,7 +163,12 @@ export default () => {
       }
     },
     methods: {
-      ...mapActions(['setInitialBoardData', 'setFilters', 'fetchEpicsSwimlanes']),
+      ...mapActions([
+        'setInitialBoardData',
+        'setFilters',
+        'fetchEpicsSwimlanes',
+        'fetchIssuesForAllLists',
+      ]),
       updateTokens() {
         this.filterManager.updateTokens();
       },
@@ -169,6 +176,7 @@ export default () => {
         this.setFilters(convertObjectPropsToCamelCase(urlParamsToObject(window.location.search)));
         if (gon.features.boardsWithSwimlanes && this.isShowingEpicsSwimlanes) {
           this.fetchEpicsSwimlanes(false);
+          this.fetchIssuesForAllLists();
         }
       },
       updateDetailIssue(newIssue, multiSelect = false) {
@@ -332,6 +340,8 @@ export default () => {
             class="btn btn-success gl-ml-3"
             type="button"
             data-placement="bottom"
+            data-track-event="click_button"
+            data-track-label="board_add_issues"
             ref="addIssuesButton"
             :class="{ 'disabled': disabled }"
             :title="tooltipTitle"

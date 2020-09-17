@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 import { GlTable } from '@gitlab/ui';
 import createStore from 'ee/threat_monitoring/store';
 import NetworkPolicyList from 'ee/threat_monitoring/components/network_policy_list.vue';
+import PolicyDrawer from 'ee/threat_monitoring/components/policy_editor/policy_drawer.vue';
 import { PREDEFINED_NETWORK_POLICIES } from 'ee/threat_monitoring/constants';
 import { useFakeDate } from 'helpers/fake_date';
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
@@ -28,7 +29,7 @@ describe('NetworkPolicyList component', () => {
     wrapper = mount(NetworkPolicyList, {
       propsData: {
         documentationPath: 'documentation_path',
-        newPolicyPath: 'new_policy_path',
+        newPolicyPath: '/policies/new',
         ...propsData,
       },
       data,
@@ -60,25 +61,50 @@ describe('NetworkPolicyList component', () => {
     expect(findEnvironmentsPicker().exists()).toBe(true);
   });
 
-  it('does not render the new policy button', () => {
+  it('renders the new policy button', () => {
     const button = wrapper.find('[data-testid="new-policy"]');
-    expect(button.exists()).toBe(false);
+    expect(button.exists()).toBe(true);
   });
 
-  describe('given the networkPolicyEditor feature flag is enabled', () => {
+  it('does not render the new policy drawer', () => {
+    expect(wrapper.find(PolicyDrawer).exists()).toBe(false);
+  });
+
+  it('does not render edit button', () => {
+    expect(wrapper.find('[data-testid="edit-button"]').exists()).toBe(false);
+  });
+
+  describe('given selected policy is a cilium policy', () => {
+    const manifest = `apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: policy
+spec:
+  endpointSelector: {}`;
+
     beforeEach(() => {
       factory({
-        provide: {
-          glFeatures: {
-            networkPolicyEditor: true,
-          },
+        data: () => ({ selectedPolicyName: 'policy' }),
+        state: {
+          policies: [
+            {
+              name: 'policy',
+              creationTimestamp: new Date(),
+              manifest,
+            },
+          ],
         },
       });
     });
 
-    it('renders the new policy button', () => {
-      const button = wrapper.find('[data-testid="new-policy"]');
+    it('renders the new policy drawer', () => {
+      expect(wrapper.find(PolicyDrawer).exists()).toBe(true);
+    });
+
+    it('renders edit button', () => {
+      const button = wrapper.find('[data-testid="edit-button"]');
       expect(button.exists()).toBe(true);
+      expect(button.attributes().href).toBe('/policies/policy/edit?environment_id=-1');
     });
   });
 

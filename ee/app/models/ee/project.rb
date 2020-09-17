@@ -43,7 +43,6 @@ module EE
       has_one :gitlab_slack_application_service
 
       has_one :tracing_setting, class_name: 'ProjectTracingSetting'
-      has_one :feature_usage, class_name: 'ProjectFeatureUsage'
       has_one :status_page_setting, inverse_of: :project, class_name: 'StatusPage::ProjectSetting'
       has_one :compliance_framework_setting, class_name: 'ComplianceManagement::ComplianceFramework::ProjectSettings', inverse_of: :project
       has_one :security_setting, class_name: 'ProjectSecuritySetting'
@@ -52,7 +51,15 @@ module EE
       has_many :approvers, as: :target, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
       has_many :approver_users, through: :approvers, source: :user
       has_many :approver_groups, as: :target, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
-      has_many :approval_rules, class_name: 'ApprovalProjectRule'
+      has_many :approval_rules, class_name: 'ApprovalProjectRule' do
+        def applicable_to_branch(branch)
+          includes(:protected_branches).select { |rule| rule.applies_to_branch?(branch) }
+        end
+
+        def inapplicable_to_branch(branch)
+          includes(:protected_branches).reject { |rule| rule.applies_to_branch?(branch) }
+        end
+      end
       has_many :approval_merge_request_rules, through: :merge_requests, source: :approval_rules
       has_many :audit_events, as: :entity
       has_many :path_locks
@@ -74,6 +81,7 @@ module EE
       has_many :vulnerability_exports, class_name: 'Vulnerabilities::Export'
 
       has_many :dast_site_profiles
+      has_many :dast_site_tokens
       has_many :dast_sites
 
       has_many :protected_environments
@@ -81,10 +89,6 @@ module EE
       has_many :software_licenses, through: :software_license_policies
       accepts_nested_attributes_for :software_license_policies, allow_destroy: true
       has_many :merge_trains, foreign_key: 'target_project_id', inverse_of: :target_project
-
-      has_many :operations_feature_flags, class_name: 'Operations::FeatureFlag'
-      has_one :operations_feature_flags_client, class_name: 'Operations::FeatureFlagsClient'
-      has_many :operations_feature_flags_user_lists, class_name: 'Operations::FeatureFlags::UserList'
 
       has_many :project_aliases
 
@@ -114,6 +118,7 @@ module EE
           .limit(limit)
       end
 
+      scope :including_project, ->(project) { where(id: project) }
       scope :with_wiki_enabled, -> { with_feature_enabled(:wiki) }
       scope :within_shards, -> (shard_names) { where(repository_storage: Array(shard_names)) }
       scope :verification_failed_repos, -> { joins(:repository_state).merge(ProjectRepositoryState.verification_failed_repos) }
@@ -122,9 +127,6 @@ module EE
       scope :requiring_code_owner_approval,
             -> { joins(:protected_branches).where(protected_branches: { code_owner_approval_required: true }) }
       scope :with_active_services, -> { joins(:services).merge(::Service.active) }
-      scope :with_active_jira_services, -> { joins(:services).merge(::JiraService.active) }
-      scope :with_jira_dvcs_cloud, -> { joins(:feature_usage).merge(ProjectFeatureUsage.with_jira_dvcs_integration_enabled(cloud: true)) }
-      scope :with_jira_dvcs_server, -> { joins(:feature_usage).merge(ProjectFeatureUsage.with_jira_dvcs_integration_enabled(cloud: false)) }
       scope :github_imported, -> { where(import_type: 'github') }
       scope :with_protected_branches, -> { joins(:protected_branches) }
       scope :with_repositories_enabled, -> { joins(:project_feature).where(project_features: { repository_access_level: ::ProjectFeature::ENABLED }) }
@@ -166,8 +168,6 @@ module EE
         :ever_updated_successfully?, :hard_failed?,
         to: :import_state, prefix: :mirror, allow_nil: true
 
-      delegate :log_jira_dvcs_integration_usage, :jira_dvcs_server_last_sync_at, :jira_dvcs_cloud_last_sync_at, to: :feature_usage
-
       delegate :merge_pipelines_enabled, :merge_pipelines_enabled=, :merge_pipelines_enabled?, :merge_pipelines_were_disabled?, to: :ci_cd_settings
       delegate :merge_trains_enabled?, to: :ci_cd_settings
       delegate :closest_gitlab_subscription, to: :namespace
@@ -197,6 +197,10 @@ module EE
 
     class_methods do
       extend ::Gitlab::Utils::Override
+
+      def replicables_for_geo_node(node = ::Gitlab::Geo.current_node)
+        node.projects
+      end
 
       def search_by_visibility(level)
         where(visibility_level: ::Gitlab::VisibilityLevel.string_options[level])
@@ -311,7 +315,7 @@ module EE
     #   it. This is the case when we're ready to enable a feature for anyone
     #   with the correct license.
     def beta_feature_available?(feature)
-      ::Feature.enabled?(feature) ? feature_available?(feature) : ::Feature.enabled?(feature, self)
+      ::Feature.enabled?(feature, type: :licensed) ? feature_available?(feature) : ::Feature.enabled?(feature, self, type: :licensed)
     end
     alias_method :alpha_feature_available?, :beta_feature_available?
 
@@ -424,7 +428,13 @@ module EE
       return user_defined_rules.take(1) unless multiple_approval_rules_available?
       return user_defined_rules unless branch
 
-      user_defined_rules.applicable_to_branch(branch)
+      rules = strong_memoize(:visible_user_defined_rules) do
+        Hash.new do |h, key|
+          h[key] = user_defined_rules.applicable_to_branch(key)
+        end
+      end
+
+      rules[branch]
     end
 
     def visible_user_defined_inapplicable_rules(branch)
@@ -628,10 +638,6 @@ module EE
       geo_primary_http_url_to_repo(self)
     end
 
-    def feature_usage
-      super.presence || build_feature_usage
-    end
-
     def adjourned_deletion?
       feature_available?(:adjourned_deletion_for_projects_and_groups) &&
         ::Gitlab::CurrentSettings.deletion_adjourned_period > 0 &&
@@ -651,26 +657,32 @@ module EE
     end
 
     def disable_overriding_approvers_per_merge_request
-      return super unless License.feature_available?(:admin_merge_request_approvers_rules)
-      return super unless has_regulated_settings?
+      strong_memoize(:disable_overriding_approvers_per_merge_request) do
+        next super unless License.feature_available?(:admin_merge_request_approvers_rules)
+        next super unless has_regulated_settings?
 
-      ::Gitlab::CurrentSettings.disable_overriding_approvers_per_merge_request?
+        ::Gitlab::CurrentSettings.disable_overriding_approvers_per_merge_request?
+      end
     end
     alias_method :disable_overriding_approvers_per_merge_request?, :disable_overriding_approvers_per_merge_request
 
     def merge_requests_author_approval
-      return super unless License.feature_available?(:admin_merge_request_approvers_rules)
-      return super unless has_regulated_settings?
+      strong_memoize(:merge_requests_author_approval) do
+        next super unless License.feature_available?(:admin_merge_request_approvers_rules)
+        next super unless has_regulated_settings?
 
-      !::Gitlab::CurrentSettings.prevent_merge_requests_author_approval?
+        !::Gitlab::CurrentSettings.prevent_merge_requests_author_approval?
+      end
     end
     alias_method :merge_requests_author_approval?, :merge_requests_author_approval
 
     def merge_requests_disable_committers_approval
-      return super unless License.feature_available?(:admin_merge_request_approvers_rules)
-      return super unless has_regulated_settings?
+      strong_memoize(:merge_requests_disable_committers_approval) do
+        next super unless License.feature_available?(:admin_merge_request_approvers_rules)
+        next super unless has_regulated_settings?
 
-      ::Gitlab::CurrentSettings.prevent_merge_requests_committers_approval?
+        ::Gitlab::CurrentSettings.prevent_merge_requests_committers_approval?
+      end
     end
     alias_method :merge_requests_disable_committers_approval?, :merge_requests_disable_committers_approval
 
@@ -683,10 +695,6 @@ module EE
       return true if namespace_id == ::Gitlab::CurrentSettings.current_application_settings.custom_project_templates_group_id
 
       ::Project.with_groups_level_repos_templates.exists?(id)
-    end
-
-    def jira_subscription_exists?
-      feature_available?(:jira_dev_panel_integration) && JiraConnectSubscription.for_project(self).exists?
     end
 
     override :predefined_variables
@@ -711,7 +719,7 @@ module EE
 
     def licensed_feature_available?(feature, user = nil)
       # This feature might not be behind a feature flag at all, so default to true
-      return false unless ::Feature.enabled?(feature, user, default_enabled: true)
+      return false unless ::Feature.enabled?(feature, user, type: :licensed, default_enabled: true)
 
       available_features = strong_memoize(:licensed_feature_available) do
         Hash.new do |h, f|
@@ -744,7 +752,8 @@ module EE
 
     def user_defined_rules
       strong_memoize(:user_defined_rules) do
-        approval_rules.regular_or_any_approver.order(rule_type: :desc, id: :asc)
+        # Loading the relation in order to memoize it loaded
+        approval_rules.regular_or_any_approver.order(rule_type: :desc, id: :asc).load
       end
     end
 

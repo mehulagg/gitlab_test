@@ -2,6 +2,7 @@
 FactoryBot.define do
   factory :package, class: 'Packages::Package' do
     project
+    creator { project&.creator }
     name { 'my/company/app/my-app' }
     sequence(:version) { |n| "1.#{n}-SNAPSHOT" }
     package_type { :maven }
@@ -120,6 +121,12 @@ FactoryBot.define do
       trait(:without_loaded_metadatum) do
         conan_metadatum { build(:conan_metadatum, package: nil) }
       end
+    end
+
+    factory :generic_package do
+      sequence(:name) { |n| "generic-package-#{n}" }
+      version { '1.0.0' }
+      package_type { :generic }
     end
   end
 

@@ -1130,7 +1130,7 @@ On each node:
    # to Gitaly, and a second for authentication callbacks from GitLab-Shell to the GitLab internal API.
    # The following two values must be the same as their respective values
    # of the GitLab Rails application setup
-   gitaly['auth_token'] = 'gitlaysecret'
+   gitaly['auth_token'] = 'gitalysecret'
    gitlab_shell['secret_token'] = 'shellsecret'
 
    # Avoid running unnecessary services on the Gitaly server
@@ -1144,7 +1144,7 @@ On each node:
    grafana['enable'] = false
    gitlab_exporter['enable'] = false
 
-   # If you run a seperate monitoring node you can disable these services
+   # If you run a separate monitoring node you can disable these services
    alertmanager['enable'] = false
    prometheus['enable'] = false
 
@@ -1473,7 +1473,7 @@ On each node perform the following:
    # to Gitaly, and a second for authentication callbacks from GitLab-Shell to the GitLab internal API.
    # The following two values must be the same as their respective values
    # of the Gitaly setup
-   gitlab_rails['gitaly_token'] = 'gitalyecret'
+   gitlab_rails['gitaly_token'] = 'gitalysecret'
    gitlab_shell['secret_token'] = 'shellsecret'
 
    git_data_dirs({
@@ -1718,7 +1718,7 @@ based on what features you intend to use:
 1. Configure [object storage for job artifacts](../job_artifacts.md#using-object-storage)
    including [incremental logging](../job_logs.md#new-incremental-logging-architecture).
 1. Configure [object storage for LFS objects](../lfs/index.md#storing-lfs-objects-in-remote-object-storage).
-1. Configure [object storage for uploads](../uploads.md#using-object-storage-core-only).
+1. Configure [object storage for uploads](../uploads.md#using-object-storage).
 1. Configure [object storage for merge request diffs](../merge_request_diffs.md#using-object-storage).
 1. Configure [object storage for Container Registry](../packages/container_registry.md#use-object-storage) (optional feature).
 1. Configure [object storage for Mattermost](https://docs.mattermost.com/administration/config-settings.html#file-storage) (optional feature).
@@ -1726,7 +1726,7 @@ based on what features you intend to use:
 1. Configure [object storage for Dependency Proxy](../packages/dependency_proxy.md#using-object-storage) (optional feature). **(PREMIUM ONLY)**
 1. Configure [object storage for Pseudonymizer](../pseudonymizer.md#configuration) (optional feature). **(ULTIMATE ONLY)**
 1. Configure [object storage for autoscale runner caching](https://docs.gitlab.com/runner/configuration/autoscale.html#distributed-runners-caching) (optional - for improved performance).
-1. Configure [object storage for Terraform state files](../terraform_state.md#using-object-storage-core-only).
+1. Configure [object storage for Terraform state files](../terraform_state.md#using-object-storage).
 
 Using separate buckets for each data type is the recommended approach for GitLab.
 

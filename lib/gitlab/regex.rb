@@ -6,11 +6,6 @@ module Gitlab
       CONAN_RECIPE_FILES = %w[conanfile.py conanmanifest.txt conan_sources.tgz conan_export.tgz].freeze
       CONAN_PACKAGE_FILES = %w[conaninfo.txt conanmanifest.txt conan_package.tgz].freeze
 
-      def conan_file_name_regex
-        @conan_file_name_regex ||=
-          %r{\A#{(CONAN_RECIPE_FILES + CONAN_PACKAGE_FILES).join("|")}\z}.freeze
-      end
-
       def conan_package_reference_regex
         @conan_package_reference_regex ||= %r{\A[A-Za-z0-9]+\z}.freeze
       end
@@ -103,6 +98,10 @@ module Gitlab
           )? (?# path)
           \b (?# word boundary)
         /ix.freeze
+      end
+
+      def generic_package_version_regex
+        /\A\d+\.\d+\.\d+\z/
       end
     end
 
@@ -293,7 +292,14 @@ module Gitlab
     def base64_regex
       @base64_regex ||= /(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=)?/.freeze
     end
+
+    def feature_flag_regex
+      /\A[a-z]([-_a-z0-9]*[a-z0-9])?\z/
+    end
+
+    def feature_flag_regex_message
+      "can contain only lowercase letters, digits, '_' and '-'. " \
+      "Must start with a letter, and cannot end with '-' or '_'"
+    end
   end
 end
-
-Gitlab::Regex.prepend_if_ee('EE::Gitlab::Regex')

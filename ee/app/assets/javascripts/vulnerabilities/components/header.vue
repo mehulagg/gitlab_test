@@ -13,7 +13,6 @@ import ResolutionAlert from './resolution_alert.vue';
 import VulnerabilityStateDropdown from './vulnerability_state_dropdown.vue';
 import StatusDescription from './status_description.vue';
 import { VULNERABILITY_STATE_OBJECTS, FEEDBACK_TYPES, HEADER_ACTION_BUTTONS } from '../constants';
-import VulnerabilitiesEventBus from './vulnerabilities_event_bus';
 
 export default {
   name: 'VulnerabilityHeader',
@@ -39,7 +38,9 @@ export default {
       isProcessingAction: false,
       isLoadingVulnerability: false,
       isLoadingUser: false,
-      vulnerability: this.initialVulnerability,
+      // Spread operator because the header could modify the `project`
+      // prop leading to an error in the footer component.
+      vulnerability: { ...this.initialVulnerability },
       user: undefined,
       refreshVulnerabilitySource: undefined,
     };
@@ -116,14 +117,6 @@ export default {
     },
   },
 
-  created() {
-    VulnerabilitiesEventBus.$on('VULNERABILITY_STATE_CHANGED', this.refreshVulnerability);
-  },
-
-  destroyed() {
-    VulnerabilitiesEventBus.$off('VULNERABILITY_STATE_CHANGED', this.refreshVulnerability);
-  },
-
   methods: {
     triggerClick(action) {
       const fn = this[action];
@@ -135,6 +128,7 @@ export default {
       Api.changeVulnerabilityState(this.vulnerability.id, newState)
         .then(({ data }) => {
           Object.assign(this.vulnerability, data);
+          this.$emit('vulnerability-state-change');
         })
         .catch(() => {
           createFlash(
@@ -145,7 +139,6 @@ export default {
         })
         .finally(() => {
           this.isLoadingVulnerability = false;
-          VulnerabilitiesEventBus.$emit('VULNERABILITY_STATE_CHANGE');
         });
     },
     createMergeRequest() {

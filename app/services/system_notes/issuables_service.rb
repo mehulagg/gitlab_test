@@ -44,6 +44,8 @@ module SystemNotes
     def change_assignee(assignee)
       body = assignee.nil? ? 'removed assignee' : "assigned to #{assignee.to_reference}"
 
+      issue_activity_counter.track_issue_assignee_changed_action(author: author) if noteable.is_a?(Issue)
+
       create_note(NoteSummary.new(noteable, project, author, body, action: 'assignee'))
     end
 
@@ -74,25 +76,9 @@ module SystemNotes
 
       body = text_parts.join(' and ')
 
+      issue_activity_counter.track_issue_assignee_changed_action(author: author) if noteable.is_a?(Issue)
+
       create_note(NoteSummary.new(noteable, project, author, body, action: 'assignee'))
-    end
-
-    # Called when the milestone of a Noteable is changed
-    #
-    # milestone - Milestone being assigned, or nil
-    #
-    # Example Note text:
-    #
-    #   "removed milestone"
-    #
-    #   "changed milestone to 7.11"
-    #
-    # Returns the created Note object
-    def change_milestone(milestone)
-      format = milestone&.group_milestone? ? :name : :iid
-      body = milestone.nil? ? 'removed milestone' : "changed milestone to #{milestone.to_reference(project, format: format)}"
-
-      create_note(NoteSummary.new(noteable, project, author, body, action: 'milestone'))
     end
 
     # Called when the title of a Noteable is changed
@@ -114,6 +100,8 @@ module SystemNotes
 
       body = "changed title from **#{marked_old_title}** to **#{marked_new_title}**"
 
+      issue_activity_counter.track_issue_title_changed_action(author: author) if noteable.is_a?(Issue)
+
       create_note(NoteSummary.new(noteable, project, author, body, action: 'title'))
     end
 
@@ -130,6 +118,8 @@ module SystemNotes
     # Returns the created Note object
     def change_description
       body = 'changed the description'
+
+      issue_activity_counter.track_issue_description_changed_action(author: author) if noteable.is_a?(Issue)
 
       create_note(NoteSummary.new(noteable, project, author, body, action: 'description'))
     end
@@ -227,9 +217,13 @@ module SystemNotes
       if noteable.confidential
         body = 'made the issue confidential'
         action = 'confidential'
+
+        issue_activity_counter.track_issue_made_confidential_action(author: author) if noteable.is_a?(Issue)
       else
         body = 'made the issue visible to everyone'
         action = 'visible'
+
+        issue_activity_counter.track_issue_made_visible_action(author: author) if noteable.is_a?(Issue)
       end
 
       create_note(NoteSummary.new(noteable, project, author, body, action: action))
@@ -370,6 +364,10 @@ module SystemNotes
     def state_change_tracking_enabled?
       noteable.respond_to?(:resource_state_events) &&
         ::Feature.enabled?(:track_resource_state_change_events, noteable.project, default_enabled: true)
+    end
+
+    def issue_activity_counter
+      Gitlab::UsageDataCounters::IssueActivityUniqueCounter
     end
   end
 end

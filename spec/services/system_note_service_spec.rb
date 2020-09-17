@@ -74,18 +74,6 @@ RSpec.describe SystemNoteService do
     end
   end
 
-  describe '.change_milestone' do
-    let(:milestone) { double }
-
-    it 'calls IssuableService' do
-      expect_next_instance_of(::SystemNotes::IssuablesService) do |service|
-        expect(service).to receive(:change_milestone).with(milestone)
-      end
-
-      described_class.change_milestone(noteable, project, author, milestone)
-    end
-  end
-
   describe '.relate_issue' do
     let(:noteable_ref) { double }
     let(:noteable) { double }
@@ -347,6 +335,7 @@ RSpec.describe SystemNoteService do
     let(:success_message) { "SUCCESS: Successfully posted to http://jira.example.net." }
 
     before do
+      stub_jira_service_test
       stub_jira_urls(jira_issue.id)
       jira_service_settings
     end
@@ -737,6 +726,19 @@ RSpec.describe SystemNoteService do
       end
 
       described_class.new_alert_issue(alert, alert.issue, author)
+    end
+  end
+
+  describe '.create_new_alert' do
+    let(:alert) { build(:alert_management_alert) }
+    let(:monitoring_tool) { 'Prometheus' }
+
+    it 'calls AlertManagementService' do
+      expect_next_instance_of(SystemNotes::AlertManagementService) do |service|
+        expect(service).to receive(:create_new_alert).with(monitoring_tool)
+      end
+
+      described_class.create_new_alert(alert, monitoring_tool)
     end
   end
 end

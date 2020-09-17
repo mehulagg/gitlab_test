@@ -95,7 +95,12 @@ module ServicesHelper
       learn_more_path: integrations_help_page_path,
       trigger_events: trigger_events_for_service(integration),
       fields: fields_for_service(integration),
-      inherit_from_id: integration.inherit_from_id
+      inherit_from_id: integration.inherit_from_id,
+      integration_level: integration_level(integration),
+      editable: integration.editable?.to_s,
+      cancel_path: scoped_integrations_path,
+      can_test: integration.can_test?.to_s,
+      test_path: scoped_test_integration_path(integration)
     }
   end
 
@@ -120,6 +125,18 @@ module ServicesHelper
   end
 
   extend self
+
+  private
+
+  def integration_level(integration)
+    if integration.instance
+      'instance'
+    elsif integration.group_id
+      'group'
+    else
+      'project'
+    end
+  end
 end
 
 ServicesHelper.prepend_if_ee('EE::ServicesHelper')

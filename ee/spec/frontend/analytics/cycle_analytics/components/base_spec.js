@@ -13,6 +13,7 @@ import StageTable from 'ee/analytics/cycle_analytics/components/stage_table.vue'
 import StageTableNav from 'ee/analytics/cycle_analytics/components/stage_table_nav.vue';
 import StageNavItem from 'ee/analytics/cycle_analytics/components/stage_nav_item.vue';
 import AddStageButton from 'ee/analytics/cycle_analytics/components/add_stage_button.vue';
+import CustomStageForm from 'ee/analytics/cycle_analytics/components/custom_stage_form.vue';
 import FilterBar from 'ee/analytics/cycle_analytics/components/filter_bar.vue';
 import DurationChart from 'ee/analytics/cycle_analytics/components/duration_chart.vue';
 import Daterange from 'ee/analytics/shared/components/daterange.vue';
@@ -50,7 +51,6 @@ const defaultStubs = {
 
 const defaultFeatureFlags = {
   hasDurationChart: true,
-  hasDurationChartMedian: true,
   hasPathNavigation: false,
   hasCreateMultipleValueStreams: false,
 };
@@ -138,6 +138,8 @@ describe('Cycle Analytics component', () => {
       .findAll(StageNavItem)
       .at(index);
 
+  const findAddStageButton = () => wrapper.find(AddStageButton);
+
   const displaysProjectsDropdownFilter = flag => {
     expect(wrapper.find(ProjectsDropdownFilter).exists()).toBe(flag);
   };
@@ -147,7 +149,7 @@ describe('Cycle Analytics component', () => {
   };
 
   const displaysMetrics = flag => {
-    expect(wrapper.contains(Metrics)).toBe(flag);
+    expect(wrapper.find(Metrics).exists()).toBe(flag);
   };
 
   const displaysStageTable = flag => {
@@ -430,6 +432,31 @@ describe('Cycle Analytics component', () => {
               expect(first.props('isActive')).toBe(false);
             });
           });
+
+          describe('Add stage button', () => {
+            beforeEach(() => {
+              wrapper = createComponent({
+                opts: {
+                  stubs: {
+                    StageTable,
+                    StageTableNav,
+                    AddStageButton,
+                  },
+                },
+                withStageSelected: true,
+              });
+            });
+
+            it('can navigate to the custom stage form', () => {
+              expect(wrapper.find(CustomStageForm).exists()).toBe(false);
+
+              findAddStageButton().trigger('click');
+
+              return wrapper.vm.$nextTick().then(() => {
+                expect(wrapper.find(CustomStageForm).exists()).toBe(true);
+              });
+            });
+          });
         });
       });
 
@@ -662,8 +689,8 @@ describe('Cycle Analytics component', () => {
       wrapper.vm.$store.dispatch('initializeCycleAnalytics', initialCycleAnalyticsState);
     });
 
-    it('sets the created_after and created_before url parameters', () => {
-      return shouldMergeUrlParams(wrapper, defaultParams);
+    it('sets the created_after and created_before url parameters', async () => {
+      await shouldMergeUrlParams(wrapper, defaultParams);
     });
 
     describe('with hideGroupDropDown=true', () => {
@@ -685,8 +712,8 @@ describe('Cycle Analytics component', () => {
         });
       });
 
-      it('sets the group_id url parameter', () => {
-        return shouldMergeUrlParams(wrapper, {
+      it('sets the group_id url parameter', async () => {
+        await shouldMergeUrlParams(wrapper, {
           ...defaultParams,
           created_after: toYmd(mockData.startDate),
           created_before: toYmd(mockData.endDate),
@@ -702,8 +729,8 @@ describe('Cycle Analytics component', () => {
         });
       });
 
-      it('sets the group_id url parameter', () => {
-        return shouldMergeUrlParams(wrapper, {
+      it('sets the group_id url parameter', async () => {
+        await shouldMergeUrlParams(wrapper, {
           ...defaultParams,
           group_id: fakeGroup.fullPath,
         });
@@ -720,8 +747,8 @@ describe('Cycle Analytics component', () => {
         return wrapper.vm.$nextTick();
       });
 
-      it('sets the project_ids url parameter', () => {
-        return shouldMergeUrlParams(wrapper, {
+      it('sets the project_ids url parameter', async () => {
+        await shouldMergeUrlParams(wrapper, {
           ...defaultParams,
           created_after: toYmd(mockData.startDate),
           created_before: toYmd(mockData.endDate),

@@ -24,6 +24,73 @@ RSpec.describe MergeRequest do
     it { is_expected.to have_many(:approver_groups).dependent(:delete_all) }
     it { is_expected.to have_many(:approved_by_users) }
     it { is_expected.to have_one(:merge_train) }
+    it { is_expected.to have_many(:approval_rules) }
+
+    describe 'approval_rules association' do
+      describe '#applicable_to_branch' do
+        let!(:rule) { create(:approval_merge_request_rule, merge_request: merge_request) }
+        let(:branch) { 'stable' }
+
+        subject { merge_request.approval_rules.applicable_to_branch(branch) }
+
+        shared_examples_for 'with applicable rules to specified branch' do
+          it { is_expected.to eq([rule]) }
+        end
+
+        context 'when there are no associated source rules' do
+          it_behaves_like 'with applicable rules to specified branch'
+        end
+
+        context 'when there are associated source rules' do
+          let(:source_rule) { create(:approval_project_rule, project: merge_request.target_project) }
+
+          before do
+            rule.update!(approval_project_rule: source_rule)
+          end
+
+          context 'and rule is not overridden' do
+            before do
+              rule.update!(
+                name: source_rule.name,
+                approvals_required: source_rule.approvals_required,
+                users: source_rule.users,
+                groups: source_rule.groups
+              )
+            end
+
+            context 'and there are no associated protected branches to source rule' do
+              it_behaves_like 'with applicable rules to specified branch'
+            end
+
+            context 'and there are associated protected branches to source rule' do
+              before do
+                source_rule.update!(protected_branches: protected_branches)
+              end
+
+              context 'and branch matches' do
+                let(:protected_branches) { [create(:protected_branch, name: branch)] }
+
+                it_behaves_like 'with applicable rules to specified branch'
+              end
+
+              context 'and branch does not match anything' do
+                let(:protected_branches) { [create(:protected_branch, name: branch.reverse)] }
+
+                it { is_expected.to be_empty }
+              end
+            end
+          end
+
+          context 'and rule is overridden' do
+            before do
+              rule.update!(name: 'Overridden Rule')
+            end
+
+            it_behaves_like 'with applicable rules to specified branch'
+          end
+        end
+      end
+    end
   end
 
   it_behaves_like 'an editable mentionable with EE-specific mentions' do
@@ -878,6 +945,116 @@ RSpec.describe MergeRequest do
 
       expect(described_class.order_review_time_desc).to match([mr3, mr4, mr2, mr1, mr5])
       expect(described_class.sort_by_attribute('review_time_desc')).to match([mr3, mr4, mr2, mr1, mr5])
+    end
+  end
+
+  describe '#missing_security_scan_types' do
+    let_it_be(:project) { create(:project, :repository) }
+    let_it_be(:merge_request) { create(:ee_merge_request, source_project: project) }
+
+    subject { merge_request.missing_security_scan_types }
+
+    context 'when there is no head pipeline' do
+      context 'when there is no base pipeline' do
+        it { is_expected.to be_empty }
+      end
+
+      context 'when there is a base pipeline' do
+        let_it_be(:base_pipeline) do
+          create(:ee_ci_pipeline,
+                 project: project,
+                 ref: merge_request.target_branch,
+                 sha: merge_request.diff_base_sha)
+        end
+
+        context 'when there is no security scan for the base pipeline' do
+          it { is_expected.to be_empty }
+        end
+
+        context 'when there are security scans for the base_pipeline' do
+          before do
+            build = create(:ci_build, :success, pipeline: base_pipeline, project: project)
+            create(:security_scan, build: build)
+          end
+
+          it { is_expected.to be_empty }
+        end
+      end
+    end
+
+    context 'when there is a head pipeline' do
+      let_it_be(:head_pipeline) { create(:ee_ci_pipeline, project: project, sha: merge_request.diff_head_sha) }
+
+      before do
+        merge_request.update_head_pipeline
+      end
+
+      context 'when there is no base pipeline' do
+        it { is_expected.to be_empty }
+      end
+
+      context 'when there is a base pipeline' do
+        let_it_be(:base_pipeline) do
+          create(:ee_ci_pipeline,
+                 project: project,
+                 ref: merge_request.target_branch,
+                 sha: merge_request.diff_base_sha)
+        end
+
+        let_it_be(:base_pipeline_build) { create(:ci_build, :success, pipeline: base_pipeline, project: project) }
+        let_it_be(:head_pipeline_build) { create(:ci_build, :success, pipeline: head_pipeline, project: project) }
+
+        context 'when the head pipeline does not have security scans' do
+          context 'when the base pipeline does not have security scans' do
+            it { is_expected.to be_empty }
+          end
+
+          context 'when the base pipeline has security scans' do
+            before do
+              create(:security_scan, build: base_pipeline_build, scan_type: 'sast')
+            end
+
+            it { is_expected.to eq(['sast']) }
+          end
+        end
+
+        context 'when the head pipeline has security scans' do
+          before do
+            create(:security_scan, build: head_pipeline_build, scan_type: 'dast')
+          end
+
+          context 'when the base pipeline does not have security scans' do
+            it { is_expected.to be_empty }
+          end
+
+          context 'when the base pipeline has security scans' do
+            before do
+              create(:security_scan, build: base_pipeline_build, scan_type: 'dast')
+            end
+
+            context 'when there are no missing security scans for the head pipeline' do
+              it { is_expected.to be_empty }
+            end
+
+            context 'when there are missing security scans for the head pipeline' do
+              before do
+                create(:security_scan, build: base_pipeline_build, scan_type: 'sast')
+              end
+
+              it { is_expected.to eq(['sast']) }
+
+              context 'when there are multiple scans for the same type for base pipeline' do
+                before do
+                  build = create(:ci_build, :success, pipeline: base_pipeline, project: project)
+                  create(:security_scan, build: build, scan_type: 'sast')
+                end
+
+                it { is_expected.to eq(['sast']) }
+              end
+            end
+          end
+        end
+      end
     end
   end
 end

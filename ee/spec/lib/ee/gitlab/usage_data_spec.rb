@@ -28,6 +28,7 @@ RSpec.describe Gitlab::UsageData do
       create(:ci_build, name: 'sast', pipeline: pipeline)
       create(:ci_build, name: 'secret_detection', pipeline: pipeline)
       create(:ci_build, name: 'coverage_fuzzing', pipeline: pipeline)
+      create(:ci_pipeline, source: :ondemand_dast_scan, project: projects[0])
 
       create(:prometheus_alert, project: projects[0])
       create(:prometheus_alert, project: projects[0])
@@ -102,8 +103,6 @@ RSpec.describe Gitlab::UsageData do
         operations_dashboard_users_with_projects_added
         pod_logs_usages_total
         projects_jenkins_active
-        projects_jira_dvcs_cloud_active
-        projects_jira_dvcs_server_active
         projects_jira_issuelist_active
         projects_mirrored_with_pipelines_enabled
         projects_reporting_ci_cd_back_to_github
@@ -147,6 +146,7 @@ RSpec.describe Gitlab::UsageData do
       expect(count_data[:sast_jobs]).to eq(1)
       expect(count_data[:secret_detection_jobs]).to eq(1)
       expect(count_data[:coverage_fuzzing_jobs]).to eq(1)
+      expect(count_data[:dast_on_demand_pipelines]).to eq(1)
     end
 
     it 'gathers group overview preferences usage data', :aggregate_failures do
@@ -253,15 +253,6 @@ RSpec.describe Gitlab::UsageData do
     end
   end
 
-  describe '.uncached_data' do
-    describe '.usage_activity_by_stage' do
-      it 'includes usage_activity_by_stage data' do
-        expect(described_class.uncached_data).to include(:usage_activity_by_stage)
-        expect(described_class.uncached_data).to include(:usage_activity_by_stage_monthly)
-      end
-    end
-  end
-
   describe 'usage_activity_by_stage_configure' do
     it 'includes accurate usage_activity_by_stage data' do
       for_defined_days_back do
@@ -307,6 +298,21 @@ RSpec.describe Gitlab::UsageData do
         create(:approval_merge_request_rule, merge_request: merge_request)
         create_list(:code_owner_rule, 3, approvals_required: 2)
         create_list(:code_owner_rule, 2)
+
+        create(:lfs_file_lock, project: project, path: 'a.txt')
+        create(:lfs_file_lock, project: project, path: 'b.txt')
+        create(:lfs_file_lock, user: user, project: project, path: 'c.txt')
+        create(:lfs_file_lock, user: user, project: project, path: 'd.txt')
+
+        create(:path_lock, project: project, path: '1.txt')
+        create(:path_lock, project: project, path: '2.txt')
+        create(:path_lock, project: project, path: '3.txt')
+        create(:path_lock, user: user, project: project, path: '4.txt')
+        create(:path_lock, user: user, project: project, path: '5.txt')
+        create(:path_lock, user: user, project: project, path: '6.txt')
+
+        create_list(:lfs_file_lock, 3)
+        create_list(:path_lock, 4)
       end
 
       expect(described_class.usage_activity_by_stage_create({})).to include(
@@ -318,9 +324,13 @@ RSpec.describe Gitlab::UsageData do
         merge_requests_with_optional_codeowners: 4,
         merge_requests_with_required_codeowners: 8,
         projects_imported_from_github: 2,
-        projects_with_repositories_enabled: 12,
+        projects_with_repositories_enabled: 26,
         protected_branches: 2,
-        suggestions: 2
+        suggestions: 2,
+        users_using_lfs_locks: 12,
+        users_using_path_locks: 16,
+        total_number_of_path_locks: 20,
+        total_number_of_locked_files: 14
       )
       expect(described_class.usage_activity_by_stage_create(described_class.last_28_days_time_period)).to include(
         approval_project_rules: 6,
@@ -331,9 +341,13 @@ RSpec.describe Gitlab::UsageData do
         merge_requests_with_optional_codeowners: 2,
         merge_requests_with_required_codeowners: 4,
         projects_imported_from_github: 1,
-        projects_with_repositories_enabled: 6,
+        projects_with_repositories_enabled: 13,
         protected_branches: 1,
-        suggestions: 1
+        suggestions: 1,
+        users_using_lfs_locks: 6,
+        users_using_path_locks: 8,
+        total_number_of_path_locks: 10,
+        total_number_of_locked_files: 7
       )
     end
   end
@@ -431,27 +445,19 @@ RSpec.describe Gitlab::UsageData do
         create(:milestone_list, board: board, milestone: create(:milestone, project: project), user: user)
         create(:list, board: board, label: create(:label, project: project), user: user)
         create(:epic, author: user)
-        create(:jira_service, :jira_cloud_service, active: true, project: create(:project, :jira_dvcs_cloud, creator: user))
-        create(:jira_service, active: true, project: create(:project, :jira_dvcs_server, creator: user))
       end
 
       expect(described_class.usage_activity_by_stage_plan({})).to include(
         assignee_lists: 2,
         epics: 2,
         label_lists: 2,
-        milestone_lists: 2,
-        projects_jira_active: 2,
-        projects_jira_dvcs_cloud_active: 2,
-        projects_jira_dvcs_server_active: 2
+        milestone_lists: 2
       )
       expect(described_class.usage_activity_by_stage_plan(described_class.last_28_days_time_period)).to include(
         assignee_lists: 1,
         epics: 1,
         label_lists: 1,
-        milestone_lists: 1,
-        projects_jira_active: 1,
-        projects_jira_dvcs_cloud_active: 1,
-        projects_jira_dvcs_server_active: 1
+        milestone_lists: 1
       )
     end
   end

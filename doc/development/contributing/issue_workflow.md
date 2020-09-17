@@ -43,7 +43,7 @@ Most issues will have labels for at least one of the following:
 - Type: `~feature`, `~bug`, `~tooling`, `~documentation`, etc.
 - Stage: `~"devops::plan"`, `~"devops::create"`, etc.
 - Group: `~"group::source code"`, `~"group::knowledge"`, `~"group::editor"`, etc.
-- Category: `~"Category:Code Analytics"`, `~"Category:DevOps Score"`, `~"Category:Templates"`, etc.
+- Category: `~"Category:Code Analytics"`, `~"Category:DevOps Reports"`, `~"Category:Templates"`, etc.
 - Feature: `~wiki`, `~ldap`, `~api`, `~issues`, `~"merge requests"`, etc.
 - Department: `~UX`, `~Quality`
 - Team: `~"Technical Writing"`, `~Delivery`
@@ -118,7 +118,7 @@ the `gitlab-org` group since its key under `stages` is `manage`.
 
 The current stage labels can be found by [searching the labels list for `devops::`](https://gitlab.com/groups/gitlab-org/-/labels?search=devops::).
 
-These labels are [scoped labels](../../user/project/labels.md#scoped-labels-premium)
+These labels are [scoped labels](../../user/project/labels.md#scoped-labels)
 and thus are mutually exclusive.
 
 The Stage labels are used to generate the [direction pages](https://about.gitlab.com/direction/) automatically.
@@ -145,7 +145,7 @@ under `stages.manage.groups` is `continuous_integration`.
 
 The current group labels can be found by [searching the labels list for `group::`](https://gitlab.com/groups/gitlab-org/-/labels?search=group::).
 
-These labels are [scoped labels](../../user/project/labels.md#scoped-labels-premium)
+These labels are [scoped labels](../../user/project/labels.md#scoped-labels)
 and thus are mutually exclusive.
 
 You can find the groups listed in the [Product Stages, Groups, and Categories](https://about.gitlab.com/handbook/product/product-categories/) page.
@@ -188,9 +188,9 @@ their color is `#428BCA`.
 `<Category Name>` is the category name as it is in the single source of truth for categories at
 <https://gitlab.com/gitlab-com/www-gitlab-com/blob/master/data/categories.yml>.
 
-For instance, the "DevOps Score" category is represented by the
-~"Category:DevOps Score" label in the `gitlab-org` group since its
-`devops_score.name` value is "DevOps Score".
+For instance, the "DevOps Report" category is represented by the
+~"Category:DevOps Reports" label in the `gitlab-org` group since its
+`devops_reports.name` value is "DevOps Reports".
 
 If a category's label doesn't respect this naming convention, it should be specified
 with [the `label` attribute](https://about.gitlab.com/handbook/marketing/website/#category-attributes)

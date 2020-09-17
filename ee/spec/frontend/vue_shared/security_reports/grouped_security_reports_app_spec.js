@@ -29,7 +29,7 @@ const CONTAINER_SCANNING_DIFF_ENDPOINT = 'container_scanning.json';
 const DEPENDENCY_SCANNING_DIFF_ENDPOINT = 'dependency_scanning.json';
 const DAST_DIFF_ENDPOINT = 'dast.json';
 const SAST_DIFF_ENDPOINT = 'sast.json';
-const SECRET_SCANNING_DIFF_ENDPOINT = 'secret_scanning.json';
+const SECRET_SCANNING_DIFF_ENDPOINT = 'secret_detection.json';
 const COVERAGE_FUZZING_DIFF_ENDPOINT = 'coverage_fuzzing.json';
 
 describe('Grouped security reports app', () => {
@@ -103,7 +103,7 @@ describe('Grouped security reports app', () => {
         dast: true,
         containerScanning: true,
         dependencyScanning: true,
-        secretScanning: true,
+        secretDetection: true,
         coverageFuzzing: true,
       },
     };
@@ -500,7 +500,7 @@ describe('Grouped security reports app', () => {
 
       return waitForMutation(wrapper.vm.$store, types.RECEIVE_DAST_DIFF_SUCCESS).then(() => {
         expect(wrapper.text()).not.toContain('0 URLs scanned');
-        expect(wrapper.contains('[data-qa-selector="dast-ci-job-link"]')).toBe(false);
+        expect(wrapper.find('[data-qa-selector="dast-ci-job-link"]').exists()).toBe(false);
       });
     });
   });
@@ -515,7 +515,7 @@ describe('Grouped security reports app', () => {
       createWrapper({
         ...props,
         enabledReports: {
-          secretScanning: isEnabled,
+          secretDetection: isEnabled,
         },
       });
 
@@ -528,7 +528,7 @@ describe('Grouped security reports app', () => {
       });
 
       it('should render the component', () => {
-        expect(wrapper.contains('[data-qa-selector="secret_scan_report"]')).toBe(true);
+        expect(wrapper.find('[data-qa-selector="secret_scan_report"]').exists()).toBe(true);
       });
 
       it('should set setSecretScanningDiffEndpoint', () => {
@@ -548,7 +548,7 @@ describe('Grouped security reports app', () => {
       });
 
       it('should not render the component', () => {
-        expect(wrapper.contains('[data-qa-selector="secret_scan_report"]')).toBe(false);
+        expect(wrapper.find('[data-qa-selector="secret_scan_report"]').exists()).toBe(false);
       });
     });
   });

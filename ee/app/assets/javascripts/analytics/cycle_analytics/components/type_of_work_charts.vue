@@ -1,17 +1,21 @@
 <script>
 import { mapActions, mapGetters, mapState } from 'vuex';
-import { GlLoadingIcon } from '@gitlab/ui';
+import ChartSkeletonLoader from '~/vue_shared/components/resizable_chart/skeleton_loader.vue';
 import TasksByTypeChart from './tasks_by_type/tasks_by_type_chart.vue';
 import TasksByTypeFilters from './tasks_by_type/tasks_by_type_filters.vue';
-import { s__, sprintf } from '~/locale';
+import { s__, sprintf, __ } from '~/locale';
 import { formattedDate } from '../../shared/utils';
 import { TASKS_BY_TYPE_SUBJECT_ISSUE } from '../constants';
 
 export default {
   name: 'TypeOfWorkCharts',
-  components: { GlLoadingIcon, TasksByTypeChart, TasksByTypeFilters },
+  components: { ChartSkeletonLoader, TasksByTypeChart, TasksByTypeFilters },
   computed: {
-    ...mapState('typeOfWork', ['isLoadingTasksByTypeChart', 'isLoadingTasksByTypeChartTopLabels']),
+    ...mapState('typeOfWork', [
+      'isLoadingTasksByTypeChart',
+      'isLoadingTasksByTypeChartTopLabels',
+      'errorMessage',
+    ]),
     ...mapGetters('typeOfWork', ['selectedTasksByTypeFilters', 'tasksByTypeChartData']),
     hasData() {
       return Boolean(this.tasksByTypeChartData?.data.length);
@@ -52,6 +56,11 @@ export default {
     selectedLabelIdsFilter() {
       return this.selectedTasksByTypeFilters?.selectedLabelIds || [];
     },
+    error() {
+      return this.errorMessage
+        ? this.errorMessage
+        : __('There is no data available. Please change your selection.');
+    },
   },
   methods: {
     ...mapActions('typeOfWork', ['setTasksByTypeFilters']),
@@ -63,7 +72,7 @@ export default {
 </script>
 <template>
   <div class="js-tasks-by-type-chart row">
-    <gl-loading-icon v-if="isLoading" size="md" class="col-12 my-4 py-4" />
+    <chart-skeleton-loader v-if="isLoading" class="gl-my-4 gl-py-4" />
     <div v-else class="col-12">
       <h3>{{ s__('CycleAnalytics|Type of work') }}</h3>
       <p>{{ summaryDescription }}</p>
@@ -80,7 +89,7 @@ export default {
         :series-names="tasksByTypeChartData.seriesNames"
       />
       <div v-else class="bs-callout bs-callout-info">
-        <p>{{ __('There is no data available. Please change your selection.') }}</p>
+        <p>{{ error }}</p>
       </div>
     </div>
   </div>

@@ -11,6 +11,12 @@ module Groups
         @integrations = Service.find_or_initialize_all(Service.for_group(group)).sort_by(&:title)
       end
 
+      def edit
+        @default_integration = Service.default_integration(integration.type, group)
+
+        super
+      end
+
       private
 
       def find_or_initialize_integration(name)

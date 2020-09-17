@@ -1,6 +1,7 @@
 <script>
 import { GlAlert, GlLoadingIcon, GlToggle } from '@gitlab/ui';
 import { createNamespacedHelpers } from 'vuex';
+import axios from '~/lib/utils/axios_utils';
 import { sprintf, s__ } from '~/locale';
 import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import { LEGACY_FLAG, NEW_FLAG_ALERT } from '../constants';
@@ -39,10 +40,24 @@ export default {
       type: String,
       required: true,
     },
+    showUserCallout: {
+      type: Boolean,
+      required: true,
+    },
+    userCalloutId: {
+      default: '',
+      type: String,
+      required: false,
+    },
+    userCalloutsPath: {
+      default: '',
+      type: String,
+      required: false,
+    },
   },
   data() {
     return {
-      userDidDismissNewFlagAlert: false,
+      userShouldSeeNewFlagAlert: this.showUserCallout,
     };
   },
   translations: {
@@ -85,10 +100,13 @@ export default {
       return this.glFeatures.featureFlagsNewVersion;
     },
     hasLegacyReadOnlyFlags() {
-      return this.glFeatures.featureFlagsLegacyReadOnly;
+      return (
+        this.glFeatures.featureFlagsLegacyReadOnly &&
+        !this.glFeatures.featureFlagsLegacyReadOnlyOverride
+      );
     },
     shouldShowNewFlagAlert() {
-      return !(this.hasNewVersionFlags || this.userDidDismissNewFlagAlert);
+      return !this.hasNewVersionFlags && this.userShouldSeeNewFlagAlert;
     },
   },
   created() {
@@ -103,6 +121,12 @@ export default {
       'fetchFeatureFlag',
       'toggleActive',
     ]),
+    dismissNewVersionFlagAlert() {
+      this.userShouldSeeNewFlagAlert = false;
+      axios.post(this.userCalloutsPath, {
+        feature_name: this.userCalloutId,
+      });
+    },
   },
 };
 </script>
@@ -112,7 +136,7 @@ export default {
       v-if="shouldShowNewFlagAlert"
       variant="warning"
       class="gl-my-5"
-      @dismiss="userDidDismissNewFlagAlert = true"
+      @dismiss="dismissNewVersionFlagAlert"
     >
       {{ $options.translations.newFlagAlert }}
     </gl-alert>
@@ -128,10 +152,10 @@ export default {
       <div class="gl-display-flex gl-align-items-center gl-mb-4 gl-mt-4">
         <gl-toggle
           :value="active"
+          data-testid="feature-flag-status-toggle"
           data-track-event="click_button"
           data-track-label="feature_flag_toggle"
-          data-track-context="feature_flag_activity"
-          class="gl-mr-4 js-feature-flag-status"
+          class="gl-mr-4"
           @change="toggleActive"
         />
         <h3 class="page-title gl-m-0">{{ title }}</h3>

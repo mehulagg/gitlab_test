@@ -38,6 +38,12 @@ module QA
         autoload :Members, 'qa/ee/page/group/members'
         autoload :ContributionAnalytics, 'qa/ee/page/group/contribution_analytics'
 
+        module Iteration
+          autoload :Index, 'qa/ee/page/group/iteration/index'
+          autoload :New, 'qa/ee/page/group/iteration/new'
+          autoload :Show, 'qa/ee/page/group/iteration/show'
+        end
+
         module Settings
           autoload :SamlSSO, 'qa/ee/page/group/settings/saml_sso'
           autoload :LDAPSync, 'qa/ee/page/group/settings/ldap_sync'
@@ -52,6 +58,7 @@ module QA
       module Main
         autoload :Banner, 'qa/ee/page/main/banner'
         autoload :Menu, 'qa/ee/page/main/menu'
+        autoload :SignUp, 'qa/ee/page/main/sign_up'
       end
 
       module Admin
@@ -188,7 +195,9 @@ module QA
     module Resource
       autoload :License, 'qa/ee/resource/license'
       autoload :Epic, 'qa/ee/resource/epic'
-      autoload :GroupLabel, 'qa/ee/resource/group_label.rb'
+      autoload :GroupLabel, 'qa/ee/resource/group_label'
+      autoload :GroupIteration, 'qa/ee/resource/group_iteration'
+      autoload :ImportRepoWithCICD, 'qa/ee/resource/import_repo_with_ci_cd'
 
       module Board
         autoload :BaseBoard, 'qa/ee/resource/board/base_board'

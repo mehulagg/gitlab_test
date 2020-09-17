@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Groups::Analytics::CycleAnalytics::ValueStreamsController < Analytics::ApplicationController
+class Groups::Analytics::CycleAnalytics::ValueStreamsController < Groups::Analytics::ApplicationController
   respond_to :json
 
   check_feature_flag Gitlab::Analytics::CYCLE_ANALYTICS_FEATURE_FLAG
@@ -11,14 +11,14 @@ class Groups::Analytics::CycleAnalytics::ValueStreamsController < Analytics::App
   end
 
   def index
-    render json: Analytics::GroupValueStreamSerializer.new.represent(value_streams)
+    render json: Analytics::CycleAnalytics::GroupValueStreamSerializer.new.represent(value_streams)
   end
 
   def create
     value_stream = @group.value_streams.build(value_stream_params)
 
     if value_stream.save
-      render json: Analytics::GroupValueStreamSerializer.new.represent(value_stream)
+      render json: Analytics::CycleAnalytics::GroupValueStreamSerializer.new.represent(value_stream)
     else
       render json: { message: 'Invalid parameters', payload: { errors: value_stream.errors } }, status: :unprocessable_entity
     end

@@ -5,7 +5,9 @@ describe('Threat Monitoring mutations', () => {
   let state;
 
   beforeEach(() => {
-    state = {};
+    state = {
+      currentEnvironmentId: -1,
+    };
   });
 
   describe(types.SET_ENDPOINT, () => {
@@ -47,6 +49,33 @@ describe('Threat Monitoring mutations', () => {
 
     it('sets errorLoadingEnvironments to false', () => {
       expect(state.errorLoadingEnvironments).toBe(false);
+    });
+
+    it('sets currentEnvironmentId to 1', () => {
+      expect(state.currentEnvironmentId).toEqual(1);
+    });
+
+    describe('without payload', () => {
+      beforeEach(() => {
+        state.currentEnvironmentId = 1;
+        mutations[types.RECEIVE_ENVIRONMENTS_SUCCESS](state, []);
+      });
+
+      it('does not update currentEnvironmentId', () => {
+        expect(state.currentEnvironmentId).toBe(1);
+      });
+    });
+
+    describe('with currentEnvironmentId set', () => {
+      beforeEach(() => {
+        state.currentEnvironmentId = 1;
+        environments = [{ id: 2, name: 'production' }];
+        mutations[types.RECEIVE_ENVIRONMENTS_SUCCESS](state, environments);
+      });
+
+      it('does not update currentEnvironmentId', () => {
+        expect(state.currentEnvironmentId).toBe(1);
+      });
     });
   });
 

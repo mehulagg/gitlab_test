@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 module SearchHelper
-  SEARCH_PERMITTED_PARAMS = [:search, :scope, :project_id, :group_id, :repository_ref, :snippets].freeze
+  SEARCH_PERMITTED_PARAMS = [:search, :scope, :project_id, :group_id, :repository_ref, :snippets, :state].freeze
 
   def search_autocomplete_opts(term)
     return unless current_user
 
     resources_results = [
+      recent_issues_autocomplete(term),
       groups_autocomplete(term),
       projects_autocomplete(term)
     ].flatten
@@ -175,6 +176,20 @@ module SearchHelper
         label: "#{search_result_sanitize(p.full_name)}",
         url: project_path(p),
         avatar_url: p.avatar_url || ''
+      }
+    end
+  end
+
+  def recent_issues_autocomplete(term, limit = 5)
+    return [] unless current_user
+
+    ::Gitlab::Search::RecentIssues.new(user: current_user).search(term).limit(limit).map do |i|
+      {
+        category: "Recent issues",
+        id: i.id,
+        label: search_result_sanitize(i.title),
+        url: issue_path(i),
+        avatar_url: i.project.avatar_url || ''
       }
     end
   end

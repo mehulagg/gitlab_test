@@ -1,4 +1,4 @@
-import { editor as monacoEditor, languages as monacoLanguages, Position, Uri } from 'monaco-editor';
+import { editor as monacoEditor, languages as monacoLanguages, Uri } from 'monaco-editor';
 import { DEFAULT_THEME, themes } from '~/ide/lib/themes';
 import languages from '~/ide/lib/languages';
 import { defaultEditorOptions } from '~/ide/lib/editor_options';
@@ -9,11 +9,7 @@ import { EDITOR_LITE_INSTANCE_ERROR_NO_EL, URI_PREFIX } from './constants';
 
 export default class Editor {
   constructor(options = {}) {
-    this.editorEl = null;
-    this.blobContent = '';
-    this.blobPath = '';
     this.instances = [];
-    this.model = null;
     this.options = {
       extraEditorClassName: 'gl-editor-lite',
       ...defaultEditorOptions,
@@ -30,6 +26,17 @@ export default class Editor {
     const theme = themes.find(t => t.name === themeName);
     if (theme) monacoEditor.defineTheme(themeName, theme.data);
     monacoEditor.setTheme(theme ? themeName : DEFAULT_THEME);
+  }
+
+  static updateModelLanguage(path, instance) {
+    if (!instance) return;
+    const model = instance.getModel();
+    const ext = `.${path.split('.').pop()}`;
+    const language = monacoLanguages
+      .getLanguages()
+      .find(lang => lang.extensions.indexOf(ext) !== -1);
+    const id = language ? language.id : 'plaintext';
+    monacoEditor.setModelLanguage(model, id);
   }
 
   /**
@@ -51,19 +58,18 @@ export default class Editor {
     if (!el) {
       throw new Error(EDITOR_LITE_INSTANCE_ERROR_NO_EL);
     }
-    this.editorEl = el;
-    this.blobContent = blobContent;
-    this.blobPath = blobPath;
 
-    clearDomElement(this.editorEl);
+    clearDomElement(el);
 
     const uriFilePath = joinPaths(URI_PREFIX, blobGlobalId, blobPath);
 
-    const model = monacoEditor.createModel(this.blobContent, undefined, Uri.file(uriFilePath));
+    const model = monacoEditor.createModel(blobContent, undefined, Uri.file(uriFilePath));
 
-    monacoEditor.onDidCreateEditor(this.renderEditor.bind(this));
+    monacoEditor.onDidCreateEditor(() => {
+      delete el.dataset.editorLoading;
+    });
 
-    const instance = monacoEditor.create(this.editorEl, {
+    const instance = monacoEditor.create(el, {
       ...this.options,
       ...instanceOptions,
     });
@@ -73,12 +79,7 @@ export default class Editor {
       this.instances.splice(index, 1);
       model.dispose();
     });
-
-    // Reference to the model on the editor level will go away in
-    // https://gitlab.com/gitlab-org/gitlab/-/issues/241023
-    // After that, the references to the model will be routed through
-    // instance exclusively
-    this.model = model;
+    instance.updateModelLanguage = path => Editor.updateModelLanguage(path, instance);
 
     this.instances.push(instance);
     return instance;
@@ -86,65 +87,6 @@ export default class Editor {
 
   dispose() {
     this.instances.forEach(instance => instance.dispose());
-  }
-
-  renderEditor() {
-    delete this.editorEl.dataset.editorLoading;
-  }
-
-  onChangeContent(fn) {
-    return this.model.onDidChangeContent(fn);
-  }
-
-  updateModelLanguage(path) {
-    if (path === this.blobPath) return;
-    this.blobPath = path;
-    const ext = `.${path.split('.').pop()}`;
-    const language = monacoLanguages
-      .getLanguages()
-      .find(lang => lang.extensions.indexOf(ext) !== -1);
-    const id = language ? language.id : 'plaintext';
-    monacoEditor.setModelLanguage(this.model, id);
-  }
-
-  /**
-   * @deprecated do not use .getValue() directly on the editor.
-   * This proxy-method will be removed in https://gitlab.com/gitlab-org/gitlab/-/issues/241025
-   * Rather use it on the exact instance
-   */
-  getValue() {
-    return this.instances[0].getValue();
-  }
-
-  /**
-   * @deprecated do not use .setValue() directly on the editor.
-   * This proxy-method will be removed in https://gitlab.com/gitlab-org/gitlab/-/issues/241025
-   * Rather use it on the exact instance
-   */
-  setValue(val) {
-    this.instances[0].setValue(val);
-  }
-
-  /**
-   * @deprecated do not use .focus() directly on the editor.
-   * This proxy-method will be removed in https://gitlab.com/gitlab-org/gitlab/-/issues/241025
-   * Rather use it on the exact instance
-   */
-  focus() {
-    this.instances[0].focus();
-  }
-
-  /**
-   * @deprecated do not use .updateOptions() directly on the editor.
-   * This proxy-method will be removed in https://gitlab.com/gitlab-org/gitlab/-/issues/241025
-   * Rather use it on the exact instance
-   */
-  updateOptions(options = {}) {
-    this.instances[0].updateOptions(options);
-  }
-
-  navigateFileStart() {
-    this.instances[0].setPosition(new Position(1, 1));
   }
 
   use(exts = [], instance = null) {

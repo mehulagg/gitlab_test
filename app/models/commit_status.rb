@@ -32,6 +32,8 @@ class CommitStatus < ApplicationRecord
     where(allow_failure: true, status: [:failed, :canceled])
   end
 
+  scope :order_id_desc, -> { order('ci_builds.id DESC') }
+
   scope :exclude_ignored, -> do
     # We want to ignore failed but allowed to fail jobs.
     #
@@ -199,7 +201,14 @@ class CommitStatus < ApplicationRecord
   end
 
   def group_name
-    name.to_s.gsub(%r{\d+[\s:/\\]+\d+\s*}, '').strip
+    # 'rspec:linux: 1/10' => 'rspec:linux'
+    common_name = name.to_s.gsub(%r{\d+[\s:\/\\]+\d+\s*}, '')
+
+    # 'rspec:linux: [aws, max memory]' => 'rspec:linux'
+    common_name.gsub!(%r{: \[.*, .*\]\s*\z}, '')
+
+    common_name.strip!
+    common_name
   end
 
   def failed_but_allowed?

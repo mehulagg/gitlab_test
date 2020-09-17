@@ -28,8 +28,6 @@ output without searching through job logs, the full
 [Unit test reports](#viewing-unit-test-reports-on-gitlab) are available 
 in the pipeline detail view.
 
-## Use cases
-
 Consider the following workflow:
 
 1. Your `master` branch is rock solid, your project is using GitLab CI/CD and
@@ -44,9 +42,9 @@ Consider the following workflow:
 
 ## How it works
 
-First, GitLab Runner uploads all JUnit report format XML files as artifacts to GitLab. Then,
-when you visit a merge request, GitLab starts comparing the head and base branch's
-JUnit report format XML files, where:
+First, GitLab Runner uploads all [JUnit report format XML files](https://www.ibm.com/support/knowledgecenter/en/SSQ2R2_14.1.0/com.ibm.rsar.analysis.codereview.cobol.doc/topics/cac_useresults_junit.html)
+as [artifacts](pipelines/job_artifacts.md#artifactsreportsjunit) to GitLab. Then, when you visit a merge request, GitLab starts
+comparing the head and base branch's JUnit report format XML files, where:
 
 - The base branch is the target branch (usually `master`).
 - The head branch is the source branch (the latest pipeline in each merge request).
@@ -83,6 +81,8 @@ merge request widget.
 
 To make the Unit test report output files browsable, include them with the
 [`artifacts:paths`](yaml/README.md#artifactspaths) keyword as well, as shown in the [Ruby example](#ruby-example).
+To upload the report even if the job fails (for example if the tests do not pass), use the [`artifacts:when:always`](yaml/README.md#artifactswhen)
+keyword.
 
 NOTE: **Note:**
 You cannot have multiple tests with the same name and class in your JUnit report format XML file.
@@ -99,6 +99,7 @@ ruby:
     - bundle install
     - bundle exec rspec --format progress --format RspecJunitFormatter --out rspec.xml
   artifacts:
+    when: always
     paths:
       - rspec.xml
     reports:
@@ -118,6 +119,7 @@ golang:
     - go get -u github.com/jstemmer/go-junit-report
     - go test -v 2>&1 | go-junit-report -set-exit-code > report.xml
   artifacts:
+    when: always
     reports:
       junit: report.xml
 ```
@@ -139,6 +141,7 @@ java:
   script:
     - gradle test
   artifacts:
+    when: always
     reports:
       junit: build/test-results/test/**/TEST-*.xml
 ```
@@ -158,6 +161,7 @@ java:
   script:
     - mvn verify
   artifacts:
+    when: always
     reports:
       junit:
         - target/surefire-reports/TEST-*.xml
@@ -175,6 +179,7 @@ pytest:
   script:
     - pytest --junitxml=report.xml
   artifacts:
+    when: always
     reports:
       junit: report.xml
 ```
@@ -196,6 +201,7 @@ cpp:
   script:
     - gtest.exe --gtest_output="xml:report.xml"
   artifacts:
+    when: always
     reports:
       junit: report.xml
 ```
@@ -210,6 +216,7 @@ cunit:
   script:
     - ./my-cunit-test
   artifacts:
+    when: always
     reports:
       junit: ./my-cunit-test.xml
 ```
@@ -260,7 +267,7 @@ You can also retrieve the reports via the [GitLab API](../api/pipelines.md#get-a
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/202114) in GitLab 13.0.
 > - It's deployed behind a feature flag, disabled by default.
-> - To use it in GitLab self-managed instances, ask a GitLab administrator to [enable it](#enabling-the-junit-screenshots-feature-core-only). **(CORE ONLY)**
+> - To use it in GitLab self-managed instances, ask a GitLab administrator to [enable it](#enabling-the-junit-screenshots-feature). **(CORE ONLY)**
 
 If JUnit report format XML files contain an `attachment` tag, GitLab parses the attachment.
 

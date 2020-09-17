@@ -2,15 +2,47 @@
 
 require 'spec_helper'
 
-RSpec.describe Gitlab::Elastic::GroupSearchResults do
+RSpec.describe Gitlab::Elastic::GroupSearchResults, :elastic do
   let_it_be(:user) { create(:user) }
   let_it_be(:group) { create(:group) }
   let_it_be(:guest) { create(:user).tap { |u| group.add_user(u, Gitlab::Access::GUEST) } }
+  let(:filters) { {} }
+  let(:query) { '*' }
 
-  subject(:results) { described_class.new(user, query, group: group) }
+  subject(:results) { described_class.new(user, query, Project.all, group: group, filters: filters) }
 
   before do
     stub_ee_application_setting(elasticsearch_search: true, elasticsearch_indexing: true)
+  end
+
+  context 'issues search', :sidekiq_inline do
+    let!(:project) { create(:project, :public, group: group) }
+    let!(:closed_result) { create(:issue, :closed, project: project, title: 'foo closed') }
+    let!(:opened_result) { create(:issue, :opened, project: project, title: 'foo opened') }
+
+    let(:query) { 'foo' }
+    let(:scope) { 'issues' }
+
+    include_examples 'search results filtered by state' do
+      before do
+        ensure_elasticsearch_index!
+      end
+    end
+  end
+
+  context 'merge_requests search', :sidekiq_inline do
+    let!(:project) { create(:project, :public, group: group) }
+    let!(:opened_result) { create(:merge_request, :opened, source_project: project, title: 'foo opened') }
+    let!(:closed_result) { create(:merge_request, :closed, source_project: project, title: 'foo closed') }
+
+    let(:query) { 'foo' }
+    let(:scope) { 'merge_requests' }
+
+    include_examples 'search results filtered by state' do
+      before do
+        ensure_elasticsearch_index!
+      end
+    end
   end
 
   context 'user search' do
@@ -40,8 +72,6 @@ RSpec.describe Gitlab::Elastic::GroupSearchResults do
   end
 
   context 'query performance' do
-    let(:query) { '*' }
-
     include_examples 'does not hit Elasticsearch twice for objects and counts', %w|projects notes blobs wiki_blobs commits issues merge_requests milestones|
   end
 end

@@ -1,7 +1,7 @@
+import { GlAlert } from '@gitlab/ui';
 import { shallowMount } from '@vue/test-utils';
 import MockAdapter from 'axios-mock-adapter';
 import RelatedIssues from 'ee/vulnerabilities/components/related_issues.vue';
-import { FEEDBACK_TYPES } from 'ee/vulnerabilities/constants';
 import waitForPromises from 'helpers/wait_for_promises';
 import RelatedIssuesBlock from '~/related_issues/components/related_issues_block.vue';
 import { issuableTypesMap, PathIdSeparator } from '~/related_issues/constants';
@@ -27,6 +27,8 @@ describe('Vulnerability related issues component', () => {
   const vulnerabilityId = 5131;
   const createIssueUrl = '/create/issue';
   const projectFingerprint = 'project-fingerprint';
+  const issueTrackingHelpPath = '/help/issue/tracking';
+  const permissionsHelpPath = '/help/permissions';
   const reportType = 'vulnerability';
   const issue1 = { id: 3, vulnerabilityLinkId: 987 };
   const issue2 = { id: 25, vulnerabilityLinkId: 876 };
@@ -40,6 +42,8 @@ describe('Vulnerability related issues component', () => {
         projectFingerprint,
         createIssueUrl,
         reportType,
+        issueTrackingHelpPath,
+        permissionsHelpPath,
       },
       ...opts,
     });
@@ -54,6 +58,7 @@ describe('Vulnerability related issues component', () => {
   const blockProp = prop => relatedIssuesBlock().props(prop);
   const blockEmit = (eventName, data) => relatedIssuesBlock().vm.$emit(eventName, data);
   const findCreateIssueButton = () => wrapper.find({ ref: 'createIssue' });
+  const findAlert = () => wrapper.find(GlAlert);
 
   afterEach(() => {
     wrapper.destroy();
@@ -275,6 +280,13 @@ describe('Vulnerability related issues component', () => {
   });
 
   describe('when linked issue is not yet created', () => {
+    const failCreateIssueAction = async () => {
+      mockAxios.onPost(createIssueUrl).reply(500);
+      expect(findAlert().exists()).toBe(false);
+      findCreateIssueButton().vm.$emit('click');
+      await waitForPromises();
+    };
+
     beforeEach(async () => {
       mockAxios.onGet(propsData.endpoint).replyOnce(httpStatusCodes.OK, [issue1, issue2]);
       createWrapper({}, { stubs: { RelatedIssuesBlock } });
@@ -286,10 +298,10 @@ describe('Vulnerability related issues component', () => {
     });
 
     it('calls create issue endpoint on click and redirects to new issue', async () => {
-      const issueUrl = '/group/project/issues/123';
+      const issueUrl = `/group/project/-/security/vulnerabilities/${vulnerabilityId}/create_issue`;
       const spy = jest.spyOn(urlUtility, 'redirectTo');
       mockAxios.onPost(propsData.createIssueUrl).reply(200, {
-        issue_url: issueUrl,
+        web_url: issueUrl,
       });
 
       findCreateIssueButton().vm.$emit('click');
@@ -300,28 +312,19 @@ describe('Vulnerability related issues component', () => {
       expect(mockAxios.history.post).toHaveLength(1);
       expect(postRequest.url).toBe(createIssueUrl);
       expect(spy).toHaveBeenCalledWith(issueUrl);
-      expect(JSON.parse(postRequest.data)).toMatchObject({
-        vulnerability_feedback: {
-          feedback_type: FEEDBACK_TYPES.ISSUE,
-          category: reportType,
-          project_fingerprint: projectFingerprint,
-          vulnerability_data: {
-            category: reportType,
-            vulnerability_id: vulnerabilityId,
-          },
-        },
-      });
     });
 
-    it('shows an error message when issue creation fails', () => {
-      mockAxios.onPost(createIssueUrl).reply(500);
-      findCreateIssueButton().vm.$emit('click');
-      return waitForPromises().then(() => {
-        expect(mockAxios.history.post).toHaveLength(1);
-        expect(createFlash).toHaveBeenCalledWith(
-          'Something went wrong, could not create an issue.',
-        );
-      });
+    it('shows an error message when issue creation fails', async () => {
+      await failCreateIssueAction();
+      expect(mockAxios.history.post).toHaveLength(1);
+      expect(findAlert().exists()).toBe(true);
+    });
+
+    it('dismisses the error message', async () => {
+      await failCreateIssueAction();
+      findAlert().vm.$emit('dismiss');
+      await wrapper.vm.$nextTick();
+      expect(findAlert().exists()).toBe(false);
     });
   });
 });

@@ -35,6 +35,7 @@ RSpec.describe Project do
     it { is_expected.to have_many(:vulnerability_exports) }
     it { is_expected.to have_many(:vulnerability_scanners) }
     it { is_expected.to have_many(:dast_site_profiles) }
+    it { is_expected.to have_many(:dast_site_tokens) }
     it { is_expected.to have_many(:dast_sites) }
     it { is_expected.to have_many(:audit_events).dependent(false) }
     it { is_expected.to have_many(:protected_environments) }
@@ -49,6 +50,65 @@ RSpec.describe Project do
 
     it { is_expected.to have_one(:github_service) }
     it { is_expected.to have_many(:project_aliases) }
+    it { is_expected.to have_many(:approval_rules) }
+
+    describe 'approval_rules association' do
+      let_it_be(:rule, reload: true) { create(:approval_project_rule) }
+      let(:project) { rule.project }
+      let(:branch) { 'stable' }
+
+      describe '#applicable_to_branch' do
+        subject { project.approval_rules.applicable_to_branch(branch) }
+
+        context 'when there are no associated protected branches' do
+          it { is_expected.to eq([rule]) }
+        end
+
+        context 'when there are associated protected branches' do
+          before do
+            rule.update!(protected_branches: protected_branches)
+          end
+
+          context 'and branch matches' do
+            let(:protected_branches) { [create(:protected_branch, name: branch)] }
+
+            it { is_expected.to eq([rule]) }
+          end
+
+          context 'but branch does not match anything' do
+            let(:protected_branches) { [create(:protected_branch, name: branch.reverse)] }
+
+            it { is_expected.to be_empty }
+          end
+        end
+      end
+
+      describe '#inapplicable_to_branch' do
+        subject { project.approval_rules.inapplicable_to_branch(branch) }
+
+        context 'when there are no associated protected branches' do
+          it { is_expected.to be_empty }
+        end
+
+        context 'when there are associated protected branches' do
+          before do
+            rule.update!(protected_branches: protected_branches)
+          end
+
+          context 'and branch does not match anything' do
+            let(:protected_branches) { [create(:protected_branch, name: branch.reverse)] }
+
+            it { is_expected.to eq([rule]) }
+          end
+
+          context 'but branch matches' do
+            let(:protected_branches) { [create(:protected_branch, name: branch)] }
+
+            it { is_expected.to be_empty }
+          end
+        end
+      end
+    end
   end
 
   context 'scopes' do
@@ -82,36 +142,6 @@ RSpec.describe Project do
 
         expect(described_class.with_active_services).to include(active_service.project)
         expect(described_class.with_active_services).not_to include(inactive_service.project)
-      end
-    end
-
-    describe '.with_active_jira_services' do
-      it 'returns the correct project' do
-        active_jira_service = create(:jira_service)
-        active_service = create(:service, active: true)
-
-        expect(described_class.with_active_jira_services).to include(active_jira_service.project)
-        expect(described_class.with_active_jira_services).not_to include(active_service.project)
-      end
-    end
-
-    describe '.with_jira_dvcs_cloud' do
-      it 'returns the correct project' do
-        jira_dvcs_cloud_project = create(:project, :jira_dvcs_cloud)
-        jira_dvcs_server_project = create(:project, :jira_dvcs_server)
-
-        expect(described_class.with_jira_dvcs_cloud).to include(jira_dvcs_cloud_project)
-        expect(described_class.with_jira_dvcs_cloud).not_to include(jira_dvcs_server_project)
-      end
-    end
-
-    describe '.with_jira_dvcs_server' do
-      it 'returns the correct project' do
-        jira_dvcs_server_project = create(:project, :jira_dvcs_server)
-        jira_dvcs_cloud_project = create(:project, :jira_dvcs_cloud)
-
-        expect(described_class.with_jira_dvcs_server).to include(jira_dvcs_server_project)
-        expect(described_class.with_jira_dvcs_server).not_to include(jira_dvcs_cloud_project)
       end
     end
 
@@ -300,11 +330,11 @@ RSpec.describe Project do
   describe 'setting up a mirror' do
     context 'when new project' do
       it 'creates import_state and sets next_execution_timestamp to now' do
-        project = build(:project, :mirror)
+        project = build(:project, :mirror, creator: create(:user))
 
         Timecop.freeze do
           expect do
-            project.save
+            project.save!
           end.to change { ProjectImportState.count }.by(1)
 
           expect(project.import_state.next_execution_timestamp).to be_like_time(Time.current)
@@ -839,17 +869,6 @@ RSpec.describe Project do
                   is_expected.to eq(false)
                 end
               end
-
-              context 'with promo feature flag' do
-                let(:allowed_on_global_license) { true }
-
-                before do
-                  project.clear_memoization(:licensed_feature_available)
-                  stub_feature_flags("promo_#{feature}" => true)
-                end
-
-                it { is_expected.to be_truthy }
-              end
             end
           end
 
@@ -1129,13 +1148,16 @@ RSpec.describe Project do
     let(:project) { create(:project) }
     let!(:approval_rules) { create_list(:approval_project_rule, 2, project: project) }
     let!(:any_approver_rule) { create(:approval_project_rule, rule_type: :any_approver, project: project) }
+    let(:branch) { nil }
+
+    subject { project.visible_user_defined_rules(branch: branch) }
 
     before do
       stub_licensed_features(multiple_approval_rules: true)
     end
 
     it 'returns all approval rules' do
-      expect(project.visible_user_defined_rules).to eq([any_approver_rule, *approval_rules])
+      expect(subject).to eq([any_approver_rule, *approval_rules])
     end
 
     context 'when multiple approval rules is not available' do
@@ -1144,7 +1166,19 @@ RSpec.describe Project do
       end
 
       it 'returns the first approval rule' do
-        expect(project.visible_user_defined_rules).to eq([any_approver_rule])
+        expect(subject).to eq([any_approver_rule])
+      end
+    end
+
+    context 'when branch is provided' do
+      let(:branch) { 'master' }
+
+      it 'caches the rules' do
+        expect(project).to receive(:user_defined_rules).and_call_original
+        subject
+
+        expect(project).not_to receive(:user_defined_rules)
+        subject
       end
     end
   end
@@ -2532,24 +2566,6 @@ RSpec.describe Project do
 
       it 'returns true' do
         expect(project_template.template_source?).to be_truthy
-      end
-    end
-  end
-
-  describe '#jira_subscription_exists?' do
-    subject { project.jira_subscription_exists? }
-
-    context 'jira connect subscription exists' do
-      let!(:jira_connect_subscription) { create(:jira_connect_subscription, namespace: project.namespace) }
-
-      it { is_expected.to eq(false) }
-
-      context 'dev panel integration is available' do
-        before do
-          stub_licensed_features(jira_dev_panel_integration: true)
-        end
-
-        it { is_expected.to eq(true) }
       end
     end
   end

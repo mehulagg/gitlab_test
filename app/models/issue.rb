@@ -18,6 +18,7 @@ class Issue < ApplicationRecord
   include MilestoneEventable
   include WhereComposite
   include StateEventable
+  include IdInOrdered
 
   DueDateStruct                   = Struct.new(:title, :name).freeze
   NoDueDate                       = DueDateStruct.new('No Due Date', '0').freeze
@@ -28,6 +29,11 @@ class Issue < ApplicationRecord
   DueNextMonthAndPreviousTwoWeeks = DueDateStruct.new('Due Next Month And Previous Two Weeks', 'next_month_and_previous_two_weeks').freeze
 
   SORTING_PREFERENCE_FIELD = :issues_sort
+
+  # Types of issues that should be displayed on lists across the app
+  # for example, project issues list, group issues list and issue boards.
+  # Some issue types, like test cases, should be hidden by default.
+  TYPES_FOR_LIST = %w(issue incident).freeze
 
   belongs_to :project
   has_one :namespace, through: :project
@@ -59,6 +65,7 @@ class Issue < ApplicationRecord
     end
   end
 
+  has_one :issuable_severity
   has_one :sentry_issue
   has_one :alert_management_alert, class_name: 'AlertManagement::Alert'
   has_and_belongs_to_many :self_managed_prometheus_alert_events, join_table: :issues_self_managed_prometheus_alert_events # rubocop: disable Rails/HasAndBelongsToMany
@@ -72,7 +79,8 @@ class Issue < ApplicationRecord
 
   enum issue_type: {
     issue: 0,
-    incident: 1
+    incident: 1,
+    test_case: 2 ## EE-only
   }
 
   alias_attribute :parent_ids, :project_id
@@ -439,6 +447,11 @@ class Issue < ApplicationRecord
   def expire_etag_cache
     key = Gitlab::Routing.url_helpers.realtime_changes_project_issue_path(project, self)
     Gitlab::EtagCaching::Store.new.touch(key)
+  end
+
+  def could_not_move(exception)
+    # Symptom of running out of space - schedule rebalancing
+    IssueRebalancingWorker.perform_async(nil, project_id)
   end
 end
 

@@ -1,14 +1,15 @@
 import { shallowMount } from '@vue/test-utils';
 import MergeRequestAnalyticsApp from 'ee/analytics/merge_request_analytics/components/app.vue';
+import FilterBar from 'ee/analytics/merge_request_analytics/components/filter_bar.vue';
 import ThroughputChart from 'ee/analytics/merge_request_analytics/components/throughput_chart.vue';
 import ThroughputTable from 'ee/analytics/merge_request_analytics/components/throughput_table.vue';
 
 describe('MergeRequestAnalyticsApp', () => {
   let wrapper;
 
-  const createComponent = () => {
+  function createComponent() {
     wrapper = shallowMount(MergeRequestAnalyticsApp);
-  };
+  }
 
   beforeEach(() => {
     createComponent();
@@ -25,11 +26,15 @@ describe('MergeRequestAnalyticsApp', () => {
     expect(pageTitle).toBe('Merge Request Analytics');
   });
 
+  it('displays the filter bar component', () => {
+    expect(wrapper.find(FilterBar).exists()).toBe(true);
+  });
+
   it('displays the throughput chart component', () => {
-    expect(wrapper.contains(ThroughputChart)).toBe(true);
+    expect(wrapper.find(ThroughputChart).exists()).toBe(true);
   });
 
   it('displays the throughput table component', () => {
-    expect(wrapper.contains(ThroughputTable)).toBe(true);
+    expect(wrapper.find(ThroughputTable).exists()).toBe(true);
   });
 });

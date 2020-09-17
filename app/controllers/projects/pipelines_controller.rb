@@ -78,7 +78,10 @@ class Projects::PipelinesController < Projects::ApplicationController
                          .represent(@pipeline),
                  status: :created
         else
-          render json: @pipeline.errors, status: :bad_request
+          render json: { errors: @pipeline.error_messages.map(&:content),
+                         warnings: @pipeline.warning_messages(limit: ::Gitlab::Ci::Warnings::MAX_LIMIT).map(&:content),
+                         total_warnings: @pipeline.warning_messages.length },
+                 status: :bad_request
         end
       end
     end
@@ -261,7 +264,7 @@ class Projects::PipelinesController < Projects::ApplicationController
   end
 
   def latest_pipeline
-    @project.latest_pipeline_for_ref(params['ref'])
+    @project.latest_pipeline(params['ref'])
             &.present(current_user: current_user)
   end
 

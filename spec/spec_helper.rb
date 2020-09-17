@@ -47,10 +47,10 @@ require_relative('../ee/spec/spec_helper') if Gitlab.ee?
 require Rails.root.join("spec/support/helpers/git_helpers.rb")
 
 # Then the rest
-Dir[Rails.root.join("spec/support/helpers/*.rb")].each { |f| require f }
-Dir[Rails.root.join("spec/support/shared_contexts/*.rb")].each { |f| require f }
-Dir[Rails.root.join("spec/support/shared_examples/*.rb")].each { |f| require f }
-Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
+Dir[Rails.root.join("spec/support/helpers/*.rb")].sort.each { |f| require f }
+Dir[Rails.root.join("spec/support/shared_contexts/*.rb")].sort.each { |f| require f }
+Dir[Rails.root.join("spec/support/shared_examples/*.rb")].sort.each { |f| require f }
+Dir[Rails.root.join("spec/support/**/*.rb")].sort.each { |f| require f }
 
 quality_level = Quality::TestLevel.new
 
@@ -100,6 +100,10 @@ RSpec.configure do |config|
     metadata[:enable_admin_mode] = true if location =~ %r{(ee)?/spec/controllers/admin/}
   end
 
+  config.define_derived_metadata(file_path: %r{(ee)?/spec/.+_docs\.rb\z}) do |metadata|
+    metadata[:type] = :feature
+  end
+
   config.include LicenseHelpers
   config.include ActiveJob::TestHelper
   config.include ActiveSupport::Testing::TimeHelpers
@@ -111,6 +115,8 @@ RSpec.configure do |config|
   config.include StubExperiments
   config.include StubGitlabCalls
   config.include StubGitlabData
+  config.include SnowplowHelpers
+  config.include NextFoundInstanceOf
   config.include NextInstanceOf
   config.include TestEnv
   config.include Devise::Test::ControllerHelpers, type: :controller
@@ -197,6 +203,10 @@ RSpec.configure do |config|
       # The following can be removed once we are confident the
       # unified diff lines works as expected
       stub_feature_flags(unified_diff_lines: false)
+
+      # Merge request widget GraphQL requests are disabled in the tests
+      # for now whilst we migrate as much as we can over the GraphQL
+      stub_feature_flags(merge_request_widget_graphql: false)
 
       enable_rugged = example.metadata[:enable_rugged].present?
 

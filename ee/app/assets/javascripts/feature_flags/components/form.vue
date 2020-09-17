@@ -107,7 +107,7 @@ export default {
     ),
 
     newHelpText: s__(
-      'FeatureFlags|Enable features for specific users and specific environments by defining feature flag strategies.',
+      'FeatureFlags|Enable features for specific users and environments by configuring feature flag strategies.',
     ),
     noStrategiesText: s__('FeatureFlags|Feature Flag has no strategies'),
   },
@@ -155,6 +155,7 @@ export default {
       return (
         this.glFeatures.featureFlagsNewVersion &&
         this.glFeatures.featureFlagsLegacyReadOnly &&
+        !this.glFeatures.featureFlagsLegacyReadOnlyOverride &&
         this.version === LEGACY_FLAG
       );
     },
@@ -409,7 +410,7 @@ export default {
                     class="col-12"
                     :value="scope.environmentScope"
                     :endpoint="environmentsEndpoint"
-                    :disabled="!canUpdateScope(scope)"
+                    :disabled="!canUpdateScope(scope) || scope.environmentScope !== ''"
                     @selectEnvironment="env => (scope.environmentScope = env)"
                     @createClicked="env => (scope.environmentScope = env)"
                     @clearInput="env => (scope.environmentScope = '')"

@@ -237,7 +237,6 @@ module Ci
       end
 
       after_transition any => ::Ci::Pipeline.completed_statuses do |pipeline|
-        next unless pipeline.bridge_triggered?
         next unless pipeline.bridge_waiting?
 
         pipeline.run_after_commit do
@@ -262,7 +261,7 @@ module Ci
 
     scope :internal, -> { where(source: internal_sources) }
     scope :no_child, -> { where.not(source: :parent_pipeline) }
-    scope :ci_sources, -> { where(config_source: Enums::Ci::Pipeline.ci_config_sources_values) }
+    scope :ci_sources, -> { where(source: Enums::Ci::Pipeline.ci_sources.values) }
     scope :for_user, -> (user) { where(user: user) }
     scope :for_sha, -> (sha) { where(sha: sha) }
     scope :for_source_sha, -> (source_sha) { where(source_sha: source_sha) }
@@ -491,6 +490,12 @@ module Ci
       end
     end
 
+    def git_commit_timestamp
+      strong_memoize(:git_commit_timestamp) do
+        commit.try(:timestamp)
+      end
+    end
+
     def before_sha
       super || Gitlab::Git::BLANK_SHA
     end
@@ -671,8 +676,10 @@ module Ci
       messages.select(&:error?)
     end
 
-    def warning_messages
-      messages.select(&:warning?)
+    def warning_messages(limit: nil)
+      messages.select(&:warning?).tap do |warnings|
+        break warnings.take(limit) if limit
+      end
     end
 
     # Manually set the notes for a Ci::Pipeline
@@ -768,6 +775,7 @@ module Ci
         variables.append(key: 'CI_COMMIT_TITLE', value: git_commit_full_title.to_s)
         variables.append(key: 'CI_COMMIT_DESCRIPTION', value: git_commit_description.to_s)
         variables.append(key: 'CI_COMMIT_REF_PROTECTED', value: (!!protected_ref?).to_s)
+        variables.append(key: 'CI_COMMIT_TIMESTAMP', value: git_commit_timestamp.to_s)
 
         # legacy variables
         variables.append(key: 'CI_BUILD_REF', value: sha)
@@ -812,11 +820,17 @@ module Ci
       all_merge_requests.order(id: :desc)
     end
 
-    # If pipeline is a child of another pipeline, include the parent
-    # and the siblings, otherwise return only itself and children.
     def same_family_pipeline_ids
-      parent = parent_pipeline || self
-      [parent.id] + parent.child_pipelines.pluck(:id)
+      if ::Gitlab::Ci::Features.child_of_child_pipeline_enabled?(project)
+        ::Gitlab::Ci::PipelineObjectHierarchy.new(
+          base_and_ancestors(same_project: true), options: { same_project: true }
+        ).base_and_descendants.select(:id)
+      else
+        # If pipeline is a child of another pipeline, include the parent
+        # and the siblings, otherwise return only itself and children.
+        parent = parent_pipeline || self
+        [parent.id] + parent.child_pipelines.pluck(:id)
+      end
     end
 
     def bridge_triggered?
@@ -860,16 +874,26 @@ module Ci
       builds.latest.with_reports(reports_scope)
     end
 
+    def builds_with_coverage
+      builds.with_coverage
+    end
+
     def has_reports?(reports_scope)
       complete? && latest_report_builds(reports_scope).exists?
     end
 
     def has_coverage_reports?
-      self.has_reports?(Ci::JobArtifact.coverage_reports)
+      pipeline_artifacts&.has_code_coverage?
+    end
+
+    def can_generate_coverage_reports?
+      has_reports?(Ci::JobArtifact.coverage_reports)
     end
 
     def test_report_summary
-      Gitlab::Ci::Reports::TestReportSummary.new(latest_builds_report_results)
+      strong_memoize(:test_report_summary) do
+        Gitlab::Ci::Reports::TestReportSummary.new(latest_builds_report_results)
+      end
     end
 
     def test_reports
@@ -1014,7 +1038,11 @@ module Ci
     end
 
     def cacheable?
-      Enums::Ci::Pipeline.ci_config_sources.key?(config_source.to_sym)
+      !dangling?
+    end
+
+    def dangling?
+      Enums::Ci::Pipeline.dangling_sources.key?(source.to_sym)
     end
 
     def source_ref_path
@@ -1034,6 +1062,26 @@ module Ci
     def ensure_ci_ref!
       self.ci_ref = Ci::Ref.ensure_for(self)
     end
+
+    def base_and_ancestors(same_project: false)
+      # Without using `unscoped`, caller scope is also included into the query.
+      # Using `unscoped` here will be redundant after Rails 6.1
+      ::Gitlab::Ci::PipelineObjectHierarchy
+        .new(self.class.unscoped.where(id: id), options: { same_project: same_project })
+        .base_and_ancestors
+    end
+
+    # We need `base_and_ancestors` in a specific order to "break" when needed.
+    # If we use `find_each`, then the order is broken.
+    # rubocop:disable Rails/FindEach
+    def reset_ancestor_bridges!
+      base_and_ancestors.includes(:source_bridge).each do |pipeline|
+        break unless pipeline.bridge_waiting?
+
+        pipeline.source_bridge.pending!
+      end
+    end
+    # rubocop:enable Rails/FindEach
 
     private
 

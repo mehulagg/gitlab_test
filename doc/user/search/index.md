@@ -49,7 +49,7 @@ groups:
    - My-reaction
    - Confidential
    - Epic ([introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/195704) in GitLab 12.9),
-     including [child epic](../group/epics/index.md#multi-level-child-epics-ultimate)
+     including [child epic](../group/epics/index.md#multi-level-child-epics)
      ([introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/9029) in
      [GitLab Ultimate](https://about.gitlab.com/pricing/) 13.0)
    - Search for this text
@@ -162,6 +162,16 @@ quickly access issues and merge requests created or assigned to you within that 
 
 ![search per project - shortcut](img/project_search.png)
 
+### Autocomplete suggestions
+
+You can also type in this search bar to see autocomplete suggestions for:
+
+- Projects and groups
+- Various help pages (try and type **API help**)
+- Project feature pages (try and type **milestones**)
+- Various settings pages (try and type **user settings**)
+- Recently viewed issues (try and type some word from the title of a recently viewed issue)
+
 ## To-Do List
 
 Your [To-Do List](../todos.md#gitlab-to-do-list) can be searched by "to do" and "done".
@@ -215,8 +225,8 @@ GitLab instance.
 
 [Learn how to use the Advanced Search.](advanced_global_search.md)
 
-## Advanced Syntax Search **(STARTER)**
+## Advanced Search Syntax **(STARTER)**
 
 Use advanced queries for more targeted search results.
 
-[Learn how to use the Advanced Syntax Search.](advanced_search_syntax.md)
+[Learn how to use the Advanced Search Syntax.](advanced_search_syntax.md)

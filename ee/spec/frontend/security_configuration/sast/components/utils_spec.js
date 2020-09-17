@@ -1,8 +1,9 @@
 import {
   isValidConfigurationEntity,
-  extractSastConfigurationEntities,
+  isValidAnalyzerEntity,
+  toSastCiConfigurationEntityInput,
 } from 'ee/security_configuration/sast/components/utils';
-import { makeEntities } from './helpers';
+import { makeEntities, makeAnalyzerEntities } from './helpers';
 
 describe('isValidConfigurationEntity', () => {
   const validEntities = makeEntities(3);
@@ -29,36 +30,44 @@ describe('isValidConfigurationEntity', () => {
   });
 });
 
-describe('extractSastConfigurationEntities', () => {
-  describe.each`
-    context                    | response
-    ${'which is empty'}        | ${{}}
-    ${'with no project'}       | ${{ project: null }}
-    ${'with no configuration'} | ${{ project: {} }}
-  `('given a response $context', ({ response }) => {
-    it('returns an empty array', () => {
-      expect(extractSastConfigurationEntities(response)).toEqual([]);
-    });
+describe('isValidAnalyzerEntity', () => {
+  const validEntities = makeAnalyzerEntities(3);
+
+  const invalidEntities = [
+    null,
+    undefined,
+    [],
+    {},
+    ...makeAnalyzerEntities(1, { name: undefined }),
+    ...makeAnalyzerEntities(1, { label: undefined }),
+    ...makeAnalyzerEntities(1, { description: undefined }),
+    ...makeAnalyzerEntities(1, { enabled: undefined }),
+    ...makeAnalyzerEntities(1, { enabled: '' }),
+  ];
+
+  it.each(validEntities)('returns true for a valid entity', entity => {
+    expect(isValidAnalyzerEntity(entity)).toBe(true);
   });
 
-  describe('given a valid response', () => {
-    it('returns an array of entities from the global and pipeline sections', () => {
-      const globalEntities = makeEntities(3, { description: 'global' });
-      const pipelineEntities = makeEntities(3, { description: 'pipeline' });
+  it.each(invalidEntities)('returns false for an invalid entity', invalidEntity => {
+    expect(isValidAnalyzerEntity(invalidEntity)).toBe(false);
+  });
+});
 
-      const response = {
-        project: {
-          sastCiConfiguration: {
-            global: { nodes: globalEntities },
-            pipeline: { nodes: pipelineEntities },
-          },
-        },
-      };
+describe('toSastCiConfigurationEntityInput', () => {
+  let entity = makeEntities(1);
 
-      expect(extractSastConfigurationEntities(response)).toEqual([
-        ...globalEntities,
-        ...pipelineEntities,
-      ]);
+  describe('given a SastCiConfigurationEntity', () => {
+    beforeEach(() => {
+      [entity] = makeEntities(1);
+    });
+
+    it('returns a SastCiConfigurationEntityInput object', () => {
+      expect(toSastCiConfigurationEntityInput(entity)).toEqual({
+        field: entity.field,
+        defaultValue: entity.defaultValue,
+        value: entity.value,
+      });
     });
   });
 });

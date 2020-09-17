@@ -6,8 +6,8 @@ import {
   GlLoadingIcon,
   GlEmptyState,
   GlIcon,
-  GlNewDropdown,
-  GlNewDropdownItem,
+  GlDropdown,
+  GlDropdownItem,
 } from '@gitlab/ui';
 import { formatDate } from '~/lib/utils/datetime_utility';
 import { __ } from '~/locale';
@@ -23,6 +23,11 @@ const iterationStates = {
   expired: 'expired',
 };
 
+const page = {
+  view: 'viewIteration',
+  edit: 'editIteration',
+};
+
 export default {
   components: {
     GlAlert,
@@ -30,8 +35,8 @@ export default {
     GlLoadingIcon,
     GlEmptyState,
     GlIcon,
-    GlNewDropdown,
-    GlNewDropdownItem,
+    GlDropdown,
+    GlDropdownItem,
     IterationForm,
     IterationReportSummary,
     IterationReportTabs,
@@ -76,6 +81,11 @@ export default {
       required: false,
       default: false,
     },
+    initiallyEditing: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
     namespaceType: {
       type: String,
       required: false,
@@ -90,12 +100,15 @@ export default {
   },
   data() {
     return {
-      isEditing: false,
+      isEditing: this.initiallyEditing,
       error: '',
       iteration: {},
     };
   },
   computed: {
+    canEditIteration() {
+      return this.canEdit && this.namespaceType === Namespace.Group;
+    },
     hasIteration() {
       return !this.$apollo.queries.iteration.loading && this.iteration?.title;
     },
@@ -115,9 +128,35 @@ export default {
       }
     },
   },
+  mounted() {
+    this.boundOnPopState = this.onPopState.bind(this);
+    window.addEventListener('popstate', this.boundOnPopState);
+  },
+  beforeDestroy() {
+    window.removeEventListener('popstate', this.boundOnPopState);
+  },
   methods: {
+    onPopState(e) {
+      if (e.state?.prev === page.view) {
+        this.isEditing = true;
+      } else if (e.state?.prev === page.edit) {
+        this.isEditing = false;
+      } else {
+        this.isEditing = this.initiallyEditing;
+      }
+    },
     formatDate(date) {
       return formatDate(date, 'mmm d, yyyy', true);
+    },
+    loadEditPage() {
+      this.isEditing = true;
+      const newUrl = window.location.pathname.replace(/(\/edit)?\/?$/, '/edit');
+      window.history.pushState({ prev: page.view }, null, newUrl);
+    },
+    loadReportPage() {
+      this.isEditing = false;
+      const newUrl = window.location.pathname.replace(/\/edit$/, '');
+      window.history.pushState({ prev: page.edit }, null, newUrl);
     },
   },
 };
@@ -137,11 +176,11 @@ export default {
     <iteration-form
       v-else-if="isEditing"
       :group-path="fullPath"
+      :preview-markdown-path="previewMarkdownPath"
       :is-editing="true"
       :iteration="iteration"
-      :preview-markdown-path="previewMarkdownPath"
-      @updated="isEditing = false"
-      @cancel="isEditing = false"
+      @updated="loadReportPage"
+      @cancel="loadReportPage"
     />
     <template v-else>
       <div
@@ -154,8 +193,9 @@ export default {
         <span class="gl-ml-4"
           >{{ formatDate(iteration.startDate) }} – {{ formatDate(iteration.dueDate) }}</span
         >
-        <gl-new-dropdown
-          v-if="canEdit"
+        <gl-dropdown
+          v-if="canEditIteration"
+          data-testid="actions-dropdown"
           variant="default"
           toggle-class="gl-text-decoration-none gl-border-0! gl-shadow-none!"
           class="gl-ml-auto gl-text-secondary"
@@ -165,10 +205,8 @@ export default {
           <template #button-content>
             <gl-icon name="ellipsis_v" /><span class="gl-sr-only">{{ __('Actions') }}</span>
           </template>
-          <gl-new-dropdown-item @click="isEditing = true">{{
-            __('Edit iteration')
-          }}</gl-new-dropdown-item>
-        </gl-new-dropdown>
+          <gl-dropdown-item @click="loadEditPage">{{ __('Edit iteration') }}</gl-dropdown-item>
+        </gl-dropdown>
       </div>
       <h3 ref="title" class="page-title">{{ iteration.title }}</h3>
       <div ref="description" v-html="iteration.descriptionHtml"></div>

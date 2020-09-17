@@ -16,7 +16,8 @@ RSpec.describe Ci::GenerateCoverageReportsService do
       let!(:base_pipeline) { nil }
 
       it 'returns status and data', :aggregate_failures do
-        expect_next_instance_of(Gitlab::Ci::Pipeline::Artifact::CodeCoverage) do |instance|
+        expect_any_instance_of(Ci::PipelineArtifact) do |instance|
+          expect(instance).to receive(:present)
           expect(instance).to receive(:for_files).with(merge_request.new_paths).and_call_original
         end
 
@@ -25,7 +26,7 @@ RSpec.describe Ci::GenerateCoverageReportsService do
       end
     end
 
-    context 'when head pipeline has corrupted coverage reports' do
+    context 'when head pipeline does not have a coverage report artifact' do
       let!(:merge_request) { create(:merge_request, :with_coverage_reports, source_project: project) }
       let!(:service) { described_class.new(project, nil, id: merge_request.id) }
       let!(:head_pipeline) { merge_request.head_pipeline }

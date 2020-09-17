@@ -59,6 +59,7 @@ Click on the service links to see further configuration instructions and details
 | [Prometheus](prometheus.md) | Monitor the performance of your deployed apps | No |
 | Pushover | Pushover makes it easy to get real-time notifications on your Android device, iPhone, iPad, and Desktop | No |
 | [Redmine](redmine.md) | Redmine issue tracker | No |
+| [EWM](ewm.md) | EWM work item tracker | No |
 | [Unify Circuit](unify_circuit.md) | Receive events notifications in Unify Circuit | No |
 | [Webex Teams](webex_teams.md) | Receive events notifications in Webex Teams | No |
 | [YouTrack](youtrack.md) | YouTrack issue tracker | No |
@@ -82,9 +83,9 @@ Read more about [Service templates](services_templates.md).
 
 ## Project integration management
 
-Project integraton management lets you control integration settings across all projects
+Project integration management lets you control integration settings across all projects
 of an instance. On the project level, administrators you can choose whether to inherit the
-instance configuraton or provide custom settings.
+instance configuration or provide custom settings.
 
 Read more about [Project integration management](../../admin_area/settings/project_integration_management.md).
 

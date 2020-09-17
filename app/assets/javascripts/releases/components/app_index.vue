@@ -1,6 +1,11 @@
 <script>
 import { mapState, mapActions } from 'vuex';
-import { GlSkeletonLoading, GlEmptyState, GlLink, GlButton } from '@gitlab/ui';
+import {
+  GlDeprecatedSkeletonLoading as GlSkeletonLoading,
+  GlEmptyState,
+  GlLink,
+  GlButton,
+} from '@gitlab/ui';
 import {
   getParameterByName,
   historyPushState,
@@ -22,6 +27,10 @@ export default {
   },
   props: {
     projectId: {
+      type: String,
+      required: true,
+    },
+    projectPath: {
       type: String,
       required: true,
     },
@@ -57,6 +66,7 @@ export default {
     this.fetchReleases({
       page: getParameterByName('page'),
       projectId: this.projectId,
+      projectPath: this.projectPath,
     });
   },
   methods: {
