@@ -117,9 +117,8 @@ describe('Design management index page', () => {
 
   function createComponent({
     loading = false,
-    designs = [],
     allVersions = [],
-    designCollection = null,
+    designCollection = { designs: mockDesigns, copyState: 'READY' },
     createDesign = true,
     stubs = {},
     mockMutate = jest.fn().mockResolvedValue(),
@@ -127,7 +126,7 @@ describe('Design management index page', () => {
     mutate = mockMutate;
     const $apollo = {
       queries: {
-        designs: {
+        designCollection: {
           loading,
         },
         permissions: {
@@ -140,7 +139,6 @@ describe('Design management index page', () => {
     wrapper = shallowMount(Index, {
       data() {
         return {
-          designs,
           allVersions,
           designCollection,
           permissions: {
@@ -204,13 +202,13 @@ describe('Design management index page', () => {
     });
 
     it('renders a toolbar with buttons when there are designs', () => {
-      createComponent({ designs: mockDesigns, allVersions: [mockVersion] });
+      createComponent({ allVersions: [mockVersion] });
 
       expect(findToolbar().exists()).toBe(true);
     });
 
     it('renders designs list and header with upload button', () => {
-      createComponent({ designs: mockDesigns, allVersions: [mockVersion] });
+      createComponent({ allVersions: [mockVersion] });
 
       expect(wrapper.element).toMatchSnapshot();
     });
@@ -240,7 +238,7 @@ describe('Design management index page', () => {
 
   describe('when has no designs', () => {
     beforeEach(() => {
-      createComponent();
+      createComponent({ designCollection: { designs: [], copyState: 'READY' } });
     });
 
     it('renders design dropzone', () =>
@@ -265,36 +263,27 @@ describe('Design management index page', () => {
 
   describe('handling design collection copy state', () => {
     it('renders the copying message if design collection copyState is PENDING', () => {
-      createComponent({ designCollection: { copyState: 'PENDING' } });
+      createComponent({ designCollection: { designs: [], copyState: 'PENDING' } });
 
       expect(findDesignCollectionIsCopying().exists()).toBe(true);
     });
 
     it('renders the copying message if design collection copyState is COPYING', () => {
-      createComponent({ designCollection: { copyState: 'COPYING' } });
+      createComponent({ designCollection: { designs: [], copyState: 'COPYING' } });
 
       expect(findDesignCollectionIsCopying().exists()).toBe(true);
     });
 
     it('does not render the copying message if design collection copyState is READY', () => {
-      createComponent({ designCollection: { copyState: 'READY' } });
+      createComponent({ designCollection: { designs: [], copyState: 'READY' } });
 
       expect(findDesignCollectionIsCopying().exists()).toBe(false);
     });
 
     it('does not render the copying message if design collection copyState is ERROR', () => {
-      createComponent({ designCollection: { copyState: 'ERROR' } });
+      createComponent({ designCollection: { designs: [], copyState: 'ERROR' } });
 
       expect(findDesignCollectionIsCopying().exists()).toBe(false);
-    });
-
-    it('displays an error message if design collection copyState is ERROR', () => {
-      createComponent({ designCollection: { copyState: 'ERROR' } });
-
-      expect(createFlash).toHaveBeenCalledWith(
-        'There was an error moving your designs. Please upload your designs below.',
-        'warning',
-      );
     });
   });
 
@@ -321,6 +310,10 @@ describe('Design management index page', () => {
               {
                 __typename: 'Design',
                 id: expect.anything(),
+                currentUserTodos: {
+                  __typename: 'TodoConnection',
+                  nodes: [],
+                },
                 image: '',
                 imageV432x230: '',
                 filename: 'test',
@@ -570,13 +563,16 @@ describe('Design management index page', () => {
   });
 
   it('on latest version when has no designs toolbar buttons are invisible', () => {
-    createComponent({ designs: [], allVersions: [mockVersion] });
+    createComponent({
+      designCollection: { designs: [], copyState: 'READY' },
+      allVersions: [mockVersion],
+    });
     expect(findToolbar().isVisible()).toBe(false);
   });
 
   describe('on non-latest version', () => {
     beforeEach(() => {
-      createComponent({ designs: mockDesigns, allVersions: [mockVersion] });
+      createComponent({ allVersions: [mockVersion] });
     });
 
     it('does not render design checkboxes', async () => {

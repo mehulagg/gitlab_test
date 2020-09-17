@@ -10,8 +10,6 @@ exports[`Design management index page designs does not render toolbar when there
   <div
     class="mt-4"
   >
-    <!---->
-     
     <ol
       class="list-unstyled row"
     >
@@ -143,8 +141,6 @@ exports[`Design management index page designs renders designs list and header wi
   <div
     class="mt-4"
   >
-    <!---->
-     
     <ol
       class="list-unstyled row"
     >
@@ -293,8 +289,6 @@ exports[`Design management index page when has no designs renders design dropzon
   <div
     class="mt-4"
   >
-    <!---->
-     
     <ol
       class="list-unstyled row"
     >

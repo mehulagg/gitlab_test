@@ -14,7 +14,6 @@ import moveDesignMutation from '../graphql/mutations/move_design.mutation.graphq
 import permissionsQuery from '../graphql/queries/design_permissions.query.graphql';
 import getDesignListQuery from '../graphql/queries/get_design_list.query.graphql';
 import allDesignsMixin from '../mixins/all_designs';
-import designCollectionMixin from '../mixins/design_collection';
 import {
   UPLOAD_DESIGN_ERROR,
   EXISTING_DESIGN_DROP_MANY_FILES_MESSAGE,
@@ -50,7 +49,7 @@ export default {
     DesignDropzone,
     VueDraggable,
   },
-  mixins: [allDesignsMixin, designCollectionMixin],
+  mixins: [allDesignsMixin],
   apollo: {
     permissions: {
       query: permissionsQuery,
@@ -76,7 +75,9 @@ export default {
   },
   computed: {
     isLoading() {
-      return this.$apollo.queries.designs.loading || this.$apollo.queries.permissions.loading;
+      return (
+        this.$apollo.queries.designCollection.loading || this.$apollo.queries.permissions.loading
+      );
     },
     isSaving() {
       return this.filesToBeSaved.length > 0;
@@ -362,7 +363,7 @@ export default {
         {{ __('An error occurred while loading designs. Please try again.') }}
       </gl-alert>
       <header
-        v-if="isDesignCollectionCopying"
+        v-else-if="isDesignCollectionCopying"
         class="card gl-p-3"
         data-testid="design-collection-is-copying"
       >
