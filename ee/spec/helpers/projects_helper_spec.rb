@@ -345,32 +345,4 @@ RSpec.describe ProjectsHelper do
       end
     end
   end
-
-  describe '#request_cve_enabled?' do
-    opts = {
-      gitlab_com: [true, false],
-      setting_enabled: [true, false],
-      visibility: [:PUBLIC, :INTERNAL, :PRIVATE]
-    }
-    opts[:gitlab_com].product(opts[:setting_enabled], opts[:visibility]) do |settings|
-      gitlab_com, setting_enabled, visibility = settings
-      context "GitLab.com: #{gitlab_com}, setting_enabled: #{setting_enabled}, visibility: #{visibility}" do
-        before do
-          allow(::Gitlab).to receive(:com?).and_return(gitlab_com)
-          vis_val = Gitlab::VisibilityLevel.const_get(visibility, false)
-          project.visibility_level = vis_val
-          project.save!
-
-          security_setting = ProjectSecuritySetting.safe_find_or_create_for(project)
-          security_setting.cve_id_request_enabled = setting_enabled
-          security_setting.save!
-        end
-
-        expected = gitlab_com && setting_enabled && visibility == :PUBLIC
-        it "returns #{expected}" do
-          expect(helper.request_cve_enabled?(project)).to equal(expected)
-        end
-      end
-    end
-  end
 end

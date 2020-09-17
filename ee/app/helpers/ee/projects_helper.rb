@@ -4,6 +4,8 @@ module EE
   module ProjectsHelper
     extend ::Gitlab::Utils::Override
 
+    include CveRequestHelper
+
     override :project_permissions_settings
     def project_permissions_settings(project)
       security_settings ||= ProjectSecuritySetting.safe_find_or_create_for(project)
@@ -18,18 +20,6 @@ module EE
       super(project).merge({
         requestCveAvailable: request_cve_available?(project)
       })
-    end
-
-    def request_cve_enabled?(project)
-      security_setting = ProjectSecuritySetting.safe_find_or_create_for(project)
-
-      request_cve_available?(project) \
-        && security_setting.cve_id_request_enabled == true \
-        && project.visibility_level == ::Gitlab::VisibilityLevel::PUBLIC
-    end
-
-    def request_cve_available?(project)
-      ::Gitlab.dev_env_or_com?
     end
 
     override :sidebar_settings_paths

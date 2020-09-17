@@ -19,11 +19,8 @@ module EE
         end
       end
 
-      expose :request_cve_enabled do |issuable|
-        request_cve_enabled?(issuable.project)
-          && issuable.to_ability_name == 'issue'
-          && issuable.confidential
-          && can?(current_user, :admin_project, issuable.project)
+      expose :request_cve_enabled_for_issue do |issue|
+        request_cve_enabled_for_issue_and_user?(issue, current_user)
       end
     end
   end
