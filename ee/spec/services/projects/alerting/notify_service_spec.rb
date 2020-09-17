@@ -50,16 +50,8 @@ RSpec.describe Projects::Alerting::NotifyService do
         end
 
         context 'end_time provided for subsequent alert' do
-          before do
-            payload[:end_time] = Time.current.change(usec: 0).iso8601
-          end
-
-          let(:existing_alert) do
-            existing_payload =  payload.except(:end_time)
-            described_class.new(project, nil, existing_payload).execute(token)
-
-            AlertManagement::Alert.last!
-          end
+          let(:existing_alert) { create(:alert_management_alert, :from_payload, project: project, payload: payload.except('end_time')) }
+          let(:payload) { { 'title' => 'title', 'end_time' => Time.current.change(usec: 0).iso8601 } }
 
           it 'does not create AlertManagement::Alert' do
             expect { subject }.not_to change(AlertManagement::Alert, :count)
@@ -67,7 +59,7 @@ RSpec.describe Projects::Alerting::NotifyService do
 
           it 'resolves the existing alert', :aggregate_failures do
             expect { subject }.to change { existing_alert.reload.resolved? }.from(false).to(true)
-            expect(existing_alert.ended_at).to eq(payload[:end_time])
+            expect(existing_alert.ended_at).to eq(payload['end_time'])
           end
         end
       end

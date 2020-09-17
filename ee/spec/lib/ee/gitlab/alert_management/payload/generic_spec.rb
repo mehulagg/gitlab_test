@@ -38,8 +38,9 @@ RSpec.describe Gitlab::AlertManagement::Payload::Generic do
       context 'payload has no values' do
         let(:raw_payload) do
           {
-            'start_time' => Time.current,
+            'start_time' => '2020-09-17 12:49:54 -0400',
             'hosts' => ['gitlab.com'],
+            'end_time' => '2020-09-17 12:59:54 -0400',
             'title' => ' '
           }
         end
