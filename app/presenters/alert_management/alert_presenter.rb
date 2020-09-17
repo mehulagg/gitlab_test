@@ -8,7 +8,7 @@ module AlertManagement
 
     MARKDOWN_LINE_BREAK = "  \n"
     HORIZONTAL_LINE = "\n\n---\n\n"
-    INCIDENT_LABEL_NAME = ::IncidentManagement::CreateIncidentLabelService::LABEL_PROPERTIES[:title].freeze
+    INCIDENT_LABEL_NAME = ::IncidentManagement::CreateIncidentLabelService::LABEL_PROPERTIES[:title]
 
     delegate :metrics_dashboard_url, :runbook, to: :parsed_payload
 
