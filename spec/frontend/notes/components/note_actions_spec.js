@@ -6,6 +6,7 @@ import createStore from '~/notes/stores';
 import noteActions from '~/notes/components/note_actions.vue';
 import { userDataMock } from '../mock_data';
 import axios from '~/lib/utils/axios_utils';
+import { GlButton } from '@gitlab/ui';
 
 describe('noteActions', () => {
   let wrapper;
