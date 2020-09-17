@@ -403,6 +403,11 @@ if Gitlab.ee? && Settings['ee_cron_jobs']
   Settings.cron_jobs.merge!(Settings.ee_cron_jobs)
 end
 
+###########################  NOTE  #####################################
+# If you add a new cron job, please also create an MR to on            #
+# https://gitlab.com/gitlab-org/omnibus-gitlab/merge_requests          #
+# to make it configurable.                                             #
+########################################################################
 Settings.cron_jobs['stuck_ci_jobs_worker'] ||= Settingslogic.new({})
 Settings.cron_jobs['stuck_ci_jobs_worker']['cron'] ||= '0 * * * *'
 Settings.cron_jobs['stuck_ci_jobs_worker']['job_class'] = 'StuckCiJobsWorker'
