@@ -1422,9 +1422,9 @@ Considering these, you should carefully plan your PostgreSQL upgrade:
    sudo gitlab-ctl pg-upgrade -V 12
    ```
 
-Generally, database locale, collation, and encoding are detected from the existing database. But
-it does not work for Patroni **replicas**. You will need to use environment variables if your are
-using a non-default database locale, collation, or encoding (the default is `C.UTF-8`):
+Generally, database locale, collation, and encoding are detected from the existing database, but
+this does not work for Patroni **replicas**. If you're using other than the default `C.UTF-8`,
+you will need to use environment variables:
 
 ```shell
 export LC_CTYPE='...'
