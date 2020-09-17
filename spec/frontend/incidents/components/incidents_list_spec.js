@@ -15,6 +15,7 @@ import IncidentsList from '~/incidents/components/incidents_list.vue';
 import SeverityToken from '~/sidebar/components/severity/severity.vue';
 import TimeAgoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
 import FilteredSearchBar from '~/vue_shared/components/filtered_search_bar/filtered_search_bar_root.vue';
+import AuthorToken from '~/vue_shared/components/filtered_search_bar/tokens/author_token.vue';
 import { I18N, INCIDENT_STATUS_TABS } from '~/incidents/constants';
 import mockIncidents from '../mocks/incidents.json';
 import mockFilters from '../mocks/incidents_filter.json';
@@ -337,28 +338,64 @@ describe('Incidents List', () => {
       });
 
       it('renders the search component for incidents', () => {
-        expect(findSearch().exists()).toBe(true);
+        expect(findSearch().props('searchInputPlaceholder')).toBe(
+          'Search or filter results…',
+        );
+        expect(findSearch().props('tokens')).toEqual([
+          {
+            type: 'author_username',
+            icon: 'user',
+            title: 'Author',
+            unique: true,
+            symbol: '@',
+            token: AuthorToken,
+            operators: [{ value: '=', description: 'is', default: 'true' }],
+            fetchPath: '/project/path',
+            fetchAuthors: expect.any(Function),
+          },
+          {
+            type: 'assignee_username',
+            icon: 'user',
+            title: 'Assignees',
+            unique: true,
+            symbol: '@',
+            token: AuthorToken,
+            operators: [{ value: '=', description: 'is', default: 'true' }],
+            fetchPath: '/project/path',
+            fetchAuthors: expect.any(Function),
+          },
+        ]);
+        expect(findSearch().props('recentSearchesStorageKey')).toBe(
+          'incidents',
+        );
       });
 
       it('returns correctly applied filter search values', async () => {
         wrapper.setData({
-          authorUsernames: 'root',
           searchTerm: 'foo',
         });
-
+        
         await wrapper.vm.$nextTick();
-        expect(wrapper.vm.getFilteredSearchValue()).toEqual(mockFilters);
+        expect(wrapper.vm.getFilteredSearchValue()).toEqual(['foo']);
       });
 
-      it('updates props `searchTerm` and `authorUsernames` with empty values when passed filters param is empty', async () => {
+      it('updates props tied to getIncidents GraphQL query', () => {
+        wrapper.vm.handleFilterIncidents(mockFilters);
+
+        expect(wrapper.vm.authorUsername).toBe('root');
+        expect(wrapper.vm.assigneeUsernames).toEqual(['root2']);
+        expect(wrapper.vm.searchTerm).toBe('foo');
+      });
+
+      it('updates props `searchTerm` and `authorUsername` with empty values when passed filters param is empty', () => {
         wrapper.setData({
-          authorUsernames: 'foo',
+          authorUsername: 'foo',
           searchTerm: 'bar',
         });
 
         wrapper.vm.handleFilterIncidents([]);
 
-        expect(wrapper.vm.authorUsernames).toEqual([]);
+        expect(wrapper.vm.authorUsername).toBe('');
         expect(wrapper.vm.searchTerm).toBe('');
       });
     });

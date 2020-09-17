@@ -129,7 +129,7 @@ export default {
           lastPageSize: this.pagination.lastPageSize,
           prevPageCursor: this.pagination.prevPageCursor,
           nextPageCursor: this.pagination.nextPageCursor,
-          authorUsernames: this.authorUsernames,
+          authorUsername: this.authorUsername,
           assigneeUsernames: this.assigneeUsernames,
         };
       },
@@ -148,7 +148,7 @@ export default {
       variables() {
         return {
           searchTerm: this.searchTerm,
-          authorUsernames: this.authorUsernames,
+          authorUsername: this.authorUsername,
           assigneeUsernames: this.assigneeUsernames,
           projectPath: this.projectPath,
           issueTypes: ['INCIDENT'],
@@ -172,7 +172,7 @@ export default {
       sortDesc: true,
       statusFilter: '',
       filteredByStatus: '',
-      authorUsernames: this.authorUsernamesQuery,
+      authorUsername: this.authorUsernamesQuery,
       assigneeUsernames: this.assigneeUsernamesQuery,
       filterParams: {},
     };
@@ -282,7 +282,7 @@ export default {
           unique: true,
           symbol: '@',
           token: AuthorToken,
-          operators: [{ value: '=', description: 'is', default: 'true' }],
+          operators: [{ value: '=', description: __('is'), default: 'true' }],
           fetchPath: this.projectPath,
           fetchAuthors: Api.projectUsers.bind(Api),
         },
@@ -291,10 +291,10 @@ export default {
     getFilteredSearchValue() {
       const value = [];
 
-      if (this.authorUsernames) {
+      if (this.authorUsername) {
         value.push({
           type: 'author_username',
-          value: { data: this.authorUsernames },
+          value: { data: this.authorUsername },
         });
       }
 
@@ -354,13 +354,13 @@ export default {
       return INCIDENT_SEVERITY[severity];
     },
     handleFilterIncidents(filters) {
-      const filterParams = { authorUsername: [], assigneeUsername: [], search: '' };
+      const filterParams = { authorUsername: '', assigneeUsername: [], search: '' };
 
       filters.forEach(filter => {
         if (typeof filter === 'object') {
           switch (filter.type) {
             case 'author_username':
-              filterParams.authorUsername.push(filter.value.data);
+              filterParams.authorUsername = filter.value.data;
               break;
             case 'assignee_username':
               filterParams.assigneeUsername.push(filter.value.data);
@@ -377,7 +377,7 @@ export default {
       this.filterParams = filterParams;
       this.updateUrl();
       this.searchTerm = filterParams?.search;
-      this.authorUsernames = filterParams?.authorUsername;
+      this.authorUsername = filterParams?.authorUsername;
       this.assigneeUsernames = filterParams?.assigneeUsername;
     },
     updateUrl() {

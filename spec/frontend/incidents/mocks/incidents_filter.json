@@ -1,8 +1,14 @@
   [
     {
+      "type": "assignee_username",
+      "value": { "data": "root2" }
+    },
+    {
       "type": "author_username",
       "value": { "data": "root" }
     },
-    "foo"
+    {
+      "type": "filtered-search-term",
+      "value": { "data": "foo" }
+    }
   ]
-  

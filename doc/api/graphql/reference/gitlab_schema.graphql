@@ -6776,14 +6776,14 @@ type Group {
     assigneeId: String
 
     """
-    Username of a assignees assigned to the issue
+    Username of a user assigned to the issue
     """
     assigneeUsername: [String!]
 
     """
-    Username of a users assigned to the issue
+    Username of the author of the issue
     """
-    authorUsername: [String!]
+    authorUsername: String
 
     """
     Returns the elements in the list that come before the specified cursor.
@@ -12251,14 +12251,14 @@ type Project {
     assigneeId: String
 
     """
-    Username of a assignees assigned to the issue
+    Username of a user assigned to the issue
     """
     assigneeUsername: [String!]
 
     """
-    Username of a users assigned to the issue
+    Username of the author of the issue
     """
-    authorUsername: [String!]
+    authorUsername: String
 
     """
     Issues closed after this date
@@ -12346,14 +12346,14 @@ type Project {
     assigneeId: String
 
     """
-    Filter requirements by assignee username
+    Username of a user assigned to the issue
     """
     assigneeUsername: [String!]
 
     """
-    Filter requirements by author username
+    Username of the author of the issue
     """
-    authorUsername: [String!]
+    authorUsername: String
 
     """
     Issues closed after this date
@@ -12431,14 +12431,14 @@ type Project {
     assigneeId: String
 
     """
-    Username of a assignees assigned to the issue
+    Username of a user assigned to the issue
     """
     assigneeUsername: [String!]
 
     """
-    Username of a users assigned to the issue
+    Username of the author of the issue
     """
-    authorUsername: [String!]
+    authorUsername: String
 
     """
     Returns the elements in the list that come before the specified cursor.
