@@ -7,6 +7,7 @@ module Gitlab
         class Report
           def initialize
             @dependencies = {}
+            @dependencies_by_iid = {}
           end
 
           def dependencies
@@ -20,7 +21,24 @@ module Gitlab
               existing_dependency = @dependencies[key]
               existing_dependency.update_dependency(dependency)
             else
+              pm = dep.package_manager
+              unless @dependencies_by_iid[pm]
+                @dependencies_by_iid[pm] = {}
+              end
+              @dependencies_by_iid[pm][dep.iid] = { name: dep.name, version: dep.version }
               @dependencies[key] = dep
+            end
+          end
+
+          def generate_dependency_path!
+            @dependencies = @dependencies.each_value do |dep|
+              return if dep.location[:top_level]
+
+              pm = dep.package_manager
+              dic = @dependencies_by_iid[pm]
+              dep.location[:ancestors].map! do |a|
+                dic[a[:iid]]
+              end
             end
           end
 
