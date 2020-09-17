@@ -234,11 +234,11 @@ module EmailsHelper
     end
   end
 
+  private
+
   def users_to_sentence(users)
     sanitize_name(users.map(&:name).to_sentence)
   end
-
-  private
 
   def generate_link(text, url)
     link_to(text, url, target: :_blank, rel: 'noopener noreferrer')
