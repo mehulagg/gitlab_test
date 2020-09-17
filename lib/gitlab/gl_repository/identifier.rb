@@ -43,6 +43,9 @@ module Gitlab
 
       # The newer 3-segment format, where the container is explicit
       # eg. group-1-wiki, project-1-wiki
+      #
+      # NOTE: This is currently only used and supported for group wikis
+      # https://gitlab.com/gitlab-org/gitlab/-/issues/219192
       class ThreePartIdentifier < Identifier
         def initialize(container_type, container_id_str, repo_type_name)
           @container_id_str = container_id_str
@@ -53,12 +56,9 @@ module Gitlab
         private
 
         def container_class
-          case @container_type
-          when 'project'
-            Project
-          when 'group'
-            Group
-          end
+          "#{@container_type}_#{@repo_type_name}".classify.constantize
+        rescue NameError
+          nil
         end
       end
 
@@ -71,7 +71,10 @@ module Gitlab
       end
 
       def valid?
-        repo_type.present? && container_class.present? && container_id&.positive?
+        repo_type.present? &&
+          container_class.present? &&
+          container_class < HasRepository &&
+          container_id&.positive?
       end
 
       private

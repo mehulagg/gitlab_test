@@ -24,11 +24,11 @@ module EE
       end
 
       def group?
-        container.is_a?(Group)
+        !group.nil?
       end
 
       def group
-        container if group?
+        container if container.is_a?(::Group)
       end
 
       protected

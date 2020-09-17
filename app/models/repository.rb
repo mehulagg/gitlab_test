@@ -1144,6 +1144,8 @@ class Repository
   def project
     if repo_type.snippet?
       container.project
+    elsif container.is_a?(ProjectWiki)
+      container.project
     elsif container.is_a?(Project)
       container
     end
@@ -1153,7 +1155,9 @@ class Repository
   #
   # https://gitlab.com/gitlab-org/gitlab/-/issues/201886
   def lfs_enabled?
-    if container.is_a?(Project)
+    if container.is_a?(ProjectWiki)
+      container.project.lfs_enabled?
+    elsif container.is_a?(Project)
       container.lfs_enabled?
     else
       false # LFS is not supported for snippet or group repositories

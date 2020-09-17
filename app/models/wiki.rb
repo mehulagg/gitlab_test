@@ -4,6 +4,7 @@ class Wiki
   extend ::Gitlab::Utils::Override
   include HasRepository
   include Gitlab::Utils::StrongMemoize
+  include GlobalID::Identification
 
   MARKUPS = { # rubocop:disable Style/MultilineIfModifier
     'Markdown' => :markdown,
@@ -32,10 +33,26 @@ class Wiki
     "#{container.class.name}Wiki".constantize.new(container, user)
   end
 
+  # This is required to support repository lookup through Gitlab::GlRepository::Identifier
+  def self.find_by_id
+    raise NotImplementedError
+  end
+
   def initialize(container, user = nil)
     @container = container
     @user = user
     raise ArgumentError, "user must be a User, got #{user.class}" if user && !user.is_a?(User)
+  end
+
+  def ==(other)
+    other.is_a?(self.class) && container == other.container
+  end
+
+  # NOTE: Wikis don't have a DB record, so this ID can be the same
+  # for two wikis in different containers and should not be expected to
+  # be unique.
+  def id
+    container.id
   end
 
   def path
@@ -183,7 +200,7 @@ class Wiki
 
   override :repository
   def repository
-    @repository ||= Gitlab::GlRepository::WIKI.repository_for(container)
+    @repository ||= Gitlab::GlRepository::WIKI.repository_for(self)
   end
 
   def repository_storage
@@ -198,7 +215,6 @@ class Wiki
   def full_path
     container.full_path + '.wiki'
   end
-  alias_method :id, :full_path
 
   # @deprecated use full_path when you need it for an URL route or disk_path when you want to point to the filesystem
   alias_method :path_with_namespace, :full_path

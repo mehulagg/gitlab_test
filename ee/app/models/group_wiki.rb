@@ -3,6 +3,13 @@
 class GroupWiki < Wiki
   alias_method :group, :container
 
+  override :find_by_id
+  def self.find_by_id(id)
+    return unless group = Group.find_by_id(id)
+
+    for_container(group)
+  end
+
   override :create_wiki_repository
   def create_wiki_repository
     super
