@@ -14,6 +14,7 @@ import moveDesignMutation from '../graphql/mutations/move_design.mutation.graphq
 import permissionsQuery from '../graphql/queries/design_permissions.query.graphql';
 import getDesignListQuery from '../graphql/queries/get_design_list.query.graphql';
 import allDesignsMixin from '../mixins/all_designs';
+import designCollectionMixin from '../mixins/design_collection';
 import {
   UPLOAD_DESIGN_ERROR,
   EXISTING_DESIGN_DROP_MANY_FILES_MESSAGE,
@@ -49,7 +50,7 @@ export default {
     DesignDropzone,
     VueDraggable,
   },
-  mixins: [allDesignsMixin],
+  mixins: [allDesignsMixin, designCollectionMixin],
   apollo: {
     permissions: {
       query: permissionsQuery,
@@ -108,6 +109,11 @@ export default {
     },
     isDesignListEmpty() {
       return !this.isSaving && !this.hasDesigns;
+    },
+    isDesignCollectionCopying() {
+      return (
+        this.designCollection && ['PENDING', 'COPYING'].includes(this.designCollection.copyState)
+      );
     },
     designDropzoneWrapperClass() {
       return this.isDesignListEmpty
@@ -355,6 +361,21 @@ export default {
       <gl-alert v-else-if="error" variant="danger" :dismissible="false">
         {{ __('An error occurred while loading designs. Please try again.') }}
       </gl-alert>
+      <header
+        v-if="isDesignCollectionCopying"
+        class="card gl-p-3"
+        data-testid="design-collection-is-copying"
+      >
+        <div class="card-header design-card-header border-bottom-0">
+          <div class="card-title gl-my-0 gl-h-7">
+            {{
+              s__(
+                'DesignManagement|Your designs are being copied and are on their way… Please refresh to update.',
+              )
+            }}
+          </div>
+        </div>
+      </header>
       <vue-draggable
         v-else
         :value="designs"

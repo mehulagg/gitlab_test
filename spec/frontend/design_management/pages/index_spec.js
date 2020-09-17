@@ -92,6 +92,8 @@ describe('Design management index page', () => {
   const findDesignCheckboxes = () => wrapper.findAll('.design-checkbox');
   const findSelectAllButton = () => wrapper.find('.js-select-all');
   const findToolbar = () => wrapper.find('.qa-selector-toolbar');
+  const findDesignCollectionIsCopying = () =>
+    wrapper.find('[data-testid="design-collection-is-copying"');
   const findDeleteButton = () => wrapper.find(DeleteButton);
   const findDropzone = () => wrapper.findAll(DesignDropzone).at(0);
   const dropzoneClasses = () => findDropzone().classes();
@@ -117,6 +119,7 @@ describe('Design management index page', () => {
     loading = false,
     designs = [],
     allVersions = [],
+    designCollection = null,
     createDesign = true,
     stubs = {},
     mockMutate = jest.fn().mockResolvedValue(),
@@ -139,6 +142,7 @@ describe('Design management index page', () => {
         return {
           designs,
           allVersions,
+          designCollection,
           permissions: {
             createDesign,
           },
@@ -257,6 +261,41 @@ describe('Design management index page', () => {
       wrapper.vm.$nextTick().then(() => {
         expect(findToolbar().exists()).toBe(false);
       }));
+  });
+
+  describe('handling design collection copy state', () => {
+    it('renders the copying message if design collection copyState is PENDING', () => {
+      createComponent({ designCollection: { copyState: 'PENDING' } });
+
+      expect(findDesignCollectionIsCopying().exists()).toBe(true);
+    });
+
+    it('renders the copying message if design collection copyState is COPYING', () => {
+      createComponent({ designCollection: { copyState: 'COPYING' } });
+
+      expect(findDesignCollectionIsCopying().exists()).toBe(true);
+    });
+
+    it('does not render the copying message if design collection copyState is READY', () => {
+      createComponent({ designCollection: { copyState: 'READY' } });
+
+      expect(findDesignCollectionIsCopying().exists()).toBe(false);
+    });
+
+    it('does not render the copying message if design collection copyState is ERROR', () => {
+      createComponent({ designCollection: { copyState: 'ERROR' } });
+
+      expect(findDesignCollectionIsCopying().exists()).toBe(false);
+    });
+
+    it('displays an error message if design collection copyState is ERROR', () => {
+      createComponent({ designCollection: { copyState: 'ERROR' } });
+
+      expect(createFlash).toHaveBeenCalledWith(
+        'There was an error moving your designs. Please upload your designs below.',
+        'warning',
+      );
+    });
   });
 
   describe('uploading designs', () => {
