@@ -88,8 +88,7 @@ In v2 auto-deploy-image, it uses Helm v3 that doesn't require Tiller anymore.
 ```yaml
 include:
   - template: Auto-DevOps.gitlab-ci.yml
-  - project: hfyngvason/ci-templates
-    file: Helm-2to3.gitlab-ci.yml
+  - remote: https://gitlab.com/hfyngvason/ci-templates/-/raw/master/Helm-2to3.gitlab-ci.yml
 
 variables:
   # If this variable is not present, the migration jobs will not show up
@@ -102,7 +101,10 @@ variables:
 ```
 
 1. Execute `<environment-name>:helm-2to3:migrate` job.
-1. Execute `<environment-name>:helm-2to3:manual` job.
+1. Deploy your environment as usual. This deployment will use Helm 3
+1. If the deployment succeeded, you can safely run `environment:helm-2to3:cleanup`. This deletes *all* Helm 2 release data from the namespace.
+  * In case you accidentally delete the Helm 2 releases before you are ready, the `<environment-name>:helm2to3:migrate` job persists a backup for 1 week a job artifact called `helm-2-release-backups`. The backup is in a kubernetes manifest file and and they can be restored using `kubectl apply -f $backup`.
+1. Unset the `MIGRATE_HELM_2TO3` variable
 
 #### Traffic routing change for canary deployment and incremental rollout
 
@@ -121,9 +123,9 @@ For more details, see the [v2 auto-deploy-app chart resource architecture](#v2-c
 
 **Upgrade steps**
 
-1. [Make sure](#which-dependency-version-is-my-project-currently-using) your project is using v1 auto-deploy-image. If not, [speicfy the version](#use-a-specific-version-of-auto-deploy-dependencies)
+1. [Make sure](#which-dependency-version-is-my-project-currently-using) your project is using v1 auto-deploy-image. If not, [specify the version](#use-a-specific-version-of-auto-deploy-dependencies)
 1. If you're at the middle of `canary` or `rollout` deployments, promote it to `production` at first in order to delete the unstable tracks.
-1. [Make sure](#which-dependency-version-is-my-project-currently-using) your project is using v2 auto-deploy-image. If not, [speicfy the version](#use-a-specific-version-of-auto-deploy-dependencies)
+1. [Make sure](#which-dependency-version-is-my-project-currently-using) your project is using v2 auto-deploy-image. If not, [specify the version](#use-a-specific-version-of-auto-deploy-dependencies)
 1. Set `AUTO_DEVOPS_FORCE_DEPLOY_V2` environment variable with a value `true` in the GitLab CI.
 1. Create a new pipeline and execute `production` job to renew the resource architecture with v2 auto-deploy-app chart.
 1. Remove `AUTO_DEVOPS_FORCE_DEPLOY_V2` environment variable.
