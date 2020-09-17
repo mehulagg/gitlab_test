@@ -1,6 +1,7 @@
 <script>
 /* eslint-disable vue/no-v-html */
 import { mapGetters, mapActions, mapState } from 'vuex';
+import { GlButton } from '@gitlab/ui';
 import { mergeUrlParams } from '~/lib/utils/url_utility';
 import eventHub from '../event_hub';
 import NoteableWarning from '../../vue_shared/components/notes/noteable_warning.vue';
@@ -9,7 +10,6 @@ import issuableStateMixin from '../mixins/issuable_state';
 import resolvable from '../mixins/resolvable';
 import { __, sprintf } from '~/locale';
 import { getDraft, updateDraft } from '~/lib/utils/autosave';
-import { GlButton } from '@gitlab/ui';
 
 export default {
   name: 'NoteForm',
