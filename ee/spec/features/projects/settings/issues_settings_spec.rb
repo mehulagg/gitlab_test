@@ -73,71 +73,53 @@ RSpec.describe 'Project settings > Issues', :js do
     end
   end
 
-  context 'when viewing project settings' do
-    tests = [
-      {
-        conf: { gitlab_com: true, project_visibility: :PUBLIC, cve_enabled: true },
-        expect: { toggle_checked: true, toggle_disabled: false, has_toggle: true }
-      },
-      {
-        conf: { gitlab_com: true, project_visibility: :INTERNAL, cve_enabled: true },
-        expect: { toggle_checked: nil, toggle_disabled: true, has_toggle: true }
-      },
-      {
-        conf: { gitlab_com: true, project_visibility: :PRIVATE, cve_enabled: true },
-        expect: { toggle_checked: nil, toggle_disabled: true, has_toggle: true }
-      },
-      {
-        conf: { gitlab_com: false, project_visibility: :PUBLIC, cve_enabled: true },
-        expect: { has_toggle: false }
-      }
-    ]
+  context 'when viewing CVE request settings' do
+    using RSpec::Parameterized::TableSyntax
 
-    tests.each do |test|
-      test_conf = test[:conf]
-      test_expect = test[:expect]
-      gl_desc = test_conf[:gitlab_com] ? '' : 'not '
-      context "#{gl_desc}on GitLab.com" do
-        context "on a #{test_conf[:project_visibility]} project" do
-          before do
-            allow(::Gitlab).to receive(:com?).and_return(test_conf[:gitlab_com])
+    where(:gitlab_com, :project_visibility, :cve_enabled, :toggle_checked, :toggle_disabled, :has_toggle) do
+      true  | :PUBLIC   | true | true | false | true
+      true  | :INTERNAL | true | nil  | true  | true
+      true  | :PRIVATE  | true | nil  | true  | true
+      false | :PUBLIC   | true | nil  | nil   | false
+    end
 
-            vis_val = Gitlab::VisibilityLevel.const_get(test_conf[:project_visibility], false)
-            project.visibility_level = vis_val
-            project.save!
+    with_them do
+      before do
+        allow(::Gitlab).to receive(:com?).and_return(gitlab_com)
 
-            security_setting = ProjectSecuritySetting.safe_find_or_create_for(project)
-            security_setting.cve_id_request_enabled = test_conf[:cve_enabled]
-            security_setting.save!
+        vis_val = Gitlab::VisibilityLevel.const_get(project_visibility, false)
+        project.visibility_level = vis_val
+        project.save!
 
-            visit edit_project_path(project)
-          end
+        security_setting = ProjectSecuritySetting.safe_find_or_create_for(project)
+        security_setting.cve_id_request_enabled = cve_enabled
+        security_setting.save!
 
-          desc = test_expect[:has_toggle] ? '' : 'not '
-          it "CVE ID Request toggle should #{desc}be visible" do
-            if test_expect[:has_toggle]
-              expect(page).to have_selector('#cve_id_request_toggle')
-            else
-              expect(page).not_to have_selector('#cve_id_request_toggle')
-              next
-            end
+        visit edit_project_path(project)
+      end
 
-            toggle_btn = find('#cve_id_request_toggle button.project-feature-toggle')
+      it "CVE ID Request toggle should be correctly visible" do
+        if has_toggle
+          expect(page).to have_selector('#cve_id_request_toggle')
+        else
+          expect(page).not_to have_selector('#cve_id_request_toggle')
+          next
+        end
 
-            if test_expect[:toggle_disabled]
-              expect(toggle_btn).to match_css('.is-disabled', wait: 0)
-            else
-              expect(toggle_btn).not_to match_css('.is-disabled', wait: 0)
-            end
+        toggle_btn = find('#cve_id_request_toggle button.project-feature-toggle')
 
-            next if test_expect[:toggle_checked].nil?
+        if toggle_disabled
+          expect(toggle_btn).to match_css('.is-disabled', wait: 0)
+        else
+          expect(toggle_btn).not_to match_css('.is-disabled', wait: 0)
+        end
 
-            if test_expect[:toggle_checked]
-              expect(toggle_btn).to match_css('.is-checked', wait: 0)
-            else
-              expect(toggle_btn).not_to match_css('.is-checked', wait: 0)
-            end
-          end
+        next if toggle_checked.nil?
+
+        if toggle_checked
+          expect(toggle_btn).to match_css('.is-checked', wait: 0)
+        else
+          expect(toggle_btn).not_to match_css('.is-checked', wait: 0)
         end
       end
     end

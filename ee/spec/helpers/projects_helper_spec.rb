@@ -334,10 +334,10 @@ RSpec.describe ProjectsHelper do
       tests.each do |cve_enabled|
         context "is #{cve_enabled}" do
           before do
-            security_setting = ProjectSecuritySetting.safe_find_or_create_for(project)
-            security_setting.cve_id_request_enabled = cve_enabled
+            security_setting = create(:project_security_setting, project: project, cve_id_request_enabled: cve_enabled)
             security_setting.save!
           end
+
           it "sets cveIdRequestEnabled to #{cve_enabled}" do
             expect(perm_settings[:cveIdRequestEnabled]).to equal(cve_enabled)
           end

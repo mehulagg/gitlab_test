@@ -8,7 +8,8 @@ RSpec.describe EE::IssueSidebarBasicEntity do
   let(:issue) { create(:issue, project: project, assignees: [user]) }
 
   context "When serializing" do
-    test_value = 'TEST VALUE'
+    let(:test_value) { 'TEST VALUE' }
+
     before do
       allow_any_instance_of(EE::CveRequestHelper).to receive(:request_cve_enabled_for_issue_and_user?).and_return(test_value)
     end

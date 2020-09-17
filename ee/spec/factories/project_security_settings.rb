@@ -7,5 +7,6 @@ FactoryBot.define do
     auto_fix_dast { true }
     auto_fix_dependency_scanning { true }
     auto_fix_sast { true }
+    cve_id_request_enabled { true }
   end
 end
