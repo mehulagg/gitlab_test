@@ -1432,3 +1432,8 @@ export LC_COLLATE='...'
 export SERVER_ENCODING='...'
 sudo -E gitlab-ctl pg-upgrade -V 12
 ```
+
+CAUTION: **Important:** 
+Reverting PostgreSQL upgrade with `gitlab-ctl revert-pg-upgrade` has the same considerations as
+`gitlab-ctl pg-upgrade`. It can be complicated and may involve deletion of the data directory.
+If you need to do that, please contact GitLab support.
