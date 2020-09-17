@@ -1,5 +1,12 @@
+- if @alert.resolved?
+  %p
+    = _('An alert has been resolved in %{project_path}.') % { project_path: @alert.project.full_path }
+- else
+  %p
+    = _('An alert has been triggered in %{project_path}.') % { project_path: @alert.project.full_path }
+
 %p
-  = _('An alert has been triggered in %{project_path}.') % { project_path: @alert.project.full_path }
+  = link_to(_('View alert details.'), @alert.details_url)
 
 - if description = @alert.description
   %p
