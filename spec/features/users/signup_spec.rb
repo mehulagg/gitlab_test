@@ -287,8 +287,10 @@ RSpec.shared_examples 'Signup' do
       enforce_terms
     end
 
-    it 'requires the user to check the checkbox' do
+    it 'renders text that the user confirms terms by clicking register' do
       visit new_user_registration_path
+
+      expect(page).to have_content(/By clicking Register, I agree that I have read and accepted the Terms of Use and Privacy Policy/)
 
       fill_in 'new_user_username', with: new_user.username
       fill_in 'new_user_email', with: new_user.email
@@ -303,28 +305,6 @@ RSpec.shared_examples 'Signup' do
       fill_in 'new_user_password', with: new_user.password
 
       click_button 'Register'
-
-      expect(current_path).to eq new_user_session_path
-      expect(page).to have_content(/you must accept our terms of service/i)
-    end
-
-    it 'asks the user to accept terms before going to the dashboard' do
-      visit new_user_registration_path
-
-      fill_in 'new_user_username', with: new_user.username
-      fill_in 'new_user_email', with: new_user.email
-
-      if Gitlab::Experimentation.enabled?(:signup_flow)
-        fill_in 'new_user_first_name', with: new_user.first_name
-        fill_in 'new_user_last_name', with: new_user.last_name
-      else
-        fill_in 'new_user_name', with: new_user.name
-      end
-
-      fill_in 'new_user_password', with: new_user.password
-      check :terms_opt_in
-
-      click_button "Register"
 
       expect(current_path).to eq users_sign_up_welcome_path
     end
@@ -479,28 +459,4 @@ RSpec.describe 'With experimental flow' do
   it_behaves_like 'Signup'
   it_behaves_like 'Signup name validation', 'new_user_first_name', 127
   it_behaves_like 'Signup name validation', 'new_user_last_name', 127
-
-  context 'when terms_opt_in experimental is enabled' do
-    include TermsHelper
-
-    before do
-      enforce_terms
-      stub_experiment(signup_flow: true, terms_opt_in: true)
-      stub_experiment_for_user(signup_flow: true, terms_opt_in: true)
-    end
-
-    it 'terms are checked by default' do
-      new_user = build_stubbed(:user)
-
-      visit new_user_registration_path
-      fill_in 'new_user_first_name', with: new_user.first_name
-      fill_in 'new_user_last_name', with: new_user.last_name
-      fill_in 'new_user_username', with: new_user.username
-      fill_in 'new_user_email', with: new_user.email
-      fill_in 'new_user_password', with: new_user.password
-      click_button 'Register'
-
-      expect(current_path).to eq users_sign_up_welcome_path
-    end
-  end
 end
