@@ -3,6 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe API::Internal::Base do
+  include ::API::Helpers::InternalHelpers
+
   let_it_be(:user, reload: true) { create(:user) }
   let_it_be(:project, reload: true) { create(:project, :repository, :wiki_repo) }
   let_it_be(:personal_snippet) { create(:personal_snippet, :repository, author: user) }
@@ -1084,7 +1086,11 @@ RSpec.describe API::Internal::Base do
 
       context 'when action is not git push' do
         before do
-          allow_any_instance_of(Object).to receive(:access_check!).with(any_args).and_return(Gitlab::GitAccessResult::Success)
+          described_class.helpers do
+            def access_check!(actor, params)
+              ::Gitlab::GitAccessResult::Success.new
+            end
+          end
         end
 
         it 'checks git access' do
