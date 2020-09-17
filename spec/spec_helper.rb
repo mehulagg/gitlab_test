@@ -9,6 +9,10 @@ ENV["RSPEC_ALLOW_INVALID_URLS"] = 'true'
 
 require File.expand_path('../config/environment', __dir__)
 
+class MergeRequestWithoutMergeRequestDiff < ::MergeRequest
+  skip_callback :create, :after, :ensure_merge_request_diff
+end
+
 require 'rspec/mocks'
 require 'rspec/rails'
 require 'rspec/retry'
