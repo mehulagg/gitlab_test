@@ -21,7 +21,7 @@ a breaking change that asks you to upgrade your deployments.
 
 This guide provides instructions how to upgrade your deployments with newer and different major version of Auto Deploy dependencies.
 
-## Which dependency version is my project currently using?
+## Before starting the upgrade process, you need to find out what dependency version your project is using
 
 To check the current versions,
 
@@ -33,7 +33,7 @@ To check the current versions,
 NOTE: **Note:**
 If you're on-premises user, [the stable Auto Deploy template that bundled in the GitLab package](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Jobs/Deploy.gitlab-ci.yml) is being used.
 
-[The latest Auto Deploy template](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Jobs/Deploy.gitlab-ci.yml) is being used, IF:
+[The latest Auto Deploy template](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Jobs/Deploy.latest.gitlab-ci.yml) is being used, IF:
 
 - Your Auto DevOps project has a `.gitlab-ci.yml` file and [includes](../../ci/yaml/README.md#includetemplate) the `Auto-DevOps.gitlab-ci.yml` template, AND
 - It also includes [the latest Auto Deploy template](#early-adopters)
