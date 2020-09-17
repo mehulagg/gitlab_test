@@ -11,7 +11,7 @@ const createGitlabCiYmlVisualization = (containerId = '#js-blob-toggle-graph-pre
   const el = document.querySelector(containerId);
   const { isCiConfigFile, blobData } = el?.dataset;
 
-  if (parseBoolean(isCiConfigFile)) {
+  if (el && parseBoolean(isCiConfigFile)) {
     // eslint-disable-next-line no-new
     new Vue({
       el,
