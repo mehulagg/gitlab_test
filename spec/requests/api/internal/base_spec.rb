@@ -459,7 +459,7 @@ RSpec.describe API::Internal::Base do
         end
 
         it_behaves_like 'sets hook env' do
-          let(:gl_repository) { Gitlab::GlRepository::WIKI.identifier_for_container(project) }
+          let(:gl_repository) { Gitlab::GlRepository::WIKI.identifier_for_container(project.wiki) }
         end
       end
 
@@ -1210,7 +1210,7 @@ RSpec.describe API::Internal::Base do
   def gl_repository_for(container)
     case container
     when ProjectWiki
-      Gitlab::GlRepository::WIKI.identifier_for_container(container.project)
+      Gitlab::GlRepository::WIKI.identifier_for_container(container)
     when Project
       Gitlab::GlRepository::PROJECT.identifier_for_container(container)
     when Snippet

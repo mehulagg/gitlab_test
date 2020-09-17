@@ -6,6 +6,13 @@ class ProjectWiki < Wiki
   # Project wikis are tied to the main project storage
   delegate :storage, :repository_storage, :hashed_storage?, to: :container
 
+  override :find_by_id
+  def self.find_by_id(id)
+    return unless project = Project.find_by_id(id)
+
+    for_container(project)
+  end
+
   override :disk_path
   def disk_path(*args, &block)
     container.disk_path + '.wiki'

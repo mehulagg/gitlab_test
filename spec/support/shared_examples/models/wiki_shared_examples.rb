@@ -16,9 +16,45 @@ RSpec.shared_examples 'wiki model' do
     let(:expected_web_url_path) { "#{container.container.web_url(only_path: true).sub(%r{^/}, '')}/-/wikis/home" }
   end
 
+  describe '.find_by_id' do
+    it 'returns a wiki instance if the container is found' do
+      wiki = described_class.find_by_id(wiki_container.id)
+
+      expect(wiki).to be_a(described_class)
+      expect(wiki.container).to eq(wiki_container)
+    end
+
+    it 'returns nil if the container is not found' do
+      expect(described_class.find_by_id(-1)).to be_nil
+    end
+  end
+
+  describe '#==' do
+    it 'returns true for wikis from the same container' do
+      expect(wiki).to eq(described_class.new(wiki_container))
+    end
+
+    it 'returns false for wikis from different containers' do
+      expect(wiki).not_to eq(described_class.new(wiki_container_without_repo))
+    end
+  end
+
+  describe '#id' do
+    it 'returns the ID of the container' do
+      expect(wiki.id).to eq(wiki_container.id)
+    end
+  end
+
+  describe '#to_global_id' do
+    it 'returns a global ID' do
+      expect(wiki.to_global_id.to_s).to eq("gid://gitlab/#{wiki.class.name}/#{wiki.id}")
+    end
+  end
+
   describe '#repository' do
     it 'returns a wiki repository' do
       expect(subject.repository.repo_type).to be_wiki
+      expect(subject.repository.container).to be(subject)
     end
   end
 

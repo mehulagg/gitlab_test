@@ -12,8 +12,12 @@ module Gitlab
     WIKI = RepoType.new(
       name: :wiki,
       access_checker_class: Gitlab::GitAccessWiki,
-      repository_resolver: -> (container) { ::Repository.new(container.wiki.full_path, container, shard: container.wiki.repository_storage, disk_path: container.wiki.disk_path, repo_type: WIKI) },
-      project_resolver: -> (container) { container.is_a?(Project) ? container : nil },
+      repository_resolver: -> (wiki) do
+        wiki = wiki.wiki unless wiki.is_a?(Wiki) # Also allow passing a Project or Group
+        ::Repository.new(wiki.full_path, wiki, shard: wiki.repository_storage, disk_path: wiki.disk_path, repo_type: WIKI)
+      end,
+      container_class: ProjectWiki,
+      project_resolver: -> (wiki) { wiki.try(:project) },
       suffix: :wiki
     ).freeze
     SNIPPET = RepoType.new(
