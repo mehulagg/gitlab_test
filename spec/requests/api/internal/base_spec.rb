@@ -3,8 +3,6 @@
 require 'spec_helper'
 
 RSpec.describe API::Internal::Base do
-  include ::API::Helpers::InternalHelpers
-
   let_it_be(:user, reload: true) { create(:user) }
   let_it_be(:project, reload: true) { create(:project, :repository, :wiki_repo) }
   let_it_be(:personal_snippet) { create(:personal_snippet, :repository, author: user) }
@@ -1069,8 +1067,6 @@ RSpec.describe API::Internal::Base do
 
     context 'maintenance mode enabled' do
       before do
-        # stub_feature_flags(maintenance_mode: true)
-
         stub_application_setting(maintenance_mode: true)
       end
 
