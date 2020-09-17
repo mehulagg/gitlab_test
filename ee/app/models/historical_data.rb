@@ -30,4 +30,20 @@ class HistoricalData < ApplicationRecord
       HistoricalData.during(from..to).maximum(:active_user_count) || 0
     end
   end
+
+  def validate_active_user_count
+    return unless Gitlab.ee? && License.current&.active_user_count_threshold_reached?
+
+    admin_emails = User
+      .active
+      .admins
+      .pluck(:email)
+
+    licensee_email = License.current.licensee["Email"]
+    if licensee_email && !admin_emails.include?(licensee_email)
+      admin_emails << licensee_email
+    end
+
+    LicenseMailer.approaching_active_user_count_limit(admin_emails)
+  end
 end
