@@ -305,6 +305,11 @@ msgid_plural "%d vulnerabilities dismissed"
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "%d warning found:"
+msgid_plural "%d warnings found:"
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "%s additional commit has been omitted to prevent performance issues."
 msgid_plural "%s additional commits have been omitted to prevent performance issues."
 msgstr[0] ""
@@ -701,9 +706,6 @@ msgid_plural "%{securityScanner} results are not available because a pipeline ha
 msgstr[0] ""
 msgstr[1] ""
 
-msgid "%{service_title} %{message}."
-msgstr ""
-
 msgid "%{size} GiB"
 msgstr ""
 
@@ -820,6 +822,9 @@ msgid "%{total_warnings} warning(s) found:"
 msgstr ""
 
 msgid "%{total} open issue weight"
+msgstr ""
+
+msgid "%{total} warnings found: showing first %{warningsDisplayed}"
 msgstr ""
 
 msgid "%{usage_ping_link_start}Learn more%{usage_ping_link_end} about what information is shared with GitLab Inc."
@@ -2134,6 +2139,12 @@ msgstr ""
 msgid "Advanced"
 msgstr ""
 
+msgid "Advanced Search"
+msgstr ""
+
+msgid "Advanced Search with Elasticsearch"
+msgstr ""
+
 msgid "Advanced Settings"
 msgstr ""
 
@@ -2214,9 +2225,6 @@ msgstr ""
 msgid "AlertManagement|Events"
 msgstr ""
 
-msgid "AlertManagement|Full Alert Payload"
-msgstr ""
-
 msgid "AlertManagement|High"
 msgstr ""
 
@@ -2224,6 +2232,9 @@ msgid "AlertManagement|Info"
 msgstr ""
 
 msgid "AlertManagement|Issue"
+msgstr ""
+
+msgid "AlertManagement|Key"
 msgstr ""
 
 msgid "AlertManagement|Low"
@@ -2671,9 +2682,6 @@ msgid "An error occurred while adding formatted title for epic"
 msgstr ""
 
 msgid "An error occurred while checking group path. Please refresh and try again."
-msgstr ""
-
-msgid "An error occurred while committing your changes."
 msgstr ""
 
 msgid "An error occurred while creating the issue. Please try again."
@@ -3356,6 +3364,9 @@ msgid "Are you sure you want to re-deploy this environment?"
 msgstr ""
 
 msgid "Are you sure you want to regenerate the public key? You will have to update the public key on the remote server before mirroring will work again."
+msgstr ""
+
+msgid "Are you sure you want to reindex?"
 msgstr ""
 
 msgid "Are you sure you want to remove %{group_name}?"
@@ -4106,7 +4117,7 @@ msgstr ""
 msgid "Branch %{branch_name} was created. To set up auto deploy, choose a GitLab CI Yaml template and commit your changes. %{link_to_autodeploy_doc}"
 msgstr ""
 
-msgid "Branch has changed"
+msgid "Branch changed"
 msgstr ""
 
 msgid "Branch is already taken"
@@ -4410,6 +4421,9 @@ msgid "CLOSED"
 msgstr ""
 
 msgid "CLOSED (MOVED)"
+msgstr ""
+
+msgid "CODEOWNERS rule violation"
 msgstr ""
 
 msgid "CONTRIBUTING"
@@ -7015,6 +7029,9 @@ msgstr ""
 msgid "Contributions per group member"
 msgstr ""
 
+msgid "Contributor"
+msgstr ""
+
 msgid "Contributors"
 msgstr ""
 
@@ -7142,6 +7159,9 @@ msgid "Could not authorize chat nickname. Try again!"
 msgstr ""
 
 msgid "Could not change HEAD: branch '%{branch}' does not exist"
+msgstr ""
+
+msgid "Could not commit. An unexpected error occurred."
 msgstr ""
 
 msgid "Could not connect to FogBugz, check your URL"
@@ -8045,6 +8065,9 @@ msgstr ""
 msgid "Date picker"
 msgstr ""
 
+msgid "Date range"
+msgstr ""
+
 msgid "Date range cannot exceed %{maxDateRange} days."
 msgstr ""
 
@@ -8795,7 +8818,7 @@ msgstr ""
 msgid "DesignManagement|The maximum number of designs allowed to be uploaded is %{upload_limit}. Please try again."
 msgstr ""
 
-msgid "DesignManagement|To upload designs, you'll need to enable LFS. %{requirements_link_start}More information%{requirements_link_end}"
+msgid "DesignManagement|To upload designs, you'll need to enable LFS and have admin enable hashed storage. %{requirements_link_start}More information%{requirements_link_end}"
 msgstr ""
 
 msgid "DesignManagement|Unresolve thread"
@@ -9241,9 +9264,6 @@ msgstr ""
 msgid "Edit files in the editor and commit changes here"
 msgstr ""
 
-msgid "Edit fork in Web IDE"
-msgstr ""
-
 msgid "Edit group: %{group_name}"
 msgstr ""
 
@@ -9277,9 +9297,6 @@ msgstr ""
 msgid "Editing"
 msgstr ""
 
-msgid "Elasticsearch"
-msgstr ""
-
 msgid "Elasticsearch AWS IAM credentials"
 msgstr ""
 
@@ -9290,9 +9307,6 @@ msgid "Elasticsearch indexing restrictions"
 msgstr ""
 
 msgid "Elasticsearch indexing started"
-msgstr ""
-
-msgid "Elasticsearch integration. Elasticsearch AWS IAM."
 msgstr ""
 
 msgid "Elasticsearch reindexing is already in progress"
@@ -9421,7 +9435,16 @@ msgstr ""
 msgid "Enable"
 msgstr ""
 
+msgid "Enable %{gitpod_link} integration to launch a development environment in your browser directly from GitLab."
+msgstr ""
+
 msgid "Enable Auto DevOps"
+msgstr ""
+
+msgid "Enable Gitpod"
+msgstr ""
+
+msgid "Enable Gitpod?"
 msgstr ""
 
 msgid "Enable HTML emails"
@@ -10369,10 +10392,13 @@ msgstr ""
 msgid "Expand all"
 msgstr ""
 
+msgid "Expand all files"
+msgstr ""
+
 msgid "Expand approvers"
 msgstr ""
 
-msgid "Expand dropdown"
+msgid "Expand file"
 msgstr ""
 
 msgid "Expand milestones"
@@ -10583,6 +10609,9 @@ msgid "Failed to load assignees. Please try again."
 msgstr ""
 
 msgid "Failed to load authors. Please try again."
+msgstr ""
+
+msgid "Failed to load branches. Please try again."
 msgstr ""
 
 msgid "Failed to load emoji list."
@@ -10797,7 +10826,7 @@ msgstr ""
 msgid "FeatureFlags|Edit User List"
 msgstr ""
 
-msgid "FeatureFlags|Enable features for specific users and specific environments by defining feature flag strategies."
+msgid "FeatureFlags|Enable features for specific users and environments by configuring feature flag strategies."
 msgstr ""
 
 msgid "FeatureFlags|Environment Spec"
@@ -11206,6 +11235,9 @@ msgid "Font Color"
 msgstr ""
 
 msgid "Footer message"
+msgstr ""
+
+msgid "For a faster browsing experience, some files are collapsed by default."
 msgstr ""
 
 msgid "For help setting up the Service Desk for your instance, please contact an administrator."
@@ -11992,6 +12024,21 @@ msgid "Gitea Import"
 msgstr ""
 
 msgid "Gitlab Pages"
+msgstr ""
+
+msgid "Gitpod"
+msgstr ""
+
+msgid "Gitpod|Add the URL to your Gitpod instance configured to read your GitLab projects."
+msgstr ""
+
+msgid "Gitpod|Enable Gitpod integration"
+msgstr ""
+
+msgid "Gitpod|Gitpod URL"
+msgstr ""
+
+msgid "Gitpod|e.g. https://gitpod.example.com"
 msgstr ""
 
 msgid "Given access %{time_ago}"
@@ -13328,9 +13375,6 @@ msgstr ""
 msgid "In order to enable Service Desk for your instance, you must first set up incoming email."
 msgstr ""
 
-msgid "In order to gather accurate feature usage data, it can take 1 to 2 weeks to see your index."
-msgstr ""
-
 msgid "In order to personalize your experience with GitLab%{br_tag}we would like to know a bit more about you."
 msgstr ""
 
@@ -13431,6 +13475,15 @@ msgid "IncidentSettings|Set up integrations with external tools to help better m
 msgstr ""
 
 msgid "Incidents"
+msgstr ""
+
+msgid "Incident|Alert details"
+msgstr ""
+
+msgid "Incident|Summary"
+msgstr ""
+
+msgid "Incident|There was an issue loading alert data. Please try again."
 msgstr ""
 
 msgid "Include a Terms of Service agreement and Privacy Policy that all users must accept."
@@ -13585,6 +13638,12 @@ msgstr ""
 msgid "Integrations"
 msgstr ""
 
+msgid "Integrations|%{integration} settings saved and active."
+msgstr ""
+
+msgid "Integrations|%{integration} settings saved, but not active."
+msgstr ""
+
 msgid "Integrations|All details"
 msgstr ""
 
@@ -13592,6 +13651,12 @@ msgid "Integrations|Comment detail:"
 msgstr ""
 
 msgid "Integrations|Comment settings:"
+msgstr ""
+
+msgid "Integrations|Connection failed. Please check your settings."
+msgstr ""
+
+msgid "Integrations|Connection successful."
 msgstr ""
 
 msgid "Integrations|Default settings are inherited from the group level."
@@ -13994,6 +14059,9 @@ msgid "Issue|Title"
 msgstr ""
 
 msgid "It looks like you have some draft commits in this branch."
+msgstr ""
+
+msgid "It may be several days before you see feature usage data."
 msgstr ""
 
 msgid "It must have a header row and at least two columns: the first column is the issue title and the second column is the issue description. The separator is automatically detected."
@@ -14466,6 +14534,18 @@ msgstr[1] ""
 msgid "Last %{days} days"
 msgstr ""
 
+msgid "Last 2 weeks"
+msgstr ""
+
+msgid "Last 30 days"
+msgstr ""
+
+msgid "Last 60 days"
+msgstr ""
+
+msgid "Last 90 days"
+msgstr ""
+
 msgid "Last Accessed On"
 msgstr ""
 
@@ -14541,6 +14621,9 @@ msgstr ""
 msgid "Last used on:"
 msgstr ""
 
+msgid "Last week"
+msgstr ""
+
 msgid "LastCommit|authored"
 msgstr ""
 
@@ -14554,6 +14637,9 @@ msgid "Latest changes"
 msgstr ""
 
 msgid "Latest pipeline for the most recent commit on this branch"
+msgstr ""
+
+msgid "Launch a ready-to-code development environment for your project."
 msgstr ""
 
 msgid "Lead"
@@ -15321,6 +15407,9 @@ msgid "Max access level"
 msgstr ""
 
 msgid "Max seats used"
+msgstr ""
+
+msgid "Max size 15 MB"
 msgstr ""
 
 msgid "Maximum Users:"
@@ -16781,6 +16870,9 @@ msgstr ""
 msgid "New Snippet"
 msgstr ""
 
+msgid "New Test Case"
+msgstr ""
+
 msgid "New User"
 msgstr ""
 
@@ -16965,6 +17057,9 @@ msgid "No connection could be made to a Gitaly Server, please check your logs!"
 msgstr ""
 
 msgid "No containers available"
+msgstr ""
+
+msgid "No content to show"
 msgstr ""
 
 msgid "No contributions"
@@ -17725,6 +17820,9 @@ msgstr ""
 msgid "Other visibility settings have been disabled by the administrator."
 msgstr ""
 
+msgid "Our documentation includes an example DevOps Score report."
+msgstr ""
+
 msgid "Out-of-compliance with this project's policies and should be removed"
 msgstr ""
 
@@ -18032,6 +18130,9 @@ msgid "Packages & Registries"
 msgstr ""
 
 msgid "Page not found"
+msgstr ""
+
+msgid "Page settings"
 msgstr ""
 
 msgid "Page was successfully deleted"
@@ -18719,9 +18820,6 @@ msgid "Please provide attributes to update"
 msgstr ""
 
 msgid "Please refer to %{docs_url}"
-msgstr ""
-
-msgid "Please retype the email address."
 msgstr ""
 
 msgid "Please select"
@@ -20638,6 +20736,9 @@ msgstr ""
 msgid "Quick range"
 msgstr ""
 
+msgid "Quickly and easily edit multiple files in your project."
+msgstr ""
+
 msgid "README"
 msgstr ""
 
@@ -21289,7 +21390,16 @@ msgstr ""
 msgid "Repositories Analytics"
 msgstr ""
 
+msgid "RepositoriesAnalytics|Download Historic Test Coverage Data"
+msgstr ""
+
 msgid "RepositoriesAnalytics|Download historic test coverage data (.csv)"
+msgstr ""
+
+msgid "RepositoriesAnalytics|Download test coverage data (.csv)"
+msgstr ""
+
+msgid "RepositoriesAnalytics|Historic Test Coverage Data is available in raw format (.csv) for further analysis."
 msgstr ""
 
 msgid "RepositoriesAnalytics|Test Code Coverage"
@@ -21371,6 +21481,9 @@ msgid "Request details"
 msgstr ""
 
 msgid "Request parameter %{param} is missing."
+msgstr ""
+
+msgid "Request review from"
 msgstr ""
 
 msgid "Request to link SAML account must be authorized"
@@ -21641,6 +21754,9 @@ msgid "Review time is defined as the time it takes from first comment until merg
 msgstr ""
 
 msgid "ReviewApp|Enable Review App"
+msgstr ""
+
+msgid "Reviewer"
 msgstr ""
 
 msgid "Reviewing"
@@ -22674,7 +22790,7 @@ msgstr ""
 msgid "Select status"
 msgstr ""
 
-msgid "Select strategy activation method"
+msgid "Select strategy activation method."
 msgstr ""
 
 msgid "Select subscription"
@@ -22687,6 +22803,9 @@ msgid "Select the branch you want to set as the default for this project. All me
 msgstr ""
 
 msgid "Select the custom project template source group."
+msgstr ""
+
+msgid "Select the environment scope for this feature flag."
 msgstr ""
 
 msgid "Select timeframe"
@@ -23473,6 +23592,9 @@ msgstr ""
 msgid "Solution"
 msgstr ""
 
+msgid "Some changes are not shown"
+msgstr ""
+
 msgid "Some child epics may be hidden due to applied filters"
 msgstr ""
 
@@ -23537,6 +23659,9 @@ msgid "Something went wrong while closing the %{issuable}. Please try again late
 msgstr ""
 
 msgid "Something went wrong while creating a requirement."
+msgstr ""
+
+msgid "Something went wrong while creating a test case."
 msgstr ""
 
 msgid "Something went wrong while deleting description changes. Please try again."
@@ -23837,6 +23962,9 @@ msgid "Source"
 msgstr ""
 
 msgid "Source (branch or tag)"
+msgstr ""
+
+msgid "Source Branch"
 msgstr ""
 
 msgid "Source branch: %{source_branch_open}%{source_branch}%{source_branch_close}"
@@ -24253,13 +24381,13 @@ msgstr ""
 msgid "Submit %{humanized_resource_name}"
 msgstr ""
 
-msgid "Submit Changes"
-msgstr ""
-
 msgid "Submit a review"
 msgstr ""
 
 msgid "Submit as spam"
+msgstr ""
+
+msgid "Submit changes"
 msgstr ""
 
 msgid "Submit feedback"
@@ -24272,6 +24400,9 @@ msgid "Submit review"
 msgstr ""
 
 msgid "Submit search"
+msgstr ""
+
+msgid "Submit test case"
 msgstr ""
 
 msgid "Submit the current review."
@@ -24814,10 +24945,7 @@ msgid_plural "Test coverage: %d hits"
 msgstr[0] ""
 msgstr[1] ""
 
-msgid "Test failed."
-msgstr ""
-
-msgid "Test settings and save changes"
+msgid "Test settings"
 msgstr ""
 
 msgid "TestHooks|Ensure one of your projects has merge requests."
@@ -25053,6 +25181,9 @@ msgid "The fork relationship has been removed."
 msgstr ""
 
 msgid "The form contains the following error:"
+msgstr ""
+
+msgid "The form contains the following warning:"
 msgstr ""
 
 msgid "The global settings require you to enable Two-Factor Authentication for your account."
@@ -25400,6 +25531,9 @@ msgstr ""
 msgid "There was a problem communicating with your device."
 msgstr ""
 
+msgid "There was a problem fetching branches."
+msgstr ""
+
 msgid "There was a problem fetching groups."
 msgstr ""
 
@@ -25658,9 +25792,6 @@ msgstr ""
 msgid "This board's scope is reduced"
 msgstr ""
 
-msgid "This branch has changed since you started editing. Would you like to create a new branch?"
-msgstr ""
-
 msgid "This chart could not be displayed"
 msgstr ""
 
@@ -25748,6 +25879,9 @@ msgstr ""
 msgid "This field is required."
 msgstr ""
 
+msgid "This file is collapsed."
+msgstr ""
+
 msgid "This group"
 msgstr ""
 
@@ -25785,9 +25919,6 @@ msgid "This is a list of devices that have logged into your account. Revoke any 
 msgstr ""
 
 msgid "This is a security log of important events involving your account."
-msgstr ""
-
-msgid "This is the author's first Merge Request to this project."
 msgstr ""
 
 msgid "This is the highest peak of users on your installation since the license started."
@@ -26025,6 +26156,15 @@ msgid "This user has no active %{type}."
 msgstr ""
 
 msgid "This user has no identities"
+msgstr ""
+
+msgid "This user has previously committed to the %{name} project."
+msgstr ""
+
+msgid "This user is a %{access} of the %{name} project."
+msgstr ""
+
+msgid "This user is the author of this %{noteable}."
 msgstr ""
 
 msgid "This user will be the author of all events in the activity feed that are the result of an update, like new branches being created or new commits being pushed to existing branches."
@@ -26496,6 +26636,9 @@ msgstr ""
 msgid "To update Snippets with multiple files, you must use the `files` parameter"
 msgstr ""
 
+msgid "To use Gitpod you must first enable the feature in the integrations section of your %{user_prefs}."
+msgstr ""
+
 msgid "To view all %{scannedResourcesCount} scanned URLs, please download the CSV file"
 msgstr ""
 
@@ -26596,6 +26739,9 @@ msgid "Too many namespaces enabled. You will need to manage them via the console
 msgstr ""
 
 msgid "Too many projects enabled. You will need to manage them via the console or the API."
+msgstr ""
+
+msgid "Too much data"
 msgstr ""
 
 msgid "Topics (optional)"
@@ -27004,6 +27150,9 @@ msgid "Undo Ignore"
 msgstr ""
 
 msgid "Undo ignore"
+msgstr ""
+
+msgid "Unexpected error"
 msgstr ""
 
 msgid "Unfortunately, your email message to GitLab could not be processed."
@@ -27771,6 +27920,9 @@ msgstr ""
 msgid "Value Stream Name"
 msgstr ""
 
+msgid "ValueStreamAnalyticsStage|We don't have enough data to show this stage."
+msgstr ""
+
 msgid "ValueStreamAnalytics|%{days}d"
 msgstr ""
 
@@ -28025,6 +28177,9 @@ msgid "VisualReviewApp|Review"
 msgstr ""
 
 msgid "VisualReviewApp|Steps 1 and 2 (and sometimes 3) are performed once by the developer before requesting feedback. Steps 3 (if necessary), 4 is performed by the reviewer each time they perform a review."
+msgstr ""
+
+msgid "Visualization"
 msgstr ""
 
 msgid "Vulnerabilities"
@@ -28663,6 +28818,9 @@ msgid "Work in progress Limit"
 msgstr ""
 
 msgid "Workflow Help"
+msgstr ""
+
+msgid "Would you like to create a new branch?"
 msgstr ""
 
 msgid "Write"
@@ -29448,9 +29606,6 @@ msgstr[0] ""
 msgstr[1] ""
 
 msgid "access:"
-msgstr ""
-
-msgid "activated"
 msgstr ""
 
 msgid "added %{created_at_timeago}"
@@ -30665,9 +30820,6 @@ msgstr ""
 msgid "security Reports|There was an error creating the merge request"
 msgstr ""
 
-msgid "settings saved, but not activated"
-msgstr ""
-
 msgid "severity|Critical"
 msgstr ""
 
@@ -30822,6 +30974,9 @@ msgid "uploads"
 msgstr ""
 
 msgid "user avatar"
+msgstr ""
+
+msgid "user preferences"
 msgstr ""
 
 msgid "username"

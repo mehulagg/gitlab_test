@@ -77,6 +77,10 @@
   category: analytics
   redis_slot: analytics
   aggregation: weekly
+- name: i_analytics_instance_statistics
+  category: analytics
+  redis_slot: analytics
+  aggregation: weekly
 - name: g_edit_by_web_ide
   category: ide_edit
   redis_slot: edit
@@ -114,6 +118,10 @@
   category: source_code
   aggregation: daily
 - name: merge_request_action
+  category: source_code
+  aggregation: daily
+- name: i_source_code_code_intelligence
+  redis_slot: source_code
   category: source_code
   aggregation: daily
 # Incident management

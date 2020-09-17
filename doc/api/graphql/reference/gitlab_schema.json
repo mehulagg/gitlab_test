@@ -1837,7 +1837,7 @@
         {
           "kind": "OBJECT",
           "name": "AwardEmoji",
-          "description": "An emoji awarded by a user.",
+          "description": "An emoji awarded by a user",
           "fields": [
             {
               "name": "description",
@@ -3894,7 +3894,7 @@
         {
           "kind": "OBJECT",
           "name": "BurnupChartDailyTotals",
-          "description": "Represents the total number of issues and their weights for a particular day.",
+          "description": "Represents the total number of issues and their weights for a particular day",
           "fields": [
             {
               "name": "completedCount",
@@ -8544,7 +8544,7 @@
         {
           "kind": "OBJECT",
           "name": "DastScannerProfile",
-          "description": "Represents a DAST scanner profile.",
+          "description": "Represents a DAST scanner profile",
           "fields": [
             {
               "name": "editPath",
@@ -9181,7 +9181,7 @@
         {
           "kind": "OBJECT",
           "name": "DastSiteProfile",
-          "description": "Represents a DAST Site Profile.",
+          "description": "Represents a DAST Site Profile",
           "fields": [
             {
               "name": "editPath",
@@ -9930,7 +9930,7 @@
         {
           "kind": "OBJECT",
           "name": "DeleteJobsResponse",
-          "description": "The response from the AdminSidekiqQueuesDeleteJobs mutation.",
+          "description": "The response from the AdminSidekiqQueuesDeleteJobs mutation",
           "fields": [
             {
               "name": "completed",
@@ -10446,11 +10446,11 @@
         {
           "kind": "OBJECT",
           "name": "DesignAtVersion",
-          "description": "A design pinned to a specific version. The image field reflects the design as of the associated version.",
+          "description": "A design pinned to a specific version. The image field reflects the design as of the associated version",
           "fields": [
             {
               "name": "design",
-              "description": "The underlying design.",
+              "description": "The underlying design",
               "args": [
 
               ],
@@ -10787,7 +10787,7 @@
         {
           "kind": "OBJECT",
           "name": "DesignCollection",
-          "description": "A collection of designs.",
+          "description": "A collection of designs",
           "fields": [
             {
               "name": "design",
@@ -14358,7 +14358,7 @@
         {
           "kind": "OBJECT",
           "name": "Epic",
-          "description": "Represents an epic.",
+          "description": "Represents an epic",
           "fields": [
             {
               "name": "author",
@@ -15683,7 +15683,7 @@
         {
           "kind": "OBJECT",
           "name": "EpicDescendantCount",
-          "description": "Counts of descendent epics.",
+          "description": "Counts of descendent epics",
           "fields": [
             {
               "name": "closedEpics",
@@ -15887,6 +15887,16 @@
           "interfaces": [
 
           ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "SCALAR",
+          "name": "EpicID",
+          "description": "Identifier of Epic",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
           "enumValues": null,
           "possibleTypes": null
         },
@@ -17360,7 +17370,7 @@
         {
           "kind": "ENUM",
           "name": "EpicState",
-          "description": "State of an epic.",
+          "description": "State of an epic",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -22412,6 +22422,16 @@
               "defaultValue": null
             },
             {
+              "name": "epicId",
+              "description": "The ID of the parent epic. NULL when removing the association",
+              "type": {
+                "kind": "SCALAR",
+                "name": "EpicID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "clientMutationId",
               "description": "A unique identifier for the client performing the mutation.",
               "type": {
@@ -23969,7 +23989,7 @@
         {
           "kind": "OBJECT",
           "name": "IssueStatusCountsType",
-          "description": "Represents total number of issues for the represented statuses.",
+          "description": "Represents total number of issues for the represented statuses",
           "fields": [
             {
               "name": "all",
@@ -24053,7 +24073,7 @@
         {
           "kind": "OBJECT",
           "name": "Iteration",
-          "description": "Represents an iteration object.",
+          "description": "Represents an iteration object",
           "fields": [
             {
               "name": "burnupTimeSeries",
@@ -26083,6 +26103,34 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "Boolean",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "approvalsLeft",
+              "description": "Number of approvals left",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "approvalsRequired",
+              "description": "Number of approvals required",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -29461,7 +29509,7 @@
         {
           "kind": "OBJECT",
           "name": "Milestone",
-          "description": "Represents a milestone.",
+          "description": "Represents a milestone",
           "fields": [
             {
               "name": "burnupTimeSeries",
@@ -32370,7 +32418,7 @@
         {
           "kind": "ENUM",
           "name": "MutationOperationMode",
-          "description": "Different toggles for changing mutator behavior.",
+          "description": "Different toggles for changing mutator behavior",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -41536,7 +41584,7 @@
         {
           "kind": "ENUM",
           "name": "RegistryState",
-          "description": "State of a Geo registry.",
+          "description": "State of a Geo registry",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -41828,6 +41876,20 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "upcomingRelease",
+              "description": "Indicates the release is an upcoming release",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -43558,7 +43620,7 @@
         {
           "kind": "OBJECT",
           "name": "RequirementStatesCount",
-          "description": "Counts of requirements by their state.",
+          "description": "Counts of requirements by their state",
           "fields": [
             {
               "name": "archived",
@@ -44144,7 +44206,7 @@
           "fields": [
             {
               "name": "description",
-              "description": "Analyzer description that is displayed on the form.",
+              "description": "Analyzer description that is displayed on the form",
               "args": [
 
               ],
@@ -44158,7 +44220,7 @@
             },
             {
               "name": "enabled",
-              "description": "Indicates whether an analyzer is enabled.",
+              "description": "Indicates whether an analyzer is enabled",
               "args": [
 
               ],
@@ -44172,7 +44234,7 @@
             },
             {
               "name": "label",
-              "description": "Analyzer label used in the config UI.",
+              "description": "Analyzer label used in the config UI",
               "args": [
 
               ],
@@ -44186,7 +44248,7 @@
             },
             {
               "name": "name",
-              "description": "Name of the analyzer.",
+              "description": "Name of the analyzer",
               "args": [
 
               ],
@@ -44261,6 +44323,59 @@
                   "name": "PageInfo",
                   "ofType": null
                 }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "variables",
+              "description": "List of supported variables",
+              "args": [
+                {
+                  "name": "after",
+                  "description": "Returns the elements in the list that come after the specified cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "before",
+                  "description": "Returns the elements in the list that come before the specified cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "first",
+                  "description": "Returns the first _n_ elements from the list.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "last",
+                  "description": "Returns the last _n_ elements from the list.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "SastCiConfigurationEntityConnection",
+                "ofType": null
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -45237,7 +45352,7 @@
         {
           "kind": "ENUM",
           "name": "SecurityScannerType",
-          "description": "The type of the security scanner.",
+          "description": "The type of the security scanner",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -45363,7 +45478,7 @@
         {
           "kind": "OBJECT",
           "name": "SentryDetailedError",
-          "description": "A Sentry error.",
+          "description": "A Sentry error",
           "fields": [
             {
               "name": "count",
@@ -45848,7 +45963,7 @@
         {
           "kind": "OBJECT",
           "name": "SentryError",
-          "description": "A Sentry error. A simplified version of SentryDetailedError.",
+          "description": "A Sentry error. A simplified version of SentryDetailedError",
           "fields": [
             {
               "name": "count",
@@ -46171,7 +46286,7 @@
         {
           "kind": "OBJECT",
           "name": "SentryErrorCollection",
-          "description": "An object containing a collection of Sentry errors, and a detailed error.",
+          "description": "An object containing a collection of Sentry errors, and a detailed error",
           "fields": [
             {
               "name": "detailedError",
@@ -46283,7 +46398,7 @@
                 },
                 {
                   "name": "sort",
-                  "description": "Attribute to sort on. Options are frequency, first_seen, last_seen. last_seen is default.",
+                  "description": "Attribute to sort on. Options are frequency, first_seen, last_seen. last_seen is default",
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -46486,7 +46601,7 @@
         {
           "kind": "OBJECT",
           "name": "SentryErrorStackTrace",
-          "description": "An object containing a stack trace entry for a Sentry error.",
+          "description": "An object containing a stack trace entry for a Sentry error",
           "fields": [
             {
               "name": "dateReceived",
@@ -46610,7 +46725,7 @@
         {
           "kind": "OBJECT",
           "name": "SentryErrorStackTraceEntry",
-          "description": "An object containing a stack trace entry for a Sentry error.",
+          "description": "An object containing a stack trace entry for a Sentry error",
           "fields": [
             {
               "name": "col",
@@ -48850,7 +48965,7 @@
         {
           "kind": "OBJECT",
           "name": "TestReport",
-          "description": "Represents a requirement test report.",
+          "description": "Represents a requirement test report",
           "fields": [
             {
               "name": "author",
@@ -54411,7 +54526,7 @@
         {
           "kind": "OBJECT",
           "name": "Vulnerability",
-          "description": "Represents a vulnerability.",
+          "description": "Represents a vulnerability",
           "fields": [
             {
               "name": "description",
@@ -54900,7 +55015,7 @@
         {
           "kind": "OBJECT",
           "name": "VulnerabilityIdentifier",
-          "description": "Represents a vulnerability identifier.",
+          "description": "Represents a vulnerability identifier",
           "fields": [
             {
               "name": "externalId",
@@ -54969,7 +55084,7 @@
         {
           "kind": "OBJECT",
           "name": "VulnerabilityIssueLink",
-          "description": "Represents an issue link of a vulnerability.",
+          "description": "Represents an issue link of a vulnerability",
           "fields": [
             {
               "name": "id",
@@ -55148,7 +55263,7 @@
         {
           "kind": "ENUM",
           "name": "VulnerabilityIssueLinkType",
-          "description": "The type of the issue link related to a vulnerability.",
+          "description": "The type of the issue link related to a vulnerability",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -55783,7 +55898,7 @@
         {
           "kind": "ENUM",
           "name": "VulnerabilityReportType",
-          "description": "The type of the security scan that found the vulnerability.",
+          "description": "The type of the security scan that found the vulnerability",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -55830,7 +55945,7 @@
         {
           "kind": "OBJECT",
           "name": "VulnerabilityScanner",
-          "description": "Represents a vulnerability scanner.",
+          "description": "Represents a vulnerability scanner",
           "fields": [
             {
               "name": "externalId",
@@ -56108,7 +56223,7 @@
         {
           "kind": "ENUM",
           "name": "VulnerabilitySeverity",
-          "description": "The severity of the vulnerability.",
+          "description": "The severity of the vulnerability",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -56178,7 +56293,7 @@
         {
           "kind": "ENUM",
           "name": "VulnerabilityState",
-          "description": "The state of the vulnerability.",
+          "description": "The state of the vulnerability",
           "fields": null,
           "inputFields": null,
           "interfaces": null,

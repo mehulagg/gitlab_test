@@ -14,11 +14,9 @@ Git repositories become larger over time. When large files are added to a Git re
 - Git repository storage limits [can be reached](#storage-limits).
 
 Rewriting a repository can remove unwanted history to make the repository smaller.
-[`git filter-repo`](https://github.com/newren/git-filter-repo) is a tool for quickly rewriting Git
-repository history, and is recommended over both:
-
-- [`git filter-branch`](https://git-scm.com/docs/git-filter-branch).
-- [BFG](https://rtyley.github.io/bfg-repo-cleaner/).
+We **recommend [`git filter-repo`](https://github.com/newren/git-filter-repo/blob/main/README.md)**
+over [`git filter-branch`](https://git-scm.com/docs/git-filter-branch) and
+[BFG](https://rtyley.github.io/bfg-repo-cleaner/).
 
 DANGER: **Danger:**
 Rewriting repository history is a destructive operation. Make sure to backup your repository before
@@ -37,7 +35,7 @@ other internal references (refs) that are automatically created by GitLab. These
 
 - `refs/merge-requests/*` for merge requests.
 - `refs/pipelines/*` for
-  [pipelines](../../../ci/pipelines/index.md#troubleshooting-fatal-reference-is-not-a-tree).
+  [pipelines](../../../ci/troubleshooting.md#fatal-reference-is-not-a-tree-error).
 - `refs/environments/*` for environments.
 
 Git doesn't usually download these refs to make cloning and fetch faster, but we can use the `--mirror` option to
@@ -252,9 +250,9 @@ When using repository cleanup, note:
 
 Repository size limits:
 
-- Can [be set by an administrator](../../admin_area/settings/account_and_limit_settings.md#repository-size-limit)
+- Can [be set by an administrator](../../admin_area/settings/account_and_limit_settings.md#account-and-limit-settings)
   on self-managed instances. **(STARTER ONLY)**
-- Are [set for GitLab.com](../../gitlab_com/index.md#repository-size-limit).
+- Are [set for GitLab.com](../../gitlab_com/index.md#account-and-limit-settings).
 
 When a project has reached its size limit, you cannot:
 

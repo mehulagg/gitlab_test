@@ -72,7 +72,7 @@ class License < ApplicationRecord
     epics
     extended_audit_events
     external_authorization_service_api_management
-    feature_flags
+    feature_flags_related_issues
     file_locks
     geo
     generic_alert_fingerprinting
@@ -85,6 +85,7 @@ class License < ApplicationRecord
     group_project_templates
     group_repository_analytics
     group_saml
+    ide_schema_config
     issues_analytics
     jira_issues_integration
     ldap_group_sync_filter
@@ -138,6 +139,7 @@ class License < ApplicationRecord
     report_approver_rules
     requirements
     sast
+    sast_custom_rulesets
     secret_detection
     security_dashboard
     security_on_demand_scans

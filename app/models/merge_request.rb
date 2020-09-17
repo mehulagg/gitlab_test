@@ -1374,7 +1374,7 @@ class MergeRequest < ApplicationRecord
   end
 
   def has_coverage_reports?
-    return false unless Feature.enabled?(:coverage_report_view, project)
+    return false unless Feature.enabled?(:coverage_report_view, project, default_enabled: true)
 
     actual_head_pipeline&.has_coverage_reports?
   end
@@ -1603,7 +1603,7 @@ class MergeRequest < ApplicationRecord
   def first_contribution?
     return false if project.team.max_member_access(author_id) > Gitlab::Access::GUEST
 
-    project.merge_requests.merged.where(author_id: author_id).empty?
+    !project.merge_requests.merged.exists?(author_id: author_id)
   end
 
   # TODO: remove once production database rename completes

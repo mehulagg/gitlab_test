@@ -2,8 +2,8 @@
 import { debounce } from 'lodash';
 import {
   GlDropdown,
-  GlNewDropdownDivider,
-  GlNewDropdownItem,
+  GlDropdownDivider,
+  GlDropdownItem,
   GlIcon,
   GlLoadingIcon,
   GlSearchBoxByType,
@@ -15,8 +15,8 @@ import { deprecatedCreateFlash as createFlash } from '~/flash';
 export default {
   components: {
     GlDropdown,
-    GlNewDropdownDivider,
-    GlNewDropdownItem,
+    GlDropdownDivider,
+    GlDropdownItem,
     GlSearchBoxByType,
     GlIcon,
     GlLoadingIcon,
@@ -85,22 +85,22 @@ export default {
       @keyup="fetchEnvironments"
     />
     <gl-loading-icon v-if="isLoading" />
-    <gl-new-dropdown-item
+    <gl-dropdown-item
       v-for="environment in results"
       v-else-if="results.length"
       :key="environment"
       @click="addEnvironment(environment)"
     >
       {{ environment }}
-    </gl-new-dropdown-item>
+    </gl-dropdown-item>
     <template v-else-if="environmentSearch.length">
       <span ref="noResults" class="text-secondary gl-p-3">
         {{ $options.translations.noMatchingResults }}
       </span>
-      <gl-new-dropdown-divider />
-      <gl-new-dropdown-item @click="addEnvironment(environmentSearch)">
+      <gl-dropdown-divider />
+      <gl-dropdown-item @click="addEnvironment(environmentSearch)">
         {{ createEnvironmentLabel }}
-      </gl-new-dropdown-item>
+      </gl-dropdown-item>
     </template>
   </gl-dropdown>
 </template>

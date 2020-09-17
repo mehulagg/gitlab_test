@@ -9272,6 +9272,9 @@ CREATE TABLE public.application_settings (
     enforce_namespace_storage_limit boolean DEFAULT false NOT NULL,
     container_registry_delete_tags_service_timeout integer DEFAULT 250 NOT NULL,
     elasticsearch_client_request_timeout integer DEFAULT 0 NOT NULL,
+    gitpod_enabled boolean DEFAULT false NOT NULL,
+    gitpod_url text DEFAULT 'https://gitpod.io/'::text,
+    CONSTRAINT check_2dba05b802 CHECK ((char_length(gitpod_url) <= 255)),
     CONSTRAINT check_51700b31b5 CHECK ((char_length(default_branch_name) <= 255)),
     CONSTRAINT check_9c6c447a13 CHECK ((char_length(maintenance_mode_message) <= 255)),
     CONSTRAINT check_d03919528d CHECK ((char_length(container_registry_vendor) <= 255)),
@@ -9538,6 +9541,27 @@ CREATE SEQUENCE public.audit_events_id_seq
     CACHE 1;
 
 ALTER SEQUENCE public.audit_events_id_seq OWNED BY public.audit_events.id;
+
+CREATE TABLE public.authentication_events (
+    id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    user_id bigint,
+    result smallint NOT NULL,
+    ip_address inet,
+    provider text NOT NULL,
+    user_name text NOT NULL,
+    CONSTRAINT check_45a6cc4e80 CHECK ((char_length(user_name) <= 255)),
+    CONSTRAINT check_c64f424630 CHECK ((char_length(provider) <= 64))
+);
+
+CREATE SEQUENCE public.authentication_events_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.authentication_events_id_seq OWNED BY public.authentication_events.id;
 
 CREATE TABLE public.award_emoji (
     id integer NOT NULL,
@@ -9832,8 +9856,8 @@ CREATE TABLE public.ci_build_pending_states (
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
     build_id bigint NOT NULL,
-    state integer,
-    failure_reason integer,
+    state smallint,
+    failure_reason smallint,
     trace_checksum bytea
 );
 
@@ -11178,12 +11202,59 @@ CREATE SEQUENCE public.dast_site_profiles_id_seq
 
 ALTER SEQUENCE public.dast_site_profiles_id_seq OWNED BY public.dast_site_profiles.id;
 
+CREATE TABLE public.dast_site_tokens (
+    id bigint NOT NULL,
+    project_id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    expired_at timestamp with time zone,
+    token text NOT NULL,
+    url text NOT NULL,
+    CONSTRAINT check_02a6bf20a7 CHECK ((char_length(token) <= 255)),
+    CONSTRAINT check_69ab8622a6 CHECK ((char_length(url) <= 255))
+);
+
+CREATE SEQUENCE public.dast_site_tokens_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.dast_site_tokens_id_seq OWNED BY public.dast_site_tokens.id;
+
+CREATE TABLE public.dast_site_validations (
+    id bigint NOT NULL,
+    dast_site_token_id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    validation_started_at timestamp with time zone,
+    validation_passed_at timestamp with time zone,
+    validation_failed_at timestamp with time zone,
+    validation_last_retried_at timestamp with time zone,
+    validation_strategy smallint NOT NULL,
+    url_base text NOT NULL,
+    url_path text NOT NULL,
+    CONSTRAINT check_13b34efe4b CHECK ((char_length(url_path) <= 255)),
+    CONSTRAINT check_cd3b538210 CHECK ((char_length(url_base) <= 255))
+);
+
+CREATE SEQUENCE public.dast_site_validations_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.dast_site_validations_id_seq OWNED BY public.dast_site_validations.id;
+
 CREATE TABLE public.dast_sites (
     id bigint NOT NULL,
     project_id bigint NOT NULL,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
     url text NOT NULL,
+    dast_site_validation_id bigint,
     CONSTRAINT check_46df8b449c CHECK ((char_length(url) <= 255))
 );
 
@@ -13217,7 +13288,8 @@ CREATE TABLE public.merge_request_diffs (
     external_diff character varying,
     external_diff_store integer DEFAULT 1,
     stored_externally boolean,
-    files_count smallint
+    files_count smallint,
+    CONSTRAINT check_93ee616ac9 CHECK ((external_diff_store IS NOT NULL))
 );
 
 CREATE SEQUENCE public.merge_request_diffs_id_seq
@@ -14085,7 +14157,9 @@ ALTER SEQUENCE public.packages_packages_id_seq OWNED BY public.packages_packages
 
 CREATE TABLE public.packages_pypi_metadata (
     package_id bigint NOT NULL,
-    required_python character varying(50) NOT NULL
+    required_python text,
+    CONSTRAINT check_0d9aed55b2 CHECK ((required_python IS NOT NULL)),
+    CONSTRAINT check_379019d5da CHECK ((char_length(required_python) <= 255))
 );
 
 CREATE TABLE public.packages_tags (
@@ -15469,6 +15543,7 @@ CREATE TABLE public.security_findings (
     severity smallint NOT NULL,
     confidence smallint NOT NULL,
     project_fingerprint text NOT NULL,
+    deduplicated boolean DEFAULT false NOT NULL,
     CONSTRAINT check_b9508c6df8 CHECK ((char_length(project_fingerprint) <= 40))
 );
 
@@ -15971,6 +16046,27 @@ CREATE SEQUENCE public.term_agreements_id_seq
 
 ALTER SEQUENCE public.term_agreements_id_seq OWNED BY public.term_agreements.id;
 
+CREATE TABLE public.terraform_state_versions (
+    id bigint NOT NULL,
+    terraform_state_id bigint NOT NULL,
+    created_by_user_id bigint,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    version integer NOT NULL,
+    file_store smallint NOT NULL,
+    file text NOT NULL,
+    CONSTRAINT check_0824bb7bbd CHECK ((char_length(file) <= 255))
+);
+
+CREATE SEQUENCE public.terraform_state_versions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.terraform_state_versions_id_seq OWNED BY public.terraform_state_versions.id;
+
 CREATE TABLE public.terraform_states (
     id bigint NOT NULL,
     project_id bigint NOT NULL,
@@ -15988,6 +16084,7 @@ CREATE TABLE public.terraform_states (
     verification_retry_count smallint,
     verification_checksum bytea,
     verification_failure text,
+    versioning_enabled boolean DEFAULT false NOT NULL,
     CONSTRAINT check_21a47163ea CHECK ((char_length(verification_failure) <= 255))
 );
 
@@ -16232,7 +16329,8 @@ CREATE TABLE public.user_preferences (
     tab_width smallint,
     feature_filter_type bigint,
     experience_level smallint,
-    view_diffs_file_by_file boolean DEFAULT false NOT NULL
+    view_diffs_file_by_file boolean DEFAULT false NOT NULL,
+    gitpod_enabled boolean DEFAULT false NOT NULL
 );
 
 CREATE SEQUENCE public.user_preferences_id_seq
@@ -16964,6 +17062,8 @@ ALTER TABLE ONLY public.atlassian_identities ALTER COLUMN user_id SET DEFAULT ne
 
 ALTER TABLE ONLY public.audit_events ALTER COLUMN id SET DEFAULT nextval('public.audit_events_id_seq'::regclass);
 
+ALTER TABLE ONLY public.authentication_events ALTER COLUMN id SET DEFAULT nextval('public.authentication_events_id_seq'::regclass);
+
 ALTER TABLE ONLY public.award_emoji ALTER COLUMN id SET DEFAULT nextval('public.award_emoji_id_seq'::regclass);
 
 ALTER TABLE ONLY public.background_migration_jobs ALTER COLUMN id SET DEFAULT nextval('public.background_migration_jobs_id_seq'::regclass);
@@ -17113,6 +17213,10 @@ ALTER TABLE ONLY public.custom_emoji ALTER COLUMN id SET DEFAULT nextval('public
 ALTER TABLE ONLY public.dast_scanner_profiles ALTER COLUMN id SET DEFAULT nextval('public.dast_scanner_profiles_id_seq'::regclass);
 
 ALTER TABLE ONLY public.dast_site_profiles ALTER COLUMN id SET DEFAULT nextval('public.dast_site_profiles_id_seq'::regclass);
+
+ALTER TABLE ONLY public.dast_site_tokens ALTER COLUMN id SET DEFAULT nextval('public.dast_site_tokens_id_seq'::regclass);
+
+ALTER TABLE ONLY public.dast_site_validations ALTER COLUMN id SET DEFAULT nextval('public.dast_site_validations_id_seq'::regclass);
 
 ALTER TABLE ONLY public.dast_sites ALTER COLUMN id SET DEFAULT nextval('public.dast_sites_id_seq'::regclass);
 
@@ -17538,6 +17642,8 @@ ALTER TABLE ONLY public.tags ALTER COLUMN id SET DEFAULT nextval('public.tags_id
 
 ALTER TABLE ONLY public.term_agreements ALTER COLUMN id SET DEFAULT nextval('public.term_agreements_id_seq'::regclass);
 
+ALTER TABLE ONLY public.terraform_state_versions ALTER COLUMN id SET DEFAULT nextval('public.terraform_state_versions_id_seq'::regclass);
+
 ALTER TABLE ONLY public.terraform_states ALTER COLUMN id SET DEFAULT nextval('public.terraform_states_id_seq'::regclass);
 
 ALTER TABLE ONLY public.timelogs ALTER COLUMN id SET DEFAULT nextval('public.timelogs_id_seq'::regclass);
@@ -17895,6 +18001,9 @@ ALTER TABLE ONLY public.audit_events_part_5fc467ac26
 ALTER TABLE ONLY public.audit_events
     ADD CONSTRAINT audit_events_pkey PRIMARY KEY (id);
 
+ALTER TABLE ONLY public.authentication_events
+    ADD CONSTRAINT authentication_events_pkey PRIMARY KEY (id);
+
 ALTER TABLE ONLY public.award_emoji
     ADD CONSTRAINT award_emoji_pkey PRIMARY KEY (id);
 
@@ -17948,9 +18057,6 @@ ALTER TABLE public.vulnerability_scanners
 
 ALTER TABLE public.packages_package_files
     ADD CONSTRAINT check_4c5e6bb0b3 CHECK ((file_store IS NOT NULL)) NOT VALID;
-
-ALTER TABLE public.merge_request_diffs
-    ADD CONSTRAINT check_93ee616ac9 CHECK ((external_diff_store IS NOT NULL)) NOT VALID;
 
 ALTER TABLE ONLY public.ci_build_needs
     ADD CONSTRAINT ci_build_needs_pkey PRIMARY KEY (id);
@@ -18140,6 +18246,12 @@ ALTER TABLE ONLY public.dast_scanner_profiles
 
 ALTER TABLE ONLY public.dast_site_profiles
     ADD CONSTRAINT dast_site_profiles_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.dast_site_tokens
+    ADD CONSTRAINT dast_site_tokens_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.dast_site_validations
+    ADD CONSTRAINT dast_site_validations_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY public.dast_sites
     ADD CONSTRAINT dast_sites_pkey PRIMARY KEY (id);
@@ -18846,6 +18958,9 @@ ALTER TABLE ONLY public.tags
 ALTER TABLE ONLY public.term_agreements
     ADD CONSTRAINT term_agreements_pkey PRIMARY KEY (id);
 
+ALTER TABLE ONLY public.terraform_state_versions
+    ADD CONSTRAINT terraform_state_versions_pkey PRIMARY KEY (id);
+
 ALTER TABLE ONLY public.terraform_states
     ADD CONSTRAINT terraform_states_pkey PRIMARY KEY (id);
 
@@ -19332,6 +19447,10 @@ CREATE INDEX index_approvers_on_user_id ON public.approvers USING btree (user_id
 
 CREATE UNIQUE INDEX index_atlassian_identities_on_extern_uid ON public.atlassian_identities USING btree (extern_uid);
 
+CREATE INDEX index_authentication_events_on_provider ON public.authentication_events USING btree (provider);
+
+CREATE INDEX index_authentication_events_on_user_id ON public.authentication_events USING btree (user_id);
+
 CREATE INDEX index_award_emoji_on_awardable_type_and_awardable_id ON public.award_emoji USING btree (awardable_type, awardable_id);
 
 CREATE INDEX index_award_emoji_on_user_id_and_name ON public.award_emoji USING btree (user_id, name);
@@ -19723,6 +19842,14 @@ CREATE UNIQUE INDEX index_dast_scanner_profiles_on_project_id_and_name ON public
 CREATE INDEX index_dast_site_profiles_on_dast_site_id ON public.dast_site_profiles USING btree (dast_site_id);
 
 CREATE UNIQUE INDEX index_dast_site_profiles_on_project_id_and_name ON public.dast_site_profiles USING btree (project_id, name);
+
+CREATE INDEX index_dast_site_tokens_on_project_id ON public.dast_site_tokens USING btree (project_id);
+
+CREATE INDEX index_dast_site_validations_on_dast_site_token_id ON public.dast_site_validations USING btree (dast_site_token_id);
+
+CREATE INDEX index_dast_site_validations_on_url_base ON public.dast_site_validations USING btree (url_base);
+
+CREATE INDEX index_dast_sites_on_dast_site_validation_id ON public.dast_sites USING btree (dast_site_validation_id);
 
 CREATE UNIQUE INDEX index_dast_sites_on_project_id_and_url ON public.dast_sites USING btree (project_id, url);
 
@@ -20270,8 +20397,6 @@ CREATE UNIQUE INDEX index_merge_request_diff_files_on_mr_diff_id_and_order ON pu
 
 CREATE INDEX index_merge_request_diffs_by_id_partial ON public.merge_request_diffs USING btree (id) WHERE ((files_count > 0) AND ((NOT stored_externally) OR (stored_externally IS NULL)));
 
-CREATE INDEX index_merge_request_diffs_external_diff_store_is_null ON public.merge_request_diffs USING btree (id) WHERE (external_diff_store IS NULL);
-
 CREATE INDEX index_merge_request_diffs_on_external_diff_store ON public.merge_request_diffs USING btree (external_diff_store);
 
 CREATE INDEX index_merge_request_diffs_on_merge_request_id_and_id ON public.merge_request_diffs USING btree (merge_request_id, id);
@@ -20328,6 +20453,8 @@ CREATE INDEX index_merge_requests_on_sprint_id ON public.merge_requests USING bt
 
 CREATE INDEX index_merge_requests_on_target_branch ON public.merge_requests USING btree (target_branch);
 
+CREATE INDEX index_merge_requests_on_target_project_id_and_created_at_and_id ON public.merge_requests USING btree (target_project_id, created_at, id);
+
 CREATE UNIQUE INDEX index_merge_requests_on_target_project_id_and_iid ON public.merge_requests USING btree (target_project_id, iid);
 
 CREATE INDEX index_merge_requests_on_target_project_id_and_target_branch ON public.merge_requests USING btree (target_project_id, target_branch) WHERE ((state_id = 1) AND (merge_when_pipeline_succeeds = true));
@@ -20339,8 +20466,6 @@ CREATE INDEX index_merge_requests_on_title_trigram ON public.merge_requests USIN
 CREATE INDEX index_merge_requests_on_tp_id_and_merge_commit_sha_and_id ON public.merge_requests USING btree (target_project_id, merge_commit_sha, id);
 
 CREATE INDEX index_merge_requests_on_updated_by_id ON public.merge_requests USING btree (updated_by_id) WHERE (updated_by_id IS NOT NULL);
-
-CREATE INDEX index_merge_requests_target_project_id_created_at ON public.merge_requests USING btree (target_project_id, created_at);
 
 CREATE UNIQUE INDEX index_merge_trains_on_merge_request_id ON public.merge_trains USING btree (merge_request_id);
 
@@ -20958,7 +21083,7 @@ CREATE INDEX index_security_findings_on_confidence ON public.security_findings U
 
 CREATE INDEX index_security_findings_on_project_fingerprint ON public.security_findings USING btree (project_fingerprint);
 
-CREATE INDEX index_security_findings_on_scan_id ON public.security_findings USING btree (scan_id);
+CREATE INDEX index_security_findings_on_scan_id_and_deduplicated ON public.security_findings USING btree (scan_id, deduplicated);
 
 CREATE INDEX index_security_findings_on_scanner_id ON public.security_findings USING btree (scanner_id);
 
@@ -21087,6 +21212,10 @@ CREATE INDEX index_tags_on_name_trigram ON public.tags USING gin (name public.gi
 CREATE INDEX index_term_agreements_on_term_id ON public.term_agreements USING btree (term_id);
 
 CREATE INDEX index_term_agreements_on_user_id ON public.term_agreements USING btree (user_id);
+
+CREATE INDEX index_terraform_state_versions_on_created_by_user_id ON public.terraform_state_versions USING btree (created_by_user_id);
+
+CREATE UNIQUE INDEX index_terraform_state_versions_on_state_id_and_version ON public.terraform_state_versions USING btree (terraform_state_id, version);
 
 CREATE INDEX index_terraform_states_on_file_store ON public.terraform_states USING btree (file_store);
 
@@ -21691,6 +21820,9 @@ ALTER TABLE ONLY public.merge_requests
 ALTER TABLE ONLY public.user_interacted_projects
     ADD CONSTRAINT fk_0894651f08 FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY public.dast_sites
+    ADD CONSTRAINT fk_0a57f2271b FOREIGN KEY (dast_site_validation_id) REFERENCES public.dast_site_validations(id) ON DELETE SET NULL;
+
 ALTER TABLE ONLY public.web_hooks
     ADD CONSTRAINT fk_0c8ca6d9d1 FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
 
@@ -21885,6 +22017,9 @@ ALTER TABLE ONLY public.geo_event_log
 
 ALTER TABLE ONLY public.projects
     ADD CONSTRAINT fk_6e5c14658a FOREIGN KEY (pool_repository_id) REFERENCES public.pool_repositories(id) ON DELETE SET NULL;
+
+ALTER TABLE ONLY public.terraform_state_versions
+    ADD CONSTRAINT fk_6e81384d7f FOREIGN KEY (created_by_user_id) REFERENCES public.users(id) ON DELETE SET NULL;
 
 ALTER TABLE ONLY public.protected_branch_push_access_levels
     ADD CONSTRAINT fk_7111b68cdb FOREIGN KEY (group_id) REFERENCES public.namespaces(id) ON DELETE CASCADE;
@@ -22309,6 +22444,9 @@ ALTER TABLE ONLY public.events
 ALTER TABLE ONLY public.ip_restrictions
     ADD CONSTRAINT fk_rails_04a93778d5 FOREIGN KEY (group_id) REFERENCES public.namespaces(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY public.terraform_state_versions
+    ADD CONSTRAINT fk_rails_04f176e239 FOREIGN KEY (terraform_state_id) REFERENCES public.terraform_states(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY public.ci_build_report_results
     ADD CONSTRAINT fk_rails_056d298d48 FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
 
@@ -22467,6 +22605,9 @@ ALTER TABLE ONLY public.lfs_file_locks
 
 ALTER TABLE ONLY public.project_alerting_settings
     ADD CONSTRAINT fk_rails_27a84b407d FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.dast_site_validations
+    ADD CONSTRAINT fk_rails_285c617324 FOREIGN KEY (dast_site_token_id) REFERENCES public.dast_site_tokens(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.resource_state_events
     ADD CONSTRAINT fk_rails_29af06892a FOREIGN KEY (issue_id) REFERENCES public.issues(id) ON DELETE CASCADE;
@@ -23161,6 +23302,9 @@ ALTER TABLE ONLY public.webauthn_registrations
 ALTER TABLE ONLY public.packages_build_infos
     ADD CONSTRAINT fk_rails_b18868292d FOREIGN KEY (package_id) REFERENCES public.packages_packages(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY public.authentication_events
+    ADD CONSTRAINT fk_rails_b204656a54 FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE SET NULL;
+
 ALTER TABLE ONLY public.merge_trains
     ADD CONSTRAINT fk_rails_b29261ce31 FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
@@ -23391,6 +23535,9 @@ ALTER TABLE ONLY public.merge_request_metrics
 
 ALTER TABLE ONLY public.draft_notes
     ADD CONSTRAINT fk_rails_e753681674 FOREIGN KEY (merge_request_id) REFERENCES public.merge_requests(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.dast_site_tokens
+    ADD CONSTRAINT fk_rails_e84f721a8e FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.group_deploy_keys_groups
     ADD CONSTRAINT fk_rails_e87145115d FOREIGN KEY (group_id) REFERENCES public.namespaces(id) ON DELETE CASCADE;

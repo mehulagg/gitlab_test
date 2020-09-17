@@ -240,7 +240,11 @@ module EE
             suggestions: distinct_count(::Note.with_suggestions.where(time_period),
                                         :author_id,
                                         start: user_minimum_id,
-                                        finish: user_maximum_id)
+                                        finish: user_maximum_id),
+            users_using_path_locks: distinct_count(PathLock.where(time_period), :user_id),
+            users_using_lfs_locks: distinct_count(LfsFileLock.where(time_period), :user_id),
+            total_number_of_path_locks: count(::PathLock.where(time_period)),
+            total_number_of_locked_files: count(::LfsFileLock.where(time_period))
           }, approval_rules_counts)
         end
 

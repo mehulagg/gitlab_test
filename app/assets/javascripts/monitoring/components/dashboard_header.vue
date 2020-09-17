@@ -5,8 +5,8 @@ import {
   GlButton,
   GlDropdown,
   GlLoadingIcon,
-  GlNewDropdownItem,
-  GlNewDropdownHeader,
+  GlDropdownItem,
+  GlDropdownSectionHeader,
   GlSearchBoxByType,
   GlModalDirective,
   GlTooltipDirective,
@@ -30,8 +30,8 @@ export default {
     GlButton,
     GlDropdown,
     GlLoadingIcon,
-    GlNewDropdownItem,
-    GlNewDropdownHeader,
+    GlDropdownItem,
+    GlDropdownSectionHeader,
 
     GlSearchBoxByType,
 
@@ -191,12 +191,12 @@ export default {
         :text="environmentDropdownText"
       >
         <div class="d-flex flex-column overflow-hidden">
-          <gl-new-dropdown-header>{{ __('Environment') }}</gl-new-dropdown-header>
+          <gl-dropdown-section-header>{{ __('Environment') }}</gl-dropdown-section-header>
           <gl-search-box-by-type class="gl-m-3" @input="debouncedEnvironmentsSearch" />
 
           <gl-loading-icon v-if="environmentsLoading" :inline="true" />
           <div v-else class="flex-fill overflow-auto">
-            <gl-new-dropdown-item
+            <gl-dropdown-item
               v-for="environment in filteredEnvironments"
               :key="environment.id"
               :is-check-item="true"
@@ -204,7 +204,7 @@ export default {
               :href="getEnvironmentPath(environment.id)"
             >
               {{ environment.name }}
-            </gl-new-dropdown-item>
+            </gl-dropdown-item>
           </div>
           <div
             v-show="shouldShowEnvironmentsDropdownNoMatchedMsg"

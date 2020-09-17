@@ -731,7 +731,7 @@ type AlertTodoCreatePayload {
 }
 
 """
-An emoji awarded by a user.
+An emoji awarded by a user
 """
 type AwardEmoji {
   """
@@ -1448,7 +1448,7 @@ type Branch {
 }
 
 """
-Represents the total number of issues and their weights for a particular day.
+Represents the total number of issues and their weights for a particular day
 """
 type BurnupChartDailyTotals {
   """
@@ -3139,7 +3139,7 @@ enum DastScanTypeEnum {
 }
 
 """
-Represents a DAST scanner profile.
+Represents a DAST scanner profile
 """
 type DastScannerProfile {
   """
@@ -3359,7 +3359,7 @@ type DastScannerProfileUpdatePayload {
 }
 
 """
-Represents a DAST Site Profile.
+Represents a DAST Site Profile
 """
 type DastSiteProfile {
   """
@@ -3626,7 +3626,7 @@ type DeleteAnnotationPayload {
 }
 
 """
-The response from the AdminSidekiqQueuesDeleteJobs mutation.
+The response from the AdminSidekiqQueuesDeleteJobs mutation
 """
 type DeleteJobsResponse {
   """
@@ -3816,11 +3816,11 @@ type Design implements CurrentUserTodos & DesignFields & Noteable {
 }
 
 """
-A design pinned to a specific version. The image field reflects the design as of the associated version.
+A design pinned to a specific version. The image field reflects the design as of the associated version
 """
 type DesignAtVersion implements DesignFields {
   """
-  The underlying design.
+  The underlying design
   """
   design: Design!
 
@@ -3916,7 +3916,7 @@ type DesignAtVersionEdge {
 }
 
 """
-A collection of designs.
+A collection of designs
 """
 type DesignCollection {
   """
@@ -5106,7 +5106,7 @@ type EnvironmentEdge {
 }
 
 """
-Represents an epic.
+Represents an epic
 """
 type Epic implements CurrentUserTodos & Noteable {
   """
@@ -5603,7 +5603,7 @@ type EpicConnection {
 }
 
 """
-Counts of descendent epics.
+Counts of descendent epics
 """
 type EpicDescendantCount {
   """
@@ -5676,6 +5676,11 @@ type EpicHealthStatus {
   """
   issuesOnTrack: Int
 }
+
+"""
+Identifier of Epic
+"""
+scalar EpicID
 
 """
 Relationship between an epic and an issue
@@ -6198,7 +6203,7 @@ enum EpicSort {
 }
 
 """
-State of an epic.
+State of an epic
 """
 enum EpicState {
   all
@@ -8097,6 +8102,11 @@ input IssueMoveListInput {
   clientMutationId: String
 
   """
+  The ID of the parent epic. NULL when removing the association
+  """
+  epicId: EpicID
+
+  """
   ID of the board list that the issue will be moved from
   """
   fromListId: ID
@@ -8693,7 +8703,7 @@ enum IssueState {
 }
 
 """
-Represents total number of issues for the represented statuses.
+Represents total number of issues for the represented statuses
 """
 type IssueStatusCountsType {
   """
@@ -8733,7 +8743,7 @@ enum IssueType {
 }
 
 """
-Represents an iteration object.
+Represents an iteration object
 """
 type Iteration implements TimeboxBurnupTimeSeriesInterface {
   """
@@ -9396,6 +9406,16 @@ type MergeRequest implements CurrentUserTodos & Noteable {
   Indicates if members of the target project can push to the fork
   """
   allowCollaboration: Boolean
+
+  """
+  Number of approvals left
+  """
+  approvalsLeft: Int
+
+  """
+  Number of approvals required
+  """
+  approvalsRequired: Int
 
   """
   Indicates if the merge request has all the required approvals. Returns true if no required approvals are configured.
@@ -10596,7 +10616,7 @@ type MetricsDashboardAnnotationEdge {
 }
 
 """
-Represents a milestone.
+Represents a milestone
 """
 type Milestone implements TimeboxBurnupTimeSeriesInterface {
   """
@@ -10858,7 +10878,7 @@ type Mutation {
 }
 
 """
-Different toggles for changing mutator behavior.
+Different toggles for changing mutator behavior
 """
 enum MutationOperationMode {
   """
@@ -14226,7 +14246,7 @@ type Query {
 }
 
 """
-State of a Geo registry.
+State of a Geo registry
 """
 enum RegistryState {
   """
@@ -14358,6 +14378,11 @@ type Release {
   Relative web path to the tag associated with the release
   """
   tagPath: String
+
+  """
+  Indicates the release is an upcoming release
+  """
+  upcomingRelease: Boolean
 }
 
 """
@@ -14953,7 +14978,7 @@ enum RequirementState {
 }
 
 """
-Counts of requirements by their state.
+Counts of requirements by their state
 """
 type RequirementStatesCount {
   """
@@ -15161,24 +15186,49 @@ Represents an analyzer entity in SAST CI configuration
 """
 type SastCiConfigurationAnalyzersEntity {
   """
-  Analyzer description that is displayed on the form.
+  Analyzer description that is displayed on the form
   """
   description: String
 
   """
-  Indicates whether an analyzer is enabled.
+  Indicates whether an analyzer is enabled
   """
   enabled: Boolean
 
   """
-  Analyzer label used in the config UI.
+  Analyzer label used in the config UI
   """
   label: String
 
   """
-  Name of the analyzer.
+  Name of the analyzer
   """
   name: String
+
+  """
+  List of supported variables
+  """
+  variables(
+    """
+    Returns the elements in the list that come after the specified cursor.
+    """
+    after: String
+
+    """
+    Returns the elements in the list that come before the specified cursor.
+    """
+    before: String
+
+    """
+    Returns the first _n_ elements from the list.
+    """
+    first: Int
+
+    """
+    Returns the last _n_ elements from the list.
+    """
+    last: Int
+  ): SastCiConfigurationEntityConnection
 }
 
 """
@@ -15541,7 +15591,7 @@ type SecurityReportSummarySection {
 }
 
 """
-The type of the security scanner.
+The type of the security scanner
 """
 enum SecurityScannerType {
   CONTAINER_SCANNING
@@ -15573,7 +15623,7 @@ type SecurityScanners {
 }
 
 """
-A Sentry error.
+A Sentry error
 """
 type SentryDetailedError {
   """
@@ -15718,7 +15768,7 @@ type SentryDetailedError {
 }
 
 """
-A Sentry error. A simplified version of SentryDetailedError.
+A Sentry error. A simplified version of SentryDetailedError
 """
 type SentryError {
   """
@@ -15808,7 +15858,7 @@ type SentryError {
 }
 
 """
-An object containing a collection of Sentry errors, and a detailed error.
+An object containing a collection of Sentry errors, and a detailed error
 """
 type SentryErrorCollection {
   """
@@ -15861,7 +15911,7 @@ type SentryErrorCollection {
     searchTerm: String
 
     """
-    Attribute to sort on. Options are frequency, first_seen, last_seen. last_seen is default.
+    Attribute to sort on. Options are frequency, first_seen, last_seen. last_seen is default
     """
     sort: String
   ): SentryErrorConnection
@@ -15920,7 +15970,7 @@ type SentryErrorFrequency {
 }
 
 """
-An object containing a stack trace entry for a Sentry error.
+An object containing a stack trace entry for a Sentry error
 """
 type SentryErrorStackTrace {
   """
@@ -15955,7 +16005,7 @@ type SentryErrorStackTraceContext {
 }
 
 """
-An object containing a stack trace entry for a Sentry error.
+An object containing a stack trace entry for a Sentry error
 """
 type SentryErrorStackTraceEntry {
   """
@@ -16655,7 +16705,7 @@ type TerraformStateRegistryEdge {
 }
 
 """
-Represents a requirement test report.
+Represents a requirement test report
 """
 type TestReport {
   """
@@ -18608,7 +18658,7 @@ type VulnerabilitiesCountByDayEdge {
 }
 
 """
-Represents a vulnerability.
+Represents a vulnerability
 """
 type Vulnerability {
   """
@@ -18771,7 +18821,7 @@ enum VulnerabilityGrade {
 }
 
 """
-Represents a vulnerability identifier.
+Represents a vulnerability identifier
 """
 type VulnerabilityIdentifier {
   """
@@ -18796,7 +18846,7 @@ type VulnerabilityIdentifier {
 }
 
 """
-Represents an issue link of a vulnerability.
+Represents an issue link of a vulnerability
 """
 type VulnerabilityIssueLink {
   """
@@ -18851,7 +18901,7 @@ type VulnerabilityIssueLinkEdge {
 }
 
 """
-The type of the issue link related to a vulnerability.
+The type of the issue link related to a vulnerability
 """
 enum VulnerabilityIssueLinkType {
   CREATED
@@ -19059,7 +19109,7 @@ type VulnerabilityPermissions {
 }
 
 """
-The type of the security scan that found the vulnerability.
+The type of the security scan that found the vulnerability
 """
 enum VulnerabilityReportType {
   CONTAINER_SCANNING
@@ -19071,7 +19121,7 @@ enum VulnerabilityReportType {
 }
 
 """
-Represents a vulnerability scanner.
+Represents a vulnerability scanner
 """
 type VulnerabilityScanner {
   """
@@ -19166,7 +19216,7 @@ type VulnerabilitySeveritiesCount {
 }
 
 """
-The severity of the vulnerability.
+The severity of the vulnerability
 """
 enum VulnerabilitySeverity {
   CRITICAL
@@ -19193,7 +19243,7 @@ enum VulnerabilitySort {
 }
 
 """
-The state of the vulnerability.
+The state of the vulnerability
 """
 enum VulnerabilityState {
   CONFIRMED
