@@ -20,6 +20,9 @@
     "created_at": {
       "type": "date-time"
     },
+    "expiration_policy_started_at": {
+      "type": "date-time"
+    },
     "tags_path": {
       "type": "string"
     },
