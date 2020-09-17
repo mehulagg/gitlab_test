@@ -1355,7 +1355,7 @@ As of GitLab 13.3, PostgreSQL 11.7 and 12.3 are both shipped with Omnibus GitLab
 uses PostgreSQL 11 by default. Therefore `gitlab-ctl pg-upgrade` does not automatically upgrade
 to PostgreSQL 12. If you want to upgrade to PostgreSQL 12, you must ask for it explicitly.
 
-The procedure for upgrading PostgreSQL in a Patroni cluster is not similar to repmgr.
+CAUTION: **Important:** The procedure for upgrading PostgreSQL in a Patroni cluster is different than when upgrading using `repmgr`. The following outlines the key differences and important considerations that need to be accounted for when upgrading PostgreSQL.
 
 Here are a few key facts that you must consider before upgrading PostgreSQL:
 
@@ -1366,7 +1366,7 @@ Here are a few key facts that you must consider before upgrading PostgreSQL:
 - Upgrading PostgreSQL creates a new data directory with a new control data. From Patroni's perspective
   this is a new cluster that needs to be bootstrapped again. Therefore, as part of the upgrade procedure,
   the cluster state, which is stored in Consul, will be wiped out. Once the upgrade is completed, Patroni
-  will be instructed to bootstrap a new cluster. Note that this will change your _cluster ID_.
+will be instructed to bootstrap a new cluster. **Note that this will change your _cluster ID_**.
 
 - The procedures for upgrading leader and replicas are not the same. That is why it is important to use the
   right procedure on each node.
