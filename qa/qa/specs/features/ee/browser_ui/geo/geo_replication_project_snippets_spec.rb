@@ -2,18 +2,19 @@
 
 module QA
   RSpec.describe 'Geo', :orchestrated, :geo do
-    describe 'GitLab Geo project snippet replication' do
+    describe 'Project snippet' do
       let(:snippet_title) { "Geo project snippet-#{SecureRandom.hex(8)}" }
+      let(:snippet_description) { 'Geo snippet description' }
       let(:file_name) { 'geo_snippet_file.md' }
       let(:file_content) { "### Geo snippet heading\n\n[GitLab link](https://gitlab.com/)" }
 
-      it 'replicates project snippet to the Geo secondary site', testcase: 'https://gitlab.com/gitlab-org/quality/testcases/-/issues/1027' do
+      it 'replicates to the Geo secondary site', testcase: 'https://gitlab.com/gitlab-org/quality/testcases/-/issues/1027' do
         snippet = nil
 
         QA::Flow::Login.while_signed_in(address: :geo_primary) do
           snippet = Resource::ProjectSnippet.fabricate_via_browser_ui! do |snippet|
             snippet.title = snippet_title
-            snippet.description = ' '
+            snippet.description = snippet_description
             snippet.visibility = 'Private'
             snippet.file_name = file_name
             snippet.file_content = file_content
@@ -42,14 +43,16 @@ module QA
           end
 
           Page::Dashboard::Snippet::Show.perform do |snippet|
-            expect(snippet).to have_snippet_title(snippet_title)
-            expect(snippet).to have_no_snippet_description
-            expect(snippet).to have_visibility_type(/private/i)
-            expect(snippet).to have_file_name(file_name)
-            expect(snippet).to have_file_content('Geo snippet heading')
-            expect(snippet).to have_file_content('GitLab link')
-            expect(snippet).not_to have_file_content('###')
-            expect(snippet).not_to have_file_content('https://gitlab.com/')
+            aggregate_failures 'checking snippet details' do
+              expect(snippet).to have_snippet_title(snippet_title)
+              expect(snippet).to have_snippet_description(snippet_description)
+              expect(snippet).to have_visibility_type(/private/i)
+              expect(snippet).to have_file_name(file_name)
+              expect(snippet).to have_file_content('Geo snippet heading')
+              expect(snippet).to have_file_content('GitLab link')
+              expect(snippet).not_to have_file_content('###')
+              expect(snippet).not_to have_file_content('https://gitlab.com/')
+            end
           end
         end
       end
