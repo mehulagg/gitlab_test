@@ -105,7 +105,7 @@ module EE
     # specific method here for now.
     def security_report
       strong_memoize(:security_report) do
-        return unless file_type.in?(SECURITY_REPORT_FILE_TYPES)
+        next unless file_type.in?(SECURITY_REPORT_FILE_TYPES)
 
         ::Gitlab::Ci::Reports::Security::Report.new(file_type, nil, nil).tap do |report|
           each_blob do |blob|
@@ -120,7 +120,7 @@ module EE
     # slots in vm_heap occupied for the report object and it's
     # dependents.
     def clear_security_report
-      @security_report = nil
+      remove_instance_variable(:@security_report)
     end
   end
 end

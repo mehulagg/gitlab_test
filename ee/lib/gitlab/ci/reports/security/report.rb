@@ -60,7 +60,7 @@ module Gitlab
           end
 
           def primary_scanner
-            scanners.values.first
+            scanners.first.second
           end
         end
       end
