@@ -10,7 +10,7 @@ RSpec.describe IpAddressValidator do
     validator.validate_each(user, :ip_address, value)
   end
 
-  it 'adds an error when a script is included in the name' do
+  it 'adds an error when an invalid IP address is provided' do
     validate('invalid IP')
 
     expect(user.errors[:ip_address]).to eq(['must be a valid IPv4 or IPv6 address'])

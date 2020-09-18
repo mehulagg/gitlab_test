@@ -67,6 +67,16 @@ RSpec.describe AuditEventService do
 
         audit_service.for_authentication.security_event
       end
+
+      it 'tracks exceptions when the event cannot be created' do
+        allow(user).to receive_messages(current_sign_in_ip: 'invalid IP')
+        allow(audit_service).to receive_messages(admin_audit_log_enabled?: true)
+
+        expect(Gitlab::ErrorTracking).to receive(:track_exception).with(ActiveRecord::RecordInvalid, audit_event_type: 'AuditEvent').and_call_original
+        expect(Gitlab::ErrorTracking).to receive(:track_exception).with(ActiveRecord::RecordInvalid, audit_event_type: 'AuthenticationEvent').and_call_original
+
+        audit_service.for_authentication.security_event
+      end
     end
   end
 
