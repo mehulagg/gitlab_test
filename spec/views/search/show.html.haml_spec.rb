@@ -11,6 +11,8 @@ RSpec.describe 'search/show' do
 
     @search_term = search_term
 
+    stub_feature_flags(js_global_search: false)
+
     render
   end
 

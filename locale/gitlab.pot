@@ -8,8 +8,6 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gitlab 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-17 11:26-0400\n"
-"PO-Revision-Date: 2020-09-17 11:26-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -17172,6 +17170,9 @@ msgstr ""
 msgid "No required pipeline"
 msgstr ""
 
+msgid "No results found"
+msgstr ""
+
 msgid "No runner executable"
 msgstr ""
 
@@ -18825,6 +18826,9 @@ msgid "Please solve the reCAPTCHA"
 msgstr ""
 
 msgid "Please try again"
+msgstr ""
+
+msgid "Please try searching for something else."
 msgstr ""
 
 msgid "Please type %{phrase_code} to proceed or close this modal to cancel."
@@ -22034,6 +22038,9 @@ msgstr ""
 msgid "Scope"
 msgstr ""
 
+msgid "Scope Selector Placeholder"
+msgstr ""
+
 msgid "Scope not supported with disabled 'users_search' feature!"
 msgstr ""
 
@@ -22073,10 +22080,19 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
+msgid "Search Filters Placeholder"
+msgstr ""
+
+msgid "Search Form Placeholder"
+msgstr ""
+
 msgid "Search Jira issues"
 msgstr ""
 
 msgid "Search Milestones"
+msgstr ""
+
+msgid "Search Results Placeholder"
 msgstr ""
 
 msgid "Search an environment spec"

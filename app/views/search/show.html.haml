@@ -11,8 +11,11 @@
     = _('Search')
   = render_if_exists 'search/form_elasticsearch', attrs: { class: 'ml-sm-auto' }
 
-.gl-mt-3
-  = render 'search/form'
-- if @search_term
-  = render 'search/category'
-  = render 'search/results'
+- if Feature.enabled?(:js_global_search)
+  #js-global-search{ 'v-cloak': true, data: { "search-empty-svg-path" => image_path("illustrations/issues.svg") } }
+- else
+  .gl-mt-3
+    = render 'search/form'
+  - if @search_term
+    = render 'search/category'
+    = render 'search/results'

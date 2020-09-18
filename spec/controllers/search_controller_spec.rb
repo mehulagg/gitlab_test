@@ -71,6 +71,7 @@ RSpec.describe SearchController do
 
       before do
         expect(::Gitlab::GitalyClient).to receive(:allow_ref_name_caching).and_call_original
+        stub_feature_flags(js_global_search: false)
       end
 
       subject { get(:show, params: { project_id: project.id, scope: scope, search: 'merge' }) }

@@ -22,6 +22,10 @@ class SearchController < ApplicationController
     search_term_present && !params[:project_id].present?
   end
 
+  before_action only: :show do
+    push_frontend_feature_flag(:js_global_search)
+  end
+
   layout 'search'
 
   def show
