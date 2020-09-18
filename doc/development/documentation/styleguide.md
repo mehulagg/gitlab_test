@@ -1584,8 +1584,8 @@ elements:
 
 | Recommended         | Used for                   | Replaces                   |
 |:--------------------|:---------------------------|:---------------------------|
-| *select* or *clear* | buttons, links, menu items, checkboxes | "enable", "click", "press," "hit" |
-| *select*            | dropdowns                  | "pick"                     |
+| *select*            | buttons, links, menu items, dropdowns |  "click, "press," "hit"        |
+| *select* or *clear* | checkboxes | "enable", "click", "press" |
 | *expand*            | expandable sections        | "open"                     |
 
 ### Other Verbs
