@@ -4261,6 +4261,32 @@ RSpec.describe MergeRequest, factory_default: :keep do
     end
   end
 
+  describe '#merge_ref_head' do
+    let(:merge_request) { create(:merge_request) }
+
+    context 'when merge_ref_sha is not present' do
+      let!(:result) do
+        MergeRequests::MergeToRefService
+          .new(merge_request.project, merge_request.author)
+          .execute(merge_request)
+      end
+
+      it 'returns the commit based on merge ref path' do
+        expect(merge_request.merge_ref_head.id).to eq(result[:commit_id])
+      end
+    end
+
+    context 'when merge_ref_sha is present' do
+      before do
+        merge_request.update!(merge_ref_sha: merge_request.project.repository.commit.id)
+      end
+
+      it 'returns the commit based on cached merge_ref_sha' do
+        expect(merge_request.merge_ref_head.id).to eq(merge_request.merge_ref_sha)
+      end
+    end
+  end
+
   describe '#allows_reviewers?' do
     it 'returns false without merge_request_reviewers feature' do
       stub_feature_flags(merge_request_reviewers: false)

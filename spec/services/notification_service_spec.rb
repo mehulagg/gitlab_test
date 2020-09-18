@@ -1789,7 +1789,7 @@ RSpec.describe NotificationService, :mailer do
     end
 
     describe '#changed_reviewer_of_merge_request' do
-      let(:merge_request) { create :merge_request, author: author, source_project: project, reviewers: [reviewer], description: 'cc @participant' }
+      let(:merge_request) { create(:merge_request, author: author, source_project: project, reviewers: [reviewer], description: 'cc @participant') }
 
       let_it_be(:current_user) { create(:user) }
       let_it_be(:reviewer) { create(:user) }
@@ -1799,7 +1799,7 @@ RSpec.describe NotificationService, :mailer do
         update_custom_notification(:change_reviewer_merge_request, @u_custom_global)
       end
 
-      it do
+      it 'sends emails to relevant users only', :aggregate_failures do
         notification.changed_reviewer_of_merge_request(merge_request, current_user, [reviewer])
 
         merge_request.reviewers.each { |reviewer| should_email(reviewer) }

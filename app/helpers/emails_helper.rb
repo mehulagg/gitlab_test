@@ -219,7 +219,7 @@ module EmailsHelper
   end
 
   def change_reviewer_notification_text(new_reviewers, previous_reviewers, html_tag = nil)
-    new = new_reviewers.present? ? users_to_sentence(new_reviewers) :  s_('ChangeReviewer|Unassigned')
+    new = new_reviewers.any? ? users_to_sentence(new_reviewers) : s_('ChangeReviewer|Unassigned')
     old = previous_reviewers.any? ? users_to_sentence(previous_reviewers) : nil
 
     if html_tag.present?
