@@ -136,6 +136,10 @@ RSpec.describe Settings do
   end
 
   describe '.encrypted' do
+    before do
+      allow(Gitlab::Application.secrets).to receive(:enc_settings_key_base).and_return(SecureRandom.hex(64))
+    end
+
     it 'defaults to using the enc_settings_key_base for the key' do
       expect(Gitlab::EncryptedConfiguration).to receive(:new).with(hash_including(key: Gitlab::Application.secrets.enc_settings_key_base))
       Settings.encrypted('tmp/tests/test.enc')
@@ -145,8 +149,8 @@ RSpec.describe Settings do
       expect(Settings.encrypted('tmp/tests/test.enc').content_path.fnmatch?(File.join(Rails.root, '**'))).to be true
     end
 
-    it 'returns empty encrypted config when in safe mode' do
-      stub_env('GITLAB_ENCRYPTED_SAFE_MODE', 'true')
+    it 'returns empty encrypted config when a key has not been set' do
+      allow(Gitlab::Application.secrets).to receive(:enc_settings_key_base).and_return(nil)
       expect(Gitlab::EncryptedConfiguration).to receive(:new).with(no_args)
       Settings.encrypted('tmp/tests/test.enc')
     end

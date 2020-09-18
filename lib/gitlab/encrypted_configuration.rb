@@ -39,6 +39,7 @@ module Gitlab
     end
 
     private
+
     def writing(contents)
       tmp_file = "#{Process.pid}.#{content_path.basename.to_s.chomp('.enc')}"
       tmp_path = Pathname.new File.join(Dir.tmpdir, tmp_file)
@@ -64,11 +65,11 @@ module Gitlab
     def encryptor
       return @encryptor if @encryptor
 
-      @encryptor = ActiveSupport::MessageEncryptor.new([ key ].pack("H*"), cipher: CIPHER)
+      @encryptor = ActiveSupport::MessageEncryptor.new([key].pack("H*"), cipher: CIPHER)
 
       # Allow fallback to previous keys
-      for key in @previous_keys
-        @encryptor.rotate([ key ].pack("H*"))
+      @previous_keys.each do |key|
+        @encryptor.rotate([key].pack("H*"))
       end
 
       @encryptor
@@ -80,7 +81,7 @@ module Gitlab
     end
 
     def deserialize(contents)
-      YAML.load(contents).presence || {}
+      YAML.safe_load(contents, [Symbol]).presence || {}
     end
   end
 end

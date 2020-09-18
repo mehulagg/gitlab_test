@@ -152,8 +152,8 @@ class Settings < Settingslogic
       Gitlab::Application.secrets.db_key_base
     end
 
-    def encrypted(path, allow_in_safe_mode: false)
-      return Gitlab::EncryptedConfiguration.new if ENV['GITLAB_ENCRYPTED_SAFE_MODE'] && !allow_in_safe_mode
+    def encrypted(path)
+      return Gitlab::EncryptedConfiguration.new unless Gitlab::Application.secrets.enc_settings_key_base
 
       Gitlab::EncryptedConfiguration.new(
         content_path: Settings.absolute(path),
