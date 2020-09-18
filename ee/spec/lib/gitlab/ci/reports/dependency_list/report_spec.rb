@@ -7,19 +7,9 @@ RSpec.describe Gitlab::Ci::Reports::DependencyList::Report do
   let(:report) { described_class.new }
 
   describe '#add_dependency' do
-    let(:dependency) do
-      {
-        name: 'gitlab',
-        packager: '',
-        package_manager: 'bundler',
-        location: { blob_path: '', path: 'Gemfile' },
-        version: '0.2.10',
-        vulnerabilities: [],
-        licenses: []
-      }
-    end
-
     subject { report.add_dependency(dependency) }
+
+    let(:dependency) { build :dependency }
 
     it 'stores given dependency params in the map' do
       subject
