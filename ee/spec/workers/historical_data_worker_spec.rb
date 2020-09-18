@@ -24,13 +24,13 @@ RSpec.describe HistoricalDataWorker do
       end
 
       it 'tracks historical data' do
-        expect(HistoricalData).to receive(:track!).and_call_original
+        expect(HistoricalData).to receive(:track!).and_return(HistoricalData.new)
 
         subject.perform
       end
     end
 
-    context 'when there is not a license key' do
+    context 'when there is no a license key' do
       it 'does not track historical data' do
         License.destroy_all # rubocop: disable Cop/DestroyAll
 

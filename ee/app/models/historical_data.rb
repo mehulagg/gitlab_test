@@ -31,19 +31,19 @@ class HistoricalData < ApplicationRecord
     end
   end
 
-  def validate_active_user_count
-    return unless Gitlab.ee? && License.current&.active_user_count_threshold_reached?
+  def send_email_reminder_if_approaching_user_limit!
+    return unless License.current&.active_user_count_threshold_reached?
 
-    admin_emails = User
+    recipients = User
       .active
       .admins
       .pluck(:email)
+      .to_set
 
-    licensee_email = License.current.licensee["Email"]
-    if licensee_email && !admin_emails.include?(licensee_email)
-      admin_emails << licensee_email
+    if License.current.licensee["Email"]
+      recipients << License.current.licensee["Email"]
     end
 
-    LicenseMailer.approaching_active_user_count_limit(admin_emails)
+    LicenseMailer.approaching_active_user_count_limit(recipients.to_a)
   end
 end
