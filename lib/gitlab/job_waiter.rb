@@ -42,12 +42,20 @@ module Gitlab
       @worker_label = worker_label
     end
 
+    WAIT_CALLS = Hash.new(0)
+
+    def self.wait_called(key)
+      WAIT_CALLS[key]
+    end
+
     # Waits for all the jobs to be completed.
     #
     # timeout - The maximum amount of seconds to block the caller for. This
     #           ensures we don't indefinitely block a caller in case a job takes
     #           long to process, or is never processed.
     def wait(timeout = 10)
+      WAIT_CALLS[wait_called_key] += 1
+
       deadline = Time.now.utc + timeout
       increment_counter(STARTED_METRIC)
 

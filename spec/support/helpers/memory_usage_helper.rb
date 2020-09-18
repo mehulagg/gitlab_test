@@ -3,13 +3,14 @@
 module MemoryUsageHelper
   extend ActiveSupport::Concern
 
-  def gather_memory_data(csv_path)
+  def gather_memory_data(csv_path, wait_called)
     write_csv_entry(csv_path,
       {
         example_group_path: TestEnv.topmost_example_group[:location],
         example_group_description: TestEnv.topmost_example_group[:description],
         time: Time.current,
-        job_name: ENV['CI_JOB_NAME']
+        job_name: ENV['CI_JOB_NAME'],
+        wait_called: wait_called
       }.merge(get_memory_usage))
   end
 
@@ -30,8 +31,16 @@ module MemoryUsageHelper
   end
 
   included do |config|
+    config.before(:all) do
+      @key = SecureRandom.hex
+    end
+
+    config.before(:each) do # rubocop:disable RSpec/HookArgument
+      allow_any_instance_of(Gitlab::JobWaiter).to receive(:wait_called_key).and_return(@key)
+    end
+
     config.after(:all) do
-      gather_memory_data(ENV['MEMORY_TEST_PATH']) if ENV['MEMORY_TEST_PATH']
+      gather_memory_data(ENV['MEMORY_TEST_PATH'], Gitlab::JobWaiter.wait_called(@key)) if ENV['MEMORY_TEST_PATH']
     end
   end
 end
