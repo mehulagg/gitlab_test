@@ -38,7 +38,7 @@ module Gitlab
     end
 
     REFERABLES.each do |type|
-      define_method("#{type}s") do
+      define_method(type.to_s.pluralize) do
         @references[type] ||= references(type)
       end
     end

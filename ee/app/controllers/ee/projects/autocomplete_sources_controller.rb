@@ -5,6 +5,10 @@ module EE
     module AutocompleteSourcesController
       extend ActiveSupport::Concern
 
+      prepended do
+        before_action :authorize_read_vulnerability!, only: :vulnerabilities
+      end
+
       def epics
         return render_404 unless project.group.feature_available?(:epics)
 
@@ -12,8 +16,6 @@ module EE
       end
 
       def vulnerabilities
-        return render_404 unless project.feature_available?(:security_dashboard)
-
         render json: autocomplete_service.vulnerabilities
       end
     end
