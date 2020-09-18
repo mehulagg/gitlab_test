@@ -373,7 +373,7 @@ describe('Incidents List', () => {
         });
 
         await wrapper.vm.$nextTick();
-        expect(wrapper.vm.getFilteredSearchValue).toEqual([searchTerm]);
+        expect(wrapper.vm.filteredSearchValue).toEqual([searchTerm]);
       });
 
       it('updates props tied to getIncidents GraphQL query', () => {

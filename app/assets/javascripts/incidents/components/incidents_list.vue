@@ -260,7 +260,7 @@ export default {
         btnText: createIncidentBtnLabel,
       };
     },
-    getFilteredSearchTokens() {
+    filteredSearchTokens() {
       return [
         {
           type: 'author_username',
@@ -286,7 +286,7 @@ export default {
         },
       ];
     },
-    getFilteredSearchValue() {
+    filteredSearchValue() {
       const value = [];
 
       if (this.authorUsername) {
@@ -451,8 +451,8 @@ export default {
       <filtered-search-bar
         :namespace="projectPath"
         :search-input-placeholder="$options.i18n.searchPlaceholder"
-        :tokens="getFilteredSearchTokens"
-        :initial-filter-value="getFilteredSearchValue"
+        :tokens="filteredSearchTokens"
+        :initial-filter-value="filteredSearchValue"
         initial-sortby="created_desc"
         recent-searches-storage-key="incidents"
         class="row-content-block"
