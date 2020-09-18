@@ -353,14 +353,14 @@ RSpec.describe 'Group value stream analytics filters and data', :js do
     end
 
     it 'will have data available' do
-      expect(page.find('[data-testid="vsa-stage-table"]')).not_to have_text("We don't have enough data to show this stage.")
+      expect(page.find('[data-testid="vsa-stage-table"]')).not_to have_text(_("We don't have enough data to show this stage."))
 
       duration_chart_content = page.find('[data-testid="vsa-duration-chart"]')
-      expect(duration_chart_content).not_to have_text("There is no data available. Please change your selection.")
-      expect(duration_chart_content).to have_text('Total days to completion')
+      expect(duration_chart_content).not_to have_text(_("There is no data available. Please change your selection."))
+      expect(duration_chart_content).to have_text(_('Total days to completion'))
 
       tasks_by_type_chart_content = page.find('.js-tasks-by-type-chart')
-      expect(tasks_by_type_chart_content).not_to have_text("There is no data available. Please change your selection.")
+      expect(tasks_by_type_chart_content).not_to have_text(_("There is no data available. Please change your selection."))
     end
 
     context 'with filters applied' do
@@ -373,18 +373,18 @@ RSpec.describe 'Group value stream analytics filters and data', :js do
       it 'will filter the stage median values' do
         stage_medians = page.all('.stage-nav .stage-median').collect(&:text)
 
-        expect(stage_medians).to eq(["Not enough data", "Not enough data", "Not enough data", "Not enough data", "Not enough data", "Not enough data"])
+        expect(stage_medians).to eq([_("Not enough data")] * 6)
       end
 
       it 'will filter the data' do
-        expect(page.find('[data-testid="vsa-stage-table"]')).to have_text(s_("We don't have enough data to show this stage."))
+        expect(page.find('[data-testid="vsa-stage-table"]')).to have_text(_("We don't have enough data to show this stage."))
 
         duration_chart_content = page.find('[data-testid="vsa-duration-chart"]')
-        expect(duration_chart_content).not_to have_text('Total days to completion')
-        expect(duration_chart_content).to have_text("There is no data available. Please change your selection.")
+        expect(duration_chart_content).not_to have_text(_('Total days to completion'))
+        expect(duration_chart_content).to have_text(_("There is no data available. Please change your selection."))
 
         tasks_by_type_chart_content = page.find('.js-tasks-by-type-chart')
-        expect(tasks_by_type_chart_content).to have_text("There is no data available. Please change your selection.")
+        expect(tasks_by_type_chart_content).to have_text(_("There is no data available. Please change your selection."))
       end
     end
   end
