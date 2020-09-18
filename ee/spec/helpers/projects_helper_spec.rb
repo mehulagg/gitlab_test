@@ -349,9 +349,12 @@ RSpec.describe ProjectsHelper do
   describe '#project_permissions_panel_data' do
     let(:panel_data) { helper.project_permissions_panel_data(project) }
 
-    it 'sets requestCveAvailable' do
+    before do
       allow(helper).to receive(:current_user).and_return(project.owner)
+      allow(helper).to receive(:can?).and_return(false)
+    end
 
+    it 'sets requestCveAvailable' do
       expect(panel_data).to include(requestCveAvailable: helper.request_cve_available?(project))
     end
   end
