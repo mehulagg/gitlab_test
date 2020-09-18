@@ -127,24 +127,8 @@ module QA
       end
 
       def push_changes(branch = 'master', push_options: nil)
-        opts = if push_options
-                 o = push_options.each_with_object([]) do |(k, v), options|
-                   if k.to_s.end_with?('label')
-                     v.each do |label|
-                       options << "-o merge_request.#{k}=\"#{label}\""
-                     end
-                   elsif k == :create
-                     options << "-o merge_request.#{k}"
-                   else
-                     options << "-o merge_request.#{k}=\"#{v}\""
-                   end
-                 end
-
-                 o.join(' ')
-               end
-
         cmd = ['git push']
-        cmd << opts
+        cmd << push_options_hash_to_string(push_options)
         cmd << uri
         cmd << branch
         run(cmd.compact.join(' '), max_attempts: 3).to_s
@@ -315,6 +299,23 @@ module QA
 
       def tmp_home_dir
         @tmp_home_dir ||= File.join(Dir.tmpdir, "qa-netrc-credentials", $$.to_s)
+      end
+
+      def push_options_hash_to_string(opts)
+        return if opts.nil?
+
+        prefix = "-o merge_request"
+        opts.each_with_object([]) do |(key, value), options|
+          if value.is_a?(Array)
+            value.each do |item|
+              options << "#{prefix}.#{key}=\"#{item}\""
+            end
+          elsif value == true
+            options << "#{prefix}.#{key}"
+          else
+            options << "#{prefix}.#{key}=\"#{value}\""
+          end
+        end.join(' ')
       end
 
       def netrc_file_path
