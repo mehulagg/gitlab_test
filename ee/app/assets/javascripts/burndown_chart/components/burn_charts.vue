@@ -41,6 +41,11 @@ export default {
       required: false,
       default: '',
     },
+    showNewOldBurndownToggle: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   apollo: {
     burnupData: {
@@ -68,7 +73,7 @@ export default {
       issuesSelected: true,
       burnupData: [],
       useLegacyBurndown: !this.glFeatures.burnupCharts,
-      showInfo: true,
+      showInfo: this.showNewOldBurndownToggle,
       error: '',
     };
   },
@@ -227,7 +232,7 @@ export default {
         </gl-button>
       </gl-button-group>
 
-      <gl-button-group v-if="glFeatures.burnupCharts" class="gl-ml-5">
+      <gl-button-group v-if="glFeatures.burnupCharts && showNewOldBurndownToggle" class="gl-ml-5">
         <gl-button
           ref="oldBurndown"
           :category="useLegacyBurndown ? 'primary' : 'secondary'"

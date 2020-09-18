@@ -33,6 +33,7 @@ export default () => {
     const dueDate = $chartEl.data('dueDate');
     const milestoneId = $chartEl.data('milestoneId');
     const burndownEventsPath = $chartEl.data('burndownEventsPath');
+    const isLegacy = $chartEl.data('isLegacy');
 
     // eslint-disable-next-line no-new
     new Vue({
@@ -76,6 +77,7 @@ export default () => {
       render(createElement) {
         return createElement('burn-charts', {
           props: {
+            showNewOldBurndownToggle: isLegacy,
             startDate,
             dueDate,
             openIssuesCount: this.openIssuesCount,
