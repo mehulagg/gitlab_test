@@ -41,7 +41,7 @@ RSpec.describe RedisTracking do
       stub_feature_flags(feature => true)
       allow(Gitlab::CurrentSettings).to receive(:usage_ping_enabled?).and_return(false)
 
-      expect(Gitlab::UsageDataCounters::HLLRedisCounter).not_to receive(:track_event)
+      expect(Gitlab::Redis::HLL).not_to receive(:add)
 
       get :index
     end

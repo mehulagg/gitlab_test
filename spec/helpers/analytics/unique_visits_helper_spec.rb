@@ -26,7 +26,7 @@ RSpec.describe Analytics::UniqueVisitsHelper do
       sign_in(current_user)
       expect(Gitlab::CurrentSettings).to receive(:usage_ping_enabled?).and_return(false)
 
-      expect_any_instance_of(Gitlab::Analytics::UniqueVisits).not_to receive(:track_visit)
+      expect(Gitlab::Redis::HLL).not_to receive(:add)
 
       helper.track_visit(target_id)
     end
