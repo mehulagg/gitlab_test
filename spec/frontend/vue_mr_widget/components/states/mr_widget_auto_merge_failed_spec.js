@@ -43,7 +43,7 @@ describe('MRWidgetAutoMergeFailed', () => {
     expect(eventHub.$emit.mock.calls[0][0]).toBe('MRWidgetUpdateRequested');
 
     return wrapper.vm.$nextTick(() => {
-      expect(findButton().attributes('disabled')).toBeTruthy();
+      expect(findButton().attributes('disabled')).toBe('true');
       expect(wrapper.find(GlLoadingIcon).exists()).toBe(true);
     });
   });
