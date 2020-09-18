@@ -16,7 +16,9 @@ POST /ci/lint
 
 | Attribute  | Type    | Required | Description |
 | ---------- | ------- | -------- | -------- |
-| `content`  | string    | yes      | the `.gitlab-ci.yaml` content|
+| `content`              | string     | yes      | the `.gitlab-ci.yaml` content|
+| `include_merged_yaml`  | boolean    | no       | Whether to include the
+expanded CI config in the response or not. |
 
 ```shell
 curl --header "Content-Type: application/json" "https://gitlab.example.com/api/v4/ci/lint" --data '{"content": "{ \"image\": \"ruby:2.6\", \"services\": [\"postgres\"], \"before_script\": [\"bundle install\", \"bundle exec rake db:create\"], \"variables\": {\"DB_NAME\": \"postgres\"}, \"types\": [\"test\", \"deploy\", \"notify\"], \"rspec\": { \"script\": \"rake spec\", \"tags\": [\"ruby\", \"postgres\"], \"only\": [\"branches\"]}}"}'
@@ -51,5 +53,38 @@ Example responses:
   ```json
   {
     "error": "content is missing"
+  }
+  ```
+
+## YAML expansion example
+
+`.gitlab-ci.yml`
+
+```yaml
+include:
+  remote: 'https://example.com/remote.yaml'
+
+test:
+  stage: test
+  script:
+    - echo 1
+```
+
+`https://example.com/remote.yaml`
+
+```yaml
+another_test:
+  stage: test
+  script:
+    - echo 2
+```
+
+Example response:
+
+  ```json
+  {
+    "status": "valid"
+    "errors": [],
+    "merged_config": "---\n:another_test:\n  :stage: test\n  :script: echo 2\n:test:\n  :stage: test\n  :script: echo 1\n"
   }
   ```
