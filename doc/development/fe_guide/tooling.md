@@ -101,7 +101,7 @@ Our code is automatically formatted with [Prettier](https://prettier.io) to foll
 
 ### Editor
 
-The easiest way to include prettier in your workflow is by setting up your preferred editor (all major editors are supported) accordingly. We suggest setting up prettier to run automatically when each file is saved. Find [here](https://prettier.io/docs/en/editors.html) the best way to set it up in your preferred editor.
+The easiest way to include Prettier in your workflow is by setting up your preferred editor (all major editors are supported) accordingly. We suggest setting up Prettier to run automatically when each file is saved. Use the [Prettier documentation](https://prettier.io/docs/en/editors.html) the best way to set it up in your preferred editor.
 
 Please take care that you only let Prettier format the same file types as the global Yarn script does (`.js`, `.vue`, `.graphql`, and `.scss`). In VSCode by example you can easily exclude file formats in your settings file:
 

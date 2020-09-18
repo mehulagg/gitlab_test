@@ -16,4 +16,4 @@ You can find the Frontend Architecture experts on the [team page](https://about.
 ## Examples
 
 You can find documentation about the desired architecture for a new feature
-built with Vue.js [here](vue.md).
+built with [Vue.js](vue.md).
