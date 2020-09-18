@@ -257,7 +257,7 @@ to replace those values at runtime when each review app is created:
 - `data-mr-url` is the URL of the GitLab instance and will be the same for all
   review apps.
 - `data-project-path` is the project's path, which can be found by `CI_PROJECT_PATH`.
-- `data-require-auth` is optional for public projects but required for [private and internal ones](#visual-reviews-in-private-or-internal-projects). If this is set to `true`, the user will be required to enter their [personal access token](../../user/profile/personal_access_tokens.md) instead of their name and email.
+- `data-require-auth` is optional for public projects but required for [private and internal ones](#visual-reviews-in-private-or-internal-projects-and-requiring-authentication). If this is set to `true`, the user will be required to enter their [personal access token](../../user/profile/personal_access_tokens.md) instead of their name and email.
 - `id` is always `review-app-toolbar-script`, you don't need to change that.
 - `src` is the source of the review toolbar script, which resides in the
   respective GitLab instance and will be the same for all review apps.
