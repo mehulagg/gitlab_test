@@ -291,16 +291,15 @@ can supply the ID by either:​​
 - Dynamically adding the `data-merge-request-id` value during the build of the app.
 - Supplying it manually through the visual review form in the app.
 
-### Accepting anonymous comments
+### Disabling Visual Reviews
 
-Public projects can be configured to accept anonymous feedback. To do this ensure that the `anonymous_visual_review_feedback` feature flag is enabled. Private and Internal projects cannot access anonymous feedback.
-Administrators can enable with a Rails console as follows:
+GitLab comes with Visual Reviews enabled by default for self hosted customers. Administrators can disable Visual Reviews with a Rails console as follows:
 
 ```ruby
-Feature.enable(:anonymous_visual_review_feedback)
+Feature.disable(:anonymous_visual_review_feedback)
 ```
 
-### Visual Reviews in private or internal projects
+### Visual Reviews in private or internal projects and requiring authentication
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/42750#note_317271120) in GitLab 12.10.
 
@@ -308,6 +307,8 @@ To enable visual reviews for private and internal projects, set the
 [`data-require-auth` variable](#configuring-visual-reviews) to `true`. When enabled,
 the user must enter a [personal access token](../../user/profile/personal_access_tokens.md)
 with `api` scope before submitting feedback.
+
+This same method can be used to require authentication for any public projects.
 
 ## Limitations
 
