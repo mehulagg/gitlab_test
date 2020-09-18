@@ -215,16 +215,14 @@ export default {
             :default-projects="selectedProjects"
             @selected="onProjectsSelect"
           />
-          <div class="gl-justify-content-end gl-white-space-nowrap">
-            <date-range
-              :start-date="startDate"
-              :end-date="endDate"
-              :max-date-range="$options.maxDateRange"
-              :include-selected-date="true"
-              class="js-daterange-picker"
-              @change="setDateRange"
-            />
-          </div>
+          <date-range
+            :start-date="startDate"
+            :end-date="endDate"
+            :max-date-range="$options.maxDateRange"
+            :include-selected-date="true"
+            class="js-daterange-picker"
+            @change="setDateRange"
+          />
         </div>
         <filter-bar
           v-if="shouldDisplayFilters"
