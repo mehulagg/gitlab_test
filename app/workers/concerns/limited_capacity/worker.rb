@@ -37,6 +37,10 @@ module LimitedCapacity
     extend ActiveSupport::Concern
     include Gitlab::Utils::StrongMemoize
 
+    included do
+      sidekiq_options retry: 0
+    end
+
     class_methods do
       def perform_with_capacity(*args)
         worker = self.new

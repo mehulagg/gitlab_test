@@ -22,6 +22,12 @@ RSpec.describe LimitedCapacity::Worker do
     it { expect { worker.max_running_jobs }.to raise_error(NotImplementedError) }
   end
 
+  describe 'Sidekiq options' do
+    it 'does not retry failed jobs' do
+      expect(worker_class.sidekiq_options['retry']).to eq(0)
+    end
+  end
+
   describe '.perform_with_capacity' do
     subject(:perform_with_capacity) { worker_class.perform_with_capacity(:arg) }
 
