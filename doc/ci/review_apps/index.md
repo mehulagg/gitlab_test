@@ -293,7 +293,7 @@ can supply the ID by either:​​
 
 ### Disabling Visual Reviews
 
-GitLab comes with Visual Reviews enabled by default for self hosted customers. Administrators can disable Visual Reviews with a Rails console as follows:
+GitLab comes with Visual Reviews enabled by default for self-managed customers. Administrators can disable Visual Reviews with a Rails console as follows:
 
 ```ruby
 Feature.disable(:anonymous_visual_review_feedback)
