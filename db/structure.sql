@@ -9272,11 +9272,7 @@ CREATE TABLE application_settings (
     elasticsearch_client_request_timeout integer DEFAULT 0 NOT NULL,
     gitpod_enabled boolean DEFAULT false NOT NULL,
     gitpod_url text DEFAULT 'https://gitpod.io/'::text,
-    container_registry_expiration_policies_timeout integer DEFAULT 1800 NOT NULL,
-    container_registry_expiration_policies_backoff_delay integer DEFAULT 25 NOT NULL,
     container_registry_expiration_policies_capacity integer DEFAULT 100 NOT NULL,
-    container_registry_expiration_policies_batch_size integer DEFAULT 10 NOT NULL,
-    container_registry_expiration_policies_batch_backoff_delay integer DEFAULT 25 NOT NULL,
     CONSTRAINT check_2dba05b802 CHECK ((char_length(gitpod_url) <= 255)),
     CONSTRAINT check_51700b31b5 CHECK ((char_length(default_branch_name) <= 255)),
     CONSTRAINT check_9c6c447a13 CHECK ((char_length(maintenance_mode_message) <= 255)),
@@ -11088,8 +11084,7 @@ CREATE TABLE container_repositories (
     name character varying NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    status smallint,
-    expiration_policy_started_at timestamp with time zone
+    status smallint
 );
 
 CREATE SEQUENCE container_repositories_id_seq
