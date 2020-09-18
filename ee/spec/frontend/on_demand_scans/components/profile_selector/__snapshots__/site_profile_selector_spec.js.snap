@@ -1,0 +1,96 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`OnDemandScansSiteProfileSelector renders properly with profiles 1`] = `
+"<div class=\\"card\\">
+  <!---->
+  <div class=\\"card-header\\">
+    <div class=\\"row\\">
+      <div class=\\"col-7\\">
+        <h3 class=\\"gl-font-lg gl-display-inline\\">Site profile</h3>
+      </div>
+      <div class=\\"col-5 gl-text-right\\"><button data-testid=\\"manage-profiles-link\\" type=\\"button\\" class=\\"btn btn-success btn-sm gl-button btn-success-secondary\\" href=\\"\\">
+          <!---->
+          <!----> <span class=\\"gl-button-text\\">
+          Manage profiles
+        </span></button></div>
+    </div>
+  </div>
+  <div class=\\"card-body\\">
+    <!---->
+    <!---->
+    <fieldset class=\\"form-group gl-form-group\\">
+      <legend tabindex=\\"-1\\" class=\\"bv-no-focus-ring col-form-label pt-0 col-form-label\\">Use existing site profile</legend>
+      <div tabindex=\\"-1\\" role=\\"group\\" class=\\"bv-no-focus-ring\\">
+        <div class=\\"dropdown b-dropdown gl-new-dropdown mw-460 btn-group\\" data-testid=\\"profiles-dropdown\\">
+          <!----><button aria-haspopup=\\"true\\" aria-expanded=\\"false\\" type=\\"button\\" class=\\"btn dropdown-toggle btn-default btn-md gl-button gl-dropdown-toggle\\">
+            <!----> <span class=\\"gl-new-dropdown-button-text\\">Select one of the existing profiles</span> <svg data-testid=\\"chevron-down-icon\\" class=\\"dropdown-chevron gl-icon s16\\">
+              <use href=\\"#chevron-down\\"></use>
+            </svg></button>
+          <ul role=\\"menu\\" tabindex=\\"-1\\" class=\\"dropdown-menu\\">
+            <!---->
+            <li role=\\"presentation\\" class=\\"gl-new-dropdown-item\\"><button role=\\"menuitem\\" type=\\"button\\" class=\\"dropdown-item\\"><svg data-testid=\\"mobile-issue-close-icon\\" class=\\"gl-icon s16 gl-new-dropdown-item-check-icon gl-visibility-hidden\\">
+                  <use href=\\"#mobile-issue-close\\"></use>
+                </svg>
+                <!---->
+                <!---->
+                <div class=\\"gl-new-dropdown-item-text-wrapper\\">
+                  <p class=\\"gl-new-dropdown-item-text-primary\\">
+                    Site profile #1
+                  </p>
+                  <!---->
+                </div>
+                <!---->
+              </button></li>
+            <li role=\\"presentation\\" class=\\"gl-new-dropdown-item\\"><button role=\\"menuitem\\" type=\\"button\\" class=\\"dropdown-item\\"><svg data-testid=\\"mobile-issue-close-icon\\" class=\\"gl-icon s16 gl-new-dropdown-item-check-icon gl-visibility-hidden\\">
+                  <use href=\\"#mobile-issue-close\\"></use>
+                </svg>
+                <!---->
+                <!---->
+                <div class=\\"gl-new-dropdown-item-text-wrapper\\">
+                  <p class=\\"gl-new-dropdown-item-text-primary\\">
+                    Site profile #2
+                  </p>
+                  <!---->
+                </div>
+                <!---->
+              </button></li>
+          </ul>
+        </div>
+        <!---->
+        <!---->
+        <!---->
+        <!---->
+      </div>
+    </fieldset>
+  </div>
+  <!---->
+  <!---->
+</div>"
+`;
+
+exports[`OnDemandScansSiteProfileSelector renders properly without profiles 1`] = `
+"<div class=\\"card\\">
+  <!---->
+  <div class=\\"card-header\\">
+    <div class=\\"row\\">
+      <div class=\\"col-7\\">
+        <h3 class=\\"gl-font-lg gl-display-inline\\">Site profile</h3>
+      </div>
+      <div class=\\"col-5 gl-text-right\\"><button data-testid=\\"manage-profiles-link\\" type=\\"button\\" disabled=\\"disabled\\" class=\\"btn btn-success btn-sm disabled gl-button btn-success-secondary\\">
+          <!---->
+          <!----> <span class=\\"gl-button-text\\">
+          Manage profiles
+        </span></button></div>
+    </div>
+  </div>
+  <div class=\\"card-body\\">
+    <!---->
+    <!---->
+    <p class=\\"gl-text-gray-700\\">No profile yet. In order to create a new scan, you need to have at least one completed site profile.</p> <button data-testid=\\"create-profile-link\\" type=\\"button\\" class=\\"btn btn-success btn-md gl-button btn-success-secondary\\" href=\\"\\">
+      <!---->
+      <!----> <span class=\\"gl-button-text\\">Create a new site profile</span></button>
+  </div>
+  <!---->
+  <!---->
+</div>"
+`;

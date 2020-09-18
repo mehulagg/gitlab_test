@@ -1,35 +1,15 @@
 import { merge } from 'lodash';
 import { mount, shallowMount } from '@vue/test-utils';
 import { GlDropdownItem } from '@gitlab/ui';
-import OnDemandScansProfileSelector from 'ee/on_demand_scans/components/on_demand_scans_profile_selector.vue';
+import OnDemandScansProfileSelector from 'ee/on_demand_scans/components/profile_selector/profile_selector.vue';
+import { scannerProfiles } from '../../mock_data';
 
 describe('OnDemandScansProfileSelector', () => {
   let wrapper;
 
-  const profiles = [
-    { id: '489', profileName: 'An awesome profile', spiderTimeout: 5, targetTimeout: 10 },
-    { id: '567', profileName: 'An even better profile', spiderTimeout: 20, targetTimeout: 150 },
-  ];
-
   const defaultProps = {
-    settings: {
-      libraryPath: '/path/to/profiles/library',
-      newProfilePath: '/path/to/new/profile/form',
-      selectedProfileDropdownLabel: () => 'Formatted profile name',
-      i18n: {
-        title: 'Section title',
-        formGroupLabel: 'Use existing scanner profile',
-        noProfilesText: 'No profile yet',
-        newProfileLabel: 'Create a new profile',
-      },
-      summary: [
-        [{ label: 'Scan mode', valueGetter: () => 'Passive' }],
-        [
-          { label: 'Spider timeout', valueGetter: profile => profile.spiderTimeout },
-          { label: 'Target timeout', valueGetter: profile => profile.targetTimeout },
-        ],
-      ],
-    },
+    libraryPath: '/path/to/profiles/library',
+    newProfilePath: '/path/to/new/profile/form',
     profiles: [],
   };
 
@@ -52,6 +32,15 @@ describe('OnDemandScansProfileSelector', () => {
         {},
         {
           propsData: defaultProps,
+          slots: {
+            title: 'Section title',
+            label: 'Use existing scanner profile',
+            'no-profiles': 'No profile yet',
+            'new-profile': 'Create a new profile',
+          },
+          scopedSlots: {
+            summary: "<div>{{ props.profile.profileName }}'s summary</div>",
+          },
         },
         options,
       ),
@@ -91,7 +80,7 @@ describe('OnDemandScansProfileSelector', () => {
   describe('when there are profiles', () => {
     beforeEach(() => {
       createFullComponent({
-        propsData: { profiles },
+        propsData: { profiles: scannerProfiles },
       });
     });
 
@@ -105,31 +94,27 @@ describe('OnDemandScansProfileSelector', () => {
 
       expect(wrapper.text()).toContain('Use existing scanner profile');
       expect(dropdown.exists()).toBe(true);
-      expect(dropdown.element.children).toHaveLength(profiles.length);
+      expect(dropdown.element.children).toHaveLength(scannerProfiles.length);
     });
 
-    it('when a profile is selected, set-profile event is emitted', async () => {
+    it('when a profile is selected, input event is emitted', async () => {
       await selectFirstProfile();
 
-      expect(wrapper.emitted('set-profile')).toEqual([['489']]);
+      expect(wrapper.emitted('input')).toEqual([[scannerProfiles[0].id]]);
     });
   });
 
   it("selected profile's summary is displayed below the dropdown", () => {
-    const [selectedProfile] = profiles;
+    const [selectedProfile] = scannerProfiles;
     createFullComponent({
       propsData: {
-        profiles,
-        selectedProfileId: selectedProfile.id,
+        profiles: scannerProfiles,
+        value: selectedProfile.id,
       },
     });
     const summary = findSelectedProfileSummary();
 
     expect(summary.exists()).toBe(true);
-
-    const summaryText = summary.text();
-    expect(summaryText).toContain('Passive');
-    expect(summaryText).toContain(selectedProfile.spiderTimeout);
-    expect(summaryText).toContain(selectedProfile.targetTimeout);
+    expect(summary.text()).toContain(`${scannerProfiles[0].profileName}'s summary`);
   });
 });
