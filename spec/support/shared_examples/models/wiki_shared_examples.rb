@@ -164,7 +164,7 @@ RSpec.shared_examples 'wiki model' do
 
     def total_pages(entries)
       entries.sum do |entry|
-        entry.is_a?(WikiDirectory) ? entry.pages.size : 1
+        entry.is_a?(WikiDirectory) ? entry.entries.size : 1
       end
     end
 
