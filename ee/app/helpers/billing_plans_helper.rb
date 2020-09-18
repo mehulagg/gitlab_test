@@ -71,6 +71,13 @@ module BillingPlansHelper
     namespace == current_user.namespace
   end
 
+  def last_usage_data_update_tooltip
+    last_enqueue_time = UpdateMaxSeatsUsedForGitlabComSubscriptionsWorker.last_enqueue_time&.getutc
+    return "Seats usage data as of #{last_enqueue_time}" if last_enqueue_time
+
+    'Seats usage data is updated every day at 12:00pm UTC'
+  end
+
   private
 
   def plan_purchase_url(group, plan)
