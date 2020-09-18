@@ -1586,7 +1586,7 @@ elements:
 |:--------------------|:---------------------------|:---------------------------|
 | *select*            | buttons, links, menu items, dropdowns | "click, "press," "hit"     |
 | *select* or *clear* | checkboxes                            | "enable", "click", "press" |
-| *expand*            | expandable sections        | "open"                     |
+| *expand*            | expandable sections                   | "open"                     |
 
 ### Other Verbs
 
