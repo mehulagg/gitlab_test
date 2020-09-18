@@ -1,5 +1,5 @@
 ---
-title: Backend support for issue scope results filtering by confidential
+title: Allow search issue scope results filtering by confidential
 merge_request: 42018
 author:
 type: changed
