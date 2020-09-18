@@ -44,15 +44,15 @@ export default {
     <template #new-profile>{{ s__('OnDemandScans|Create a new scanner profile') }}</template>
     <template #summary="{ profile }">
       <div class="row">
-        <summary-cell :label="s__('Scan mode')" :value="s__('Passive')" />
+        <summary-cell :label="s__('DastProfiles|Scan mode')" :value="s__('DastProfiles|Passive')" />
       </div>
       <div class="row">
         <summary-cell
-          :label="s__('Spider timeout')"
+          :label="s__('DastProfiles|Spider timeout')"
           :value="n__('%d minute', '%d minutes', profile.spiderTimeout)"
         />
         <summary-cell
-          :label="s__('Target timeout')"
+          :label="s__('DastProfiles|Target timeout')"
           :value="n__('%d second', '%d seconds', profile.targetTimeout)"
         />
       </div>

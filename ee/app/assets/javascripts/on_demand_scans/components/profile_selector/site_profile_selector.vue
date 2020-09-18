@@ -44,7 +44,7 @@ export default {
     <template #new-profile>{{ s__('OnDemandScans|Create a new site profile') }}</template>
     <template #summary="{ profile }">
       <div class="row">
-        <summary-cell :label="s__('Target URL')" :value="profile.targetUrl" />
+        <summary-cell :label="s__('DastProfiles|Target URL')" :value="profile.targetUrl" />
       </div>
     </template>
   </profile-selector>
