@@ -21,6 +21,26 @@ class DastSiteValidation < ApplicationRecord
     "#{url_base}/#{url_path}"
   end
 
+  def done?
+    passed? || failed?
+  end
+
+  def pending?
+    validation_started_at.blank?
+  end
+
+  def in_progress?
+    !pending? && !passed? && !failed?
+  end
+
+  def passed?
+    !validation_passed_at.blank?
+  end
+
+  def failed?
+    !validation_failed_at.blank?
+  end
+
   private
 
   def normalize_base_url

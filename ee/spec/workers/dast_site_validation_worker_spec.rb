@@ -15,7 +15,7 @@ RSpec.describe DastSiteValidationWorker do
         stub_licensed_features(security_on_demand_scans: true)
         stub_feature_flags(security_on_demand_scans_site_validation: false)
 
-        expect(subject).to be_nil
+        expect { subject }.to raise_error(DastSiteValidations::ValidateService::PermissionsError)
       end
     end
 
@@ -24,7 +24,7 @@ RSpec.describe DastSiteValidationWorker do
         stub_licensed_features(security_on_demand_scans: false)
         stub_feature_flags(security_on_demand_scans_site_validation: true)
 
-        expect(subject).to be_nil
+        expect { subject }.to raise_error(DastSiteValidations::ValidateService::PermissionsError)
       end
     end
 
@@ -96,7 +96,7 @@ RSpec.describe DastSiteValidationWorker do
         end
 
         it 'raises an exception' do
-          expect { subject }.to raise_error(described_class::TokenNotFound)
+          expect { subject }.to raise_error(DastSiteValidations::ValidateService::TokenNotFound)
         end
       end
 
