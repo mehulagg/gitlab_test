@@ -17,14 +17,17 @@ module Gitlab
           def add_dependency(dependency)
             dep = Dependency.new(dependency)
             key = dep.composite_key
+
             if @dependencies.has_key?(key)
               existing_dependency = @dependencies[key]
               existing_dependency.update_dependency(dependency)
             else
               pm = dep.package_manager
+
               unless @dependencies_by_iid[pm]
                 @dependencies_by_iid[pm] = {}
               end
+
               @dependencies_by_iid[pm][dep.iid] = { name: dep.name, version: dep.version }
               @dependencies[key] = dep
             end
@@ -32,7 +35,7 @@ module Gitlab
 
           def generate_dependency_path!
             @dependencies = @dependencies.each_value do |dep|
-              return if dep.location[:top_level]
+              next if dep.location[:top_level]
 
               pm = dep.package_manager
               dic = @dependencies_by_iid[pm]
