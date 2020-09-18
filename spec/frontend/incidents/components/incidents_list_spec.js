@@ -381,7 +381,7 @@ describe('Incidents List', () => {
 
         expect(wrapper.vm.authorUsername).toBe('root');
         expect(wrapper.vm.assigneeUsernames).toEqual(['root2']);
-        expect(wrapper.vm.searchTerm).toBe('bar');
+        expect(wrapper.vm.searchTerm).toBe(mockFilters[2].value.data);
       });
 
       it('updates props `searchTerm` and `authorUsername` with empty values when passed filters param is empty', () => {
