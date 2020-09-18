@@ -4,7 +4,7 @@
 
 Issues can be imported to a project by uploading a CSV file with the columns
 `title` and `description`. Only these two columns will be imported. Consider using the
-[Move Issue feature](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#moving-issues)
+[Move Issue feature](../managing_issues.html#moving-issues)
 if you want to retain data such as labels and milestones.
 
 The user uploading the CSV file will be set as the author of the imported issues.
