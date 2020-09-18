@@ -1,6 +1,12 @@
 <script>
 import { mapActions } from 'vuex';
-import { GlDeprecatedDropdown, GlDeprecatedDropdownItem, GlLoadingIcon, GlIcon, GlButton } from '@gitlab/ui';
+import {
+  GlDeprecatedDropdown,
+  GlDeprecatedDropdownItem,
+  GlLoadingIcon,
+  GlIcon,
+  GlButton,
+} from '@gitlab/ui';
 import { getIssueStatusFromLicenseStatus } from 'ee/vue_shared/license_compliance/store/utils';
 import { LICENSE_MANAGEMENT } from 'ee/vue_shared/license_compliance/store/constants';
 import { s__ } from '~/locale';
