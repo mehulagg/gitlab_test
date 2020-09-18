@@ -367,12 +367,13 @@ describe('Incidents List', () => {
       });
 
       it('returns correctly applied filter search values', async () => {
+        const searchTerm = 'foo';
         wrapper.setData({
-          searchTerm: 'foo',
+          searchTerm,
         });
 
         await wrapper.vm.$nextTick();
-        expect(wrapper.vm.getFilteredSearchValue()).toEqual(['foo']);
+        expect(wrapper.vm.getFilteredSearchValue).toEqual([searchTerm]);
       });
 
       it('updates props tied to getIncidents GraphQL query', () => {
@@ -380,7 +381,7 @@ describe('Incidents List', () => {
 
         expect(wrapper.vm.authorUsername).toBe('root');
         expect(wrapper.vm.assigneeUsernames).toEqual(['root2']);
-        expect(wrapper.vm.searchTerm).toBe('foo');
+        expect(wrapper.vm.searchTerm).toBe('bar');
       });
 
       it('updates props `searchTerm` and `authorUsername` with empty values when passed filters param is empty', () => {

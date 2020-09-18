@@ -9,6 +9,6 @@
     },
     {
       "type": "filtered-search-term",
-      "value": { "data": "foo" }
+      "value": { "data": "bar" }
     }
   ]

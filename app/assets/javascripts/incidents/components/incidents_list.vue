@@ -260,8 +260,6 @@ export default {
         btnText: createIncidentBtnLabel,
       };
     },
-  },
-  methods: {
     getFilteredSearchTokens() {
       return [
         {
@@ -311,6 +309,8 @@ export default {
 
       return value;
     },
+  },
+  methods: {
     filterIncidentsByStatus(tabIndex) {
       const { filters, status } = this.$options.statusTabs[tabIndex];
       this.statusFilter = filters;
@@ -451,10 +451,9 @@ export default {
       <filtered-search-bar
         :namespace="projectPath"
         :search-input-placeholder="$options.i18n.searchPlaceholder"
-        :tokens="getFilteredSearchTokens()"
-        :sort-options="[]"
-        :initial-filter-value="getFilteredSearchValue()"
-        :initial-sort-by="'created_desc'"
+        :tokens="getFilteredSearchTokens"
+        :initial-filter-value="getFilteredSearchValue"
+        initial-sortby="created_desc"
         recent-searches-storage-key="incidents"
         class="row-content-block"
         @onFilter="handleFilterIncidents"
