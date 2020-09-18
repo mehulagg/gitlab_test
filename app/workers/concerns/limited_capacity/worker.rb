@@ -11,7 +11,7 @@
 #   def perform_work(*args)
 #   end
 #
-#   def remaining_work_count
+#   def remaining_work_count(*args)
 #     5
 #   end
 #
@@ -44,34 +44,42 @@ module LimitedCapacity
     class_methods do
       def perform_with_capacity(*args)
         worker = self.new
-        worker.remove_completed_jobs_from_queue_set
-        worker.report_prometheus_metrics
+        worker.remove_failed_jobs
+        worker.report_prometheus_metrics(*args)
+        required_jobs_count = worker.required_jobs_count(*args)
 
-        required_job_count = [
-          worker.remaining_work_count,
-          worker.remaining_capacity
-        ].min
-
-        arguments = Array.new(required_job_count) { args }
+        arguments = Array.new(required_jobs_count) { args }
         self.bulk_perform_async(arguments) # rubocop:disable Scalability/BulkPerformWithContext
       end
     end
 
     def perform(*args)
-      register_running_job_for_queue
-      return unless has_capacity? # In case the cron job started too many jobs
+      return unless has_capacity?
 
+      job_counter.register(jid)
       perform_work(*args)
-      re_enqueue(*args)
+    rescue => exception
+      raise
     ensure
+      job_counter.remove(jid)
       report_prometheus_metrics
-      remove_job_from_running_for_queue
+      re_enqueue(*args) unless exception
     end
 
-    def remove_completed_jobs_from_queue_set
-      completed_ids = Gitlab::SidekiqStatus.completed_jids(running_job_ids)
+    def perform_work(*args)
+      raise NotImplementedError
+    end
 
-      remove_job_from_running_for_queue(completed_ids) if completed_ids.any?
+    def remaining_work_count(*args)
+      raise NotImplementedError
+    end
+
+    def max_running_jobs
+      raise NotImplementedError
+    end
+
+    def has_capacity?
+      remaining_capacity > 0
     end
 
     def remaining_capacity
@@ -81,78 +89,66 @@ module LimitedCapacity
       ].max
     end
 
-    def has_capacity?
-      remaining_capacity > 0
+    def has_work?(*args)
+      remaining_work_count(*args) > 0
     end
 
-    def has_work?
-      remaining_work_count > 0
+    def remove_failed_jobs
+      job_counter.clean_up
     end
 
-    def perform_work(*args)
-      raise NotImplementedError
+    def report_prometheus_metrics(*args)
+      running_jobs_gauge.set(prometheus_labels, running_jobs_count)
+      remaining_work_gauge.set(prometheus_labels, remaining_work_count(*args))
+      max_running_jobs_gauge.set(prometheus_labels, max_running_jobs)
     end
 
-    def remaining_work_count
-      raise NotImplementedError
-    end
-
-    def max_running_jobs
-      raise NotImplementedError
-    end
-
-    def report_prometheus_metrics
-      running_jobs_gauge.set({ worker: self.class.name }, running_jobs_count)
+    def required_jobs_count(*args)
+      [
+        remaining_work_count(*args),
+        remaining_capacity
+      ].min
     end
 
     private
 
+    def running_jobs_count
+      job_counter.count
+    end
+
+    def job_counter
+      strong_memoize(:job_counter) do
+        JobCounter.new(self.class.name)
+      end
+    end
+
     def re_enqueue(*args)
-      return unless can_re_enqueue?
+      return unless has_capacity?
+      return unless has_work?(*args)
 
       self.class.perform_async(*args)
-    end
-
-    def can_re_enqueue?
-      has_capacity? && has_work?
-    end
-
-    def running_jobs_count
-      with_redis do |redis|
-        redis.scard(running_jobs_set_key).to_i
-      end
-    end
-
-    def running_job_ids
-      with_redis do |redis|
-        redis.smembers(running_jobs_set_key)
-      end
-    end
-
-    def register_running_job_for_queue(id = nil)
-      with_redis do |redis|
-        redis.sadd(running_jobs_set_key, id || jid)
-      end
-    end
-
-    def remove_job_from_running_for_queue(id = nil)
-      with_redis do |redis|
-        redis.srem(running_jobs_set_key, id || jid)
-      end
-    end
-
-    def running_jobs_set_key
-      "worker:#{self.class.name.underscore}:running"
-    end
-
-    def with_redis(&block)
-      Gitlab::Redis::Queues.with(&block) # rubocop: disable CodeReuse/ActiveRecord
     end
 
     def running_jobs_gauge
       strong_memoize(:running_jobs_gauge) do
         Gitlab::Metrics.gauge(:limited_capacity_worker_running_jobs, 'Number of running jobs')
       end
+    end
+
+    def max_running_jobs_gauge
+      strong_memoize(:max_running_jobs_gauge) do
+        Gitlab::Metrics.gauge(:limited_capacity_worker_max_running_jobs, 'Maximum number of running jobs')
+      end
+    end
+
+    def remaining_work_gauge
+      strong_memoize(:remaining_work_gauge) do
+        Gitlab::Metrics.gauge(:limited_capacity_worker_remaining_work_count, 'Number of jobs waiting to be enqueued')
+      end
+    end
+
+    def prometheus_labels
+      { worker: self.class.name }
     end
   end
 end

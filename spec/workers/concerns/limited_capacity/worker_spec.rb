@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe LimitedCapacity::Worker do
+RSpec.describe LimitedCapacity::Worker, :clean_gitlab_redis_shared_state, :clean_gitlab_redis_queues, :aggregate_failures do
   let(:worker_class) do
     Class.new do
       def self.name
@@ -15,6 +15,15 @@ RSpec.describe LimitedCapacity::Worker do
   end
 
   let(:worker) { worker_class.new }
+
+  let(:job_counter) do
+    LimitedCapacity::JobCounter.new(worker_class.name)
+  end
+
+  before do
+    worker.jid = 'my-jid'
+    allow(worker).to receive(:job_counter).and_return(job_counter)
+  end
 
   describe 'required methods' do
     it { expect { worker.perform_work }.to raise_error(NotImplementedError) }
@@ -33,10 +42,11 @@ RSpec.describe LimitedCapacity::Worker do
 
     before do
       expect_next_instance_of(worker_class) do |instance|
-        expect(instance).to receive(:remove_completed_jobs_from_queue_set)
+        expect(instance).to receive(:remove_failed_jobs)
         expect(instance).to receive(:report_prometheus_metrics)
-        expect(instance).to receive(:remaining_work_count).and_return(remaining_work_count)
-        expect(instance).to receive(:remaining_capacity).and_return(remaining_capacity)
+
+        allow(instance).to receive(:remaining_work_count).and_return(remaining_work_count)
+        allow(instance).to receive(:remaining_capacity).and_return(remaining_capacity)
       end
     end
 
@@ -70,15 +80,11 @@ RSpec.describe LimitedCapacity::Worker do
   describe '#perform' do
     subject(:perform) { worker.perform(:arg) }
 
-    before do
-      expect(worker).to receive(:has_capacity?).and_return(capacity)
-    end
-
     context 'with capacity' do
-      let(:capacity) { true }
-
       before do
-        allow(worker).to receive(:can_re_enqueue?).and_return(true)
+        allow(worker).to receive(:max_running_jobs).and_return(10)
+        allow(worker).to receive(:running_jobs_count).and_return(0)
+        allow(worker).to receive(:remaining_work_count).and_return(0)
       end
 
       it 'calls perform_work' do
@@ -96,14 +102,15 @@ RSpec.describe LimitedCapacity::Worker do
 
       it 'registers itself in the running set' do
         allow(worker).to receive(:perform_work)
-        expect(worker).to receive(:register_running_job_for_queue)
+        expect(job_counter).to receive(:register).with('my-jid')
 
         perform
       end
 
       it 'removes itself from the running set' do
+        expect(job_counter).to receive(:remove).with('my-jid')
+
         allow(worker).to receive(:perform_work)
-        expect(worker).to receive(:remove_job_from_running_for_queue)
 
         perform
       end
@@ -117,10 +124,10 @@ RSpec.describe LimitedCapacity::Worker do
     end
 
     context 'with capacity and without work' do
-      let(:capacity) { true }
-
       before do
-        allow(worker).to receive(:can_re_enqueue?).and_return(false)
+        allow(worker).to receive(:max_running_jobs).and_return(10)
+        allow(worker).to receive(:running_jobs_count).and_return(0)
+        allow(worker).to receive(:remaining_work_count).and_return(0)
         allow(worker).to receive(:perform_work)
       end
 
@@ -132,7 +139,11 @@ RSpec.describe LimitedCapacity::Worker do
     end
 
     context 'without capacity' do
-      let(:capacity) { false }
+      before do
+        allow(worker).to receive(:max_running_jobs).and_return(10)
+        allow(worker).to receive(:running_jobs_count).and_return(15)
+        allow(worker).to receive(:remaining_work_count).and_return(10)
+      end
 
       it 'does not call perform_work' do
         expect(worker).not_to receive(:perform_work)
@@ -141,19 +152,19 @@ RSpec.describe LimitedCapacity::Worker do
       end
 
       it 'does not re-enqueue itself' do
-        expect(worker).not_to receive(:re_enqueue)
+        expect(worker_class).not_to receive(:perform_async)
 
         perform
       end
 
-      it 'registers itself in the running set' do
-        expect(worker).to receive(:register_running_job_for_queue)
+      it 'does not register in the running set' do
+        expect(job_counter).not_to receive(:register)
 
         perform
       end
 
       it 'removes itself from the running set' do
-        expect(worker).to receive(:remove_job_from_running_for_queue)
+        expect(job_counter).to receive(:remove).with('my-jid')
 
         perform
       end
@@ -166,8 +177,6 @@ RSpec.describe LimitedCapacity::Worker do
     end
 
     context 'when perform_work fails' do
-      let(:capacity) { true }
-
       it 'does not re-enqueue itself' do
         expect(worker).not_to receive(:re_enqueue)
 
@@ -175,7 +184,7 @@ RSpec.describe LimitedCapacity::Worker do
       end
 
       it 'removes itself from the running set' do
-        expect(worker).to receive(:remove_job_from_running_for_queue)
+        expect(job_counter).to receive(:remove)
 
         expect { perform }.to raise_error(NotImplementedError)
       end
@@ -188,7 +197,7 @@ RSpec.describe LimitedCapacity::Worker do
     end
   end
 
-  describe '#remaining_capacity', :clean_gitlab_redis_shared_state do
+  describe '#remaining_capacity' do
     subject(:remaining_capacity) { worker.remaining_capacity }
 
     before do
@@ -205,7 +214,7 @@ RSpec.describe LimitedCapacity::Worker do
       let(:max_capacity) { 2 }
 
       before do
-        worker.send(:register_running_job_for_queue, 'job-id')
+        job_counter.register('a-job-id')
       end
 
       it { expect(remaining_capacity).to eq(1) }
@@ -233,38 +242,19 @@ RSpec.describe LimitedCapacity::Worker do
     end
   end
 
-  describe '#remove_completed_jobs_from_queue_set', :clean_gitlab_redis_shared_state, :clean_gitlab_redis_queues do
-    subject(:remove_failed_jobs) { worker.remove_completed_jobs_from_queue_set }
+  describe '#remove_failed_jobs' do
+    subject(:remove_failed_jobs) { worker.remove_failed_jobs }
 
-    context 'with failed jobs' do
-      before do
-        worker.send(:register_running_job_for_queue, 'failed-job-id')
+    before do
+      job_counter.register('a-job-id')
+      allow(worker).to receive(:max_running_jobs).and_return(2)
 
-        expect(worker).to receive(:max_running_jobs).twice.and_return(2)
-
-        expect(Gitlab::SidekiqStatus).to receive(:completed_jids)
-          .with(%w[failed-job-id])
-          .and_return(%w[failed-job-id])
-      end
-
-      it 'update the available capacity' do
-        expect { remove_failed_jobs }.to change { worker.remaining_capacity }.by(1)
-      end
+      expect(job_counter).to receive(:clean_up).and_call_original
     end
 
-    context 'with running jobs' do
-      before do
-        worker.send(:register_running_job_for_queue, 'running-job-id')
-
-        expect(worker).to receive(:max_running_jobs).twice.and_return(2)
-
-        expect(Gitlab::SidekiqStatus).to receive(:completed_jids)
-          .with(%w[running-job-id])
-          .and_return([])
-      end
-
+    context 'with failed jobs' do
       it 'update the available capacity' do
-        expect { remove_failed_jobs }.not_to change { worker.remaining_capacity }
+        expect { remove_failed_jobs }.to change { worker.remaining_capacity }.by(1)
       end
     end
   end
@@ -272,34 +262,20 @@ RSpec.describe LimitedCapacity::Worker do
   describe '#report_prometheus_metrics' do
     subject(:report_prometheus_metrics) { worker.report_prometheus_metrics }
 
+    before do
+      allow(worker).to receive(:running_jobs_count).and_return(5)
+      allow(worker).to receive(:max_running_jobs).and_return(7)
+      allow(worker).to receive(:remaining_work_count).and_return(9)
+    end
+
     it 'reports number of running jobs' do
-      expect(worker).to receive(:running_jobs_count).and_return(5)
+      labels = { worker: 'DummyWorker' }
 
       report_prometheus_metrics
 
-      expect(Gitlab::Metrics.registry.get(:limited_capacity_worker_running_jobs).get({ worker: 'DummyWorker' })).to eq(5)
-    end
-  end
-
-  describe '#can_re_enqueue?' do
-    using RSpec::Parameterized::TableSyntax
-
-    subject(:can_re_enqueue) { worker.send(:can_re_enqueue?) }
-
-    before do
-      allow(worker).to receive(:has_capacity?).and_return(capacity)
-      allow(worker).to receive(:has_work?).and_return(work)
-    end
-
-    where(:capacity, :work, :expected) do
-      true  | true   | true
-      true  | false  | false
-      false | true   | false
-      false | false  | false
-    end
-
-    with_them do
-      it { expect(can_re_enqueue).to eq(expected) }
+      expect(Gitlab::Metrics.registry.get(:limited_capacity_worker_running_jobs).get(labels)).to eq(5)
+      expect(Gitlab::Metrics.registry.get(:limited_capacity_worker_max_running_jobs).get(labels)).to eq(7)
+      expect(Gitlab::Metrics.registry.get(:limited_capacity_worker_remaining_work_count).get(labels)).to eq(9)
     end
   end
 end
