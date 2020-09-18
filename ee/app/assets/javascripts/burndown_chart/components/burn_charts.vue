@@ -203,9 +203,9 @@ export default {
         __('Burndown charts are now immutable. You can view the old chart using the toggle below.')
       }}
     </gl-alert>
-    <div class="burndown-header gl-flex gl-align-items-center gl-flex-wrap">
+    <div class="burndown-header gl-display-flex gl-align-items-center gl-flex-wrap">
       <h3 ref="chartsTitle">{{ title }}</h3>
-      <gl-button-group class="gl-ml-5">
+      <gl-button-group>
         <gl-button
           ref="totalIssuesButton"
           :category="issueButtonCategory"
@@ -227,7 +227,7 @@ export default {
         </gl-button>
       </gl-button-group>
 
-      <gl-button-group v-if="glFeatures.burnupCharts" class="gl-ml-5">
+      <gl-button-group v-if="glFeatures.burnupCharts">
         <gl-button
           ref="oldBurndown"
           :category="useLegacyBurndown ? 'primary' : 'secondary'"
