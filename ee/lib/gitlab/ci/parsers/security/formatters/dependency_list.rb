@@ -14,6 +14,7 @@ module Gitlab
             def format(dependency, package_manager, file_path, vulnerabilities = [])
               {
                 name:     dependency['package']['name'],
+                iid: dependency['iid'],
                 packager: packager(package_manager),
                 package_manager: package_manager,
                 location: formatted_location(dependency, file_path),
