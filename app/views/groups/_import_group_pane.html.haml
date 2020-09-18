@@ -2,6 +2,27 @@
 - group_path = root_url
 - group_path << parent.full_path + '/' if parent
 
+- if Feature.enabled?(:group_import_v2)
+  = form_with url: import_gitlab_group_path, class: 'group-form gl-show-field-errors', multipart: true do |f|
+    = form_errors(@group)
+
+    .row
+      .form-group.group-name.col-sm-12
+        = f.label :name, _('Gitlab URL'), class: 'label-bold'
+        = f.text_field :url, class: 'form-control input-lg',
+          required: true
+
+    .row
+      .form-group.group-name.col-sm-12
+        = f.label :name, _('Gitlab Token'), class: 'label-bold'
+        = f.text_field :token, class: 'form-control input-lg',
+          required: true
+
+      .form-actions.col-sm-12
+        = f.submit s_('GroupsNew|List your GitLab Top Level Groups'), class: 'btn btn-success'
+        = link_to _('Cancel'), new_group_path, class: 'btn btn-cancel'
+  .hr
+
 = form_with url: import_gitlab_group_path, class: 'group-form gl-show-field-errors', multipart: true do |f|
   = form_errors(@group)
 
