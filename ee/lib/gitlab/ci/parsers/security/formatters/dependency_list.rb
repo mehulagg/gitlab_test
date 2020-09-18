@@ -60,7 +60,7 @@ module Gitlab
               }
 
               return base_location if Feature.disabled?(:path_to_vulnerable_dependency, project)
-
+              return base_location unless dependency['iid']
               # TODO: update this code before https://gitlab.com/gitlab-org/gitlab/-/issues/229472 is closed
               # We temporary return test dependency path to get a PoC with integration to frontend
               base_location.merge({

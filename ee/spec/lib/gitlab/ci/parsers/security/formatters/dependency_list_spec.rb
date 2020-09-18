@@ -23,19 +23,35 @@ RSpec.describe Gitlab::Ci::Parsers::Security::Formatters::DependencyList do
     let(:blob_path) { "/#{project.full_path}/-/blob/#{sha}/rails/Gemfile.lock" }
 
     context 'with secure dependency' do
-      let(:dependency) { parsed_report['dependency_files'][0]['dependencies'][0] }
+      context 'with dependency path' do
+        let(:dependency) { parsed_report['dependency_files'][1]['dependencies'][0] }
 
-      it 'format report into a right format' do
-        expect(data[:name]).to eq('mini_portile2')
-        expect(data[:packager]).to eq('Ruby (Bundler)')
-        expect(data[:package_manager]).to eq('bundler')
-        expect(data[:location][:blob_path]).to eq(blob_path)
-        expect(data[:location][:path]).to eq('rails/Gemfile.lock')
-        expect(data[:location][:top_level]).to be_falsey
-        expect(data[:location][:ancestors].first[:name]).to eq('dep1')
-        expect(data[:version]).to eq('2.2.0')
-        expect(data[:vulnerabilities]).to be_empty
-        expect(data[:licenses]).to be_empty
+        it 'format report into a right format' do
+          expect(data[:name]).to eq('async')
+          expect(data[:iid]).to eq(1)
+          expect(data[:location][:blob_path]).to eq(blob_path)
+          expect(data[:location][:path]).to eq('rails/Gemfile.lock')
+          expect(data[:location][:top_level]).to be_falsey
+          expect(data[:location][:ancestors][0][:name]).to eq('dep1')
+        end
+      end
+
+      context 'without dependency path' do
+        let(:dependency) { parsed_report['dependency_files'][0]['dependencies'][0] }
+
+        it 'format report into a right format' do
+          expect(data[:name]).to eq('mini_portile2')
+          expect(data[:iid]).to be_nil
+          expect(data[:packager]).to eq('Ruby (Bundler)')
+          expect(data[:package_manager]).to eq('bundler')
+          expect(data[:location][:blob_path]).to eq(blob_path)
+          expect(data[:location][:path]).to eq('rails/Gemfile.lock')
+          expect(data[:location][:top_level]).to be_nil
+          expect(data[:location][:ancestors]).to be_nil
+          expect(data[:version]).to eq('2.2.0')
+          expect(data[:vulnerabilities]).to be_empty
+          expect(data[:licenses]).to be_empty
+        end
       end
     end
 
