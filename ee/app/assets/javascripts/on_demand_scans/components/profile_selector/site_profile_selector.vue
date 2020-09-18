@@ -30,7 +30,7 @@ export default {
   <profile-selector
     :library-path="siteProfilesLibraryPath"
     :new-profile-path="newSiteProfilePath"
-    :profiles="profiles.map(profile => ({ ...profile, dropdownLabel: profile.profileName }))"
+    :profiles="profiles.map(profile => ({ ...profile, dropdownLabel: `${profile.profileName}: ${profile.targetUrl}` }))"
     v-bind="$attrs"
     v-on="$listeners"
   >

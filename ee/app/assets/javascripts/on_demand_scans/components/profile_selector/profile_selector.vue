@@ -1,11 +1,6 @@
 <script>
 import { GlButton, GlCard, GlFormGroup, GlDropdown, GlDropdownItem } from '@gitlab/ui';
 
-const MODEL = {
-  PROP: 'selectedProfileId',
-  EVENT: 'set-profile',
-};
-
 export default {
   name: 'OnDemandScansProfileSelector',
   components: {
@@ -14,10 +9,6 @@ export default {
     GlFormGroup,
     GlDropdown,
     GlDropdownItem,
-  },
-  model: {
-    prop: MODEL.PROP,
-    event: MODEL.EVENT,
   },
   props: {
     libraryPath: {
@@ -33,7 +24,7 @@ export default {
       required: false,
       default: () => [],
     },
-    selectedProfileId: {
+    value: {
       type: String,
       required: false,
       default: null,
@@ -41,14 +32,9 @@ export default {
   },
   computed: {
     selectedProfile() {
-      return this.selectedProfileId
-        ? this.profiles.find(({ id }) => this.selectedProfileId === id)
+      return this.value
+        ? this.profiles.find(({ id }) => this.value === id)
         : null;
-    },
-  },
-  methods: {
-    setProfile({ id }) {
-      this.$emit(MODEL.EVENT, id);
     },
   },
 };
@@ -93,9 +79,9 @@ export default {
         <gl-dropdown-item
           v-for="profile in profiles"
           :key="profile.id"
-          :is-checked="selectedProfileId === profile.id"
+          :is-checked="value === profile.id"
           is-check-item
-          @click="setProfile(profile)"
+          @click="$emit('input', profile.id)"
         >
           {{ profile.profileName }}
         </gl-dropdown-item>
