@@ -15,7 +15,7 @@ export const GROUP_PAGE_TYPE = 'groups';
 export const LIST_KEY_NAME = 'name';
 export const LIST_KEY_PROJECT = 'project_path';
 export const LIST_KEY_VERSION = 'version';
-export const LIST_KEY_PACKAGE_TYPE = 'package_type';
+export const LIST_KEY_PACKAGE_TYPE = 'type';
 export const LIST_KEY_CREATED_AT = 'created_at';
 export const LIST_KEY_ACTIONS = 'actions';
 
@@ -25,8 +25,6 @@ export const LIST_LABEL_VERSION = __('Version');
 export const LIST_LABEL_PACKAGE_TYPE = __('Type');
 export const LIST_LABEL_CREATED_AT = __('Published');
 export const LIST_LABEL_ACTIONS = '';
-
-export const LIST_ORDER_BY_PACKAGE_TYPE = 'type';
 
 export const ASCENDING_ODER = 'asc';
 export const DESCENDING_ORDER = 'desc';
