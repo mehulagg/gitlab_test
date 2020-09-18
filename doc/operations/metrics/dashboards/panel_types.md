@@ -96,7 +96,7 @@ panel_groups:
         title: 'HTTP Handlers'
         x_label: 'Response Size'
         y_axis:
-          name:'"Handlers'
+          name: 'Handlers'
         metrics:
           - id: prometheus_http_response_size_bytes_bucket
             query_range: 'sum(increase(prometheus_http_response_size_bytes_bucket[1d])) by (handler)'
