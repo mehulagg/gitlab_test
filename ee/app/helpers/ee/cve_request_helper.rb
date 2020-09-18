@@ -5,7 +5,9 @@ module EE
     def request_cve_enabled_for_issue_and_user?(issue, user)
       request_cve_enabled?(issue.project) &&
         issue.confidential &&
-        can?(user, :admin_project, issue.project)
+      issue.confidential &&
+        can?(user, :admin_project, issue.project) &&
+        request_cve_enabled?(issue.project)
     end
 
     def request_cve_enabled?(project)
