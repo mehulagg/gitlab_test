@@ -12,7 +12,7 @@ import { setTitle } from './utils/title';
 import { updateFormAction } from './utils/dom';
 import { convertObjectPropsToCamelCase, parseBoolean } from '../lib/utils/common_utils';
 import { __ } from '../locale';
-import PathLastCommitQuery from './queries/pathLastCommit.query.graphql';
+import PathLastCommitQuery from './queries/path_last_commit.query.graphql';
 
 export default function setupVueRepositoryList() {
   const el = document.getElementById('js-tree-list');
