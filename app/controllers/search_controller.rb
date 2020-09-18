@@ -36,6 +36,7 @@ class SearchController < ApplicationController
 
     @scope = search_service.scope
     @show_snippets = search_service.show_snippets?
+    @show_epics = search_service.show_epics?
     @search_results = search_service.search_results
     @search_objects = search_service.search_objects(preload_method)
 

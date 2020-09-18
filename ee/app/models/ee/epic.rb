@@ -228,6 +228,10 @@ module EE
 
         items.where("epic_issues.epic_id": ids)
       end
+
+      def search(query)
+        fuzzy_search(query, [:title, :description])
+      end
     end
 
     def resource_parent
