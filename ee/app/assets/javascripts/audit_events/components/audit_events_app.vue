@@ -51,7 +51,7 @@ export default {
   <div>
     <div class="row-content-block second-block pb-0">
       <div class="d-flex justify-content-between audit-controls row">
-        <div class="col-lg-auto flex-fill form-group align-items-lg-center pr-lg-8">
+        <div class="col-lg-auto flex-fill form-group align-items-lg-center gl-w-full">
           <audit-events-filter
             :filter-token-options="filterTokenOptions"
             :qa-selector="filterQaSelector"
@@ -60,9 +60,9 @@ export default {
             @submit="searchForAuditEvents"
           />
         </div>
-        <div class="d-flex col-lg-auto flex-wrap pl-lg-0">
+        <div class="d-flex col-lg-auto flex-wrap gl-w-full">
           <div
-            class="audit-controls d-flex align-items-lg-center flex-column flex-lg-row col-lg-auto px-0"
+            class="audit-controls d-flex align-items-lg-center flex-column flex-lg-row col-lg-auto gl-justify-content-space-between px-0 gl-w-full"
           >
             <date-range-field
               :start-date="startDate"
