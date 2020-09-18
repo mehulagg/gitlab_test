@@ -181,26 +181,6 @@ RSpec.describe ContainerRepository do
     end
   end
 
-  describe '#reset_expiration_policy_started_at!' do
-    subject { repository.reset_expiration_policy_started_at! }
-
-    context 'with a repository without expiration policy started' do
-      it "doesn't reset the column" do
-        expect(repository.expiration_policy_started_at).to eq(nil)
-        expect { subject }.not_to change { repository.reload.expiration_policy_started_at }
-      end
-    end
-
-    context 'with a repository with expiration policy started' do
-      let(:repository) { create(:container_repository, :with_expiration_policy_started) }
-
-      it 'resets the column' do
-        value = repository.expiration_policy_started_at
-        expect { subject }.to change { repository.reload.expiration_policy_started_at }.from(value).to be_nil
-      end
-    end
-  end
-
   describe '.build_from_path' do
     let(:registry_path) do
       ContainerRegistry::Path.new(project.full_path + '/some/image')
@@ -341,13 +321,5 @@ RSpec.describe ContainerRepository do
     subject { described_class.search_by_name('my_image') }
 
     it { is_expected.to contain_exactly(repository) }
-  end
-
-  describe '.with_expiration_policy_started' do
-    let_it_be(:repository_with_expiration_policy_started) { create(:container_repository, :with_expiration_policy_started) }
-
-    subject { described_class.with_expiration_policy_started }
-
-    it { is_expected.to contain_exactly(repository_with_expiration_policy_started) }
   end
 end
