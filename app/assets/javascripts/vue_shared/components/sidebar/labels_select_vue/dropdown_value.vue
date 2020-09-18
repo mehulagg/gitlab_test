@@ -8,6 +8,13 @@ export default {
   components: {
     GlLabel,
   },
+  props: {
+    allowLabelClose: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+  },
   computed: {
     ...mapState(['selectedLabels', 'allowScopedLabels', 'labelsFilterBasePath']),
   },
@@ -40,8 +47,12 @@ export default {
         :background-color="label.color"
         :target="labelFilterUrl(label)"
         :scoped="scopedLabel(label)"
+        :show-close-button="allowLabelClose"
         tooltip-placement="top"
+        @close="$emit('onLabelClose', label.id)"
       />
+      <span v-if="label.isRemoving">is removing</span>
+      <span v-if="label.isDisabled">is disabled</span>
     </template>
   </div>
 </template>

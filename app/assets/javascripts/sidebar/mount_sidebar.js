@@ -63,7 +63,7 @@ export function mountSidebarLabels() {
     return false;
   }
 
-  const labelsStore = new Vuex.Store(labelsSelectModule());
+  const labelsStore = new Vuex.Store();
 
   return new Vue({
     el,

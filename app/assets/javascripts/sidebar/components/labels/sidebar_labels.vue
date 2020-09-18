@@ -26,19 +26,13 @@ export default {
     'projectIssuesPath',
     'projectPath',
   ],
-  data: () => ({
-    labelsSelectInProgress: false,
-  }),
-  computed: {
-    ...mapState(['selectedLabels']),
-  },
-  mounted() {
-    this.setInitialState({
+  data() {
+    return {
+      labelsSelectInProgress: false,
       selectedLabels: this.initiallySelectedLabels,
-    });
+    };
   },
   methods: {
-    ...mapActions(['setInitialState', 'replaceSelectedLabels']),
     handleDropdownClose() {
       $(this.$el).trigger('hidden.gl.dropdown');
     },
@@ -63,10 +57,42 @@ export default {
         method: 'put',
         url: this.labelsUpdatePath,
       })
-        .then(({ data }) => this.replaceSelectedLabels(data.labels))
+        .then(({ data }) => {
+          this.selectedLabels = data.labels;
+        })
         .catch(() => flash(__('An error occurred while updating labels.')))
         .finally(() => {
           this.labelsSelectInProgress = false;
+        });
+    },
+    handleLabelClose(labelId) {
+      const currentLabelIds = this.selectedLabels.map(label => label.id);
+      const issuableLabels = difference(currentLabelIds, [labelId]);
+
+      this.labelsSelectInProgress = true;
+
+      const originalSelectedLabels = this.selectedLabels;
+      this.selectedLabels = this.selectedLabels.map(label => ({
+        ...label,
+        [label.id === labelId ? 'isRemoving' : 'isDisabled']: true,
+      }));
+
+      axios({
+        data: {
+          [this.issuableType]: {
+            label_ids: issuableLabels,
+          },
+        },
+        method: 'put',
+        url: this.labelsUpdatePath,
+      })
+        .then(({ data }) => {
+          this.selectedLabels = data.labels;
+        })
+        .catch(() => flash(__('An error occurred while updating labels.')))
+        .finally(() => {
+          this.labelsSelectInProgress = false;
+          // this.selectedLabels = originalSelectedLabels;
         });
     },
   },
@@ -76,6 +102,7 @@ export default {
 <template>
   <labels-select
     class="block labels js-labels-block"
+    :allow-label-close="true"
     :allow-label-create="allowLabelCreate"
     :allow-label-edit="allowLabelEdit"
     :allow-multiselect="true"
@@ -89,6 +116,7 @@ export default {
     :labels-select-in-progress="labelsSelectInProgress"
     :selected-labels="selectedLabels"
     :variant="$options.sidebar"
+    @onLabelClose="handleLabelClose"
     @onDropdownClose="handleDropdownClose"
     @updateSelectedLabels="handleUpdateSelectedLabels"
   >
