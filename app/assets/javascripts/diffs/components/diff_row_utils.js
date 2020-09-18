@@ -23,14 +23,18 @@ export const isMatchLine = type => type === MATCH_LINE_TYPE;
 export const isMetaLine = type =>
   [OLD_NO_NEW_LINE_TYPE, NEW_NO_NEW_LINE_TYPE, EMPTY_CELL_TYPE].includes(type);
 
-export const shouldRenderCommentButton = (isLoggedIn, isCommentButtonRendered) => {
+export const shouldRenderCommentButton = (
+  isLoggedIn,
+  isCommentButtonRendered,
+  featureMergeRefHeadComments = false,
+) => {
   if (!isCommentButtonRendered) {
     return false;
   }
 
   if (isLoggedIn) {
     const isDiffHead = parseBoolean(getParameterByName('diff_head'));
-    return !isDiffHead || gon.features?.mergeRefHeadComments;
+    return !isDiffHead || featureMergeRefHeadComments;
   }
 
   return false;
