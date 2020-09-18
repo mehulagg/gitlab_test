@@ -40,7 +40,7 @@ export default () => {
       components: {
         BurnCharts,
       },
-      mixins: [glFeatureFlagsMixin],
+      mixins: [glFeatureFlagsMixin()],
       data() {
         return {
           openIssuesCount: [],

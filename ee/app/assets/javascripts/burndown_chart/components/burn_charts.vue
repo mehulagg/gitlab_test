@@ -82,11 +82,6 @@ export default {
     weightButtonCategory() {
       return this.issuesSelected ? 'secondary' : 'primary';
     },
-    pluckBurnupDataProperties(total, completed) {
-      return this.burnupData.map(data => {
-        return [data.date, data[total] - data[completed]];
-      });
-    },
     issuesCount() {
       if (this.useLegacyBurndown) {
         return this.openIssuesCount;
@@ -101,6 +96,11 @@ export default {
     },
   },
   methods: {
+    pluckBurnupDataProperties(total, completed) {
+      return this.burnupData.map(data => {
+        return [data.date, data[total] - data[completed]];
+      });
+    },
     fetchLegacyBurndownEvents() {
       this.fetchedLegacyData = true;
       this.$emit('fetchLegacyBurndownEvents');
