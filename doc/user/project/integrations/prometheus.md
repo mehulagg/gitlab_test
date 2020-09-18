@@ -60,12 +60,18 @@ The [NGINX Ingress](../clusters/index.md#installing-applications) that is deploy
 
 ##### Example of Kubernetes service annotations and labels
 
-To activate the Prometheus monitoring of a service you need to add:
+As an example, to activate Prometheus monitoring of a service:
 
-- At least this annotation `prometheus.io/scrape: 'true'`.
-- And two labels: `application: ${CI_ENVIRONMENT_SLUG}` and `release: ${CI_ENVIRONMENT_SLUG}` to allow GitLab to retrieve metrics dynamically for any environment.
+1. Add at least this annotation: `prometheus.io/scrape: 'true'`.
+1. Add two labels so GitLab can retrieve metrics dynamically for any environment:
+   - `application: ${CI_ENVIRONMENT_SLUG}`
+   - `release: ${CI_ENVIRONMENT_SLUG}`
+1. Create a dynamic PromQL query. For example, a query like
+   `temperature{application="{{ci_environment_slug}}",release="{{ci_environment_slug}}"}` to either:
+   - Add [custom metrics](../../../operations/metrics/index.md#adding-custom-metrics).
+   - Add [custom dashboards](../../../operations/metrics/dashboards/index.md).
 
-Then, for example you will be able to create dynamic PromQL query like: `temperature{application="{{ci_environment_slug}}",release="{{ci_environment_slug}}"}` to add [custom metrics](../../../operations/metrics/index.md#adding-custom-metrics) or to define [custom dashboards](../../../operations/metrics/dashboards/index.md).
+The following is a service definition to accomplish this:
 
 ```yaml
 ---
