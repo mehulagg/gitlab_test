@@ -25,18 +25,13 @@ export default {
       default: '',
     },
   },
-  data() {
-    return {
-      sastCiConfiguration: null,
-      hasLoadingError: false,
-      showFeedbackAlert: true,
-    };
-  },
-  created() {
-    this.$apollo.addSmartQuery('sastCiConfiguration', {
-      query: this.glFeatures.sastConfigurationUiAnalyzers
-        ? sastCiConfigurationWithAnalyzersQuery
-        : sastCiConfigurationQuery,
+  apollo: {
+    sastCiConfiguration: {
+      query() {
+        return this.glFeatures.sastConfigurationUiAnalyzers
+          ? sastCiConfigurationWithAnalyzersQuery
+          : sastCiConfigurationQuery;
+      },
       variables() {
         return {
           fullPath: this.projectPath,
@@ -53,7 +48,14 @@ export default {
       error() {
         this.onError();
       },
-    });
+    },
+  },
+  data() {
+    return {
+      sastCiConfiguration: null,
+      hasLoadingError: false,
+      showFeedbackAlert: true,
+    };
   },
   methods: {
     dismissFeedbackAlert() {
