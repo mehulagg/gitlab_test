@@ -1,6 +1,6 @@
 <script>
 import { mapActions } from 'vuex';
-import { GlDeprecatedDropdown, GlDeprecatedDropdownItem, GlLoadingIcon, GlIcon } from '@gitlab/ui';
+import { GlDeprecatedDropdown, GlDeprecatedDropdownItem, GlLoadingIcon, GlIcon, GlButton } from '@gitlab/ui';
 import { getIssueStatusFromLicenseStatus } from 'ee/vue_shared/license_compliance/store/utils';
 import { LICENSE_MANAGEMENT } from 'ee/vue_shared/license_compliance/store/constants';
 import { s__ } from '~/locale';
@@ -16,6 +16,7 @@ export default {
   components: {
     GlDeprecatedDropdown,
     GlDeprecatedDropdownItem,
+    GlButton,
     GlLoadingIcon,
     GlIcon,
     IssueStatusIcon,
@@ -85,16 +86,17 @@ export default {
             {{ $options[$options.LICENSE_APPROVAL_ACTION.DENY] }}
           </gl-deprecated-dropdown-item>
         </gl-deprecated-dropdown>
-        <button
+        <gl-button
           :disabled="loading"
           class="btn btn-blank js-remove-button"
+          category="tertiary"
           type="button"
           data-toggle="modal"
           data-target="#modal-license-delete-confirmation"
           @click="setLicenseInModal(license)"
         >
           <gl-icon name="remove" />
-        </button>
+        </gl-button>
       </div>
     </div>
   </div>
