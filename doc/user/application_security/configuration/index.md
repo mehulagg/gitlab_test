@@ -19,6 +19,7 @@ then in the left sidebar go to **Security & Compliance > Configuration**.
 
 For each security control the page displays:
 
+- **Security Control** - Name, description and a link to the documentation.
 - **Status** - Status of the security control: enabled, not enabled, or available.
 - **Manage** - A management option or a link to the documentation.
 
