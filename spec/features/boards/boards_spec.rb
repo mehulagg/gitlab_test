@@ -21,6 +21,24 @@ RSpec.describe 'Issue Boards', :js do
     sign_in(user)
   end
 
+  context 'no lists' do
+    before do
+      visit project_board_path(project, board)
+    end
+
+    it 'creates default lists' do
+      lists = ['Open', 'To Do', 'Doing', 'Closed']
+
+      wait_for_requests
+
+      expect(page).to have_selector('.board', count: 4)
+
+      page.all('.board').each_with_index do |list, i|
+        expect(list.find('.board-title')).to have_content(lists[i])
+      end
+    end
+  end
+
   context 'with lists' do
     let_it_be(:milestone) { create(:milestone, project: project) }
 
