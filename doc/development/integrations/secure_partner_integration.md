@@ -6,7 +6,7 @@ our users to follow with regards to security results. These should be used as
 guidelines so you can build an integration that fits with the workflow GitLab
 users are already familiar with.
 
-## Critiera for Partnership
+## Criteria for Partnership
 
 Do you fill a one of the below product/feature gaps?
 - mobile scanning
