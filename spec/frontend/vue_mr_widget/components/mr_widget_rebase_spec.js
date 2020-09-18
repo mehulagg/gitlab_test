@@ -22,7 +22,7 @@ describe('Merge request widget rebase component', () => {
       });
 
       expect(
-        vm.$el.querySelector('.rebase-state-find-class-convention span:not(.gl-button-text)').textContent.trim(),
+        vm.$el.querySelector('[data-testid="rebase-message"]').textContent.trim(),
       ).toContain('Rebase in progress');
     });
   });
@@ -40,7 +40,7 @@ describe('Merge request widget rebase component', () => {
 
     it('it should render rebase button and warning message', () => {
       const text = vm.$el
-        .querySelector('.rebase-state-find-class-convention span:not(.gl-button-text)')
+        .querySelector('[data-testid="rebase-message"]')
         .textContent.trim();
 
       expect(text).toContain('Fast-forward merge is not possible.');
@@ -54,7 +54,7 @@ describe('Merge request widget rebase component', () => {
 
       Vue.nextTick(() => {
         expect(
-          vm.$el.querySelector('.rebase-state-find-class-convention span:not(.gl-button-text)').textContent.trim(),
+          vm.$el.querySelector('[data-testid="rebase-message"]').textContent.trim(),
         ).toContain('Something went wrong!');
         done();
       });
@@ -73,7 +73,7 @@ describe('Merge request widget rebase component', () => {
       });
 
       const text = vm.$el
-        .querySelector('.rebase-state-find-class-convention span:not(.gl-button-text)')
+        .querySelector('[data-testid="rebase-message"]')
         .textContent.trim();
 
       expect(text).toContain('Fast-forward merge is not possible.');
@@ -93,7 +93,7 @@ describe('Merge request widget rebase component', () => {
         service: {},
       });
 
-      const elem = vm.$el.querySelector('.rebase-state-find-class-convention span:not(.gl-button-text)');
+      const elem = vm.$el.querySelector('[data-testid="rebase-message"]');
 
       expect(elem.innerHTML).toContain(
         `Fast-forward merge is not possible. Rebase the source branch onto <span class="label-branch">${targetBranch}</span> to allow this merge request to be merged.`,
