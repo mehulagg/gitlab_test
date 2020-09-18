@@ -68,8 +68,8 @@ describe('AnalyzerConfiguration component', () => {
     });
   });
 
-  describe('configuration form', () => {
-    describe('when there are no SastCiConfigurationEntity', () => {
+  describe('child variables', () => {
+    describe('when there are no SastCiConfigurationEntity child variables', () => {
       beforeEach(() => {
         createComponent({
           props: { entity },
@@ -81,7 +81,7 @@ describe('AnalyzerConfiguration component', () => {
       });
     });
 
-    describe('when there are one or more SastCiConfigurationEntity', () => {
+    describe('when there are one or more SastCiConfigurationEntity child variables', () => {
       let newEntities;
 
       beforeEach(() => {
@@ -92,11 +92,11 @@ describe('AnalyzerConfiguration component', () => {
         });
       });
 
-      it('it renders the nested dynamic forms', () => {
+      it('it renders the nested DynamicFields component', () => {
         expect(findDynamicFields().exists()).toBe(true);
       });
 
-      it('it emits an input event when dynamic form fields emits an input event', () => {
+      it('it emits an input event when DynamicFields emits an input event', () => {
         newEntities = makeEntities(1, { field: 'new field' });
         findDynamicFields().vm.$emit('input', newEntities);
 
@@ -105,12 +105,12 @@ describe('AnalyzerConfiguration component', () => {
         ]);
       });
 
-      it('passes the disabled prop to dynamic fields component', () => {
+      it('passes the disabled prop to DynamicFields component', () => {
         expect(findDynamicFields().props('disabled')).toBe(!entity.enabled);
       });
 
-      it('passes the entities prop to the dynamic fields component', () => {
-        expect(findDynamicFields().props('entities')).toBe(newEntities);
+      it('passes the entities prop to the DynamicFields component', () => {
+        expect(findDynamicFields().props('entities')).toBe(entity.variables.nodes);
       });
     });
   });
