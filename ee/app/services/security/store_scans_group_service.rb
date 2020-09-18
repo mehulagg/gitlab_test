@@ -13,7 +13,7 @@ module Security
 
     def execute
       sorted_artifacts.reduce(false) do |deduplicate, artifact|
-        StoreScanService.execute(artifact, known_keys, deduplicate)
+        store_scan_for(artifact, deduplicate)
       end
     end
 
@@ -34,6 +34,12 @@ module Security
 
     def dependency_scanning?
       artifacts.first.dependency_scanning?
+    end
+
+    def store_scan_for(artifact, deduplicate)
+      StoreScanService.execute(artifact, known_keys, deduplicate)
+    ensure
+      artifact.clear_security_report
     end
   end
 end

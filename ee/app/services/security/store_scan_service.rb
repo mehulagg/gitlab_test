@@ -22,17 +22,10 @@ module Security
     private
 
     attr_reader :artifact, :known_keys, :deduplicate
+    delegate :security_report, to: :artifact, private: true
 
     def security_scan
       @security_scan ||= Security::Scan.safe_find_or_create_by!(build: artifact.job, scan_type: artifact.file_type)
-    end
-
-    def security_report
-      @security_report ||= ::Gitlab::Ci::Reports::Security::Report.new(artifact.file_type, nil, nil).tap do |report|
-        artifact.each_blob do |blob|
-          ::Gitlab::Ci::Parsers.fabricate!(artifact.file_type).parse!(blob, report)
-        end
-      end
     end
 
     def deduplicate_findings?

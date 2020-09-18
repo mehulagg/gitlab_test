@@ -120,7 +120,7 @@ module EE
     # slots in vm_heap occupied for the report object and it's
     # dependents.
     def clear_security_report
-      remove_instance_variable(:@security_report)
+      clear_memoization(:security_report)
     end
   end
 end
