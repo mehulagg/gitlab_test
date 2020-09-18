@@ -22,7 +22,18 @@ module Security
     attr_reader :artifacts, :known_keys
 
     def sorted_artifacts
-      artifacts.sort_by { |artifact| artifact.job.name }
+      artifacts.tap do |list|
+        list.sort_by! { |artifact| artifact.job.name }
+        list.sort_by! { |artifact| scanner_order_for(artifact) } if dependency_scanning?
+      end
+    end
+
+    def scanner_order_for(artifact)
+      MergeReportsService::ANALYZER_ORDER.fetch(artifact.security_report.primary_scanner.external_id, Float::INFINITY)
+    end
+
+    def dependency_scanning?
+      artifacts.first.dependency_scanning?
     end
   end
 end

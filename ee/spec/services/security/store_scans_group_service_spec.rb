@@ -3,12 +3,13 @@
 require 'spec_helper'
 
 RSpec.describe Security::StoreScansGroupService do
-  let_it_be(:build_1) { create(:ee_ci_build, name: 'DAST 1') }
-  let_it_be(:build_2) { create(:ee_ci_build, name: 'DAST 3') }
-  let_it_be(:build_3) { create(:ee_ci_build, name: 'DAST 2') }
-  let_it_be(:artifact_1) { create(:ee_ci_job_artifact, :dast, job: build_1) }
-  let_it_be(:artifact_2) { create(:ee_ci_job_artifact, :dast, job: build_2) }
-  let_it_be(:artifact_3) { create(:ee_ci_job_artifact, :dast, job: build_3) }
+  let(:report_type) { :dast }
+  let(:build_1) { create(:ee_ci_build, name: 'Report 1') }
+  let(:build_2) { create(:ee_ci_build, name: 'Report 3') }
+  let(:build_3) { create(:ee_ci_build, name: 'Report 2') }
+  let(:artifact_1) { create(:ee_ci_job_artifact, report_type, job: build_1) }
+  let(:artifact_2) { create(:ee_ci_job_artifact, report_type, job: build_2) }
+  let(:artifact_3) { create(:ee_ci_job_artifact, report_type, job: build_3) }
 
   let(:artifacts) { [artifact_1, artifact_2, artifact_3] }
 
@@ -39,12 +40,43 @@ RSpec.describe Security::StoreScansGroupService do
       allow(Security::StoreScanService).to receive(:execute).and_return(true)
     end
 
-    it 'calls the Security::StoreScanService with ordered artifacts' do
-      store_scan_group
+    context 'when the artifacts are not dependency_scanning' do
+      it 'calls the Security::StoreScanService with ordered artifacts' do
+        store_scan_group
 
-      expect(Security::StoreScanService).to have_received(:execute).with(artifact_1, empty_set, false).ordered
-      expect(Security::StoreScanService).to have_received(:execute).with(artifact_3, empty_set, true).ordered
-      expect(Security::StoreScanService).to have_received(:execute).with(artifact_2, empty_set, true).ordered
+        expect(Security::StoreScanService).to have_received(:execute).with(artifact_1, empty_set, false).ordered
+        expect(Security::StoreScanService).to have_received(:execute).with(artifact_3, empty_set, true).ordered
+        expect(Security::StoreScanService).to have_received(:execute).with(artifact_2, empty_set, true).ordered
+      end
+    end
+
+    context 'when the artifacts are dependency_scanning' do
+      let(:report_type) { :dependency_scanning }
+      let(:build_4) { create(:ee_ci_build, name: 'Report 0') }
+      let(:artifact_4) { create(:ee_ci_job_artifact, report_type, job: build_4) }
+      let(:scanner_1) { instance_double(::Gitlab::Ci::Reports::Security::Scanner, external_id: 'this is an unknown id') }
+      let(:scanner_2) { instance_double(::Gitlab::Ci::Reports::Security::Scanner, external_id: 'bundler_audit') }
+      let(:scanner_3) { instance_double(::Gitlab::Ci::Reports::Security::Scanner, external_id: 'retire.js') }
+      let(:mock_report_1) { instance_double(::Gitlab::Ci::Reports::Security::Report, primary_scanner: scanner_1) }
+      let(:mock_report_2) { instance_double(::Gitlab::Ci::Reports::Security::Report, primary_scanner: scanner_2) }
+      let(:mock_report_3) { instance_double(::Gitlab::Ci::Reports::Security::Report, primary_scanner: scanner_3) }
+      let(:artifacts) { [artifact_1, artifact_2, artifact_3, artifact_4] }
+
+      before do
+        allow(artifact_1).to receive(:security_report).and_return(mock_report_1)
+        allow(artifact_2).to receive(:security_report).and_return(mock_report_2)
+        allow(artifact_3).to receive(:security_report).and_return(mock_report_3)
+        allow(artifact_4).to receive(:security_report).and_return(mock_report_2)
+      end
+
+      it 'calls the Security::StoreScanService with ordered artifacts' do
+        store_scan_group
+
+        expect(Security::StoreScanService).to have_received(:execute).with(artifact_4, empty_set, false).ordered
+        expect(Security::StoreScanService).to have_received(:execute).with(artifact_2, empty_set, true).ordered
+        expect(Security::StoreScanService).to have_received(:execute).with(artifact_3, empty_set, true).ordered
+        expect(Security::StoreScanService).to have_received(:execute).with(artifact_1, empty_set, true).ordered
+      end
     end
   end
 end
