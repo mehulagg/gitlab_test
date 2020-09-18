@@ -100,6 +100,8 @@ module Ci
       # may fail, and we need to ensure the response has been generated.
       presented_build = ::Ci::BuildRunnerPresenter.new(build) # rubocop:disable CodeReuse/Presenter
       build_json = ::API::Entities::JobRequest::Response.new(presented_build).to_json
+      puts 'allison is awesome'
+      puts build_json
       Result.new(build, build_json, true)
     end
 

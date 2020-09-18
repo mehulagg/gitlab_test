@@ -107,12 +107,12 @@ The following table lists available parameters for jobs:
 | [`script`](#script)                                | Shell script that is executed by a runner.                                                                                                                                           |
 | [`after_script`](#before_script-and-after_script)  | Override a set of commands that are executed after job.                                                                                                                             |
 | [`allow_failure`](#allow_failure)                  | Allow job to fail. Failed job does not contribute to commit status.                                                                                                                 |
-| [`artifacts`](#artifacts)                          | List of files and directories to attach to a job on success. Also available: `artifacts:paths`, `artifacts:exclude`, `artifacts:expose_as`, `artifacts:name`, `artifacts:untracked`, `artifacts:when`, `artifacts:expire_in`, `artifacts:reports`. |
+| [`artifacts`](#artifacts)                          | List of files and directories to attach to a job on success. Also available: `artifacts:paths`, `artifacts:exclude`, `artifacts:expose_as`, `artifacts:name`, `artifacts:untracked`, `artifacts:when`, `artifacts:expire_in`, and `artifacts:reports`. |
 | [`before_script`](#before_script-and-after_script) | Override a set of commands that are executed before job.                                                                                                                            |
-| [`cache`](#cache)                                  | List of files that should be cached between subsequent runs. Also available: `cache:paths`, `cache:key`, `cache:untracked`, and `cache:policy`.                                     |
+| [`cache`](#cache)                                  | List of files that should be cached between subsequent runs. Also available: `cache:paths`, `cache:key`, `cache:untracked`, `artifacts:when`, and `cache:policy`.                                     |
 | [`coverage`](#coverage)                            | Code coverage settings for a given job.                                                                                                                                             |
 | [`dependencies`](#dependencies)                    | Restrict which artifacts are passed to a specific job by providing a list of jobs to fetch artifacts from.                                                                          |
-| [`environment`](#environment)                      | Name of an environment to which the job deploys. Also available: `environment:name`, `environment:url`, `environment:on_stop`, `environment:auto_stop_in` and `environment:action`. |
+| [`environment`](#environment)                      | Name of an environment to which the job deploys. Also available: `environment:name`, `environment:url`, `environment:on_stop`, `environment:auto_stop_in`, and `environment:action`. |
 | [`except`](#onlyexcept-basic)                      | Limit when jobs are not created. Also available: [`except:refs`, `except:kubernetes`, `except:variables`, and `except:changes`](#onlyexcept-advanced).                              |
 | [`extends`](#extends)                              | Configuration entries that this job inherits from.                                                                                                                       |
 | [`image`](#image)                                  | Use Docker images. Also available: `image:name` and `image:entrypoint`.                                                                                                             |
@@ -2926,6 +2926,30 @@ rspec:
     untracked: true
     paths:
       - binaries/
+```
+
+#### `cache:when`
+
+> Introduced in GitLab 13.5 and GitLab Runner v13.5.0.
+
+`cache:when` is used to upload artifacts on job failure or despite the
+failure.
+
+`cache:when` can be set to one of the following values:
+
+1. `on_success` - upload artifacts only when the job succeeds. This is the default.
+1. `on_failure` - upload artifacts only when the job fails.
+1. `always` - upload artifacts regardless of the job status.
+
+To upload artifacts only when job fails:
+
+```yaml
+rspec:
+  script: rspec
+  cache:
+    paths:
+      - rspec/
+    when: 'on_success'
 ```
 
 #### `cache:policy`
