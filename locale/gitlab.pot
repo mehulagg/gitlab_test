@@ -8,6 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gitlab 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-09-17 11:26-0400\n"
+"PO-Revision-Date: 2020-09-17 11:26-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -1617,9 +1619,6 @@ msgstr ""
 msgid "Add label(s)"
 msgstr ""
 
-msgid "Add license"
-msgstr ""
-
 msgid "Add list"
 msgstr ""
 
@@ -2951,6 +2950,9 @@ msgstr ""
 msgid "An error occurred while updating approvers"
 msgstr ""
 
+msgid "An error occurred while updating labels."
+msgstr ""
+
 msgid "An error occurred while updating the comment"
 msgstr ""
 
@@ -3096,6 +3098,9 @@ msgid "Application"
 msgstr ""
 
 msgid "Application ID"
+msgstr ""
+
+msgid "Application limits saved successfully"
 msgstr ""
 
 msgid "Application settings saved successfully"
@@ -3355,9 +3360,6 @@ msgid "Are you sure you want to lose your issue information?"
 msgstr ""
 
 msgid "Are you sure you want to merge immediately?"
-msgstr ""
-
-msgid "Are you sure you want to permanently delete this license?"
 msgstr ""
 
 msgid "Are you sure you want to re-deploy this environment?"
@@ -6450,9 +6452,6 @@ msgstr ""
 msgid "Community forum"
 msgstr ""
 
-msgid "Company"
-msgstr ""
-
 msgid "Company name"
 msgstr ""
 
@@ -8218,9 +8217,6 @@ msgstr ""
 msgid "Delete label: %{label_name} ?"
 msgstr ""
 
-msgid "Delete license"
-msgstr ""
-
 msgid "Delete list"
 msgstr ""
 
@@ -8294,15 +8290,6 @@ msgid "Deleting"
 msgstr ""
 
 msgid "Deleting a project places it into a read-only state until %{date}, at which point the project will be permanently deleted. Are you ABSOLUTELY sure?"
-msgstr ""
-
-msgid "Deleting the license failed."
-msgstr ""
-
-msgid "Deleting the license failed. The license was not found."
-msgstr ""
-
-msgid "Deleting the license failed. You are not permitted to perform this action."
 msgstr ""
 
 msgid "Deleting the project will delete its repository and all related resources including issues, merge requests etc."
@@ -9246,6 +9233,9 @@ msgstr ""
 msgid "Edit files in the editor and commit changes here"
 msgstr ""
 
+msgid "Edit fork in Web IDE"
+msgstr ""
+
 msgid "Edit group: %{group_name}"
 msgstr ""
 
@@ -9316,9 +9306,6 @@ msgid "Email %{number}"
 msgstr ""
 
 msgid "Email Notification"
-msgstr ""
-
-msgid "Email address"
 msgstr ""
 
 msgid "Email could not be sent"
@@ -9556,9 +9543,6 @@ msgid "Enabling this will only make licensed EE features available to projects i
 msgstr ""
 
 msgid "Encountered an error while rendering: %{err}"
-msgstr ""
-
-msgid "End date"
 msgstr ""
 
 msgid "Ends at (UTC)"
@@ -10979,15 +10963,6 @@ msgstr ""
 msgid "Fetching incoming email"
 msgstr ""
 
-msgid "Fetching licenses failed."
-msgstr ""
-
-msgid "Fetching licenses failed. The request endpoint was not found."
-msgstr ""
-
-msgid "Fetching licenses failed. You are not permitted to perform this action."
-msgstr ""
-
 msgid "File"
 msgstr ""
 
@@ -11088,6 +11063,12 @@ msgid "Filter by requirements that are currently opened."
 msgstr ""
 
 msgid "Filter by status"
+msgstr ""
+
+msgid "Filter by test cases that are currently archived."
+msgstr ""
+
+msgid "Filter by test cases that are currently opened."
 msgstr ""
 
 msgid "Filter by two-factor authentication"
@@ -11370,6 +11351,9 @@ msgid "Generate new export"
 msgstr ""
 
 msgid "Generate new token"
+msgstr ""
+
+msgid "Generic package file size in bytes"
 msgstr ""
 
 msgid "Geo"
@@ -11807,9 +11791,6 @@ msgstr ""
 msgid "GitLab API"
 msgstr ""
 
-msgid "GitLab Enterprise Edition %{plan}"
-msgstr ""
-
 msgid "GitLab Group Runners can execute code for all the projects in this group."
 msgstr ""
 
@@ -11841,9 +11822,6 @@ msgid "GitLab User"
 msgstr ""
 
 msgid "GitLab Workhorse"
-msgstr ""
-
-msgid "GitLab allows you to continue using your license even if you exceed the number of seats you purchased. You will be required to pay for these seats when you renew your license."
 msgstr ""
 
 msgid "GitLab commit"
@@ -12749,10 +12727,10 @@ msgstr ""
 msgid "GroupsNew|Create group"
 msgstr ""
 
-msgid "GroupsNew|GitLab group export"
+msgid "GroupsNew|Import"
 msgstr ""
 
-msgid "GroupsNew|Import"
+msgid "GroupsNew|Import a GitLab group export file"
 msgstr ""
 
 msgid "GroupsNew|Import group"
@@ -13611,9 +13589,6 @@ msgstr ""
 msgid "Instance administrators group already exists"
 msgstr ""
 
-msgid "Instance license"
-msgstr ""
-
 msgid "Integration"
 msgstr ""
 
@@ -13899,7 +13874,7 @@ msgstr ""
 msgid "Issue events"
 msgstr ""
 
-msgid "Issue first depoloyed to production"
+msgid "Issue first deployed to production"
 msgstr ""
 
 msgid "Issue label"
@@ -15391,10 +15366,22 @@ msgstr ""
 msgid "Max access level"
 msgstr ""
 
-msgid "Max seats used"
+msgid "Max size 15 MB"
 msgstr ""
 
-msgid "Max size 15 MB"
+msgid "Maximum Conan package file size in bytes"
+msgstr ""
+
+msgid "Maximum Maven package file size in bytes"
+msgstr ""
+
+msgid "Maximum NPM package file size in bytes"
+msgstr ""
+
+msgid "Maximum NuGet package file size in bytes"
+msgstr ""
+
+msgid "Maximum PyPI package file size in bytes"
 msgstr ""
 
 msgid "Maximum Users:"
@@ -16957,6 +16944,9 @@ msgstr ""
 msgid "New tag"
 msgstr ""
 
+msgid "New test case"
+msgstr ""
+
 msgid "New users set to external"
 msgstr ""
 
@@ -17120,9 +17110,6 @@ msgid "No labels with such name or description"
 msgstr ""
 
 msgid "No license. All rights reserved"
-msgstr ""
-
-msgid "No licenses found."
 msgstr ""
 
 msgid "No matches found"
@@ -17851,6 +17838,9 @@ msgid "Package already exists"
 msgstr ""
 
 msgid "Package deleted successfully"
+msgstr ""
+
+msgid "Package file size limits"
 msgstr ""
 
 msgid "Package recipe already exists"
@@ -20867,9 +20857,6 @@ msgstr ""
 msgid "Register with two-factor app"
 msgstr ""
 
-msgid "Registration"
-msgstr ""
-
 msgid "Registration|Checkout"
 msgstr ""
 
@@ -21196,9 +21183,6 @@ msgstr ""
 msgid "Removes time estimate."
 msgstr ""
 
-msgid "Removing license…"
-msgstr ""
-
 msgid "Removing this group also removes all child projects, including archived projects, and their resources."
 msgstr ""
 
@@ -21466,9 +21450,6 @@ msgid "Request details"
 msgstr ""
 
 msgid "Request parameter %{param} is missing."
-msgstr ""
-
-msgid "Request review from"
 msgstr ""
 
 msgid "Request to link SAML account must be authorized"
@@ -21741,9 +21722,6 @@ msgstr ""
 msgid "ReviewApp|Enable Review App"
 msgstr ""
 
-msgid "Reviewer"
-msgstr ""
-
 msgid "Reviewing"
 msgstr ""
 
@@ -21984,6 +21962,9 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
+msgid "Save %{name} size limits"
+msgstr ""
+
 msgid "Save Changes"
 msgstr ""
 
@@ -22188,6 +22169,9 @@ msgstr ""
 msgid "Search results…"
 msgstr ""
 
+msgid "Search test cases"
+msgstr ""
+
 msgid "Search users"
 msgstr ""
 
@@ -22302,12 +22286,6 @@ msgid "Seat Link"
 msgstr ""
 
 msgid "Seat Link is disabled, and cannot be configured through this form."
-msgstr ""
-
-msgid "Seats currently in use"
-msgstr ""
-
-msgid "Seats in license"
 msgstr ""
 
 msgid "Secondary"
@@ -23042,6 +23020,9 @@ msgstr ""
 msgid "Set iteration"
 msgstr ""
 
+msgid "Set limit to 0 to allow any file size."
+msgstr ""
+
 msgid "Set max session time for web terminal."
 msgstr ""
 
@@ -23262,6 +23243,9 @@ msgid "Show all members"
 msgstr ""
 
 msgid "Show all requirements."
+msgstr ""
+
+msgid "Show all test cases."
 msgstr ""
 
 msgid "Show archived projects"
@@ -23673,6 +23657,9 @@ msgstr ""
 msgid "Something went wrong while fetching comments. Please try again."
 msgstr ""
 
+msgid "Something went wrong while fetching count of test cases."
+msgstr ""
+
 msgid "Something went wrong while fetching description changes. Please try again."
 msgstr ""
 
@@ -23695,6 +23682,9 @@ msgid "Something went wrong while fetching requirements count."
 msgstr ""
 
 msgid "Something went wrong while fetching requirements list."
+msgstr ""
+
+msgid "Something went wrong while fetching test cases list."
 msgstr ""
 
 msgid "Something went wrong while fetching the environments for this merge request. Please try again."
@@ -25282,9 +25272,6 @@ msgstr ""
 msgid "The private key to use when a client certificate is provided. This value is encrypted at rest."
 msgstr ""
 
-msgid "The production stage shows the total time it takes between creating an issue and deploying the code to production. The data will be automatically added once you have completed the full idea to production cycle."
-msgstr ""
-
 msgid "The project can be accessed by any logged in user."
 msgstr ""
 
@@ -25375,9 +25362,6 @@ msgstr ""
 msgid "The time taken by each data entry gathered by that stage."
 msgstr ""
 
-msgid "The total stage shows the time it takes between creating an issue and deploying the code to production. The data will be automatically added once you have completed the full idea to production cycle."
-msgstr ""
-
 msgid "The update action will time out after %{number_of_minutes} minutes. For big repositories, use a clone/push combination."
 msgstr ""
 
@@ -25441,6 +25425,9 @@ msgstr ""
 msgid "There are no archived requirements"
 msgstr ""
 
+msgid "There are no archived test cases"
+msgstr ""
+
 msgid "There are no changes"
 msgstr ""
 
@@ -25478,6 +25465,9 @@ msgid "There are no open merge requests"
 msgstr ""
 
 msgid "There are no open requirements"
+msgstr ""
+
+msgid "There are no open test cases"
 msgstr ""
 
 msgid "There are no packages yet"
@@ -25904,9 +25894,6 @@ msgid "This is a security log of important events involving your account."
 msgstr ""
 
 msgid "This is the highest peak of users on your installation since the license started."
-msgstr ""
-
-msgid "This is the maximum number of users that have existed at the same time since the license started. This is the minimum number of seats you will need to buy when you renew your license."
 msgstr ""
 
 msgid "This is the number of currently active users on your installation, and this is the minimum number you need to purchase when you renew your license."
@@ -27821,9 +27808,6 @@ msgstr ""
 msgid "Users or groups set as approvers in the project's or merge request's settings."
 msgstr ""
 
-msgid "Users outside of license"
-msgstr ""
-
 msgid "Users over License:"
 msgstr ""
 
@@ -27837,9 +27821,6 @@ msgid "Users were successfully added."
 msgstr ""
 
 msgid "Users with a Guest role or those who don't belong to a Project or Group will not use a seat from your license."
-msgstr ""
-
-msgid "Users with a Guest role or those who don't belong to any projects or groups don't count towards seats in use."
 msgstr ""
 
 msgid "UsersSelect|%{name} + %{length} more"
@@ -27879,9 +27860,6 @@ msgid "Validate your GitLab CI configuration file"
 msgstr ""
 
 msgid "Validations failed."
-msgstr ""
-
-msgid "Validity"
 msgstr ""
 
 msgid "Value"
@@ -28787,6 +28765,9 @@ msgstr ""
 msgid "With requirements, you can set criteria to check your products against."
 msgstr ""
 
+msgid "With test cases, you can define conditions for your project to meet in determining quality"
+msgstr ""
+
 msgid "Withdraw Access Request"
 msgstr ""
 
@@ -28968,6 +28949,9 @@ msgid "You can generate an access token scoped to this project for each applicat
 msgstr ""
 
 msgid "You can get started by cloning the repository or start adding files to it with one of the following options."
+msgstr ""
+
+msgid "You can group test cases using labels. To learn about the future direction of this feature, visit %{linkStart}Quality Management direction page%{linkEnd}."
 msgstr ""
 
 msgid "You can invite a new member to %{project_name} or invite another group."

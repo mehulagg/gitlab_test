@@ -7,7 +7,6 @@ import {
   codeStage,
   stagingStage,
   reviewStage,
-  totalStage,
   startDate,
   endDate,
   selectedProjects,
@@ -129,7 +128,7 @@ describe('Cycle analytics mutations', () => {
       });
 
       it('will convert the stats object to stages', () => {
-        [issueStage, planStage, codeStage, stagingStage, reviewStage, totalStage].forEach(stage => {
+        [issueStage, planStage, codeStage, stagingStage, reviewStage].forEach(stage => {
           expect(state.stages).toContainEqual(stage);
         });
       });
