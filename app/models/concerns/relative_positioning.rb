@@ -29,6 +29,10 @@ module RelativePositioning
   extend ActiveSupport::Concern
   include ::Gitlab::RelativePositioning
 
+  included do
+    include ::Gitlab::Database::SetAll
+  end
+
   class_methods do
     def move_nulls_to_end(objects)
       move_nulls(objects, at_end: true)
@@ -103,31 +107,20 @@ module RelativePositioning
       indexed = (at_end ? objects : objects.reverse).each_with_index
 
       # Some classes are polymorphic, and not all siblings are in the same table.
-      by_model = indexed.group_by { |pair| pair.first.class }
+      by_model = indexed.group_by { |pair| pair.first.model_class }
       lower_bound, upper_bound = at_end ? [position, MAX_POSITION] : [MIN_POSITION, position]
 
       by_model.each do |model, pairs|
         model.transaction do
           pairs.each_slice(100) do |batch|
-            # These are known to be integers, one from the DB, and the other
-            # calculated by us, and thus safe to interpolate
-            values = batch.map do |obj, i|
+            mapping = batch.to_h.transform_values! do |i|
               desired_pos = position + delta * (i + 1)
-              pos = desired_pos.clamp(lower_bound, upper_bound)
-              obj.relative_position = pos
-              "(#{obj.id}, #{pos})"
-            end.join(', ')
+              { relative_position: desired_pos.clamp(lower_bound, upper_bound) }
+            end
 
-            model.connection.exec_query(<<~SQL, "UPDATE #{model.table_name} positions")
-              WITH cte(cte_id, new_pos) AS (
-               SELECT *
-               FROM (VALUES #{values}) as t (id, pos)
-              )
-              UPDATE #{model.table_name}
-              SET relative_position = cte.new_pos
-              FROM cte
-              WHERE cte_id = id
-            SQL
+            ::Gitlab::Database::SetAll::Setter
+              .new(model, [:relative_position], mapping)
+              .update!
           end
         end
       end
@@ -199,5 +192,11 @@ module RelativePositioning
 
   # Override if you want to be notified of failures to move
   def could_not_move(exception)
+  end
+
+  # Override if the model class needs a more complicated computation (e.g. the
+  # object is a member of a union).
+  def model_class
+    self.class
   end
 end

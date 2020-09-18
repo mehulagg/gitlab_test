@@ -42,5 +42,14 @@ module EpicTreeSorting
 
       relation.where.not('object_type = ? AND id = ?', object_type, excluded.id)
     end
+
+    override :model_class
+    def model_class
+      type = try(:object_type)
+
+      return type.camelcase.constantize if type
+
+      super
+    end
   end
 end
