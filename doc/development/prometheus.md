@@ -48,7 +48,7 @@ using a Prometheus managed application in Kubernetes:
 
 1. Open `localhost:9090` in your browser to display the Prometheus user interface.
 
-## User tip
+## Script access to Prometheus
 
 You can script the access to Prometheus, extracting the name of the pod automatically like this:
 
