@@ -245,8 +245,18 @@ RSpec.describe Ci::JobArtifact do
   describe '#clear_security_report' do
     let(:job_artifact) { create(:ee_ci_job_artifact, :sast) }
 
+    subject(:clear_security_report) { job_artifact.clear_security_report }
+
+    before do
+      job_artifact.security_report # Memoize first
+      allow(::Gitlab::Ci::Reports::Security::Report).to receive(:new).and_call_original
+    end
+
     it 'clears the security_report' do
-      expect { job_artifact.clear_security_report }.to change { job_artifact.security_report }.to(nil)
+      clear_security_report
+      job_artifact.security_report
+
+      expect(::Gitlab::Ci::Reports::Security::Report).to have_received(:new).once
     end
   end
 end
