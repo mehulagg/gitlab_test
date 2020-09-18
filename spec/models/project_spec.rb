@@ -202,7 +202,7 @@ RSpec.describe Project do
       it 'does not raise an error' do
         project = create(:project)
 
-        expect { project.update(ci_cd_settings: nil) }.not_to raise_exception
+        expect { project.update!(ci_cd_settings: nil) }.not_to raise_exception
       end
     end
 
@@ -840,13 +840,13 @@ RSpec.describe Project do
       end
 
       it 'returns the most recent timestamp' do
-        project.update(updated_at: nil,
+        project.update!(updated_at: nil,
                        last_activity_at: timestamp,
                        last_repository_updated_at: timestamp - 1.hour)
 
         expect(project.last_activity_date).to be_like_time(timestamp)
 
-        project.update(updated_at: timestamp,
+        project.update!(updated_at: timestamp,
                        last_activity_at: timestamp - 1.hour,
                        last_repository_updated_at: nil)
 
@@ -1136,7 +1136,7 @@ RSpec.describe Project do
       it 'sets :has_external_wiki as false if an external wiki service is destroyed later' do
         expect(project.has_external_wiki).to be(true)
 
-        project.services.external_wikis.first.destroy
+        project.services.external_wikis.first.destroy!
 
         expect(project.has_external_wiki).to be(false)
       end
@@ -2461,7 +2461,7 @@ RSpec.describe Project do
 
     context 'with pending pipeline' do
       it 'returns empty relation' do
-        pipeline.update(status: 'pending')
+        pipeline.update!(status: 'pending')
         pending_build = create_build(pipeline)
 
         expect { project.latest_successful_build_for_ref!(pending_build.name) }
@@ -2655,7 +2655,7 @@ RSpec.describe Project do
     end
 
     it 'returns false when remote mirror is disabled' do
-      project.remote_mirrors.first.update(enabled: false)
+      project.remote_mirrors.first.update!(enabled: false)
 
       is_expected.to be_falsy
     end
@@ -2686,7 +2686,7 @@ RSpec.describe Project do
     end
 
     it 'does not sync disabled remote mirrors' do
-      project.remote_mirrors.first.update(enabled: false)
+      project.remote_mirrors.first.update!(enabled: false)
 
       expect_any_instance_of(RemoteMirror).not_to receive(:sync)
 
@@ -2724,7 +2724,7 @@ RSpec.describe Project do
     it 'fails stuck remote mirrors' do
       project = create(:project, :repository, :remote_mirror)
 
-      project.remote_mirrors.first.update(
+      project.remote_mirrors.first.update!(
         update_status: :started,
         last_update_started_at: 2.days.ago
       )
@@ -2979,7 +2979,7 @@ RSpec.describe Project do
       end
 
       it 'returns the root of the fork network when the directs source was deleted' do
-        forked_project.destroy
+        forked_project.destroy!
 
         expect(second_fork.fork_source).to eq(project)
       end
@@ -3292,7 +3292,7 @@ RSpec.describe Project do
           let(:environment) { 'foo%bar/test' }
 
           it 'matches literally for _' do
-            ci_variable.update(environment_scope: 'foo%bar/*')
+            ci_variable.update_attribute(:environment_scope, 'foo%bar/*')
 
             is_expected.to contain_exactly(ci_variable)
           end
@@ -3533,7 +3533,7 @@ RSpec.describe Project do
 
     it "updates the namespace_id when changed" do
       namespace = create(:namespace)
-      project.update(namespace: namespace)
+      project.update!(namespace: namespace)
 
       expect(project.statistics.namespace_id).to eq namespace.id
     end
@@ -3801,14 +3801,14 @@ RSpec.describe Project do
       expect(project).to receive(:visibility_level_allowed_as_fork).and_call_original
       expect(project).to receive(:visibility_level_allowed_by_group).and_call_original
 
-      project.update(visibility_level: Gitlab::VisibilityLevel::INTERNAL)
+      project.update!(visibility_level: Gitlab::VisibilityLevel::INTERNAL)
     end
 
     it 'does not validate the visibility' do
       expect(project).not_to receive(:visibility_level_allowed_as_fork).and_call_original
       expect(project).not_to receive(:visibility_level_allowed_by_group).and_call_original
 
-      project.update(updated_at: Time.current)
+      project.update!(updated_at: Time.current)
     end
   end
 
@@ -3892,7 +3892,7 @@ RSpec.describe Project do
       project_2 = create(:project, :public, :merge_requests_disabled)
       project_3 = create(:project, :public, :issues_disabled)
       project_4 = create(:project, :public)
-      project_4.project_feature.update(issues_access_level: ProjectFeature::PRIVATE, merge_requests_access_level: ProjectFeature::PRIVATE )
+      project_4.project_feature.update!(issues_access_level: ProjectFeature::PRIVATE, merge_requests_access_level: ProjectFeature::PRIVATE )
 
       project_ids = described_class.ids_with_issuables_available_for(user).pluck(:id)
 
@@ -3935,7 +3935,7 @@ RSpec.describe Project do
       let(:project) { create(:project, :public) }
 
       it 'returns projects with the project feature access level nil' do
-        project.project_feature.update(merge_requests_access_level: nil)
+        project.project_feature.update!(merge_requests_access_level: nil)
 
         is_expected.to include(project)
       end
@@ -4202,7 +4202,7 @@ RSpec.describe Project do
     it 'is run when the project is destroyed' do
       expect(project).to receive(:remove_pages).and_call_original
 
-      expect { project.destroy }.not_to raise_error
+      expect { project.destroy! }.not_to raise_error
     end
   end
 
@@ -4671,7 +4671,7 @@ RSpec.describe Project do
 
     context 'when enabled on group' do
       it 'has auto devops implicitly enabled' do
-        project.update(namespace: create(:group, :auto_devops_enabled))
+        project.update!(namespace: create(:group, :auto_devops_enabled))
 
         expect(project).to have_auto_devops_implicitly_enabled
       end
@@ -4680,7 +4680,7 @@ RSpec.describe Project do
     context 'when enabled on parent group' do
       it 'has auto devops implicitly enabled' do
         subgroup = create(:group, parent: create(:group, :auto_devops_enabled))
-        project.update(namespace: subgroup)
+        project.update!(namespace: subgroup)
 
         expect(project).to have_auto_devops_implicitly_enabled
       end
@@ -5157,7 +5157,7 @@ RSpec.describe Project do
 
       before do
         create_list(:group_badge, 2, group: project_group)
-        project_group.update(parent: parent_group)
+        project_group.update!(parent: parent_group)
       end
 
       it 'returns the project and the project nested groups badges' do
@@ -6071,7 +6071,7 @@ RSpec.describe Project do
     end
 
     it 'removes chat names on removal' do
-      expect { subject.destroy }.to change { ChatName.count }.by(-5)
+      expect { subject.destroy! }.to change { ChatName.count }.by(-5)
     end
   end
 
