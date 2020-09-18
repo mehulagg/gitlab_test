@@ -5,18 +5,29 @@ module Gitlab
     # Backfill the deployment_type in jira_tracker_data table
     class BackfillJiraTrackerDeploymentType
       # Migration only version of jira_tracker_data table
-      class JiraTrackerDataTemp < ActiveRecord::Base
+      class JiraTrackerDataTemp < ApplicationRecord
         self.table_name = 'jira_tracker_data'
 
-        attr_encrypted :url, { key: Settings.attr_encrypted_db_key_base_32, encode: true, mode: :per_attribute_iv, algorithm: 'aes-256-gcm' }
-        attr_encrypted :api_url, { key: Settings.attr_encrypted_db_key_base_32, encode: true, mode: :per_attribute_iv, algorithm: 'aes-256-gcm' }
+        def self.encryption_options
+          {
+            key: Settings.attr_encrypted_db_key_base_32,
+            encode: true,
+            mode: :per_attribute_iv,
+            algorithm: 'aes-256-gcm'
+          }
+        end
+
+        attr_encrypted :url, encryption_options
+        attr_encrypted :api_url, encryption_options
+        attr_encrypted :username, encryption_options
+        attr_encrypted :password, encryption_options
         enum deployment_type: { unknown: 0, server: 1, cloud: 2 }, _prefix: :deployment
 
         belongs_to :service, class_name: 'JiraServiceTemp'
       end
 
       # Migration only version of services table
-      class JiraServiceTemp < ActiveRecord::Base
+      class JiraServiceTemp < ApplicationRecord
         self.table_name = 'services'
         self.inheritance_column = :_type_disabled
       end
@@ -38,10 +49,14 @@ module Gitlab
         url = URI.parse(client_url)
 
         {
-          # we don't need to authenticate since the serverInfo API is public
+          username: jira_tracker_data.username&.strip,
+          password: jira_tracker_data.password,
           site: URI.join(url, '/').to_s, # Intended to find the root
           context_path: url.path,
+          auth_type: :basic,
           read_timeout: 120,
+          use_cookies: true,
+          additional_cookies: ['OBBasicAuth=fromDialog'],
           use_ssl: url.scheme == 'https'
         }
       end

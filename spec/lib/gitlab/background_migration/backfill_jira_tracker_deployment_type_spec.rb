@@ -7,6 +7,8 @@ RSpec.describe Gitlab::BackgroundMigration::BackfillJiraTrackerDeploymentType, :
   let_it_be(:jira_tracker_data_temp) { described_class::JiraTrackerDataTemp }
   let_it_be(:api_host) { 'https://api.jira.com' }
   let_it_be(:rest_url) { "#{api_host}/rest/api/2/serverInfo" }
+  let_it_be(:username) { 'test_user' }
+  let_it_be(:password) { 'test_pass' }
   let_it_be(:server_info_results) { { 'deploymentType' => 'Cloud' } }
 
   subject { described_class.new }
@@ -55,7 +57,8 @@ RSpec.describe Gitlab::BackgroundMigration::BackfillJiraTrackerDeploymentType, :
       let!(:jira_service) { jira_service_temp.create!(type: 'JiraService', active: true, category: 'issue_tracker') }
       let!(:jira_tracker_data) do
         jira_tracker_data_temp.create!(service_id: jira_service.id,
-                                       url: api_host, deployment_type: 0)
+                                       url: api_host, deployment_type: 0,
+                                       username: username, password: password)
       end
 
       it 'sets the deployment_type to cloud' do
