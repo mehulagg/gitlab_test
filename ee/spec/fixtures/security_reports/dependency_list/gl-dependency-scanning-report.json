@@ -285,20 +285,12 @@
       "package_manager": "bundler",
       "dependencies": [
         {
-          "iid": 1,
-          "dependency_path": [
-            {
-              "iid": 2
-            }
-          ],
           "package": {
             "name": "mini_portile2"
           },
           "version": "2.2.0"
         },
         {
-          "iid": 2,
-          "direct": true,
           "package": {
             "name": "nokogiri"
           },
