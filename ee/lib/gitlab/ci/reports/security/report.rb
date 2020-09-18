@@ -12,6 +12,7 @@ module Gitlab
           attr_reader :scanners
           attr_reader :identifiers
 
+          attr_accessor :scan
           attr_accessor :scanned_resources
           attr_accessor :error
 
@@ -22,7 +23,10 @@ module Gitlab
             @findings = []
             @scanners = {}
             @identifiers = {}
+            # TODO: once can merge scan objects
+            # move this array under scan prop
             @scanned_resources = []
+            @scan = {}
           end
 
           def commit_sha

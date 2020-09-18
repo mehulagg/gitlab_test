@@ -11,13 +11,15 @@ module Gitlab
             report_data = parse_report(json_data)
             raise SecurityReportParserError, "Invalid report format" unless report_data.is_a?(Hash)
 
-            report.scanned_resources = create_scanned_resources(report_data.dig('scan', 'scanned_resources'))
+            report.scan = create_scan_object(report_data.dig('scan'))
 
             create_scanner(report, report_data.dig('scan', 'scanner'))
 
             collate_remediations(report_data).each do |vulnerability|
               create_vulnerability(report, vulnerability, report_data["version"])
             end
+
+            report_data
           rescue JSON::ParserError
             raise SecurityReportParserError, 'JSON parsing failed'
           rescue => e
@@ -27,15 +29,10 @@ module Gitlab
 
           protected
 
-          def create_scanned_resources(scanned_resources)
-            return [] unless scanned_resources
+          def create_scan_object(parsed_scan)
+            return {} unless parsed_scan
 
-            scanned_resources.map do |sr|
-              uri = URI.parse(sr['url'])
-              ::Gitlab::Ci::Reports::Security::ScannedResource.new(uri, sr['method'])
-            rescue URI::InvalidURIError
-              nil
-            end.compact
+            ::Gitlab::Ci::Reports::Security::Scan.new(parsed_scan)
           end
 
           def parse_report(json_data)
@@ -63,6 +60,7 @@ module Gitlab
             end
           end
 
+          # TODO map remediations to report object
           def create_vulnerability(report, data, version)
             scanner = create_scanner(report, data['scanner'] || mutate_scanner_tool(data['tool']))
             identifiers = create_identifiers(report, data['identifiers'])
