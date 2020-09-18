@@ -7,6 +7,7 @@ import {
   GlSafeHtmlDirective,
   GlIcon,
   GlButton,
+  GlButtonGroup,
   GlDropdown,
   GlDropdownItem,
   GlDropdownSectionHeader,
@@ -27,6 +28,7 @@ export default {
     FileIcon,
     DiffStats,
     GlButton,
+    GlButtonGroup,
     GlDropdown,
     GlDropdownItem,
     GlDropdownSectionHeader,
@@ -260,74 +262,70 @@ export default {
       class="file-actions d-none d-sm-flex align-items-center flex-wrap"
     >
       <diff-stats :added-lines="diffFile.added_lines" :removed-lines="diffFile.removed_lines" />
-      <gl-button
-        v-if="diffFile.external_url"
-        ref="externalLink"
-        v-gl-tooltip.hover
-        :href="diffFile.external_url"
-        :title="`View on ${diffFile.formatted_external_url}`"
-        target="_blank"
-        data-track-event="click_toggle_external_button"
-        data-track-label="diff_toggle_external_button"
-        data-track-property="diff_toggle_external"
-        class="mr-2"
-        category="tertiary"
-        icon="external-link"
-      />
-      <gl-dropdown
-        v-gl-tooltip.hover.focus="__('More actions')"
-        right
-        toggle-class="btn-default-tertiary"
-      >
-        <template #button-content>
-          <gl-icon name="ellipsis_v" class="mr-0" />
-          <span class="sr-only">{{ __('More actions') }}</span>
-        </template>
-        <gl-dropdown-section-header>
-          {{ __('More actions') }}
-        </gl-dropdown-section-header>
-        <gl-dropdown-item
-          v-if="diffFile.replaced_view_path"
-          ref="replacedFileButton"
-          :href="diffFile.replaced_view_path"
+      <gl-button-group>
+        <gl-button
+          v-if="diffFile.external_url"
+          ref="externalLink"
+          v-gl-tooltip.hover
+          :href="diffFile.external_url"
+          :title="`View on ${diffFile.formatted_external_url}`"
           target="_blank"
-        >
-          {{ viewReplacedFileButtonText }}
-        </gl-dropdown-item>
-        <gl-dropdown-item ref="viewButton" :href="diffFile.view_path" target="_blank">
-          {{ viewFileButtonText }}
-        </gl-dropdown-item>
-        <gl-dropdown-item
-          v-if="showEditButton"
-          ref="editButton"
-          :href="diffFile.edit_path"
-          @click="showForkMessage"
-        >
-          {{ __('Edit file') }}
-        </gl-dropdown-item>
-
-        <gl-dropdown-divider v-if="!diffFile.is_fully_expanded || diffHasDiscussions(diffFile)" />
-
-        <gl-dropdown-item
-          v-if="diffHasDiscussions(diffFile)"
-          ref="toggleDiscussionsButton"
-          @click="toggleFileDiscussionWrappers(diffFile)"
-        >
-          <template v-if="diffHasExpandedDiscussions(diffFile)">
-            {{ __('Hide comments on this file') }}
+          data-track-event="click_toggle_external_button"
+          data-track-label="diff_toggle_external_button"
+          data-track-property="diff_toggle_external"
+          icon="external-link"
+        />
+        <gl-dropdown v-gl-tooltip.hover.focus="__('More actions')" right toggle-class="btn-icon">
+          <template #button-content>
+            <gl-icon name="ellipsis_v" class="mr-0" />
+            <span class="sr-only">{{ __('More actions') }}</span>
           </template>
-          <template v-else>
-            {{ __('Show comments on this file') }}
-          </template>
-        </gl-dropdown-item>
-        <gl-dropdown-item
-          v-if="!diffFile.is_fully_expanded"
-          ref="expandDiffToFullFileButton"
-          @click="toggleFullDiff(diffFile.file_path)"
-        >
-          {{ expandDiffToFullFileTitle }}
-        </gl-dropdown-item>
-      </gl-dropdown>
+          <gl-dropdown-section-header>
+            {{ __('More actions') }}
+          </gl-dropdown-section-header>
+          <gl-dropdown-item
+            v-if="diffFile.replaced_view_path"
+            ref="replacedFileButton"
+            :href="diffFile.replaced_view_path"
+            target="_blank"
+          >
+            {{ viewReplacedFileButtonText }}
+          </gl-dropdown-item>
+          <gl-dropdown-item ref="viewButton" :href="diffFile.view_path" target="_blank">
+            {{ viewFileButtonText }}
+          </gl-dropdown-item>
+          <gl-dropdown-item
+            v-if="showEditButton"
+            ref="editButton"
+            :href="diffFile.edit_path"
+            @click="showForkMessage"
+          >
+            {{ __('Edit file') }}
+          </gl-dropdown-item>
+
+          <gl-dropdown-divider v-if="!diffFile.is_fully_expanded || diffHasDiscussions(diffFile)" />
+
+          <gl-dropdown-item
+            v-if="diffHasDiscussions(diffFile)"
+            ref="toggleDiscussionsButton"
+            @click="toggleFileDiscussionWrappers(diffFile)"
+          >
+            <template v-if="diffHasExpandedDiscussions(diffFile)">
+              {{ __('Hide comments on this file') }}
+            </template>
+            <template v-else>
+              {{ __('Show comments on this file') }}
+            </template>
+          </gl-dropdown-item>
+          <gl-dropdown-item
+            v-if="!diffFile.is_fully_expanded"
+            ref="expandDiffToFullFileButton"
+            @click="toggleFullDiff(diffFile.file_path)"
+          >
+            {{ expandDiffToFullFileTitle }}
+          </gl-dropdown-item>
+        </gl-dropdown>
+      </gl-button-group>
     </div>
 
     <div
