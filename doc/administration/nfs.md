@@ -315,6 +315,8 @@ sudo ls -lah /gitlab-nfs/test-dir/test2
 sudo -u git rm -rf /gitlab-nfs/test-dir
 ```
 
+Any `Operation not permitted` errors means you should investigate your NFS server export options.
+
 ## NFS in a Firewalled Environment
 
 If the traffic between your NFS server and NFS client(s) is subject to port filtering
