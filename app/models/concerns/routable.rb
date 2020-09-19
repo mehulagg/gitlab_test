@@ -5,6 +5,21 @@
 module Routable
   extend ActiveSupport::Concern
 
+  def self.find_by_full_path(path, follow_redirects: false, source_type: nil)
+    route =
+      Route.find_by(path: path) ||
+      Route.iwhere(path: path).first
+
+    if follow_redirects
+      route ||= RedirectRoute.iwhere(path: path).first
+    end
+
+    return if route.nil?
+    return if source_type && route.source_type != source_type
+
+    route.source
+  end
+
   included do
     # Remove `inverse_of: source` when upgraded to rails 5.2
     # See https://github.com/rails/rails/pull/28808
@@ -30,15 +45,7 @@ module Routable
     #
     # Returns a single object, or nil.
     def find_by_full_path(path, follow_redirects: false)
-      # Case sensitive match first (it's cheaper and the usual case)
-      # If we didn't have an exact match, we perform a case insensitive search
-      found = includes(:route).find_by(routes: { path: path }) || where_full_path_in([path]).take
-
-      return found if found
-
-      if follow_redirects
-        joins(:redirect_routes).find_by("LOWER(redirect_routes.path) = LOWER(?)", path)
-      end
+      Routable.find_by_full_path(path, follow_redirects: follow_redirects, source_type: base_class.name)
     end
 
     # Builds a relation to find multiple objects by their full paths.

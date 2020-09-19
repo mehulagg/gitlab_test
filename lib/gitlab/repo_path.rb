@@ -5,7 +5,7 @@ module Gitlab
     NotFoundError = Class.new(StandardError)
 
     def self.parse(path)
-      repo_path = path.sub(/\.git\z/, '').sub(%r{\A/}, '')
+      repo_path = path.delete_prefix('/').delete_suffix('.git')
       redirected_path = nil
 
       # Detect the repo type based on the path, the first one tried is the project
@@ -31,61 +31,59 @@ module Gitlab
     end
 
     def self.find_container(type, full_path)
-      if type.snippet?
-        snippet, redirected_path = find_snippet(full_path)
+      return [nil, nil, nil] if full_path.blank?
 
-        [snippet, snippet&.project, redirected_path]
-      elsif type.wiki?
-        wiki, redirected_path = find_wiki(full_path)
+      container =
+        if type.snippet?
+          find_snippet(full_path)
+        elsif type.wiki?
+          find_wiki(full_path)
+        else
+          find_project(full_path)
+        end
 
-        [wiki, wiki.try(:project), redirected_path]
-      else
-        project, redirected_path = find_project(full_path)
+      project = container&.try(:project)
+      redirected_path = redirected?(project, full_path) ? full_path : nil
 
-        [project, project, redirected_path]
-      end
+      [container, project, redirected_path]
     end
 
     def self.find_project(project_path)
-      return [nil, nil] if project_path.blank?
-
-      project = Project.find_by_full_path(project_path, follow_redirects: true)
-      redirected_path = redirected?(project, project_path) ? project_path : nil
-
-      [project, redirected_path]
-    end
-
-    def self.redirected?(project, project_path)
-      project && project.full_path.casecmp(project_path) != 0
+      Project.find_by_full_path(project_path, follow_redirects: true)
     end
 
     # Snippet_path can be either:
     # - snippets/1
     # - h5bp/html5-boilerplate/snippets/53
     def self.find_snippet(snippet_path)
-      return [nil, nil] if snippet_path.blank?
-
       snippet_id, project_path = extract_snippet_info(snippet_path)
-      project, redirected_path = find_project(project_path)
+      return unless snippet_id
 
-      [Snippet.find_by_id_and_project(id: snippet_id, project: project), redirected_path]
+      if project_path
+        return unless project = find_project(project_path)
+      end
+
+      Snippet.find_by_id_and_project(id: snippet_id, project: project)
     end
 
     # Wiki path can be either:
     # - namespace/project.wiki
     # - group/subgroup/project.wiki
+    # - group.wiki
+    # - group/subgroup.wiki
     def self.find_wiki(wiki_path)
-      return [nil, nil] if wiki_path.blank?
+      container = Routable.find_by_full_path(wiki_path, follow_redirects: true)
+      container&.try(:wiki)
+    end
 
-      project, redirected_path = find_project(wiki_path)
-
-      [project&.wiki, redirected_path]
+    def self.redirected?(container, container_path)
+      container && container.full_path.casecmp(container_path) != 0
     end
 
     def self.extract_snippet_info(snippet_path)
       path_segments = snippet_path.split('/')
       snippet_id = path_segments.pop
-      path_segments.pop # Remove snippets from path
+      path_segments.pop # Remove 'snippets' from path
       project_path = File.join(path_segments)
 
       [snippet_id, project_path]
