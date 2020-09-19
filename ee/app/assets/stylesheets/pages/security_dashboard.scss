@@ -67,3 +67,7 @@ $selection-summary-height: 68px;
   flex: 1 1 40%;
   margin: 1rem;
 }
+
+.vulnerability-dismissal-dropdown {
+  max-height: $dropdown-max-height-lg !important; /* sigh */
+}

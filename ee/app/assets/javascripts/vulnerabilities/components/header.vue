@@ -6,13 +6,14 @@ import SplitButton from 'ee/vue_shared/security_reports/components/split_button.
 import axios from '~/lib/utils/axios_utils';
 import download from '~/lib/utils/downloader';
 import { redirectTo } from '~/lib/utils/url_utility';
-import { deprecatedCreateFlash as createFlash } from '~/flash';
+import { deprecatedCreateFlash as createFlash, FLASH_TYPES } from '~/flash';
 import { s__ } from '~/locale';
 import UsersCache from '~/lib/utils/users_cache';
 import ResolutionAlert from './resolution_alert.vue';
 import VulnerabilityStateDropdown from './vulnerability_state_dropdown.vue';
 import StatusDescription from './status_description.vue';
 import { VULNERABILITY_STATE_OBJECTS, FEEDBACK_TYPES, HEADER_ACTION_BUTTONS } from '../constants';
+import dismissVulnerability from '../../security_dashboard/graphql/dismissVulnerability.graphql';
 
 export default {
   name: 'VulnerabilityHeader',
@@ -43,6 +44,7 @@ export default {
       vulnerability: { ...this.initialVulnerability },
       user: undefined,
       refreshVulnerabilitySource: undefined,
+      stateChangeReason: this.initialVulnerability.dismissal_reason,
     };
   },
 
@@ -92,7 +94,6 @@ export default {
       );
     },
   },
-
   watch: {
     'vulnerability.state': {
       immediate: true,
@@ -116,30 +117,63 @@ export default {
       },
     },
   },
-
+  apollo: {},
   methods: {
     triggerClick(action) {
       const fn = this[action];
       if (typeof fn === 'function') fn();
     },
-    changeVulnerabilityState(newState) {
+    dismissWithReason(reason) {
+      const gqlId = `gid://gitlab/Vulnerability/${this.vulnerability.id}`;
+      this.$apollo
+        .mutate({
+          mutation: dismissVulnerability,
+          variables: { id: gqlId, comment: reason },
+        })
+        .then(() => {
+          this.stateChangeReason = reason;
+          this.vulnerability.state = 'dismissed';
+          this.$emit('vulnerability-state-change');
+          this.flashVulnUpdateSuccess();
+        })
+        .catch(() => {
+          this.flashVulnUpdateError();
+        })
+        .finally(() => {
+          this.isLoadingVulnerability = false;
+        });
+    },
+    changeVulnerabilityState(stateInfo) {
+      const newState = stateInfo.action;
+      const { reason } = stateInfo;
       this.isLoadingVulnerability = true;
+
+      if (newState === VULNERABILITY_STATE_OBJECTS.dismissed.action) {
+        this.dismissWithReason(reason);
+        return;
+      }
 
       Api.changeVulnerabilityState(this.vulnerability.id, newState)
         .then(({ data }) => {
           Object.assign(this.vulnerability, data);
           this.$emit('vulnerability-state-change');
+          this.flashVulnUpdateSuccess();
         })
-        .catch(() => {
-          createFlash(
-            s__(
-              'VulnerabilityManagement|Something went wrong, could not update vulnerability state.',
-            ),
-          );
-        })
+        .catch(() => this.flashVulnUpdateError())
         .finally(() => {
           this.isLoadingVulnerability = false;
         });
+    },
+    flashVulnUpdateSuccess() {
+      createFlash(
+        s__("VulnerabilityManagement|Successfully updated the vulnerability's state"),
+        FLASH_TYPES.SUCCESS,
+      );
+    },
+    flashVulnUpdateError() {
+      createFlash(
+        s__('VulnerabilityManagement|Something went wrong, could not update vulnerability state.'),
+      );
     },
     createMergeRequest() {
       this.isProcessingAction = true;
@@ -249,7 +283,7 @@ export default {
         <vulnerability-state-dropdown
           v-else
           :initial-state="vulnerability.state"
-          :dismissal-comment="vulnerability.dismissal_comment"
+          :initial-state-change-reason="stateChangeReason"
           @change="changeVulnerabilityState"
         />
         <split-button

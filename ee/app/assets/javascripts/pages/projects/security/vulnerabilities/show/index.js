@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import MainApp from 'ee/vulnerabilities/components/vulnerability.vue';
+import apolloProvider from 'ee/security_dashboard/graphql/provider';
 
 function createMainApp() {
   const el = document.getElementById('js-vulnerability-main');
@@ -7,7 +8,7 @@ function createMainApp() {
 
   return new Vue({
     el,
-
+    apolloProvider,
     provide: {
       reportType: vulnerability.report_type,
       createIssueUrl: vulnerability.create_issue_url,

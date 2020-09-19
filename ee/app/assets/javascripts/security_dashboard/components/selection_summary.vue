@@ -4,7 +4,7 @@ import { s__, n__ } from '~/locale';
 import toast from '~/vue_shared/plugins/global_toast';
 import { deprecatedCreateFlash as createFlash } from '~/flash';
 import dismissVulnerability from '../graphql/dismissVulnerability.graphql';
-import { VULNERABILITY_DISMISSAL_REASONS } from '../../vulnerabilities/constants'
+import { VULNERABILITY_DISMISSAL_REASONS } from '../../vulnerabilities/constants';
 
 const REASON_NONE = s__('SecurityReports|[No reason]');
 const REASON_WONT_FIX = s__("SecurityReports|Won't fix / Accept risk");
@@ -56,12 +56,12 @@ export default {
       this.dismissSelectedVulnerabilities();
     },
     dismissSelectedVulnerabilities() {
-      const promises = this.selectedVulnerabilities.map(vulnerability =>
-        this.$apollo.mutate({
+      const promises = this.selectedVulnerabilities.map(vulnerability => {
+        return this.$apollo.mutate({
           mutation: dismissVulnerability,
           variables: { id: vulnerability.id, comment: this.dismissalReason },
-        }),
-      );
+        });
+      });
 
       Promise.all(promises)
         .then(() => {
@@ -81,7 +81,7 @@ export default {
   },
   dismissalReasons: [
     { value: null, text: s__('SecurityReports|Select a reason') },
-    ...VULNERABILITY_DISMISSAL_REASONS
+    ...VULNERABILITY_DISMISSAL_REASONS,
   ],
 };
 </script>
