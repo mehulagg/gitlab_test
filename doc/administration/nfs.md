@@ -298,7 +298,7 @@ are empty before attempting a restore. Read more about the
 
 ## Testing NFS
 
-Once you've setup NFS server and NFS client, we can verify NFS is configured as necessary
+Once you've setup NFS server and NFS client, you can verify NFS is configured as necessary
 by testing the following commands GitLab expects to work:
 
 ```shell
