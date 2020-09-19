@@ -66,6 +66,7 @@ RSpec.describe 'search/_results' do
             before do
               stub_feature_flags(search_filter_by_confidential: false)
             end
+
             it 'does not render the confidential drop down' do
               render
 
