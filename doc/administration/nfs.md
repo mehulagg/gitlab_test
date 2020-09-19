@@ -302,13 +302,17 @@ Once you've setup NFS server and NFS client, you can verify NFS is configured as
 by testing the following commands GitLab expects to work:
 
 ```shell
-sudo -u git mkdir /gitlab-nfs/test-dir
-sudo -u git chmod 777 /gitlab-nfs/test-dir
-sudo -u git rm -r /gitlab-nfs/test-dir
 sudo mkdir /gitlab-nfs/test-dir
-sudo chown registry /gitlab-nfs/test-dir
+sudo chown git /gitlab-nfs/test-dir
 sudo chgrp gitlab-www /gitlab-nfs/test-dir
-sudo rm -r /gitlab-nfs/test-dir
+sudo chgrp root /gitlab-nfs/test-dir
+sudo chmod 2755 /gitlab-nfs/test-dir
+sudo -u git mkdir /gitlab-nfs/test-dir/test2
+sudo chmod 2755 /gitlab-nfs/test-dir/test2
+sudo -u git mkdir /gitlab-nfs/test-dir/test2/test3
+sudo -u git chmod 2755 /gitlab-nfs/test-dir/test2/test3
+sudo ls -lah /gitlab-nfs/test-dir/test2
+sudo -u git rm -rf /gitlab-nfs/test-dir
 ```
 
 ## NFS in a Firewalled Environment
