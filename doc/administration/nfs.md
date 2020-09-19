@@ -98,19 +98,6 @@ management between systems:
 - [NetApp instructions](https://library.netapp.com/ecmdocs/ECMP1401220/html/GUID-24367A9F-E17B-4725-ADC1-02D86F56F78E.html)
 - For non-NetApp devices, disable NFSv4 `idmapping` by performing opposite of [enable NFSv4 idmapper](https://wiki.archlinux.org/index.php/NFS#Enabling_NFSv4_idmapping)
 
-To verify NFS server export is configured as necessary try running a few commands
-on GitLab server that GitLab expects to work:
-
-```shell
-$ sudo -u git mkdir /nfs/test-dir
-$ sudo -u git chmod 777 /nfs/test-dir
-$ sudo -u git rm -r /nfs/test-dir
-$ sudo mkdir /nfs/test-dir
-$ sudo chown registry /nfs/test-dir
-$ sudo chgrp gitlab-www /nfs/test-dir
-$ sudo rm -r /nfs/test-dir
-```
-
 ### Disable NFS server delegation
 
 We recommend that all NFS users disable the NFS server delegation feature. This
@@ -308,6 +295,21 @@ provide configuration for [UDP log shipping](https://docs.gitlab.com/omnibus/set
 Having multiple NFS mounts will require manually making sure the data directories
 are empty before attempting a restore. Read more about the
 [restore prerequisites](../raketasks/backup_restore.md).
+
+## Testing NFS
+
+Once you've setup NFS server and NFS client, we can verify NFS is configured as necessary
+by testing the following commands GitLab expects to work:
+
+```shell
+$ sudo -u git mkdir /gitlab-nfs/test-dir
+$ sudo -u git chmod 777 /gitlab-nfs/test-dir
+$ sudo -u git rm -r /gitlab-nfs/test-dir
+$ sudo mkdir /gitlab-nfs/test-dir
+$ sudo chown registry /gitlab-nfs/test-dir
+$ sudo chgrp gitlab-www /gitlab-nfs/test-dir
+$ sudo rm -r /gitlab-nfs/test-dir
+```
 
 ## NFS in a Firewalled Environment
 
