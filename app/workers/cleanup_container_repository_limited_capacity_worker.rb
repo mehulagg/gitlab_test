@@ -3,6 +3,7 @@
 class CleanupContainerRepositoryLimitedCapacityWorker
   include ApplicationWorker
   include LimitedCapacity::Worker
+  include Gitlab::Utils::StrongMemoize
 
   queue_namespace :container_repository
   feature_category :container_registry
@@ -12,6 +13,8 @@ class CleanupContainerRepositoryLimitedCapacityWorker
   loggable_arguments 2
 
   sidekiq_options queue: 'container_repository:cleanup_container_repository' # rubocop: disable Cop/SidekiqOptionsQueue
+
+  CONTAINER_REPOSITORY_IDS_QUEUE = 'cleanup_container_repository_limited_capacity_worker:container_repository_ids'
 
   private
 
@@ -28,7 +31,7 @@ class CleanupContainerRepositoryLimitedCapacityWorker
   end
 
   def remaining_work_count
-    Sidekiq.redis { |r| r.llen(ContainerExpirationPolicyWorker::CONTAINER_REPOSITORY_IDS_QUEUE) }
+    Sidekiq.redis { |r| r.llen(CONTAINER_REPOSITORY_IDS_QUEUE) }
   end
 
   def max_running_jobs
@@ -46,14 +49,20 @@ class CleanupContainerRepositoryLimitedCapacityWorker
   end
 
   def container_repository
-    ContainerRepository.find_by_id(container_repository_id)
+    strong_memoize(:container_repository) do
+      ContainerRepository.find_by_id(container_repository_id)
+    end
   end
 
   def container_repository_id
-    Sidekiq.redis { |r| r.lpop(ContainerExpirationPolicyWorker::CONTAINER_REPOSITORY_IDS_QUEUE) }
+    Sidekiq.redis { |redis| redis.lpop(CONTAINER_REPOSITORY_IDS_QUEUE) }
   end
 
   def reenqueue_container_repository_id(id)
-    Sidekiq.redis { |r| r.rpush(ContainerExpirationPolicyWorker::CONTAINER_REPOSITORY_IDS_QUEUE, id) }
+    Sidekiq.redis do |redis|
+      unless redis.lpos(CONTAINER_REPOSITORY_IDS_QUEUE, id)
+        redis.rpush(CONTAINER_REPOSITORY_IDS_QUEUE, id)
+      end
+    end
   end
 end

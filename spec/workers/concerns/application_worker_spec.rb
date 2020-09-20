@@ -104,9 +104,8 @@ RSpec.describe ApplicationWorker do
     context 'when delay is valid' do
       it 'correctly schedules jobs' do
         Sidekiq::Testing.fake! do
-          jids = worker.bulk_perform_in(1.minute, [['Foo', [1]], ['Foo', [2]]])
+          worker.bulk_perform_in(1.minute, [['Foo', [1]], ['Foo', [2]]])
 
-          expect(jids.size).to eq 2
           expect(worker.jobs.count).to eq 2
           expect(worker.jobs).to all(include('at'))
         end
@@ -137,12 +136,11 @@ RSpec.describe ApplicationWorker do
                              .ordered
                              .and_call_original)
 
-        jids = worker.bulk_perform_in(
+        worker.bulk_perform_in(
           1.minute,
           [['Foo', [1]], ['Foo', [2]], ['Foo', [3]], ['Foo', [4]], ['Foo', [5]]],
           batch_size: 2, batch_delay: batch_delay)
 
-        expect(jids.size).to eq 5
         expect(worker.jobs.count).to eq 5
         expect(worker.jobs[0]['at']).to eq(worker.jobs[1]['at'])
         expect(worker.jobs[2]['at']).to eq(worker.jobs[3]['at'])

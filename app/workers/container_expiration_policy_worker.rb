@@ -3,13 +3,10 @@
 class ContainerExpirationPolicyWorker # rubocop:disable Scalability/IdempotentWorker
   include ApplicationWorker
   include CronjobQueue
-  include Gitlab::Utils::StrongMemoize
 
   feature_category :container_registry
 
   InvalidPolicyError = Class.new(StandardError)
-
-  CONTAINER_REPOSITORY_IDS_QUEUE = 'container_expiration_policies:container_repository_ids'
 
   def perform
     throttling_enabled? ? perform_throttled : perform_unthrottled
@@ -28,11 +25,12 @@ class ContainerExpirationPolicyWorker # rubocop:disable Scalability/IdempotentWo
   end
 
   def perform_throttled
-    runnable_policies.each(&:schedule_next_run!)
+    policies = runnable_policies
 
-    container_repository_ids = ContainerRepository.for_project(runnable_policies.select(:project_id))
+    container_repository_ids = ContainerRepository.for_project(policies.select(:project_id))
                                                   .pluck_primary_key
     enqueue_in_redis(container_repository_ids)
+    policies.each(&:schedule_next_run!)
 
     CleanupContainerRepositoryLimitedCapacityWorker.perform_with_capacity
   end
@@ -54,6 +52,8 @@ class ContainerExpirationPolicyWorker # rubocop:disable Scalability/IdempotentWo
   end
 
   def enqueue_in_redis(container_repository_ids)
-    Sidekiq.redis { |r| r.lpush(CONTAINER_REPOSITORY_IDS_QUEUE, container_repository_ids) }
+    Sidekiq.redis do |redis|
+      redis.lpush(CleanupContainerRepositoryLimitedCapacityWorker::CONTAINER_REPOSITORY_IDS_QUEUE, container_repository_ids)
+    end
   end
 end

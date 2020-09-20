@@ -5,7 +5,10 @@ require 'spec_helper'
 RSpec.describe ContainerRepository do
   let(:group) { create(:group, name: 'group') }
   let(:project) { create(:project, path: 'test', group: group) }
-  let(:repository) { create(:container_repository, name: 'my_image', project: project) }
+
+  let(:repository) do
+    create(:container_repository, name: 'my_image', project: project)
+  end
 
   before do
     stub_container_registry_config(enabled: true,
