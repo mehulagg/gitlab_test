@@ -124,3 +124,20 @@ If you are running a self-managed instance of GitLab (GitLab Community Edition a
 [follow the administration steps](../../../administration/pages/index.md) to configure Pages.
 
 <i class="fa fa-youtube-play youtube" aria-hidden="true"></i> Watch a [video tutorial](https://www.youtube.com/watch?v=dD8c7WNcc6s) about how to get started with GitLab Pages administration.
+
+## Security
+
+If your username is `foo`, your GitLab Pages website will be located at `foo.gitlab.io`. Because GitLab allows usernames to contain a `.`, user `bar.foo` could create a GitLab Pages website that effectively is a subdomain of your website at `bar.foo.gitlab.io`. Because of this, you have to be careful if you use JavaScript to set cookies for your website.
+
+```javascript
+// This cookie is only visible to foo.gitlab.io - safe
+document.cookie = "key=value";
+
+// This cookie is visible to foo.gitlab.io and its subdomains regardless of the presence of the leading dot - not safe
+document.cookie = "key=value;domain=.foo.gitlab.io";
+document.cookie = "key=value;domain=foo.gitlab.io";
+```
+
+The safe way to manually set cookies with JavaScript is therefore to not specify the `domain` at all.
+
+This does not affect users with a custom domain or users who don't set any cookies manually with JavaScript.
