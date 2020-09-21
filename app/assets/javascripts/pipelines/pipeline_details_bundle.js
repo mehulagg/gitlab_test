@@ -124,7 +124,8 @@ export default () => {
   mediator.fetchPipeline();
 
   if (showNewGraph) {
-    createPipelinesDetailApp();
+    const { pipelineProjectPath, pipelineIid } = dataset;
+    createPipelinesDetailApp(pipelineProjectPath, pipelineIid);
   } else {
     legacyCreatePipelinesDetailApp(mediator);
   }

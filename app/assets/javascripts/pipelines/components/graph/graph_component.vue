@@ -5,20 +5,36 @@ import GraphMixin from '../../mixins/graph_component_mixin';
 import GraphWidthMixin from '../../mixins/graph_width_mixin';
 import LinkedPipelinesColumn from './linked_pipelines_column.vue';
 import GraphBundleMixin from '../../mixins/graph_pipeline_bundle_mixin';
+import getPipelineDetails from '../../graphql/queries/get_pipeline_details.query.graphql';
+import { UPSTREAM, DOWNSTREAM } from './constants';
 
 export default {
   name: 'PipelineGraph',
-//   components: {
-//     StageColumnComponent,
-//     GlLoadingIcon,
-//     LinkedPipelinesColumn,
-//   },
-//   mixins: [GraphMixin, GraphWidthMixin, GraphBundleMixin],
+  components: {
+    StageColumnComponent,
+    GlLoadingIcon,
+    // LinkedPipelinesColumn,
+  },
+  mixins: [
+    GraphMixin,
+    GraphWidthMixin,
+    // GraphBundleMixin
+  ],
+  inject: {
+    pipelineIid: {
+      default: '',
+    },
+    pipelineProjectPath: {
+      default: '',
+    },
+  },
 //   props: {
+      // will come from GraphQL
 //     isLoading: {
 //       type: Boolean,
 //       required: true,
 //     },
+      // ADD WITH GRAPHQL: this.mediator.store.state.pipeline
 //     pipeline: {
 //       type: Object,
 //       required: true,
@@ -38,18 +54,77 @@ export default {
 //       default: 'main',
 //     },
 //   },
-//   upstream: 'upstream',
-//   downstream: 'downstream',
-//   data() {
-//     return {
-//       downstreamMarginTop: null,
-//       jobName: null,
-//       pipelineExpanded: {
-//         jobName: '',
-//         expanded: false,
-//       },
-//     };
-//   },
+
+  data() {
+    return {
+      stages: null,
+      // downstreamMarginTop: null,
+      jobName: null,
+      // pipelineExpanded: {
+      //   jobName: '',
+      //   expanded: false,
+      // },
+    };
+  },
+  apollo: {
+    stages: {
+      query: getPipelineDetails,
+      variables() {
+        return {
+          projectPath: this.pipelineProjectPath,
+          iid: this.pipelineIid,
+        };
+      },
+      update(data) {
+        console.log('in update', data);
+        const {
+          stages: { nodes: stages },
+        } = data.project.pipeline;
+
+        const unwrappedNestedGroups = stages
+          .map(({ name, groups: { nodes: groups } }) => {
+            return { name, groups }
+          });
+
+        console.log('UNG:', unwrappedNestedGroups);
+
+        // const nodes = unwrappedNestedGroups.map(group => {
+        //   const jobs = group.jobs.nodes.map(({ name, needs }) => {
+        //     return { name, needs: needs.nodes.map(need => need.name) };
+        //   });
+        //
+        //   return { ...group, jobs };
+        // });
+
+        const nodes = unwrappedNestedGroups.map(({ name, groups }) => {
+          const groupsWithJobs = groups.map((group => {
+              const jobs = group.jobs.nodes.map(({ name, needs }) => {
+                return { name, needs: needs.nodes.map(need => need.name) };
+              });
+
+            return { ...group, jobs };
+          }));
+
+          return { name, groups: groupsWithJobs }
+        });
+
+        console.log('nodes', nodes);
+
+        return nodes;
+      },
+      error(err){
+        console.error('graphQL error:', err);
+      }
+    }
+  },
+  computed: {
+  },
+  methods: {
+    hasOnlyOneJob(stage) {
+      return stage.groups.length === 1;
+    },
+  }
+  //  USE APOLLO HERE TO POST PIPELINE TO STATE USING AXIOS + @CLIENT
 //   computed: {
 //     hasTriggeredBy() {
 //       return (
@@ -115,9 +190,7 @@ export default {
 //     calculateMarginTop(downstreamNode, pixelDiff) {
 //       return `${downstreamNode.offsetTop - downstreamNode.offsetParent.offsetTop - pixelDiff}px`;
 //     },
-//     hasOnlyOneJob(stage) {
-//       return stage.groups.length === 1;
-//     },
+
 //     hasUpstream(index) {
 //       return index === 0 && this.hasTriggeredBy;
 //     },
@@ -141,8 +214,44 @@ export default {
 };
 </script>
 <template>
-  <div class="gl-relative">
+  <div>
     <div id="inner-graph-buddy" :style="{paddingLeft: '400px'}">hi</div>
-    <div class="build-content middle-block js-pipeline-graph" :style="{paddingLeft: '400px'}">hello</div>
+    <div class="build-content middle-block js-pipeline-graph" :style=" {paddingLeft: '400px'}">
+      <div
+        class="pipeline-visualization pipeline-graph"
+      >
+        <div
+          :style="{
+            paddingLeft: `${graphLeftPadding}px`,
+            paddingRight: `${graphRightPadding}px`,
+          }"
+        >
+
+        <!-- <gl-loading-icon v-if="$apollo.loading" class="m-auto" size="lg" /> -->
+
+        <ul
+            class="stage-column-list align-top"
+            v-if="!$apollo.loading"
+          >
+          <!-- replace these below later: -->
+          <!-- @refreshPipelineGraph="refreshPipelineGraph" -->
+          <!-- :job-hovered="jobName" -->
+            <stage-column-component
+              v-for="(stage, index) in stages"
+              :key="stage.name"
+              :class="{
+                'has-only-one-job': hasOnlyOneJob(stage),
+                'gl-mr-26': shouldAddRightMargin(index),
+              }"
+              :title="capitalizeStageName(stage.stageName)"
+              :groups="stage.groups"
+              :stage-connector-class="stageConnectorClass(index, stage)"
+              :is-first-column="isFirstColumn(index)"
+              :action="stage.status.action"
+            />
+          </ul>
+        </div>
+      </div>
+    </div>
   </div>
 </template>

@@ -10,7 +10,7 @@ const apolloProvider = new VueApollo({
 });
 
 
-const createPipelinesDetailApp = () => {
+const createPipelinesDetailApp = (pipelineProjectPath, pipelineIid) => {
   // eslint-disable-next-line no-new
   new Vue({
     el: '#js-pipeline-graph-vue',
@@ -18,6 +18,10 @@ const createPipelinesDetailApp = () => {
       pipelineGraph,
     },
     apolloProvider,
+    provide: {
+      pipelineProjectPath,
+      pipelineIid,
+    },
     render(createElement) {
       return createElement('pipeline-graph')
     }

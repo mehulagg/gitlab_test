@@ -1,21 +1,26 @@
 import { escape } from 'lodash';
 
 export default {
-  props: {
-    isLoading: {
-      type: Boolean,
-      required: true,
-    },
-    pipeline: {
-      type: Object,
-      required: true,
-    },
-  },
-  computed: {
-    graph() {
-      return this.pipeline.details && this.pipeline.details.stages;
-    },
-  },
+  // data() {
+  //   return {
+  //     stages: null,
+  //   };
+  // },
+  // props: {
+  //   // isLoading: {
+  //   //   type: Boolean,
+  //   //   required: true,
+  //   // },
+  //   // pipeline: {
+  //   //   type: Object,
+  //   //   required: true,
+  //   // },
+  // },
+  // computed: {
+  //   graph() {
+  //     return this.pipeline.details && this.pipeline.details.stages;
+  //   },
+  // },
   methods: {
     capitalizeStageName(name) {
       const escapedName = escape(name);
@@ -42,13 +47,13 @@ export default {
     },
     /**
      * CSS class is applied:
-     *  - if pipeline graph contains only one stage column component
+     *  - to last stage column
      *
      * @param {number} index
      * @returns {boolean}
      */
     shouldAddRightMargin(index) {
-      return !(index === this.graph.length - 1);
+      return !(index === this.stages.length - 1);
     },
   },
 };
