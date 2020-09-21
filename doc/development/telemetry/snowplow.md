@@ -297,7 +297,7 @@ class Projects::CreateService < BaseService
 end
 ```
 
-### Backend testing
+### Unit testing
 
 Use the `expect_snowplow_event` helper when testing backend Snowplow events. See [testing best practices](
 https://docs.gitlab.com/ee/development/testing_guide/best_practices.html#test-snowplow-events) for details.
