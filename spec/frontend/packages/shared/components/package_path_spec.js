@@ -1,4 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
+import { createMockDirective, getBinding } from 'helpers/vue_mock_directive';
 import PackagePath from '~/packages/shared/components/package_path.vue';
 
 describe('PackagePath', () => {
@@ -7,6 +8,9 @@ describe('PackagePath', () => {
   const mountComponent = (propsData = { path: 'foo' }) => {
     wrapper = shallowMount(PackagePath, {
       propsData,
+      directives: {
+        GlTooltip: createMockDirective(),
+      },
     });
   };
 
@@ -18,6 +22,7 @@ describe('PackagePath', () => {
   const LEAF_LINK = 'leaf-link';
 
   const findItem = name => wrapper.find(`[data-testid="${name}"]`);
+  const findTooltip = () => getBinding(wrapper.element, 'gl-tooltip');
 
   afterEach(() => {
     wrapper.destroy();
@@ -25,12 +30,12 @@ describe('PackagePath', () => {
   });
 
   describe.each`
-    path                  | shouldExist                                                   | shouldNotExist
-    ${'foo'}              | ${[]}                                                         | ${[ROOT_CHEVRON, ELLIPSIS_ICON, ELLIPSIS_CHEVRON, LEAF_LINK]}
-    ${'foo/bar'}          | ${[ROOT_CHEVRON, LEAF_LINK]}                                  | ${[ELLIPSIS_ICON, ELLIPSIS_CHEVRON]}
-    ${'foo/bar/baz'}      | ${[ROOT_CHEVRON, LEAF_LINK, ELLIPSIS_ICON, ELLIPSIS_CHEVRON]} | ${[]}
-    ${'foo/bar/baz/baz2'} | ${[ROOT_CHEVRON, LEAF_LINK, ELLIPSIS_ICON, ELLIPSIS_CHEVRON]} | ${[]}
-  `('given path $path', ({ path, shouldExist, shouldNotExist }) => {
+    path                  | hasTooltip | shouldExist                                                   | shouldNotExist
+    ${'foo'}              | ${false}   | ${[]}                                                         | ${[ROOT_CHEVRON, ELLIPSIS_ICON, ELLIPSIS_CHEVRON, LEAF_LINK]}
+    ${'foo/bar'}          | ${false}   | ${[ROOT_CHEVRON, LEAF_LINK]}                                  | ${[ELLIPSIS_ICON, ELLIPSIS_CHEVRON]}
+    ${'foo/bar/baz'}      | ${true}    | ${[ROOT_CHEVRON, LEAF_LINK, ELLIPSIS_ICON, ELLIPSIS_CHEVRON]} | ${[]}
+    ${'foo/bar/baz/baz2'} | ${true}    | ${[ROOT_CHEVRON, LEAF_LINK, ELLIPSIS_ICON, ELLIPSIS_CHEVRON]} | ${[]}
+  `('given path $path', ({ path, shouldExist, shouldNotExist, hasTooltip }) => {
     const pathPieces = path.split('/');
 
     beforeEach(() => {
@@ -45,6 +50,15 @@ describe('PackagePath', () => {
       const root = findItem(ROOT_LINK);
       expect(root.exists()).toBe(true);
       expect(root.attributes('href')).toBe(`/${pathPieces[0]}`);
+    });
+
+    it('should have a tooltip', () => {
+      const tooltip = findTooltip();
+      expect(tooltip).toBeDefined();
+      expect(tooltip.value).toMatchObject({
+        title: path,
+        disabled: !hasTooltip,
+      });
     });
 
     if (shouldExist.length > 0) {
