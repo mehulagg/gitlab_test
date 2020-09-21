@@ -67,7 +67,7 @@ RSpec.describe Resolvers::IssuesResolver do
 
       it 'filters by author' do
         expect(resolve_issues(author_username: issue1.author.username)).to contain_exactly(issue1, issue2)
-      end  
+      end
 
       it 'filters by labels' do
         expect(resolve_issues(label_name: [label1.title])).to contain_exactly(issue1, issue2)
