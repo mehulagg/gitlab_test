@@ -22,7 +22,7 @@ RSpec.describe CleanupContainerRepositoryLimitedCapacityWorker, :clean_gitlab_re
       end
 
       context 'with a successful cleanup tags service execution' do
-        let_it_be(:service_params) { project.container_expiration_policy.attributes.except('created_at', 'updated_at').merge(container_expiration_policy: true) }
+        let_it_be(:service_params) { project.container_expiration_policy.policy_params.merge(container_expiration_policy: true) }
 
         let(:service) { double }
 

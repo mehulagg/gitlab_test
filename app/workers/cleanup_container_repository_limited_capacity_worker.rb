@@ -41,7 +41,7 @@ class CleanupContainerRepositoryLimitedCapacityWorker
   def policy_params
     return {} unless project.container_expiration_policy
 
-    project.container_expiration_policy.attributes.except('created_at', 'updated_at')
+    project.container_expiration_policy.policy_params
   end
 
   def project
