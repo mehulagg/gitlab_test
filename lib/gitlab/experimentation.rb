@@ -62,6 +62,9 @@ module Gitlab
       },
       invite_email: {
         tracking_category: 'Growth::Acquisition::Experiment::InviteEmail'
+      },
+      invitation_reminders: {
+        tracking_category: 'Growth::Acquisition::Experiment::InvitationReminders'
       }
     }.freeze
 
@@ -185,7 +188,13 @@ module Gitlab
 
       def enabled_for_user?(experiment_key, experimentation_subject_index)
         enabled?(experiment_key) &&
-          experiment(experiment_key).enabled_for_experimentation_subject?(experimentation_subject_index)
+          experiment(experiment_key).enabled_for_index?(experimentation_subject_index)
+      end
+
+      def enabled_for_attribute?(experiment_key, attribute)
+        index = Digest::SHA1.hexdigest(attribute).hex % 100
+        enabled?(experiment_key) &&
+          experiment(experiment_key).enabled_for_index?(index)
       end
     end
 
@@ -200,10 +209,10 @@ module Gitlab
         environment
       end
 
-      def enabled_for_experimentation_subject?(experimentation_subject_index)
-        return false if experimentation_subject_index.blank?
+      def enabled_for_index?(index)
+        return false if index.blank?
 
-        experimentation_subject_index <= experiment_percentage
+        index <= experiment_percentage
       end
 
       private
