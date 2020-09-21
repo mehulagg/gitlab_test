@@ -4,20 +4,6 @@ module SCA
   class LicenseCompliance
     include ::Gitlab::Utils::StrongMemoize
 
-    NULL = Class.new do
-      def policies
-        []
-      end
-
-      def diff_with(other)
-        license_scan_report.diff_with(other.send(:license_scan_report))
-      end
-
-      def license_scan_report
-        @license_scan_report ||= ::Gitlab::Ci::Reports::LicenseScanning::Report.new
-      end
-    end.new
-
     SORT_DIRECTION = {
       asc: -> (items) { items },
       desc: -> (items) { items.reverse }
@@ -56,7 +42,19 @@ module SCA
     end
 
     def diff_with(other)
-      license_scan_report.diff_with(other.send(:license_scan_report))
+      LicenseDiff.new(self, other).diff
+    end
+
+    def license_scan_report
+      return empty_report if pipeline.blank?
+
+      strong_memoize(:license_scan_report) do
+        pipeline.license_scanning_report.tap do |report|
+          report.apply_details_from!(dependency_list_report)
+        end
+      rescue ::Gitlab::Ci::Parsers::LicenseCompliance::LicenseScanning::LicenseScanningParserError
+        empty_report
+      end
     end
 
     private
@@ -77,18 +75,6 @@ module SCA
 
         [reported_license.canonical_id, build_policy(reported_license, nil)]
       end.compact.to_h
-    end
-
-    def license_scan_report
-      return empty_report if pipeline.blank?
-
-      strong_memoize(:license_scan_report) do
-        pipeline.license_scanning_report.tap do |report|
-          report.apply_details_from!(dependency_list_report)
-        end
-      rescue ::Gitlab::Ci::Parsers::LicenseCompliance::LicenseScanning::LicenseScanningParserError
-        empty_report
-      end
     end
 
     def dependency_list_report

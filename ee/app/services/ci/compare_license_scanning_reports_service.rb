@@ -11,9 +11,7 @@ module Ci
     end
 
     def get_report(pipeline)
-      return ::SCA::LicenseCompliance::NULL if pipeline.blank?
-
-      ::SCA::LicenseCompliance.new(pipeline.project, pipeline)
+      ::SCA::LicenseCompliance.new(pipeline&.project, pipeline)
     end
 
     private
