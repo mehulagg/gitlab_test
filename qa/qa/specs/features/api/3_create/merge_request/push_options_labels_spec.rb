@@ -16,7 +16,7 @@ module QA
         project.initialize_with_readme = true
       end
 
-      it 'set labels' do
+      it 'sets labels' do
         Resource::Repository::ProjectPush.fabricate! do |push|
           push.project = project
           push.commit_message = commit_message

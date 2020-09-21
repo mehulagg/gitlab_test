@@ -142,7 +142,7 @@ module QA
       def transform_api_resource(api_resource)
         raise ResourceNotFoundError if api_resource.blank?
 
-        api_resource
+        super(api_resource)
       end
     end
   end
