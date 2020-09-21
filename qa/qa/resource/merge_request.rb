@@ -116,17 +116,19 @@ module QA
       end
 
       def merge_via_api!
-        response = put(Runtime::API::Request.new(api_client, api_merge_path).url)
+        Support::Retrier.retry_on_exception do
+          response = put(Runtime::API::Request.new(api_client, api_merge_path).url)
 
-        unless response.code == HTTP_STATUS_OK
-          raise ResourceUpdateFailedError, "Could not merge. Request returned (#{response.code}): `#{response}`."
+          unless response.code == HTTP_STATUS_OK
+            raise ResourceUpdateFailedError, "Could not merge. Request returned (#{response.code}): `#{response}`."
+          end
+
+          result = parse_body(response)
+
+          project.wait_for_merge(result[:title]) if @wait_for_merge
+
+          result
         end
-
-        result = parse_body(response)
-
-        project.wait_for_merge(result[:title]) if @wait_for_merge
-
-        result
       end
 
       private
