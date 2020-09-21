@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 class BaseSerializer
-  attr_reader :params
+  attr_reader :params, :context
 
   def initialize(params = {})
+    @context = params.delete(:context)
     @params = params
     @request = EntityRequest.new(params)
   end
@@ -12,7 +13,7 @@ class BaseSerializer
     entity_class ||= self.class.entity_class
 
     entity_class
-      .represent(resource, opts.merge(request: @request))
+      .represent(resource, opts.merge(request: @request, context: context))
       .as_json
   end
 

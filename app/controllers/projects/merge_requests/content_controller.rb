@@ -37,7 +37,7 @@ class Projects::MergeRequests::ContentController < Projects::MergeRequests::Appl
   end
 
   def serializer(entity)
-    serializer = MergeRequestSerializer.new(current_user: current_user, project: merge_request.project)
+    serializer = MergeRequestSerializer.new(current_user: current_user, project: merge_request.project, context: self)
     serializer.represent(merge_request, {}, entity)
   end
 end
