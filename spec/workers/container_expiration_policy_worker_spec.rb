@@ -2,123 +2,48 @@
 
 require 'spec_helper'
 
-RSpec.describe ContainerExpirationPolicyWorker do
+RSpec.describe ContainerExpirationPolicyWorker, :clean_gitlab_redis_shared_state do
   let(:worker) { described_class.new }
   let(:started_at) { nil }
 
   describe '#perform' do
-    subject { worker.perform(started_at) }
+    subject { worker.perform }
 
     context 'with throttling enabled' do
-      let(:timeout) { 1800 }
-      let(:backoff_delay) { 25 }
+      let(:redis_key) { CleanupContainerRepositoryLimitedCapacityWorker::CONTAINER_REPOSITORY_IDS_QUEUE }
 
       before do
         stub_feature_flags(container_registry_expiration_policies_throttling: true)
-        stub_application_setting(container_registry_expiration_policies_timeout: timeout)
-        stub_application_setting(container_registry_expiration_policies_backoff_delay: backoff_delay)
       end
 
       context 'With no container expiration policies' do
-        it 'Does not execute any policies' do
-          expect(ContainerExpirationPolicies::ThrottledExecutionService).not_to receive(:new)
+        it 'does not execute any policies' do
+          expect(CleanupContainerRepositoryLimitedCapacityWorker).not_to receive(:perform_with_capacity)
 
-          subject
+          expect { subject }.not_to change { redis_queue_size }
         end
       end
 
       context 'with container expiration policies' do
         let_it_be(:container_expiration_policy) { create(:container_expiration_policy, :runnable) }
         let_it_be(:container_repository) { create(:container_repository, project: container_expiration_policy.project) }
-        let(:dummy_service) { double(execute: nil) }
 
-        context 'without started at parameter' do
+        context 'with a valid container expiration policy' do
           it 'schedules the next run' do
             expect { subject }.to change { container_expiration_policy.reload.next_run_at }
-
-            expect(container_expiration_policy.next_run_at).to be > Time.zone.now
           end
 
-          it 'executes the proper services' do
-            Timecop.freeze do
-              expect(ContainerExpirationPolicies::StartOnContainerRepositoriesService)
-                .to receive(:new).with(container: [container_expiration_policy]).and_call_original
-              expect(ContainerExpirationPolicies::ThrottledExecutionService)
-                .to receive(:new).and_return(dummy_service)
-              expect(ContainerExpirationPolicyService).not_to receive(:new)
-
-              expect { subject }.to change { container_repository.reload.expiration_policy_started_at }.from(nil).to(Time.zone.now)
-            end
+          it 'enqueues container repository ids in redis' do
+            expect(Sidekiq).to receive(:redis).at_least(:once).and_call_original
+            expect { subject }
+              .to change { redis_queue_size }.from(0).to(1)
+            expect(redis_queue_head).to eq(container_repository.id.to_s)
           end
 
-          it 're enqueues itself' do
-            Timecop.freeze do
-              expect(ContainerExpirationPolicyWorker).to receive(:perform_in).with(backoff_delay, Time.zone.now)
-
-              subject
-            end
-          end
-        end
-
-        context 'with started at parameter' do
-          let_it_be(:container_repository_with_policy_started) do
-            create(
-              :container_repository,
-              project: container_expiration_policy.project,
-              expiration_policy_started_at: 10.minutes.ago
-            )
-          end
-
-          let(:started_at) { 10.minutes.ago }
-
-          it "doesn't schedules the next run" do
-            expect { subject }.not_to change { container_expiration_policy.reload.next_run_at }
-
-            expect(container_expiration_policy.next_run_at).to be < Time.zone.now
-          end
-
-          it 'executes the proper services' do
-            expect(ContainerExpirationPolicies::StartOnContainerRepositoriesService)
-                .not_to receive(:new)
-            expect(ContainerExpirationPolicies::ThrottledExecutionService)
-              .to receive(:new).and_return(dummy_service)
-            expect(ContainerExpirationPolicyService).not_to receive(:new)
-
-            expect { subject }.not_to change { container_repository.reload.expiration_policy_started_at }
-          end
-
-          it 're enqueues itself' do
-            expect(ContainerExpirationPolicyWorker).to receive(:perform_in).with(backoff_delay, started_at)
+          it 'calls the limited capacity worker' do
+            expect(CleanupContainerRepositoryLimitedCapacityWorker).to receive(:perform_with_capacity)
 
             subject
-          end
-
-          context 'when the timeout is triggered' do
-            let(:started_at) { (timeout + 30).seconds.ago }
-
-            it 'is not allowed to run' do
-              expect(ContainerExpirationPolicies::StartOnContainerRepositoriesService).not_to receive(:new)
-              expect(ContainerExpirationPolicies::ThrottledExecutionService).not_to receive(:new)
-              expect(ContainerExpirationPolicyService).not_to receive(:new)
-              expect(ContainerExpirationPolicyWorker).not_to receive(:perform_in)
-
-              expect { subject }.not_to change { container_repository.reload.expiration_policy_started_at }
-            end
-          end
-
-          context 'when not allowed to re enqueue' do
-            let(:started_at) { Time.zone.now - timeout.seconds + backoff_delay.seconds - 5.seconds }
-
-            before do
-              allow(ContainerExpirationPolicies::ThrottledExecutionService)
-                .to receive(:new).and_return(dummy_service)
-            end
-
-            it "doesn't re enqueue itself" do
-              expect(ContainerExpirationPolicyWorker).not_to receive(:perform_in)
-
-              subject
-            end
           end
         end
 
@@ -128,11 +53,9 @@ RSpec.describe ContainerExpirationPolicyWorker do
           end
 
           it 'does not run the policy' do
-            expect(ContainerExpirationPolicies::StartOnContainerRepositoriesService).not_to receive(:new)
-            expect(ContainerExpirationPolicies::ThrottledExecutionService).not_to receive(:new)
-            expect(ContainerExpirationPolicyService).not_to receive(:new)
+            expect(CleanupContainerRepositoryLimitedCapacityWorker).not_to receive(:perform_with_capacity)
 
-            subject
+            expect { subject }.not_to change { redis_queue_size }
           end
         end
 
@@ -144,12 +67,21 @@ RSpec.describe ContainerExpirationPolicyWorker do
           end
 
           it 'disables the policy and tracks an error' do
-            expect(ContainerExpirationPolicies::ThrottledExecutionService).not_to receive(:new)
+            expect(worker).not_to receive(:enqueue_in_redis)
+            expect(CleanupContainerRepositoryLimitedCapacityWorker).not_to receive(:perform_with_capacity)
             expect(Gitlab::ErrorTracking).to receive(:log_exception).with(instance_of(described_class::InvalidPolicyError), container_expiration_policy_id: container_expiration_policy.id)
 
             expect { subject }.to change { container_expiration_policy.reload.enabled }.from(true).to(false)
           end
         end
+      end
+
+      def redis_queue_size
+        Sidekiq.redis { |r| r.llen(redis_key) }
+      end
+
+      def redis_queue_head
+        Sidekiq.redis { |r| r.lpop(redis_key) }
       end
     end
 
@@ -159,7 +91,7 @@ RSpec.describe ContainerExpirationPolicyWorker do
       end
 
       context 'with no container expiration policies' do
-        it 'Does not execute any policies' do
+        it 'does not execute any policies' do
           expect(ContainerExpirationPolicyService).not_to receive(:new)
 
           subject

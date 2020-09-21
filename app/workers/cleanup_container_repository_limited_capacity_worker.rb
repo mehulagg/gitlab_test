@@ -16,8 +16,6 @@ class CleanupContainerRepositoryLimitedCapacityWorker
 
   CONTAINER_REPOSITORY_IDS_QUEUE = 'cleanup_container_repository_limited_capacity_worker:container_repository_ids'
 
-  private
-
   def perform_work
     return unless container_repository
 
@@ -35,8 +33,10 @@ class CleanupContainerRepositoryLimitedCapacityWorker
   end
 
   def max_running_jobs
-    ::Gitlab::CurrentSettings.current_application_settings.container_registry_expiration_policies_capacity
+    ::Gitlab::CurrentSettings.current_application_settings.container_registry_expiration_policies_worker_capacity
   end
+
+  private
 
   def policy_params
     return {} unless project.container_expiration_policy
@@ -60,9 +60,10 @@ class CleanupContainerRepositoryLimitedCapacityWorker
 
   def reenqueue_container_repository_id(id)
     Sidekiq.redis do |redis|
-      unless redis.lpos(CONTAINER_REPOSITORY_IDS_QUEUE, id)
-        redis.rpush(CONTAINER_REPOSITORY_IDS_QUEUE, id)
-      end
+      # TODO instead of always rpushing we could check the id existence in the
+      # list with lpos. Unfortunately, lpos is not (yet) supported by the ruby
+      # redis client
+      redis.rpush(CONTAINER_REPOSITORY_IDS_QUEUE, id)
     end
   end
 end

@@ -26,10 +26,12 @@ class ContainerExpirationPolicyWorker # rubocop:disable Scalability/IdempotentWo
 
   def perform_throttled
     policies = runnable_policies
+    return unless policies.any?
 
     container_repository_ids = ContainerRepository.for_project(policies.select(:project_id))
                                                   .pluck_primary_key
     enqueue_in_redis(container_repository_ids)
+
     policies.each(&:schedule_next_run!)
 
     CleanupContainerRepositoryLimitedCapacityWorker.perform_with_capacity
@@ -55,5 +57,9 @@ class ContainerExpirationPolicyWorker # rubocop:disable Scalability/IdempotentWo
     Sidekiq.redis do |redis|
       redis.lpush(CleanupContainerRepositoryLimitedCapacityWorker::CONTAINER_REPOSITORY_IDS_QUEUE, container_repository_ids)
     end
+  end
+
+  def throttling_enabled?
+    Feature.enabled?(:container_registry_expiration_policies_throttling)
   end
 end
