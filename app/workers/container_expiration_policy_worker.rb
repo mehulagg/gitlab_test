@@ -50,7 +50,7 @@ class ContainerExpirationPolicyWorker # rubocop:disable Scalability/IdempotentWo
       )
     end
 
-    ContainerExpirationPolicy.for_project_id(valid.map(&:project_id))
+    ContainerExpirationPolicy.for_project(valid.map(&:project_id))
   end
 
   def enqueue_in_redis(container_repository_ids)

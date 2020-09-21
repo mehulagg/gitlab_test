@@ -3,7 +3,6 @@
 class ContainerRepository < ApplicationRecord
   include Gitlab::Utils::StrongMemoize
   include Gitlab::SQL::Pattern
-  include EachBatch
 
   belongs_to :project
 
@@ -25,7 +24,7 @@ class ContainerRepository < ApplicationRecord
     ContainerRepository
       .joins("INNER JOIN (#{project_scope.to_sql}) projects on projects.id=container_repositories.project_id")
   end
-  scope :for_project, ->(project_id) { where(project_id: project_id) }
+  scope :for_project, ->(project) { where(project_id: project) }
   scope :search_by_name, ->(query) { fuzzy_search(query, [:name], use_minimum_char_limit: false) }
 
   def self.exists_by_path?(path)

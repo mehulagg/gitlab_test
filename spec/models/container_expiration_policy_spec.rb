@@ -38,6 +38,16 @@ RSpec.describe ContainerExpirationPolicy, type: :model do
       it { is_expected.not_to allow_value('foo').for(:keep_n) }
     end
 
+    describe '#disable!' do
+      let_it_be(:container_expiration_policy) { create(:container_expiration_policy) }
+
+      subject { container_expiration_policy.disable! }
+
+      it 'disables the container expiration policy' do
+        expect { subject }.to change { container_expiration_policy.reload.enabled }.from(true).to(false)
+      end
+    end
+
     context 'with a set of regexps' do
       valid_regexps = %w[master .* v.+ v10.1.* (?:v.+|master|release)]
       invalid_regexps = ['[', '(?:v.+|master|release']
@@ -104,13 +114,11 @@ RSpec.describe ContainerExpirationPolicy, type: :model do
     end
   end
 
-  describe '#disable!' do
-    let_it_be(:container_expiration_policy) { create(:container_expiration_policy) }
+  describe '.for_project' do
+    let_it_be(:policy) { create(:container_expiration_policy) }
 
-    subject { container_expiration_policy.disable! }
+    subject { described_class.for_project(policy.project) }
 
-    it 'disables the container expiration policy' do
-      expect { subject }.to change { container_expiration_policy.reload.enabled }.from(true).to(false)
-    end
+    it { is_expected.to contain_exactly(policy) }
   end
 end
