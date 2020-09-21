@@ -600,7 +600,7 @@ To proceed with configuring Group SAML SSO instead, you'll need to enable the `g
 ### Limitations
 
 Group SAML on a self-managed instance is limited when compared to the recommended
-[instance-wide SAML](../../../integration/saml.md). The recommended solution allows you to take advantage of:
+[instance-wide SAML](../user/group/saml_sso/index.md). The recommended solution allows you to take advantage of:
 
 - [LDAP compatibility](../administration/auth/ldap/index.md).
 - [LDAP Group Sync](../user/group/index.md#manage-group-memberships-via-ldap).
