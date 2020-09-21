@@ -22,7 +22,8 @@ RSpec.describe 'Editing file blob', :js do
 
     def edit_and_commit(commit_changes: true)
       wait_for_requests
-      find('.js-edit-blob').click
+      first('.js-diff-more-actions').click
+      first('.js-edit-blob').click
       fill_editor(content: 'class NextFeature\\nend\\n')
 
       if commit_changes

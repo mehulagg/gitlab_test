@@ -275,7 +275,11 @@ export default {
           data-track-property="diff_toggle_external"
           icon="external-link"
         />
-        <gl-dropdown v-gl-tooltip.hover.focus="__('More actions')" right toggle-class="btn-icon">
+        <gl-dropdown
+          v-gl-tooltip.hover.focus="__('More actions')"
+          right
+          toggle-class="btn-icon js-diff-more-actions"
+        >
           <template #button-content>
             <gl-icon name="ellipsis_v" class="mr-0" />
             <span class="sr-only">{{ __('More actions') }}</span>
@@ -298,6 +302,7 @@ export default {
             v-if="showEditButton"
             ref="editButton"
             :href="diffFile.edit_path"
+            class="js-edit-blob"
             @click="showForkMessage"
           >
             {{ __('Edit file') }}
@@ -308,6 +313,7 @@ export default {
           <gl-dropdown-item
             v-if="diffHasDiscussions(diffFile)"
             ref="toggleDiscussionsButton"
+            data-qa-selector="toggle_comments_button"
             @click="toggleFileDiscussionWrappers(diffFile)"
           >
             <template v-if="diffHasExpandedDiscussions(diffFile)">
