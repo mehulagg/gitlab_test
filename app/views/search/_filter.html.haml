@@ -5,13 +5,17 @@
 .dropdown.form-group.mb-lg-0.mx-lg-1
   %label.d-block{ for: "dashboard_search_group" }
     = _("Group")
-  %button.dropdown-menu-toggle.js-search-group-dropdown.mt-0{ type: "button", id: "dashboard_search_group", data: { toggle: "dropdown", group_id: params[:group_id] } }
-    %span.dropdown-toggle-text
+  .input-group.dropdown-menu-holder.mt-0
+    %button.dropdown-menu-toggle.js-search-group-dropdown{ type: "button", id: "dashboard_search_group", data: { toggle: "dropdown", group_id: params[:group_id] } }
+      %span.dropdown-toggle-text
       - if @group.present?
         = @group.name
       - else
         = _("Any")
-    = icon("chevron-down")
+      = icon("chevron-down")
+    - if @group.present?
+      .input-group-append
+        = link_to sprite_icon("clear"), url_for(safe_params.except(:project_id, :group_id)), class: 'btn search-clear'
   .dropdown-menu.dropdown-select.dropdown-menu-selectable.dropdown-menu-right
     = dropdown_title(_("Filter results by group"))
     = dropdown_filter(_("Search groups"))
@@ -21,13 +25,17 @@
 .dropdown.project-filter.form-group.mb-lg-0.mx-lg-1
   %label.d-block{ for: "dashboard_search_project" }
     = _("Project")
-  %button.dropdown-menu-toggle.js-search-project-dropdown.mt-0{ type: "button", id: "dashboard_search_project", data: { toggle: "dropdown"} }
-    %span.dropdown-toggle-text
-      - if @project.present?
-        = @project.full_name
-      - else
-        = _("Any")
-    = icon("chevron-down")
+  .input-group.dropdown-menu-holder.mt-0
+    %button.dropdown-menu-toggle.js-search-project-dropdown{ type: "button", id: "dashboard_search_project", data: { toggle: "dropdown"} }
+      %span.dropdown-toggle-text
+        - if @project.present?
+          = @project.full_name
+        - else
+          = _("Any")
+      = icon("chevron-down")
+    - if @project.present?
+      .input-group-append
+        = link_to sprite_icon("clear"), url_for(safe_params.except(:project_id)), class: 'btn search-clear'
   .dropdown-menu.dropdown-select.dropdown-menu-selectable.dropdown-menu-right
     = dropdown_title(_("Filter results by project"))
     = dropdown_filter(_("Search projects"))

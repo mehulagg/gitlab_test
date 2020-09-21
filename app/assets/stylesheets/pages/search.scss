@@ -246,29 +246,39 @@ input[type='checkbox']:hover {
   }
 }
 
+.search-field-holder {
+  .search-clear {
+    position: absolute;
+    right: 10px;
+    top: 9px;
+    padding: 0;
+
+    line-height: 0;
+    background: none;
+    border: 0;
+  }
+}
+
 .search-clear {
-  position: absolute;
-  right: 10px;
-  top: 9px;
-  padding: 0;
   color: $gray-darkest;
-  line-height: 0;
-  background: none;
-  border: 0;
 
   &:hover,
   &:focus {
     color: $blue-600;
   }
+
+  &.btn {
+    margin-left: -2px;
+  }
 }
 
 .search-page-form {
-  .dropdown-menu-toggle,
+  .dropdown-menu-holder,
   .btn-search {
     width: 100%;
   }
 
-  .dropdown-menu-toggle {
+  .dropdown-menu-holder {
     @include media-breakpoint-up(lg) {
       width: 240px;
     }
@@ -278,6 +288,10 @@ input[type='checkbox']:hover {
     @include media-breakpoint-up(lg) {
       width: auto;
     }
+  }
+
+  .dropdown-menu-toggle {
+    flex: 1
   }
 }
 
