@@ -10,7 +10,6 @@ import {
   GlLink,
   GlToggle,
 } from '@gitlab/ui';
-import { without } from 'lodash';
 import { s__ } from '~/locale';
 import { getTimeago } from '~/lib/utils/datetime_utility';
 import { setUrlFragment, mergeUrlParams } from '~/lib/utils/url_utility';
@@ -103,7 +102,6 @@ export default {
           label: s__('NetworkPolicies|Name'),
           thClass: 'w-50 font-weight-bold',
         },
-        namespace,
         {
           key: 'status',
           label: s__('NetworkPolicies|Status'),
@@ -115,8 +113,10 @@ export default {
           thClass: 'font-weight-bold',
         },
       ];
+      // Adds column 'namespace' only while 'all environments' option is selected
+      if (this.allEnvironments) fields.splice(1, 0, namespace);
 
-      return this.allEnvironments ? fields : without(fields, namespace);
+      return fields;
     },
   },
   methods: {
