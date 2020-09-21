@@ -1,6 +1,7 @@
 <script>
 import { mapState, mapActions } from 'vuex';
 import { GlDrawer, GlBadge, GlIcon, GlLink } from '@gitlab/ui';
+import axios from '~/lib/utils/axios_utils';
 
 export default {
   components: {
@@ -10,11 +11,6 @@ export default {
     GlLink,
   },
   props: {
-    features: {
-      type: String,
-      required: false,
-      default: null,
-    },
     storageKey: {
       type: String,
       required: true,
@@ -23,23 +19,23 @@ export default {
   },
   computed: {
     ...mapState(['open']),
-    parsedFeatures() {
-      let features;
-
-      try {
-        features = JSON.parse(this.$props.features) || [];
-      } catch (err) {
-        features = [];
-      }
-
-      return features;
-    },
+  },
+  data() {
+    return {
+      features: null
+    }
   },
   mounted() {
     this.openDrawer(this.$props.storageKey);
+    this.fetchItems();
   },
   methods: {
     ...mapActions(['openDrawer', 'closeDrawer']),
+    fetchItems() {
+      return axios.get('/-/whats_new').then(({ data }) => {
+        this.features = data;
+      });
+    }
   },
 };
 </script>
@@ -51,7 +47,7 @@ export default {
         <h4 class="page-title my-2">{{ __("What's new at GitLab") }}</h4>
       </template>
       <div class="pb-6">
-        <div v-for="feature in parsedFeatures" :key="feature.title" class="mb-6">
+        <div v-for="feature in features" :key="feature.title" class="mb-6">
           <gl-link :href="feature.url" target="_blank">
             <h5 class="gl-font-base">{{ feature.title }}</h5>
           </gl-link>
