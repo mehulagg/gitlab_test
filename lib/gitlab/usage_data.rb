@@ -133,6 +133,7 @@ module Gitlab
             lfs_objects: count(LfsObject),
             milestone_lists: count(List.milestone),
             milestones: count(Milestone),
+            mrs_merged_using_approval_rules: count(ApprovalMergeRequestRule.for_merged_merge_requests.count),
             projects_with_packages: distinct_count(::Packages::Package, :project_id),
             packages: count(::Packages::Package),
             pages_domains: count(PagesDomain),
