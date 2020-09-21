@@ -242,7 +242,7 @@ module Gitlab
         raise NotImplementedError, "Consume method not implemented: '#{consume_method}'" unless self.methods.include?(consume_method)
 
         # Inject model_record based on included class
-        if model_record
+        if event_name != :deleted && model_record
           event_data[:model_record] = model_record
         end
 
