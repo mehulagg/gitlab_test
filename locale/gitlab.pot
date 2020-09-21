@@ -21637,9 +21637,6 @@ msgstr ""
 msgid "ReviewApp|Enable Review App"
 msgstr ""
 
-msgid "Reviewer changed for Merge Request %{merge_request_id}"
-msgstr ""
-
 msgid "Reviewing"
 msgstr ""
 
