@@ -6,7 +6,9 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 # Create redirects for GitLab Pages
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab-pages/-/issues/24) in GitLab Pages 1.25.0 and GitLab 13.4 behind a feature flag. Generally available in GitLab Pages 1.26.0 and GitLab 13.5.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab-pages/-/issues/24) in GitLab Pages 1.25.0 and GitLab 13.4 behind a feature flag.
+> - It was [deployed behind a feature flag](../../feature_flags.md), disabled by default.
+> - [Feature flag removed](https://gitlab.com/gitlab-org/gitlab-pages/-/merge_requests/357) in GitLab Pages 1.26.0 and GitLab 13.5.
 
 CAUTION: **Warning:**
 This feature might not be available to you. Check the **version history** note above for details.
