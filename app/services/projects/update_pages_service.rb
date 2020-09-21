@@ -97,6 +97,7 @@ module Projects
       build.artifacts_file.use_file do |artifacts_path|
         SafeZip::Extract.new(artifacts_path)
           .extract(directories: [PUBLIC_DIR], to: temp_path)
+        create_pages_deployment(artifacts_path)
       end
     rescue SafeZip::Extract::Error => e
       raise FailedToExtractError, e.message
@@ -116,6 +117,18 @@ module Projects
       FileUtils.move(archive_public_path, public_path)
     ensure
       FileUtils.rm_r(previous_public_path, force: true)
+    end
+
+    def create_pages_deployment(artifacts_path)
+      # TODO: enable and remove by default
+      return unless Feature.enabled?(:zip_pages_deployments, project)
+
+      deployment = project.pages_deployments.build
+      File.open(artifacts_path) do |f|
+        deployment.file = f
+      end
+
+      deployment.save!
     end
 
     def latest?
