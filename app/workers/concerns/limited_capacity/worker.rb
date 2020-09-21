@@ -8,6 +8,10 @@
 #   include ApplicationWorker
 #   include LimitedCapacity::Worker
 #
+#   # For each job that raises any error, a worker instance will be disabled
+#   # until the next schedule-run.
+#   # If you wish to get around this, exceptions must by handled by the implementer.
+#   #
 #   def perform_work(*args)
 #   end
 #
@@ -39,6 +43,8 @@ module LimitedCapacity
 
     included do
       # Disable Sidekiq retries, log the error, and send the job to the dead queue.
+      # This is done to have only one source that produces jobs and because the slot
+      # would be occupied by a job that will be performed in the distant future.
       # We let the cron worker enqueue new jobs, this could be seen as our retry and
       # back off mechanism because the job might fail again if executed immediately.
       sidekiq_options retry: 0
