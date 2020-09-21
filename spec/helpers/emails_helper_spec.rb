@@ -376,7 +376,7 @@ RSpec.describe EmailsHelper do
           'Reviewer changed to John'
         end
 
-        specify do
+        it 'returns the expected output' do
           expect(change_reviewer_notification_text(new_reviewers, previous_reviewers)).to eq(expected_output)
         end
       end
@@ -386,7 +386,7 @@ RSpec.describe EmailsHelper do
           'Reviewer changed to <strong>John</strong>'
         end
 
-        specify do
+        it 'returns the expected output' do
           expect(change_reviewer_notification_text(new_reviewers, previous_reviewers, :strong)).to eq(expected_output)
         end
       end
@@ -401,7 +401,7 @@ RSpec.describe EmailsHelper do
           'Reviewer changed from John and Mary to Ted'
         end
 
-        specify do
+        it 'returns the expected output' do
           expect(change_reviewer_notification_text(new_reviewers, previous_reviewers)).to eq(expected_output)
         end
       end
@@ -411,7 +411,7 @@ RSpec.describe EmailsHelper do
           'Reviewer changed from <strong>John and Mary</strong> to <strong>Ted</strong>'
         end
 
-        specify do
+        it 'returns the expected output' do
           expect(change_reviewer_notification_text(new_reviewers, previous_reviewers, :strong)).to eq(expected_output)
         end
       end
@@ -426,7 +426,7 @@ RSpec.describe EmailsHelper do
           'Reviewer changed from John and Mary to Unassigned'
         end
 
-        specify do
+        it 'returns the expected output' do
           expect(change_reviewer_notification_text(new_reviewers, previous_reviewers)).to eq(expected_output)
         end
       end
@@ -436,25 +436,40 @@ RSpec.describe EmailsHelper do
           'Reviewer changed from <strong>John and Mary</strong> to <strong>Unassigned</strong>'
         end
 
-        specify do
+        it 'returns the expected output' do
           expect(change_reviewer_notification_text(new_reviewers, previous_reviewers, :strong)).to eq(expected_output)
         end
       end
     end
 
-    context 'escapes html tags from the text' do
+    context "with a <script> tag in user's name" do
       let(:previous_reviewers) { [] }
       let(:new_reviewers) { [fishy_user] }
       let(:fishy_user) { build(:user, name: "<script>alert('hi')</script>") }
 
-      context 'with <strong> tag' do
-        let(:expected_output) do
-          'Reviewer changed to <strong>&lt;script&gt;alert(&#39;hi&#39;)&lt;/script&gt;</strong>'
-        end
+      let(:expected_output) do
+        'Reviewer changed to <strong>&lt;script&gt;alert(&#39;hi&#39;)&lt;/script&gt;</strong>'
+      end
 
-        specify do
-          expect(change_reviewer_notification_text(new_reviewers, previous_reviewers, :strong)).to eq(expected_output)
-        end
+      it 'escapes the html tag' do
+        expect(change_reviewer_notification_text(new_reviewers, previous_reviewers, :strong)).to eq(expected_output)
+      end
+    end
+
+    context "with url in user's name" do
+      subject(:email_helper) { Object.new.extend(described_class) }
+
+      let(:previous_reviewers) { [] }
+      let(:new_reviewers) { [fishy_user] }
+      let(:fishy_user) { build(:user, name: "example.com") }
+
+      let(:expected_output) do
+        'Reviewer changed to example_com'
+      end
+
+      it "sanitizes user's name" do
+        expect(email_helper).to receive(:sanitize_name).and_call_original
+        expect(email_helper.change_reviewer_notification_text(new_reviewers, previous_reviewers)).to eq(expected_output)
       end
     end
   end
