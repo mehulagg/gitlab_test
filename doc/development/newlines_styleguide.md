@@ -100,7 +100,3 @@ def method
   end
 end
 ```
-
-## Rule: End files with a newline
-
-All files should end with a `\n`. Many Git clients highlight diffs in which that is not the case.
