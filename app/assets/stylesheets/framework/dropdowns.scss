@@ -33,8 +33,7 @@
 }
 
 .show.dropdown {
-  .dropdown-menu,
-  .dropdown-menu-nav {
+  .dropdown-menu {
     @include set-visible;
     min-height: $dropdown-min-height;
     max-height: $dropdown-max-height;
@@ -258,8 +257,7 @@
   }
 }
 
-.dropdown-menu,
-.dropdown-menu-nav {
+.dropdown-menu {
   display: none;
   position: absolute;
   width: auto;
@@ -447,8 +445,7 @@
   }
 }
 
-.droplab-dropdown .dropdown-menu,
-.droplab-dropdown .dropdown-menu-nav {
+.droplab-dropdown .dropdown-menu {
   display: none;
   opacity: 1;
   visibility: visible;
@@ -460,8 +457,7 @@
 }
 
 .filtered-search-box-input-container {
-  .dropdown-menu,
-  .dropdown-menu-nav {
+  .dropdown-menu {
     max-width: 280px;
   }
 }
@@ -850,8 +846,7 @@
   }
 
   header.navbar-gitlab .dropdown {
-    .dropdown-menu,
-    .dropdown-menu-nav {
+    .dropdown-menu {
       width: 100%;
       min-width: 100%;
     }
