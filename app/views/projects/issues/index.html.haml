@@ -27,3 +27,4 @@
 - else
   - new_project_issue_button_path = @project.archived? ? false : new_project_issue_path(@project)
   = render 'shared/empty_states/issues', new_project_issue_button_path: new_project_issue_button_path, show_import_button: true
+= stylesheet_link_tag 'page_bundles/issues'
