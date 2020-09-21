@@ -602,16 +602,16 @@ To proceed with configuring Group SAML SSO instead, you'll need to enable the `g
 Group SAML on a self-managed instance is limited when compared to the recommended
 [instance-wide SAML](../../../integration/saml.md). The recommended solution allows you to take advantage of:
 
-- [LDAP compatibility](../../../administration/auth/ldap/index.md).
-- [LDAP Group Sync](../index.md#manage-group-memberships-via-ldap).
-- [Required groups](../../../integration/saml.md#required-groups).
-- [Admin groups](../../../integration/saml.md#admin-groups).
-- [Auditor groups](../../../integration/saml.md#auditor-groups).
+- [LDAP compatibility](../administration/auth/ldap/index.md).
+- [LDAP Group Sync](../user/group/index.md#manage-group-memberships-via-ldap).
+- [Required groups](#required-groups).
+- [Admin groups](#admin-groups).
+- [Auditor groups](#auditor-groups).
 
 ### Omnibus installations
 
 1. Make sure GitLab is
-   [configured with HTTPS](../../../install/installation.md#using-https).
+   [configured with HTTPS](../install/installation.md#using-https).
 1. Enable OmniAuth and the `group_saml` provider in `gitlab.rb`:
 
    ```ruby
@@ -622,7 +622,7 @@ Group SAML on a self-managed instance is limited when compared to the recommende
 ### Source installations
 
 1. Make sure GitLab is
-   [configured with HTTPS](../../../install/installation.md#using-https).
+   [configured with HTTPS](../install/installation.md#using-https).
 1. Enable OmniAuth and the `group_saml` provider in `gitlab/config/gitlab.yml`:
 
     ```yaml
