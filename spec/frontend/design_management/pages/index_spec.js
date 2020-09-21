@@ -99,6 +99,7 @@ describe('Design management index page', () => {
   const findFirstDropzoneWithDesign = () => wrapper.findAll(DesignDropzone).at(1);
   const findDesignsWrapper = () => wrapper.find('[data-testid="designs-root"]');
   const findDesigns = () => wrapper.findAll(Design);
+  const draggableAttributes = () => wrapper.find(VueDraggable).vm.$attrs;
 
   async function moveDesigns(localWrapper) {
     await jest.runOnlyPendingTimers();
@@ -674,6 +675,20 @@ describe('Design management index page', () => {
           .at(0)
           .props('id'),
       ).toBe('2');
+    });
+
+    it('prevents reordering when mutation is in progress', async () => {
+      createComponentWithApollo({});
+
+      await moveDesigns(wrapper);
+
+      expect(draggableAttributes().disabled).toBe(true);
+
+      await jest.runOnlyPendingTimers();
+      await wrapper.vm.$nextTick();
+      await wrapper.vm.$nextTick();
+
+      expect(draggableAttributes().disabled).toBe(false);
     });
 
     it('displays flash if mutation had a recoverable error', async () => {
