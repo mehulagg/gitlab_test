@@ -55,7 +55,7 @@ RSpec.describe BoardsHelper do
     end
 
     it 'returns can_update for user permissions on the board' do
-      expect(helper.board_data[:can_update]).to eq(true)
+      expect(helper.board_data[:can_update]).to eq('true')
     end
   end
 
