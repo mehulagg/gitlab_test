@@ -677,7 +677,7 @@ describe('Design management index page', () => {
       ).toBe('2');
     });
 
-    it('prevents reordering when mutation is in progress', async () => {
+    it('prevents reordering when reorderDesigns mutation is in progress', async () => {
       createComponentWithApollo({});
 
       await moveDesigns(wrapper);
