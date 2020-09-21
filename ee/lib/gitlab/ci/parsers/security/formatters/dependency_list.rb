@@ -61,20 +61,17 @@ module Gitlab
 
               return base_location if Feature.disabled?(:path_to_vulnerable_dependency, project)
               return base_location unless dependency['iid']
-              # TODO: update this code before https://gitlab.com/gitlab-org/gitlab/-/issues/229472 is closed
-              # We temporary return test dependency path to get a PoC with integration to frontend
+
               base_location.merge({
-                                    ancestors:
-                                      [{
-                                         name: 'dep1',
-                                         version: '1.2'
-                                       },
-                                       {
-                                         name: 'dep2',
-                                         version: '10.11'
-                                       }],
-                                    top_level: false
+                                    ancestors: formatted_dependency_path(dependency['dependency_path']),
+                                    top_level: !!dependency['direct']
                                   })
+            end
+
+            def formatted_dependency_path(dependency_path)
+              return unless dependency_path
+
+              dependency_path.map{ |path| (path.with_indifferent_access) }
             end
 
             # we know that Parsers::Security::DependencyList parses one vulnerability at a time
