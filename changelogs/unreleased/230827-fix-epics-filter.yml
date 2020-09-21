@@ -1,0 +1,5 @@
+---
+title: Fix filtering epics when soritng by dates
+merge_request: 42827
+author:
+type: fixed
