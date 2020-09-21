@@ -41,23 +41,26 @@ export default {
     v-gl-tooltip="{ title: path, disabled: !deeplyNested }"
     class="gl-display-flex gl-align-items-center"
   >
-    <gl-icon name="project" class="gl-mx-3 gl-min-w-0" />
+    <gl-icon data-testid="base-icon" name="project" class="gl-mx-3 gl-min-w-0" />
 
-    <gl-link class="gl-text-gray-500 gl-min-w-0" :href="`/${root}`">
+    <gl-link data-testid="root-link" class="gl-text-gray-500 gl-min-w-0" :href="`/${root}`">
       {{ root }}
     </gl-link>
 
     <template v-if="hasGroup">
-      <gl-icon name="chevron-right" class="gl-mx-2 gl-min-w-0" />
+      <gl-icon data-testid="root-chevron" name="chevron-right" class="gl-mx-2 gl-min-w-0" />
 
       <template v-if="deeplyNested">
-        <span class="gl-inset-border-1-gray-200 gl-rounded-base gl-px-2 gl-min-w-0">
+        <span
+          data-testid="ellipsis-icon"
+          class="gl-inset-border-1-gray-200 gl-rounded-base gl-px-2 gl-min-w-0"
+        >
           <gl-icon name="ellipsis_h" class="" />
         </span>
-        <gl-icon name="chevron-right" class="gl-mx-2 gl-min-w-0" />
+        <gl-icon data-testid="ellipsis-chevron" name="chevron-right" class="gl-mx-2 gl-min-w-0" />
       </template>
 
-      <gl-link class="gl-text-gray-500 gl-min-w-0" :href="`/${path}`">
+      <gl-link data-testid="leaf-link" class="gl-text-gray-500 gl-min-w-0" :href="`/${path}`">
         {{ leaf }}
       </gl-link>
     </template>
