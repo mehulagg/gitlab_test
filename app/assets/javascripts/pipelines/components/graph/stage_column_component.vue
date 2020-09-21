@@ -47,6 +47,10 @@ export default {
       default: () => ({}),
     },
   },
+  mounted() {
+    // console.log('groups', this.groups);
+    // console.log('job 0', this.groups.map(group => typeof group.jobs[0]));
+  },
   computed: {
     hasAction() {
       return !isEmpty(this.action);
@@ -87,10 +91,10 @@ export default {
         >
           <div class="curve"></div>
 
+          <!-- replace below: :job-hovered="jobHovered" -->
           <job-item
             v-if="group.size === 1"
             :job="group.jobs[0]"
-            :job-hovered="jobHovered"
             :pipeline-expanded="pipelineExpanded"
             css-class-job-name="build-content"
             @pipelineActionRequestComplete="pipelineActionRequestComplete"

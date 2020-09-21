@@ -5,8 +5,37 @@ import pipelineGraph from './components/graph/graph_component.vue';
 
 Vue.use(VueApollo);
 
+const mockStatus = {
+  icon: 'status_canceled',
+  action: {
+    button_title: 'Retry this job',
+    icon: 'retry',
+    method: 'post',
+    path: '/example/example-project/-/jobs/id/retry',
+    title: 'Retry',
+  }
+}
+
 const apolloProvider = new VueApollo({
-  defaultClient: createDefaultClient(),
+  defaultClient: createDefaultClient({
+    CiJob: {
+      status() {
+        return mockStatus;
+      }
+    },
+    CiGroup: {
+      status() {
+        return mockStatus;
+      }
+    },
+    CiStage: {
+      status() {
+        return {
+          action: { }
+        }
+      }
+    },
+  }),
 });
 
 

@@ -1,26 +1,6 @@
 import { escape } from 'lodash';
 
 export default {
-  // data() {
-  //   return {
-  //     stages: null,
-  //   };
-  // },
-  // props: {
-  //   // isLoading: {
-  //   //   type: Boolean,
-  //   //   required: true,
-  //   // },
-  //   // pipeline: {
-  //   //   type: Object,
-  //   //   required: true,
-  //   // },
-  // },
-  // computed: {
-  //   graph() {
-  //     return this.pipeline.details && this.pipeline.details.stages;
-  //   },
-  // },
   methods: {
     capitalizeStageName(name) {
       const escapedName = escape(name);

@@ -29,16 +29,6 @@ export default {
     },
   },
 //   props: {
-      // will come from GraphQL
-//     isLoading: {
-//       type: Boolean,
-//       required: true,
-//     },
-      // ADD WITH GRAPHQL: this.mediator.store.state.pipeline
-//     pipeline: {
-//       type: Object,
-//       required: true,
-//     },
 //     isLinkedPipeline: {
 //       type: Boolean,
 //       required: false,
@@ -82,30 +72,24 @@ export default {
         } = data.project.pipeline;
 
         const unwrappedNestedGroups = stages
-          .map(({ name, groups: { nodes: groups } }) => {
-            return { name, groups }
+          .map((stage) => {
+            const { groups: { nodes: groups }} = stage;
+            return { ...stage, groups }
           });
 
         console.log('UNG:', unwrappedNestedGroups);
 
-        // const nodes = unwrappedNestedGroups.map(group => {
-        //   const jobs = group.jobs.nodes.map(({ name, needs }) => {
-        //     return { name, needs: needs.nodes.map(need => need.name) };
-        //   });
-        //
-        //   return { ...group, jobs };
-        // });
-
-        const nodes = unwrappedNestedGroups.map(({ name, groups }) => {
+        const nodes = unwrappedNestedGroups.map(({ name, status, groups }) => {
           const groupsWithJobs = groups.map((group => {
-              const jobs = group.jobs.nodes.map(({ name, needs }) => {
-                return { name, needs: needs.nodes.map(need => need.name) };
+              const jobs = group.jobs.nodes.map((job) => {
+                const { needs } = job;
+                return { ...job, needs: needs.nodes.map(need => need.name) };
               });
 
             return { ...group, jobs };
           }));
 
-          return { name, groups: groupsWithJobs }
+          return { name, status, groups: groupsWithJobs }
         });
 
         console.log('nodes', nodes);
@@ -118,6 +102,9 @@ export default {
     }
   },
   computed: {
+    graphLoading() {
+      return this.$apollo.queries.stages.loading;
+    }
   },
   methods: {
     hasOnlyOneJob(stage) {
@@ -216,7 +203,7 @@ export default {
 <template>
   <div>
     <div id="inner-graph-buddy" :style="{paddingLeft: '400px'}">hi</div>
-    <div class="build-content middle-block js-pipeline-graph" :style=" {paddingLeft: '400px'}">
+    <div class="build-content middle-block js-pipeline-graph">
       <div
         class="pipeline-visualization pipeline-graph"
       >
@@ -227,14 +214,13 @@ export default {
           }"
         >
 
-        <!-- <gl-loading-icon v-if="$apollo.loading" class="m-auto" size="lg" /> -->
+        <gl-loading-icon v-if="graphLoading" class="m-auto" size="lg" />
 
         <ul
             class="stage-column-list align-top"
-            v-if="!$apollo.loading"
+            v-if="!graphLoading"
           >
           <!-- replace these below later: -->
-          <!-- @refreshPipelineGraph="refreshPipelineGraph" -->
           <!-- :job-hovered="jobName" -->
             <stage-column-component
               v-for="(stage, index) in stages"
@@ -243,11 +229,12 @@ export default {
                 'has-only-one-job': hasOnlyOneJob(stage),
                 'gl-mr-26': shouldAddRightMargin(index),
               }"
-              :title="capitalizeStageName(stage.stageName)"
+              :title="capitalizeStageName(stage.name)"
               :groups="stage.groups"
               :stage-connector-class="stageConnectorClass(index, stage)"
               :is-first-column="isFirstColumn(index)"
               :action="stage.status.action"
+              @refreshPipelineGraph="refreshPipelineGraph"
             />
           </ul>
         </div>
