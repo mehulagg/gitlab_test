@@ -38,6 +38,9 @@ module LimitedCapacity
     include Gitlab::Utils::StrongMemoize
 
     included do
+      # Disable Sidekiq retries, log the error, and send the job to the dead queue.
+      # We let the cron worker enqueue new jobs, this could be seen as our retry and
+      # back off mechanism because the job might fail again if executed immediately.
       sidekiq_options retry: 0
     end
 
