@@ -103,7 +103,7 @@ module SystemNotes
 
       Gitlab::I18n.with_default_locale do
         text_parts << "requested review from #{added_users.map(&:to_reference).to_sentence}" if added_users.any?
-        text_parts << "unassigned #{unassigned_users.map(&:to_reference).to_sentence}" if unassigned_users.any?
+        text_parts << "removed review request for #{unassigned_users.map(&:to_reference).to_sentence}" if unassigned_users.any?
       end
 
       body = text_parts.join(' and ')
