@@ -60,6 +60,7 @@ class GfmAutoComplete {
     this.dataSources = dataSources;
     this.cachedData = {};
     this.isLoadingData = {};
+    this.previousQuery = '';
   }
 
   setup(input, enableMap = defaultAutocompleteConfig) {

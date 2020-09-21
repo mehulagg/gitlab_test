@@ -12,6 +12,9 @@ module EE
         ::Security::VulnerabilitiesFinder
           .new(project)
           .execute
+          .autocomplete_search(params[:search].to_s)
+          .with_limit(5)
+          .order_id_desc
           .select([:id, :title])
       end
     end
