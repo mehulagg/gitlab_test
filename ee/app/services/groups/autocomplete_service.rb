@@ -41,6 +41,9 @@ module Groups
       ::Security::VulnerabilitiesFinder
         .new(group)
         .execute
+        .autocomplete_search(params[:search].to_s)
+        .with_limit(5)
+        .order_id_desc
         .select([:id, :title, :project_id])
     end
 
