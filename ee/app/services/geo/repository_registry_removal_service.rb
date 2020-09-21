@@ -36,7 +36,7 @@ module Geo
     end
 
     def registry
-      replicator.regstry
+      replicator.registry
     end
 
     def replicator
