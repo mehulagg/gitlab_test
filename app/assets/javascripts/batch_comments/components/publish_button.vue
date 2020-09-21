@@ -56,7 +56,7 @@ export default {
       {{ n__('Publish comment', 'Publish comments', draftsCount) }} 
       <drafts-count v-if="showCount" />
     </template>
-    <gl-dropdown-item @click="publishSingleDraftHandler">{{ __('Publish this comment') }}</gl-dropdown-item>
+    <gl-dropdown-item @click="publishSingleDraftHandler">{{ __('Publish just this comment') }}</gl-dropdown-item>
   </gl-dropdown>
   <gl-button
     v-else
