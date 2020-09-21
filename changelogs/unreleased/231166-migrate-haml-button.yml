@@ -1,5 +1,5 @@
 ---
-title: Migrate haml button to Pajamas
+title: Use Pajamas utility class for add burndown chart button
 merge_request: 42676
 author:
 type: changed
