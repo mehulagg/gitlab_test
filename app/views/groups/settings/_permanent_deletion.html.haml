@@ -6,4 +6,4 @@
       %br
       %strong= _('Removed group can not be restored!')
     .gl-display-flex.gl-justify-content-end
-      = button_to _('Remove group'), '#', class: 'btn btn-remove js-confirm-danger', data: { 'confirm-danger-message' => remove_group_message(group) }
+      = button_to _('Remove group'), '#', class: 'gl-button btn btn-danger js-confirm-danger', data: { 'confirm-danger-message' => remove_group_message(group) }
