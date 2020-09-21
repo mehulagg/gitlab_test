@@ -1,3 +1,5 @@
+#import "~/graphql_shared/fragments/pageInfo.fragment.graphql"
+
 query(
   $fullPath: ID!
   $startDate: Time!
@@ -23,6 +25,9 @@ query(
       sourceBranches: $sourceBranches
       targetBranches: $targetBranches
     ) {
+      pageInfo {
+        ...PageInfo
+      }
       nodes {
         iid
         title

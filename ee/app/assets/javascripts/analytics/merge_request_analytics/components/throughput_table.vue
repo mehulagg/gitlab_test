@@ -11,6 +11,7 @@ import {
   GlLoadingIcon,
   GlAlert,
   GlIcon,
+  GlPagination,
 } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import { approximateDuration, differenceInSeconds } from '~/lib/utils/datetime_utility';
@@ -23,7 +24,7 @@ import {
   LINE_CHANGE_SYMBOLS,
   ASSIGNEES_VISIBLE,
   AVATAR_SIZE,
-  MAX_RECORDS,
+  PER_PAGE,
   THROUGHPUT_TABLE_TEST_IDS,
   PIPELINE_STATUS_ICON_CLASSES,
 } from '../constants';
@@ -41,6 +42,7 @@ export default {
     GlLoadingIcon,
     GlAlert,
     GlIcon,
+    GlPagination,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -110,6 +112,7 @@ export default {
     return {
       throughputTableData: [],
       hasError: false,
+      page: 2, // WIll update this
     };
   },
   apollo: {
@@ -127,13 +130,18 @@ export default {
 
         return {
           fullPath: this.fullPath,
-          limit: MAX_RECORDS,
+          limit: PER_PAGE,
           startDate: dateFormat(this.startDate, dateFormats.isoDate),
           endDate: dateFormat(this.endDate, dateFormats.isoDate),
           ...options,
         };
       },
-      update: data => data.project.mergeRequests.nodes,
+      update: data => {
+        return {
+          throughputTableData: data.project.mergeRequests.nodes,
+          pageInfo: data.project.mergeRequests.pageInfo,
+        };
+      },
       error() {
         this.hasError = true;
       },
@@ -195,104 +203,117 @@ export default {
 </script>
 <template>
   <gl-loading-icon v-if="tableDataLoading" size="md" />
-  <gl-table
-    v-else-if="tableDataAvailable"
-    :fields="$options.tableHeaderFields"
-    :items="throughputTableData"
-    stacked="sm"
-    thead-class="thead-white gl-border-b-solid gl-border-b-1 gl-border-b-gray-100"
-  >
-    <template #cell(mr_details)="{ item }">
-      <div
-        class="gl-display-flex gl-flex-direction-column gl-flex-grow-1"
-        :data-testid="$options.testIds.MERGE_REQUEST_DETAILS"
-      >
-        <div class="merge-request-title str-truncated">
-          <gl-link
-            :href="item.webUrl"
-            target="_blank"
-            class="gl-font-weight-bold gl-text-gray-900"
-            >{{ item.title }}</gl-link
-          >
-          <ul class="horizontal-list gl-mb-0">
-            <li class="gl-mr-3">{{ formatMergeRequestId(item.iid) }}</li>
-            <li v-if="item.pipelines.nodes.length" class="gl-mr-3">
-              <gl-icon
-                :name="item.pipelines.nodes[0].detailedStatus.icon"
-                :class="pipelineStatusClass(item.pipelines.nodes[0].detailedStatus.icon)"
-              />
-            </li>
-            <li
-              class="gl-mr-3 gl-display-flex gl-align-items-center"
-              :class="{ 'gl-opacity-5': !item.labels.nodes.length }"
-              :data-testid="$options.testIds.LABEL_DETAILS"
-            >
-              <gl-icon name="label" class="gl-mr-1" /><span>{{ item.labels.nodes.length }}</span>
-            </li>
-            <li
-              class="gl-mr-3 gl-display-flex gl-align-items-center"
-              :class="{ 'gl-opacity-5': !item.userNotesCount }"
-              :data-testid="$options.testIds.COMMENT_COUNT"
-            >
-              <gl-icon name="comments" class="gl-mr-2" /><span>{{ item.userNotesCount }}</span>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </template>
-
-    <template #cell(date_merged)="{ item }">
-      <div :data-testid="$options.testIds.DATE_MERGED">{{ formatDateMerged(item.mergedAt) }}</div>
-    </template>
-
-    <template #cell(time_to_merge)="{ item }">
-      <div :data-testid="$options.testIds.TIME_TO_MERGE">
-        {{ computeTimeToMerge(item.createdAt, item.mergedAt) }}
-      </div>
-    </template>
-
-    <template #cell(milestone)="{ item }">
-      <div v-if="item.milestone" :data-testid="$options.testIds.MILESTONE">
-        {{ item.milestone.title }}
-      </div>
-    </template>
-
-    <template #cell(commits)="{ item }">
-      <div :data-testid="$options.testIds.COMMITS">{{ item.commitCount }}</div>
-    </template>
-
-    <template #cell(pipelines)="{ item }">
-      <div :data-testid="$options.testIds.PIPELINES">{{ item.pipelines.nodes.length }}</div>
-    </template>
-
-    <template #cell(line_changes)="{ item }">
-      <div :data-testid="$options.testIds.LINE_CHANGES">
-        <span class="gl-font-weight-bold gl-text-green-500">{{
-          formatLineChangeAdditions(item.diffStatsSummary.additions)
-        }}</span>
-        <span class="gl-font-weight-bold gl-text-red-500">{{
-          formatLineChangeDeletions(item.diffStatsSummary.deletions)
-        }}</span>
-      </div>
-    </template>
-
-    <template #cell(assignees)="{ item }">
-      <div :data-testid="$options.testIds.ASSIGNEES">
-        <gl-avatars-inline
-          :avatars="item.assignees.nodes"
-          :avatar-size="$options.avatarSize"
-          :max-visible="$options.assigneesVisible"
-          collapsed
+  <div v-else-if="tableDataAvailable">
+    <gl-table
+      :fields="$options.tableHeaderFields"
+      :items="throughputTableData"
+      stacked="sm"
+      thead-class="thead-white gl-border-b-solid gl-border-b-1 gl-border-b-gray-100"
+    >
+      <template #cell(mr_details)="{ item }">
+        <div
+          class="gl-display-flex gl-flex-direction-column gl-flex-grow-1"
+          :data-testid="$options.testIds.MERGE_REQUEST_DETAILS"
         >
-          <template #avatar="{ avatar }">
-            <gl-avatar-link v-gl-tooltip target="_blank" :href="avatar.webUrl" :title="avatar.name">
-              <gl-avatar :src="avatar.avatarUrl" :size="$options.avatarSize" />
-            </gl-avatar-link>
-          </template>
-        </gl-avatars-inline>
-      </div>
-    </template>
-  </gl-table>
+          <div class="merge-request-title str-truncated">
+            <gl-link
+              :href="item.webUrl"
+              target="_blank"
+              class="gl-font-weight-bold gl-text-gray-900"
+              >{{ item.title }}</gl-link
+            >
+            <ul class="horizontal-list gl-mb-0">
+              <li class="gl-mr-3">{{ formatMergeRequestId(item.iid) }}</li>
+              <li v-if="item.pipelines.nodes.length" class="gl-mr-3">
+                <gl-icon
+                  :name="item.pipelines.nodes[0].detailedStatus.icon"
+                  :class="pipelineStatusClass(item.pipelines.nodes[0].detailedStatus.icon)"
+                />
+              </li>
+              <li
+                class="gl-mr-3 gl-display-flex gl-align-items-center"
+                :class="{ 'gl-opacity-5': !item.labels.nodes.length }"
+                :data-testid="$options.testIds.LABEL_DETAILS"
+              >
+                <gl-icon name="label" class="gl-mr-1" /><span>{{ item.labels.nodes.length }}</span>
+              </li>
+              <li
+                class="gl-mr-3 gl-display-flex gl-align-items-center"
+                :class="{ 'gl-opacity-5': !item.userNotesCount }"
+                :data-testid="$options.testIds.COMMENT_COUNT"
+              >
+                <gl-icon name="comments" class="gl-mr-2" /><span>{{ item.userNotesCount }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </template>
+
+      <template #cell(date_merged)="{ item }">
+        <div :data-testid="$options.testIds.DATE_MERGED">{{ formatDateMerged(item.mergedAt) }}</div>
+      </template>
+
+      <template #cell(time_to_merge)="{ item }">
+        <div :data-testid="$options.testIds.TIME_TO_MERGE">
+          {{ computeTimeToMerge(item.createdAt, item.mergedAt) }}
+        </div>
+      </template>
+
+      <template #cell(milestone)="{ item }">
+        <div v-if="item.milestone" :data-testid="$options.testIds.MILESTONE">
+          {{ item.milestone.title }}
+        </div>
+      </template>
+
+      <template #cell(commits)="{ item }">
+        <div :data-testid="$options.testIds.COMMITS">{{ item.commitCount }}</div>
+      </template>
+
+      <template #cell(pipelines)="{ item }">
+        <div :data-testid="$options.testIds.PIPELINES">{{ item.pipelines.nodes.length }}</div>
+      </template>
+
+      <template #cell(line_changes)="{ item }">
+        <div :data-testid="$options.testIds.LINE_CHANGES">
+          <span class="gl-font-weight-bold gl-text-green-500">{{
+            formatLineChangeAdditions(item.diffStatsSummary.additions)
+          }}</span>
+          <span class="gl-font-weight-bold gl-text-red-500">{{
+            formatLineChangeDeletions(item.diffStatsSummary.deletions)
+          }}</span>
+        </div>
+      </template>
+
+      <template #cell(assignees)="{ item }">
+        <div :data-testid="$options.testIds.ASSIGNEES">
+          <gl-avatars-inline
+            :avatars="item.assignees.nodes"
+            :avatar-size="$options.avatarSize"
+            :max-visible="$options.assigneesVisible"
+            collapsed
+          >
+            <template #avatar="{ avatar }">
+              <gl-avatar-link
+                v-gl-tooltip
+                target="_blank"
+                :href="avatar.webUrl"
+                :title="avatar.name"
+              >
+                <gl-avatar :src="avatar.avatarUrl" :size="$options.avatarSize" />
+              </gl-avatar-link>
+            </template>
+          </gl-avatars-inline>
+        </div>
+      </template>
+    </gl-table>
+    <gl-pagination
+      v-model="page"
+      :per-page="10"
+      :total-items="100"
+      align="center"
+      class="gl-mt-2"
+    />
+  </div>
   <gl-alert v-else :variant="alertDetails.class" :dismissible="false" class="gl-mt-4">{{
     alertDetails.message
   }}</gl-alert>
