@@ -1108,7 +1108,7 @@ When documenting navigation through the user interface:
 
 Use the following terms when referring to the main UI elements:
 
-- **Header**: This is the header which spans the width of the UI and contains elements including the GitLab logo, search field, counters, and the user's avatar.
+- **Top menu**: This is the top menu that spans the width of the UI. It includes the GitLab logo, search field, counters, and the user's avatar.
 - **Left sidebar**: This is the navigation sidebar on the left of the UI, specific to the project, or group.
 - **Right sidebar**: This is the navigation sidebar on the right of the UI, specific to the open issue or merge request.
 
