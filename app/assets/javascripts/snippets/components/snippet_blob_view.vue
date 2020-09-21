@@ -23,6 +23,7 @@ export default {
         return {
           ids: this.snippet.id,
           rich: this.activeViewerType === RICH_BLOB_VIEWER,
+          paths: this.blob.path,
         };
       },
       update(data) {
