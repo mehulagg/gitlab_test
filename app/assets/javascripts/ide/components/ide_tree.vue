@@ -1,6 +1,6 @@
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex';
-import { modalTypes } from '../constants';
+import { leftSidebarViews, modalTypes } from '../constants';
 import IdeTreeList from './ide_tree_list.vue';
 import Upload from './new_dropdown/upload.vue';
 import NewEntryButton from './new_dropdown/button.vue';
@@ -14,19 +14,15 @@ export default {
     NewModal,
   },
   computed: {
-    ...mapState(['currentBranchId']),
+    ...mapState(['currentBranchId', 'currentActivityView']),
     ...mapGetters(['currentProject', 'currentTree', 'activeFile', 'getUrlForPath']),
   },
-  mounted() {
-    if (!this.activeFile) return;
+  watch: {
+    currentActivityView(val) {
+      if (val !== leftSidebarViews.edit.name) return;
 
-    if (this.activeFile.pending && !this.activeFile.deleted) {
-      this.$router.push(this.getUrlForPath(this.activeFile.path), () => {
-        this.updateViewer('editor');
-      });
-    } else if (this.activeFile.deleted) {
-      this.resetOpenFiles();
-    }
+      this.initViewState();
+    },
   },
   methods: {
     ...mapActions(['updateViewer', 'createTempEntry', 'resetOpenFiles']),
@@ -35,6 +31,17 @@ export default {
     },
     createNewFolder() {
       this.$refs.newModal.open(modalTypes.tree);
+    },
+    initViewState() {
+      if (!this.activeFile) return;
+
+      if (this.activeFile.pending && !this.activeFile.deleted) {
+        this.$router.push(this.getUrlForPath(this.activeFile.path), () => {
+          this.updateViewer('editor');
+        });
+      } else if (this.activeFile.deleted) {
+        this.resetOpenFiles();
+      }
     },
   },
 };

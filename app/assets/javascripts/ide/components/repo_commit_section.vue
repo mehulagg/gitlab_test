@@ -3,7 +3,7 @@ import { mapState, mapActions, mapGetters } from 'vuex';
 import tooltip from '~/vue_shared/directives/tooltip';
 import CommitFilesList from './commit_sidebar/list.vue';
 import EmptyState from './commit_sidebar/empty_state.vue';
-import { stageKeys } from '../constants';
+import { leftSidebarViews, stageKeys } from '../constants';
 
 export default {
   components: {
@@ -14,7 +14,7 @@ export default {
     tooltip,
   },
   computed: {
-    ...mapState(['changedFiles', 'stagedFiles', 'lastCommitMsg']),
+    ...mapState(['changedFiles', 'stagedFiles', 'lastCommitMsg', 'currentActivityView']),
     ...mapState('commit', ['commitMessage', 'submitCommitLoading']),
     ...mapGetters(['lastOpenedFile', 'someUncommittedChanges', 'activeFile']),
     ...mapGetters('commit', ['discardDraftButtonDisabled']),
@@ -25,29 +25,36 @@ export default {
       return this.activeFile ? this.activeFile.key : null;
     },
   },
-  mounted() {
-    const file =
-      this.lastOpenedFile && this.lastOpenedFile.type !== 'tree'
-        ? this.lastOpenedFile
-        : this.activeFile;
+  watch: {
+    currentActivityView(val) {
+      if (val !== leftSidebarViews.commit.name) return;
 
-    if (!file) return;
-
-    this.openPendingTab({
-      file,
-      keyPrefix: file.staged ? stageKeys.staged : stageKeys.unstaged,
-    })
-      .then(changeViewer => {
-        if (changeViewer) {
-          this.updateViewer('diff');
-        }
-      })
-      .catch(e => {
-        throw e;
-      });
+      this.initViewState();
+    },
   },
   methods: {
     ...mapActions(['openPendingTab', 'updateViewer', 'updateActivityBarView']),
+    initViewState() {
+      const file =
+        this.lastOpenedFile && this.lastOpenedFile.type !== 'tree'
+          ? this.lastOpenedFile
+          : this.activeFile;
+
+      if (!file) return;
+
+      this.openPendingTab({
+        file,
+        keyPrefix: file.staged ? stageKeys.staged : stageKeys.unstaged,
+      })
+        .then(changeViewer => {
+          if (changeViewer) {
+            this.updateViewer('diff');
+          }
+        })
+        .catch(e => {
+          throw e;
+        });
+    },
   },
   stageKeys,
 };

@@ -2,7 +2,7 @@
 import { mapGetters, mapState, mapActions } from 'vuex';
 import IdeTreeList from './ide_tree_list.vue';
 import EditorModeDropdown from './editor_mode_dropdown.vue';
-import { viewerTypes } from '../constants';
+import { leftSidebarViews, viewerTypes } from '../constants';
 
 export default {
   components: {
@@ -11,7 +11,7 @@ export default {
   },
   computed: {
     ...mapGetters(['currentMergeRequest', 'activeFile', 'getUrlForPath']),
-    ...mapState(['viewer', 'currentMergeRequestId']),
+    ...mapState(['viewer', 'currentMergeRequestId', 'currentActivityView']),
     showLatestChangesText() {
       return !this.currentMergeRequestId || this.viewer === viewerTypes.diff;
     },
@@ -22,21 +22,28 @@ export default {
       return `!${this.currentMergeRequest.iid}`;
     },
   },
-  mounted() {
-    if (this.activeFile && this.activeFile.pending && !this.activeFile.deleted) {
-      this.$router.push(this.getUrlForPath(this.activeFile.path), () => {
-        this.updateViewer('editor');
-      });
-    } else if (this.activeFile && this.activeFile.deleted) {
-      this.resetOpenFiles();
-    }
+  watch: {
+    currentActivityView(val) {
+      if (val !== leftSidebarViews.review.name) return;
 
-    this.$nextTick(() => {
-      this.updateViewer(this.currentMergeRequestId ? viewerTypes.mr : viewerTypes.diff);
-    });
+      this.initViewState();
+    },
   },
   methods: {
     ...mapActions(['updateViewer', 'resetOpenFiles']),
+    initViewState() {
+      if (this.activeFile && this.activeFile.pending && !this.activeFile.deleted) {
+        this.$router.push(this.getUrlForPath(this.activeFile.path), () => {
+          this.updateViewer('editor');
+        });
+      } else if (this.activeFile && this.activeFile.deleted) {
+        this.resetOpenFiles();
+      }
+
+      this.$nextTick(() => {
+        this.updateViewer(this.currentMergeRequestId ? viewerTypes.mr : viewerTypes.diff);
+      });
+    },
   },
 };
 </script>
