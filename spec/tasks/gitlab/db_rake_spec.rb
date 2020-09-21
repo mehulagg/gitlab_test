@@ -173,16 +173,30 @@ RSpec.describe 'gitlab:db namespace rake task' do
       end
     end
 
-    it 'calls the index rebuilder with the proper arguments' do
-      reindex = double('rebuilder')
+    context 'with index name given' do
+      let(:connection) { ActiveRecord::Base.connection }
 
-      expect(Gitlab::Database::Reindexing::ConcurrentReindex).to receive(:new)
-        .with('some_index_name', logger: instance_of(Logger))
-        .and_return(reindex)
+      before do
+        connection.execute(<<~SQL)
+          CREATE TABLE reindexing_test (
+            id serial NOT NULL PRIMARY KEY,
+            bar integer NOT NULL);
 
-      expect(reindex).to receive(:perform)
+          CREATE INDEX foo_idx ON reindexing_test (bar);
+        SQL
+      end
 
-      run_rake_task('gitlab:db:reindex', '[some_index_name]')
+      it 'calls the index rebuilder with the proper arguments', :focus do
+        reindex = double('rebuilder')
+
+        expect(Gitlab::Database::Reindexing::ConcurrentReindex).to receive(:new) do |index, _|
+          expect(index.name).to eq('foo_idx')
+        end.and_return(reindex)
+
+        expect(reindex).to receive(:perform)
+
+        run_rake_task('gitlab:db:reindex', '[foo_idx]')
+      end
     end
   end
 

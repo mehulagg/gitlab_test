@@ -176,7 +176,9 @@ namespace :gitlab do
 
       raise ArgumentError, 'must give the index name to reindex' unless args[:index_name]
 
-      Gitlab::Database::Reindexing::ConcurrentReindex.new(args[:index_name], logger: Logger.new(STDOUT)).perform
+      index = Gitlab::Database::Reindexing::Index.new(args[:index_name])
+
+      Gitlab::Database::Reindexing::ConcurrentReindex.new(index, logger: Logger.new(STDOUT)).perform
     end
   end
 end
