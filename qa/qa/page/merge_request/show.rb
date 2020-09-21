@@ -44,10 +44,6 @@ module QA
           element :squash_checkbox
         end
 
-        view 'app/assets/javascripts/vue_shared/components/notes/skeleton_note.vue' do
-          element :skeleton_note
-        end
-
         view 'app/views/projects/merge_requests/show.html.haml' do
           element :notes_tab
           element :diffs_tab
@@ -264,10 +260,6 @@ module QA
           wait_until(max_duration: 30, reload: false) do
             has_element?(:merge_request_error_content)
           end
-        end
-
-        def wait_for_loading
-          has_no_element?(:skeleton_note)
         end
 
         def click_open_in_web_ide

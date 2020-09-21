@@ -40,6 +40,10 @@ module QA
           base.view 'app/assets/javascripts/diffs/components/diff_file_header.vue' do
             element :toggle_comments_button
           end
+
+          base.view 'app/assets/javascripts/vue_shared/components/notes/skeleton_note.vue' do
+            element :skeleton_note
+          end
         end
 
         def start_discussion(text)
@@ -81,6 +85,10 @@ module QA
           click_element :note_edit_button
           fill_element :reply_input, text
           click_element :reply_comment_button
+        end
+
+        def wait_for_loading
+          has_no_element?(:skeleton_note)
         end
       end
     end

@@ -125,6 +125,8 @@ module QA
               click_element(:title)
               click_element :discussion_filter
               find_element(:filter_options, text: text).click
+
+              wait_for_loading
             end
           end
         end
