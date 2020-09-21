@@ -588,6 +588,53 @@ Refer to the documentation for your SAML Identity Provider for information on ho
 
 The [Generated passwords for users created through integrated authentication](../security/passwords_for_integrated_authentication_methods.md) guide provides an overview of how GitLab generates and sets passwords for users created via SAML.
 
+## Configuring on a self-managed GitLab instance **(PREMIUM ONLY)**
+
+For self-managed GitLab instances we strongly recommend using the
+[instance-wide SAML OmniAuth Provider](../../../integration/saml.md) instead.
+
+Group SAML SSO helps if you need to allow access via multiple SAML identity providers, but as a multi-tenant solution is less suited to cases where you administer your own GitLab instance.
+
+To proceed with configuring Group SAML SSO instead, you'll need to enable the `group_saml` OmniAuth provider. This can be done from:
+
+- `gitlab.rb` for [Omnibus GitLab installations](#omnibus-installations).
+- `gitlab/config/gitlab.yml` for [source installations](#source-installations).
+
+### Limitations
+
+Group SAML on a self-managed instance is limited when compared to the recommended
+[instance-wide SAML](../../../integration/saml.md). The recommended solution allows you to take advantage of:
+
+- [LDAP compatibility](../../../administration/auth/ldap/index.md).
+- [LDAP Group Sync](../index.md#manage-group-memberships-via-ldap).
+- [Required groups](../../../integration/saml.md#required-groups).
+- [Admin groups](../../../integration/saml.md#admin-groups).
+- [Auditor groups](../../../integration/saml.md#auditor-groups).
+
+### Omnibus installations
+
+1. Make sure GitLab is
+   [configured with HTTPS](../../../install/installation.md#using-https).
+1. Enable OmniAuth and the `group_saml` provider in `gitlab.rb`:
+
+   ```ruby
+   gitlab_rails['omniauth_enabled'] = true
+   gitlab_rails['omniauth_providers'] = [{ name: 'group_saml' }]
+   ```
+
+### Source installations
+
+1. Make sure GitLab is
+   [configured with HTTPS](../../../install/installation.md#using-https).
+1. Enable OmniAuth and the `group_saml` provider in `gitlab/config/gitlab.yml`:
+
+    ```yaml
+    omniauth:
+        enabled: true
+        providers:
+          - { name: 'group_saml' }
+    ```
+
 ## Troubleshooting
 
 You can find the base64-encoded SAML Response in the [`production_json.log`](../administration/logs.md#production_jsonlog).
