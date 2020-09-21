@@ -24,18 +24,10 @@ module Gitlab
           raise ReindexError, "index #{index} does not exist" unless index.exists?
           raise ReindexError, 'UNIQUE indexes are currently not supported' if index.unique?
 
-          remove_replacement_index
-
           begin
-            replacement_index = create_replacement_index
-
-            unless replacement_index.valid?
-              message = 'replacement index was created as INVALID'
-              logger.error("#{message}, cleaning up")
-              raise ReindexError, "failed to reindex #{index}: #{message}"
+            with_rebuilt_index do |replacement_index|
+              swap_index(replacement_index)
             end
-
-            swap_replacement_index(replacement_index)
           rescue Gitlab::Database::WithLockRetries::AttemptsExhaustedError => e
             logger.error('failed to obtain the required database locks to swap the indexes, cleaning up')
             raise ReindexError, e.message
@@ -63,7 +55,9 @@ module Gitlab
           "#{prefix}#{index.name}".slice(0, PG_IDENTIFIER_LENGTH)
         end
 
-        def create_replacement_index
+        def with_rebuilt_index
+          remove_replacement_index
+
           create_replacement_index_statement = index.definition
             .sub(/CREATE INDEX/, 'CREATE INDEX CONCURRENTLY')
             .sub(/#{index.name}/, replacement_index_name)
@@ -75,7 +69,15 @@ module Gitlab
             connection.execute(create_replacement_index_statement)
           end
 
-          Index.new(replacement_index_name)
+          replacement_index = Index.new(replacement_index_name)
+
+          unless replacement_index.valid?
+            message = 'replacement index was created as INVALID'
+            logger.error("#{message}, cleaning up")
+            raise ReindexError, "failed to reindex #{index}: #{message}"
+          end
+
+          yield replacement_index
         end
 
         def replacement_index_valid?
@@ -99,7 +101,7 @@ module Gitlab
           OpenStruct.new(record) if record
         end
 
-        def swap_replacement_index(replacement_index)
+        def swap_index(replacement_index)
           replaced_index_name = constrained_index_name(REPLACED_INDEX_PREFIX)
 
           logger.info("swapping replacement index #{replacement_index} with #{index}")
