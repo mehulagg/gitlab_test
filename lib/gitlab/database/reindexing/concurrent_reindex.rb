@@ -23,36 +23,12 @@ module Gitlab
         def perform
           raise ReindexError, 'UNIQUE indexes are currently not supported' if index.unique?
 
-          begin
-            with_rebuilt_index do |replacement_index|
-              swap_index(replacement_index)
-            end
-          rescue Gitlab::Database::WithLockRetries::AttemptsExhaustedError => e
-            logger.error('failed to obtain the required database locks to swap the indexes, cleaning up')
-            raise ReindexError, e.message
-          rescue ActiveRecord::ActiveRecordError, PG::Error => e
-            logger.error("database error while attempting reindex of #{index}: #{e.message}")
-            raise ReindexError, e.message
-          ensure
-            logger.info("dropping unneeded replacement index: #{replacement_index_name}")
-            remove_replacement_index
+          with_rebuilt_index do |replacement_index|
+            swap_index(replacement_index)
           end
         end
 
         private
-
-        delegate :execute, to: :connection
-        def connection
-          @connection ||= ActiveRecord::Base.connection
-        end
-
-        def replacement_index_name
-          @replacement_index_name ||= constrained_index_name(TEMPORARY_INDEX_PREFIX)
-        end
-
-        def constrained_index_name(prefix)
-          "#{prefix}#{index.name}".slice(0, PG_IDENTIFIER_LENGTH)
-        end
 
         def with_rebuilt_index
           remove_replacement_index
@@ -77,6 +53,16 @@ module Gitlab
           end
 
           yield replacement_index
+
+        rescue Gitlab::Database::WithLockRetries::AttemptsExhaustedError => e
+          logger.error('failed to obtain the required database locks to swap the indexes, cleaning up')
+          raise ReindexError, e.message
+        rescue ActiveRecord::ActiveRecordError, PG::Error => e
+          logger.error("database error while attempting reindex of #{index}: #{e.message}")
+          raise ReindexError, e.message
+        ensure
+          logger.info("dropping unneeded replacement index: #{replacement_index_name}")
+          remove_replacement_index
         end
 
         def swap_index(replacement_index)
@@ -103,10 +89,23 @@ module Gitlab
           end
         end
 
+        def replacement_index_name
+          @replacement_index_name ||= constrained_index_name(TEMPORARY_INDEX_PREFIX)
+        end
+
+        def constrained_index_name(prefix)
+          "#{prefix}#{index.name}".slice(0, PG_IDENTIFIER_LENGTH)
+        end
+
         def with_lock_retries(&block)
           arguments = { klass: self.class, logger: logger }
 
           Gitlab::Database::WithLockRetries.new(arguments).run(raise_on_exhaustion: true, &block)
+        end
+
+        delegate :execute, to: :connection
+        def connection
+          @connection ||= ActiveRecord::Base.connection
         end
       end
     end

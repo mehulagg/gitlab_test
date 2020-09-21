@@ -180,6 +180,7 @@ namespace :gitlab do
 
       raise ArgumentError, "Given index does not exist: #{args[:index_name]}" unless index
 
+      puts "Rebuilding index #{index}".color(:green)
       Gitlab::Database::Reindexing::ConcurrentReindex.new(index).perform
     end
   end
