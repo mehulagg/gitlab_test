@@ -65,9 +65,9 @@ describe('Blob Content component', () => {
     );
 
     it.each`
-      content                            | mock                | viewer
-      ${SimpleBlobContentMock.plainData} | ${SimpleViewerMock} | ${SimpleViewer}
-      ${RichBlobContentMock.richData}    | ${RichViewerMock}   | ${RichViewer}
+      content                                 | mock                | viewer
+      ${SimpleBlobContentMock.node.plainData} | ${SimpleViewerMock} | ${SimpleViewer}
+      ${RichBlobContentMock.node.richData}    | ${RichViewerMock}   | ${RichViewer}
     `('renders correct content that is passed to the component', ({ content, mock, viewer }) => {
       createComponent({ content }, mock);
       expect(wrapper.find(viewer).html()).toContain(content);

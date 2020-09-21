@@ -119,22 +119,26 @@ describe('Blob Embeddable', () => {
 
     describe('bob content in multi-file scenario', () => {
       const SimpleBlobContentMock2 = {
-        ...SimpleBlobContentMock,
-        plainData: 'Another Plain Foo',
+        node: {
+          ...SimpleBlobContentMock.node,
+          plainData: 'Another Plain Foo',
+        },
       };
       const RichBlobContentMock2 = {
-        ...SimpleBlobContentMock,
-        richData: 'Another Rich Foo',
+        node: {
+          ...SimpleBlobContentMock.node,
+          richData: 'Another Rich Foo',
+        },
       };
 
       it.each`
         snippetBlobs                                       | description                                  | currentBlob              | expectedContent
-        ${[SimpleBlobContentMock]}                         | ${'one existing textual blob'}               | ${SimpleBlobContentMock} | ${SimpleBlobContentMock.plainData}
-        ${[RichBlobContentMock]}                           | ${'one existing rich blob'}                  | ${RichBlobContentMock}   | ${RichBlobContentMock.richData}
-        ${[SimpleBlobContentMock, RichBlobContentMock]}    | ${'mixed blobs with current textual blob'}   | ${SimpleBlobContentMock} | ${SimpleBlobContentMock.plainData}
-        ${[SimpleBlobContentMock, RichBlobContentMock]}    | ${'mixed blobs with current rich blob'}      | ${RichBlobContentMock}   | ${RichBlobContentMock.richData}
-        ${[SimpleBlobContentMock, SimpleBlobContentMock2]} | ${'textual blobs with current textual blob'} | ${SimpleBlobContentMock} | ${SimpleBlobContentMock.plainData}
-        ${[RichBlobContentMock, RichBlobContentMock2]}     | ${'rich blobs with current rich blob'}       | ${RichBlobContentMock}   | ${RichBlobContentMock.richData}
+        ${[SimpleBlobContentMock]}                         | ${'one existing textual blob'}               | ${SimpleBlobContentMock} | ${SimpleBlobContentMock.node.plainData}
+        ${[RichBlobContentMock]}                           | ${'one existing rich blob'}                  | ${RichBlobContentMock}   | ${RichBlobContentMock.node.richData}
+        ${[SimpleBlobContentMock, RichBlobContentMock]}    | ${'mixed blobs with current textual blob'}   | ${SimpleBlobContentMock} | ${SimpleBlobContentMock.node.plainData}
+        ${[SimpleBlobContentMock, RichBlobContentMock]}    | ${'mixed blobs with current rich blob'}      | ${RichBlobContentMock}   | ${RichBlobContentMock.node.richData}
+        ${[SimpleBlobContentMock, SimpleBlobContentMock2]} | ${'textual blobs with current textual blob'} | ${SimpleBlobContentMock} | ${SimpleBlobContentMock.node.plainData}
+        ${[RichBlobContentMock, RichBlobContentMock2]}     | ${'rich blobs with current rich blob'}       | ${RichBlobContentMock}   | ${RichBlobContentMock.node.richData}
       `(
         'renders correct content for $description',
         async ({ snippetBlobs, currentBlob, expectedContent }) => {
@@ -143,7 +147,9 @@ describe('Blob Embeddable', () => {
               edges: [
                 {
                   node: {
-                    blobs: snippetBlobs,
+                    blobs: {
+                      edges: snippetBlobs,
+                    },
                   },
                 },
               ],
@@ -152,7 +158,7 @@ describe('Blob Embeddable', () => {
           createComponent({
             blob: {
               ...BlobMock,
-              path: currentBlob.path,
+              path: currentBlob.node.path,
             },
           });
 
