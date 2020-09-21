@@ -7,86 +7,80 @@ RSpec.describe Gitlab::Database::Reindexing::Index do
     ActiveRecord::Base.connection.execute(<<~SQL)
       CREATE INDEX foo_idx ON public.users (name);
       CREATE UNIQUE INDEX bar_key ON public.users (id);
+
+      CREATE TABLE example_table (id serial primary key);
     SQL
   end
 
-  describe '#exists?' do
-    it 'returns false if the index does not exist' do
-      expect(described_class.new('nonexisting_index').exists?).to be_falsey
+  def find(name)
+    described_class.find_with_schema(name)
+  end
+
+  describe '.find_with_schema' do
+    it 'returns an instance of Object when the index is present' do
+      expect(find('public.foo_idx')).to be_a(Gitlab::Database::Reindexing::Index)
     end
 
-    it 'returns true if the index exists' do
-      expect(described_class.new('foo_idx').exists?).to be_truthy
+    it 'returns nil if the index is not present' do
+      expect(find('public.idontexist')).to be_nil
+    end
+
+    it 'raises ArgumentError if given a non-fully qualified index name' do
+      expect { find('foo') }.to raise_error(ArgumentError, /not fully qualified/)
     end
   end
 
   describe '#unique?' do
     it 'returns true if is_unique is set' do
-      expect(described_class.new('bar_key').unique?).to be_truthy
+      expect(find('public.bar_key')).to be_unique
     end
 
     it 'returns false if is_unique is not set' do
-      expect(described_class.new('foo_idx').unique?).to be_falsey
+      expect(find('public.foo_idx')).not_to be_unique
     end
 
-    it 'returns nil if the index is absent' do
-      expect(described_class.new('nonexisting_index').unique?).to be_nil
+    it 'returns true for a primary key index' do
+      expect(find('public.example_table_pkey')).to be_unique
     end
   end
 
   describe '#valid?' do
     it 'returns true if is_valid is set' do
-      expect(described_class.new('bar_key').valid?).to be_truthy
+      expect(find('public.foo_idx')).to be_valid
     end
 
     it 'returns false if is_valid is not set' do
       ActiveRecord::Base.connection.execute(<<~SQL)
         UPDATE pg_index SET indisvalid=false
         FROM pg_class
-        WHERE pg_class.relname = 'bar_key' AND pg_index.indexrelid = pg_class.oid
+        WHERE pg_class.relname = 'foo_idx' AND pg_index.indexrelid = pg_class.oid
       SQL
 
-      expect(described_class.new('bar_key').valid?).to be_falsey
-    end
-
-    it 'returns nil if the index is absent' do
-      expect(described_class.new('nonexisting_index').valid?).to be_nil
+      expect(find('public.foo_idx')).not_to be_valid
     end
   end
 
   describe '#to_s' do
     it 'returns the index name' do
-      expect(described_class.new('bar_key').to_s).to eq('bar_key')
+      expect(find('public.foo_idx').to_s).to eq('foo_idx')
     end
   end
 
   describe '#name' do
     it 'returns the name' do
-      expect(described_class.new('bar_key').name).to eq('bar_key')
-    end
-
-    it 'returns if the index is absent' do
-      expect(described_class.new('nonexisting_index').name).to be_nil
+      expect(find('public.foo_idx').name).to eq('foo_idx')
     end
   end
 
   describe '#schema' do
     it 'returns the index schema' do
-      expect(described_class.new('bar_key').schema).to eq('public')
-    end
-
-    it 'returns if the index is absent' do
-      expect(described_class.new('nonexisting_index').schema).to be_nil
+      expect(find('public.foo_idx').schema).to eq('public')
     end
   end
 
   describe '#definition' do
     it 'returns the index definition' do
-      expect(described_class.new('bar_key').definition).to eq('CREATE UNIQUE INDEX bar_key ON public.users USING btree (id)')
-    end
-
-    it 'returns if the index is absent' do
-      expect(described_class.new('nonexisting_index').definition).to be_nil
+      expect(find('public.foo_idx').definition).to eq('CREATE INDEX foo_idx ON public.users USING btree (name)')
     end
   end
 end

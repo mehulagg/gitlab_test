@@ -176,9 +176,11 @@ namespace :gitlab do
 
       raise ArgumentError, 'must give the index name to reindex' unless args[:index_name]
 
-      index = Gitlab::Database::Reindexing::Index.new(args[:index_name])
+      index = Gitlab::Database::Reindexing::Index.find_with_schema(args[:index_name])
 
-      Gitlab::Database::Reindexing::ConcurrentReindex.new(index, logger: Logger.new(STDOUT)).perform
+      raise ArgumentError, "Given index does not exist: #{args[:index_name]}" unless index
+
+      Gitlab::Database::Reindexing::ConcurrentReindex.new(index).perform
     end
   end
 end

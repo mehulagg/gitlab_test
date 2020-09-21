@@ -4,31 +4,11 @@ module Gitlab
   module Database
     module Reindexing
       class Index
-        delegate :definition, :schema, :name, to: :@attrs, allow_nil: true
+        def self.find_with_schema(full_name)
+          raise ArgumentError, "Index name is not fully qualified with a schema: #{full_name}" unless full_name =~ /^\w+\.\w+$/
 
-        def initialize(index_name)
-          @attrs = find_index(index_name)
-        end
+          schema, index = full_name.split('.')
 
-        def exists?
-          !@attrs.nil?
-        end
-
-        def unique?
-          @attrs&.is_unique
-        end
-
-        def valid?
-          @attrs&.is_valid
-        end
-
-        def to_s
-          name
-        end
-
-        private
-
-        def find_index(index_name)
           record = ActiveRecord::Base.connection.select_one(<<~SQL)
             SELECT
               pg_index.indisunique as is_unique,
@@ -40,11 +20,31 @@ module Gitlab
             INNER JOIN pg_class ON pg_class.oid = pg_index.indexrelid
             INNER JOIN pg_namespace ON pg_class.relnamespace = pg_namespace.oid
             INNER JOIN pg_indexes ON pg_class.relname = pg_indexes.indexname
-            WHERE pg_namespace.nspname = 'public'
-            AND pg_class.relname = #{ActiveRecord::Base.connection.quote(index_name)}
+            WHERE pg_namespace.nspname = #{ActiveRecord::Base.connection.quote(schema)}
+            AND pg_class.relname = #{ActiveRecord::Base.connection.quote(index)}
           SQL
 
-          OpenStruct.new(record) if record
+          return unless record
+
+          new(OpenStruct.new(record))
+        end
+
+        delegate :definition, :schema, :name, to: :@attrs
+
+        def initialize(attrs)
+          @attrs = attrs
+        end
+
+        def unique?
+          @attrs.is_unique
+        end
+
+        def valid?
+          @attrs.is_valid
+        end
+
+        def to_s
+          name
         end
       end
     end

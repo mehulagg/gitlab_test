@@ -8,7 +8,7 @@ RSpec.describe Gitlab::Database::Reindexing::ConcurrentReindex, '#perform' do
   let(:table_name) { '_test_reindex_table' }
   let(:column_name) { '_test_column' }
   let(:index_name) { '_test_reindex_index' }
-  let(:index) { double('index', name: index_name, exists?: true, unique?: false, definition: 'CREATE INDEX _test_reindex_index ON public._test_reindex_table USING btree (_test_column)') }
+  let(:index) { double('index', name: index_name, schema: 'public', unique?: false, definition: 'CREATE INDEX _test_reindex_index ON public._test_reindex_table USING btree (_test_column)') }
   let(:logger) { double('logger', debug: nil, info: nil, error: nil ) }
   let(:connection) { ActiveRecord::Base.connection }
 
@@ -22,16 +22,8 @@ RSpec.describe Gitlab::Database::Reindexing::ConcurrentReindex, '#perform' do
     SQL
   end
 
-  context 'when the index does not exist' do
-    let(:index) { double('index', name: index_name, exists?: false, unique?: false, definition: 'CREATE INDEX _test_reindex_index ON public._test_reindex_table USING btree (_test_column)') }
-
-    it 'raises an error' do
-      expect { subject.perform }.to raise_error(described_class::ReindexError, /does not exist/)
-    end
-  end
-
   context 'when the index is unique' do
-    let(:index) { double('index', name: index_name, exists?: true, unique?: true, definition: 'CREATE INDEX _test_reindex_index ON public._test_reindex_table USING btree (_test_column)') }
+    let(:index) { double('index', name: index_name, unique?: true, definition: 'CREATE INDEX _test_reindex_index ON public._test_reindex_table USING btree (_test_column)') }
 
     it 'raises an error' do
       expect do
@@ -134,7 +126,7 @@ RSpec.describe Gitlab::Database::Reindexing::ConcurrentReindex, '#perform' do
           expect_to_execute_concurrently_in_order(create_index)
 
           replacement_index = double('replacement index', valid?: false)
-          allow(Gitlab::Database::Reindexing::Index).to receive(:new).with(replacement_name).and_return(replacement_index)
+          allow(Gitlab::Database::Reindexing::Index).to receive(:find_with_schema).with("public.#{replacement_name}").and_return(replacement_index)
 
           expect_to_execute_concurrently_in_order(drop_index)
 

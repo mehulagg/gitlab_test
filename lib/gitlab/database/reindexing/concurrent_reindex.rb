@@ -15,13 +15,12 @@ module Gitlab
 
         attr_reader :index, :logger
 
-        def initialize(index, logger:)
+        def initialize(index, logger: Gitlab::AppLogger)
           @index = index
           @logger = logger
         end
 
         def perform
-          raise ReindexError, "index #{index} does not exist" unless index.exists?
           raise ReindexError, 'UNIQUE indexes are currently not supported' if index.unique?
 
           begin
@@ -69,7 +68,7 @@ module Gitlab
             connection.execute(create_replacement_index_statement)
           end
 
-          replacement_index = Index.new(replacement_index_name)
+          replacement_index = Index.find_with_schema("#{index.schema}.#{replacement_index_name}")
 
           unless replacement_index.valid?
             message = 'replacement index was created as INVALID'
