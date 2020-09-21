@@ -359,4 +359,33 @@ RSpec.describe SCA::LicenseCompliance do
       it { expect(subject.latest_build_for_default_branch).to eq(license_scan_build) }
     end
   end
+
+  describe "#diff_with" do
+    context "when the head pipeline has not run" do
+      subject { project.license_compliance(nil).diff_with(base_compliance) }
+
+      let!(:base_compliance) { project.license_compliance(base_pipeline) }
+      let!(:base_pipeline) { create(:ci_pipeline, :success, project: project, builds: [license_scan_build]) }
+      let(:license_scan_build) { create(:ee_ci_build, :license_scan_v2_1, :success) }
+
+      specify { expect(subject[:removed]).to be_empty }
+      specify { expect(subject[:unchanged]).to be_empty }
+      specify { expect(subject[:added].count).to eq(3) }
+
+      it 'returns all the licenses from the base pipeline' do
+        subject[:added].each do |item|
+          expect(item).to be_instance_of(::SCA::LicensePolicy)
+        end
+      end
+    end
+
+    context "when nothing has changed between the head and the base pipeline" do
+    end
+
+    context "when the base pipeline removed some licenses" do
+    end
+
+    context "when the base pipeline added some licenses" do
+    end
+  end
 end

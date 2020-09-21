@@ -42,7 +42,13 @@ module SCA
     end
 
     def diff_with(other)
-      LicenseDiff.new(self, other).diff
+      diff = license_scan_report.diff_with(other.license_scan_report)
+
+      {
+        added: diff[:added].map { |x| other.policies.find { |y| y.represent?(x) } },
+        removed: [],
+        unchanged: []
+      }
     end
 
     def license_scan_report
