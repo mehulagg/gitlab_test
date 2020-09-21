@@ -684,9 +684,9 @@ describe('Design management index page', () => {
 
       expect(draggableAttributes().disabled).toBe(true);
 
-      await jest.runOnlyPendingTimers();
-      await wrapper.vm.$nextTick();
-      await wrapper.vm.$nextTick();
+      await jest.runOnlyPendingTimers(); // kick off the mocked GQL stuff (promises)
+      await wrapper.vm.$nextTick(); // kick off the DOM update
+      await wrapper.vm.$nextTick(); // kick off the DOM update for finally block
 
       expect(draggableAttributes().disabled).toBe(false);
     });
