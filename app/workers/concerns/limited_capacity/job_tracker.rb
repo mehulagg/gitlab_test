@@ -8,7 +8,7 @@ module LimitedCapacity
     end
 
     def register(jid)
-      _added, @count = with_redis do |redis|
+      _added, @count = with_redis_pipeline do |redis|
         registrar.call(redis, jid)
         counter.call(redis)
       end
