@@ -29,6 +29,7 @@ module Ci
     }
 
     scope :live, -> { redis }
+    scope :persisted, -> { not_redis.order(:chunk_index) }
 
     class << self
       def all_stores
@@ -67,6 +68,10 @@ module Ci
 
     def data
       @data ||= get_data.to_s
+    end
+
+    def crc32
+      checksum.to_i
     end
 
     def truncate(offset = 0)
@@ -150,7 +155,7 @@ module Ci
 
       self.raw_data = nil
       self.data_store = new_store
-      self.checksum = crc32(current_data)
+      self.checksum = self.class.crc32(current_data)
 
       ##
       # We need to so persist data then save a new store identifier before we
