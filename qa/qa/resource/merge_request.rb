@@ -116,6 +116,12 @@ module QA
       end
 
       def merge_via_api!
+        Support::Waiter.wait_until(sleep_interval: 1) do
+          QA::Runtime::Logger.debug("Waiting until merge request with id '#{id}' can be merged")
+
+          reload!.api_resource[:merge_status] == 'can_be_merged'
+        end
+
         Support::Retrier.retry_on_exception do
           response = put(Runtime::API::Request.new(api_client, api_merge_path).url)
 
