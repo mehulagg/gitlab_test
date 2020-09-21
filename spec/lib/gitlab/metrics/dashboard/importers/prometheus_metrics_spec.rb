@@ -13,8 +13,9 @@ RSpec.describe Gitlab::Metrics::Dashboard::Importers::PrometheusMetrics do
     subject { described_class.new(dashboard_hash, project: project, dashboard_path: dashboard_path) }
 
     before do
-      allow_any_instance_of(::Environment).to receive(:cluster_prometheus_adapter).and_return(prometheus_adapter)
-      allow_any_instance_of(::Clusters::Applications::ScheduleUpdateService).to receive(:execute)
+      allow_next_instance_of(::Clusters::Applications::ScheduleUpdateService) do |update_service|
+        allow(update_service).to receive(:execute)
+      end
     end
 
     context 'valid dashboard' do

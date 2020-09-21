@@ -58,16 +58,15 @@ module Gitlab
 
             return unless stale_metrics.present?
 
-            stale_metric_ids = stale_metrics.map(&:id)
-            @affected_metric_ids << stale_metric_ids
+            delete_stale_alerts(stale_metrics)
+            stale_metrics.each_batch { |batch| batch.delete_all }
 
-            delete_stale_alerts(stale_metric_ids)
-            stale_metrics.delete_all
+            @affected_metric_ids << stale_metrics.map(&:id)
           end
 
-          def delete_stale_alerts(stale_metric_ids)
-            stale_alerts = Projects::Prometheus::AlertsFinder.new(project: project, metric: stale_metric_ids).execute
-            stale_alerts.delete_all
+          def delete_stale_alerts(stale_metrics)
+            stale_alerts = Projects::Prometheus::AlertsFinder.new(project: project, metric: stale_metrics).execute
+            stale_alerts.each_batch { |batch| batch.delete_all }
           end
 
           def prometheus_metrics_attributes
