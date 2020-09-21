@@ -1,12 +1,16 @@
-query SnippetBlobContent($ids: [ID!], $rich: Boolean!) {
+query SnippetBlobContent($ids: [ID!], $rich: Boolean!, $paths: [String!]) {
   snippets(ids: $ids) {
     edges {
       node {
         id
-        blobs {
-          path
-          richData @include(if: $rich)
-          plainData @skip(if: $rich)
+        blobs(paths: $paths) {
+          edges {
+            node {
+              path
+              richData @include(if: $rich)
+              plainData @skip(if: $rich)
+            }
+          }
         }
       }
     }

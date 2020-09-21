@@ -79,7 +79,10 @@ export default {
     },
     onContentUpdate(data) {
       const { path: blobPath } = this.blob;
-      const { blobs } = data.snippets.edges[0].node;
+      const {
+        blobs: { edges: dataBlobs },
+      } = data.snippets.edges[0].node;
+      const blobs = dataBlobs.map(blob => blob.node);
       const updatedBlobData = blobs.find(blob => blob.path === blobPath);
       return updatedBlobData.richData || updatedBlobData.plainData;
     },
