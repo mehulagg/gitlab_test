@@ -106,7 +106,7 @@ class Wiki
     [WikiPage.group_by_directory(pages), limited]
   end
 
-  # Finds a page within the repository based on a tile
+  # Finds a page within the repository based on a title
   # or slug.
   #
   # title - The human readable or parameterized title of
