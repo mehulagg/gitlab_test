@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe Gitlab::Database::ConcurrentReindex, '#perform' do
+RSpec.describe Gitlab::Database::Reindexing::ConcurrentReindex, '#perform' do
   subject { described_class.new(index_name, logger: logger) }
 
   let(:table_name) { '_test_reindex_table' }

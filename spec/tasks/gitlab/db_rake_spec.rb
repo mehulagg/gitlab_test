@@ -176,7 +176,7 @@ RSpec.describe 'gitlab:db namespace rake task' do
     it 'calls the index rebuilder with the proper arguments' do
       reindex = double('rebuilder')
 
-      expect(Gitlab::Database::ConcurrentReindex).to receive(:new)
+      expect(Gitlab::Database::Reindexing::ConcurrentReindex).to receive(:new)
         .with('some_index_name', logger: instance_of(Logger))
         .and_return(reindex)
 
