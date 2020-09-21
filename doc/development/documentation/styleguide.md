@@ -1106,11 +1106,15 @@ When documenting navigation through the user interface:
 
 ### Navigational elements
 
-Use the following terms when referring to the main UI elements:
+Use the following terms when referring to the main GitLab user interface
+elements:
 
-- **Top menu**: This is the top menu that spans the width of the UI. It includes the GitLab logo, search field, counters, and the user's avatar.
-- **Left sidebar**: This is the navigation sidebar on the left of the UI, specific to the project, or group.
-- **Right sidebar**: This is the navigation sidebar on the right of the UI, specific to the open issue or merge request.
+- **Top menu**: This is the top menu that spans the width of the user interface.
+  It includes the GitLab logo, search field, counters, and the user's avatar.
+- **Left sidebar**: This is the navigation sidebar on the left of the user
+  interface, specific to the project or group.
+- **Right sidebar**: This is the navigation sidebar on the right of the user
+  interface, specific to the open issue, merge request, or epic.
 
 ## Images
 
