@@ -9,15 +9,15 @@ module LimitedCapacity
 
     def register(jid)
       _added, @count = with_redis_pipeline do |redis|
-        registrar.call(redis, jid)
-        counter.call(redis)
+        register_job_keys(redis, jid)
+        get_job_count(redis)
       end
     end
 
     def remove(jid)
       _removed, @count = with_redis_pipeline do |redis|
-        cleaner.call(redis, jid)
-        counter.call(redis)
+        remove_job_keys(redis, jid)
+        get_job_count(redis)
       end
     end
 
@@ -26,13 +26,13 @@ module LimitedCapacity
       return unless completed_jids.any?
 
       _removed, @count = with_redis_pipeline do |redis|
-        cleaner.call(redis, completed_jids)
-        counter.call(redis)
+        remove_job_keys(redis, completed_jids)
+        get_job_count(redis)
       end
     end
 
     def count
-      @count ||= with_redis { |redis| counter.call(redis) }
+      @count ||= with_redis { |redis| get_job_count(redis) }
     end
 
     def running_jids
@@ -49,28 +49,16 @@ module LimitedCapacity
       "worker:#{namespace.to_s.underscore}:running"
     end
 
-    def counter
-      strong_memoize(:counter) do
-        lambda do |redis|
-          redis.scard(counter_key)
-        end
-      end
+    def get_job_count(redis)
+      redis.scard(counter_key)
     end
 
-    def cleaner
-      strong_memoize(:cleaner) do
-        lambda do |redis, keys|
-          redis.srem(counter_key, keys)
-        end
-      end
+    def register_job_keys(redis, keys)
+      redis.sadd(counter_key, keys)
     end
 
-    def registrar
-      strong_memoize(:registrar) do
-        lambda do |redis, keys|
-          redis.sadd(counter_key, keys)
-        end
-      end
+    def remove_job_keys(redis, keys)
+      redis.srem(counter_key, keys)
     end
 
     def with_redis(&block)
