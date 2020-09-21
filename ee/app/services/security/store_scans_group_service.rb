@@ -2,6 +2,11 @@
 
 module Security
   class StoreScansGroupService
+    include ::Gitlab::ExclusiveLeaseHelpers
+
+    LEASE_TTL = 30.minutes
+    LEASE_NAMESPACE = "store_scans_group"
+
     def self.execute(artifacts)
       new(artifacts).execute
     end
@@ -12,8 +17,10 @@ module Security
     end
 
     def execute
-      sorted_artifacts.reduce(false) do |deduplicate, artifact|
-        store_scan_for(artifact, deduplicate)
+      in_lock(lease_key, ttl: LEASE_TTL) do
+        sorted_artifacts.reduce(false) do |deduplicate, artifact|
+          store_scan_for(artifact, deduplicate)
+        end
       end
     end
 
@@ -21,8 +28,12 @@ module Security
 
     attr_reader :artifacts, :known_keys
 
+    def lease_key
+      "#{LEASE_NAMESPACE}:#{sorted_artifacts.map(&:id).join('-')}"
+    end
+
     def sorted_artifacts
-      artifacts.tap do |list|
+      @sorted_artifacts ||= artifacts.tap do |list|
         list.sort_by! { |artifact| artifact.job.name }
         list.sort_by! { |artifact| scanner_order_for(artifact) } if dependency_scanning?
       end
