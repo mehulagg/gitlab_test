@@ -13,10 +13,10 @@ export const getSnippetMixin = {
       },
       update: data => {
         const res = data.snippets.edges[0]?.node;
-        const blobs = res?.blobs.edges;
+        const edges = res?.blobs.edges;
 
-        if (blobs) {
-          res.blobs = blobs.map(blob => blob.node);
+        if (edges) {
+          res.blobs = edges.map(blob => blob.node);
         }
 
         return res;

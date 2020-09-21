@@ -83,8 +83,7 @@ export default {
       const {
         blobs: { edges: dataBlobs },
       } = data.snippets.edges[0].node;
-      const blobs = dataBlobs.map(blob => blob.node);
-      const updatedBlobData = blobs.find(blob => blob.path === blobPath);
+      const { node: updatedBlobData } = dataBlobs.find(blob => blob.node.path === blobPath);
       return updatedBlobData.richData || updatedBlobData.plainData;
     },
   },
