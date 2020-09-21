@@ -2,6 +2,8 @@
 
 module PagerDuty
   class WebhookPayloadParser
+    SCHEMA_PATH = File.join('lib', 'pager_duty', 'validator', 'schemas', 'incident_trigger.json')
+
     def initialize(payload)
       @payload = payload
     end
@@ -26,7 +28,7 @@ module PagerDuty
     end
 
     def parse_incident(incident)
-      return {} if incident.blank?
+      return {} unless valid_payload?
 
       {
         'url' => incident['html_url'],
@@ -61,6 +63,10 @@ module PagerDuty
 
     def reject_empty(entities)
       Array(entities).reject { |e| e['summary'].blank? && e['url'].blank? }
+    end
+
+    def valid_payload?
+      ::JSONSchemer.schema(Pathname.new(SCHEMA_PATH)).valid?(payload)
     end
   end
 end
