@@ -185,10 +185,7 @@ describe('Security Configuration App', () => {
           autoDevopsEnabled: propsData.autoDevopsEnabled,
           createSastMergeRequestPath: propsData.createSastMergeRequestPath,
         });
-        expect(feature.find(GlLink).props()).toEqual({
-          href: features[i].href,
-          target: '_blank',
-        });
+        expect(feature.find(GlLink).props('href')).toBe(features[i].href);
       }
     });
   });
