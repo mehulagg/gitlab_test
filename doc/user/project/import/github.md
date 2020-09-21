@@ -42,14 +42,9 @@ GitHub repositories using a [personal access token](#using-a-github-token),
 but we don't recommend this method because it can't associate all user activity
 (such as issues and pull requests) with matching GitLab users.
 
-### If you're importing from GitLab Enterprise
-
-If you're importing from GitHub Enterprise, you must enable [GitHub integration][gh-import].
-
 ### If you're using a self-managed GitLab instance
 
-If you're an administrator of a self-managed GitLab instance, you must enable
-[GitHub integration][gh-import].
+[GitHub integration](../../../administration/raketasks/github_import.md) must be enabled on self-managed instances in order for the import functionality to be available.
 
 If you're an administrator of a self-managed GitLab instance, you can also use the
 [GitHub Rake task](../../../administration/raketasks/github_import.md) to import projects from
