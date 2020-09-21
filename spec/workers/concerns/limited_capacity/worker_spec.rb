@@ -16,13 +16,13 @@ RSpec.describe LimitedCapacity::Worker, :clean_gitlab_redis_shared_state, :clean
 
   let(:worker) { worker_class.new }
 
-  let(:job_counter) do
-    LimitedCapacity::JobCounter.new(worker_class.name)
+  let(:job_tracker) do
+    LimitedCapacity::JobTracker.new(worker_class.name)
   end
 
   before do
     worker.jid = 'my-jid'
-    allow(worker).to receive(:job_counter).and_return(job_counter)
+    allow(worker).to receive(:job_tracker).and_return(job_tracker)
   end
 
   describe 'required methods' do
@@ -102,13 +102,13 @@ RSpec.describe LimitedCapacity::Worker, :clean_gitlab_redis_shared_state, :clean
 
       it 'registers itself in the running set' do
         allow(worker).to receive(:perform_work)
-        expect(job_counter).to receive(:register).with('my-jid')
+        expect(job_tracker).to receive(:register).with('my-jid')
 
         perform
       end
 
       it 'removes itself from the running set' do
-        expect(job_counter).to receive(:remove).with('my-jid')
+        expect(job_tracker).to receive(:remove).with('my-jid')
 
         allow(worker).to receive(:perform_work)
 
@@ -158,13 +158,13 @@ RSpec.describe LimitedCapacity::Worker, :clean_gitlab_redis_shared_state, :clean
       end
 
       it 'does not register in the running set' do
-        expect(job_counter).not_to receive(:register)
+        expect(job_tracker).not_to receive(:register)
 
         perform
       end
 
       it 'removes itself from the running set' do
-        expect(job_counter).to receive(:remove).with('my-jid')
+        expect(job_tracker).to receive(:remove).with('my-jid')
 
         perform
       end
@@ -184,7 +184,7 @@ RSpec.describe LimitedCapacity::Worker, :clean_gitlab_redis_shared_state, :clean
       end
 
       it 'removes itself from the running set' do
-        expect(job_counter).to receive(:remove)
+        expect(job_tracker).to receive(:remove)
 
         expect { perform }.to raise_error(NotImplementedError)
       end
@@ -214,7 +214,7 @@ RSpec.describe LimitedCapacity::Worker, :clean_gitlab_redis_shared_state, :clean
       let(:max_capacity) { 2 }
 
       before do
-        job_counter.register('a-job-id')
+        job_tracker.register('a-job-id')
       end
 
       it { expect(remaining_capacity).to eq(1) }
@@ -246,10 +246,10 @@ RSpec.describe LimitedCapacity::Worker, :clean_gitlab_redis_shared_state, :clean
     subject(:remove_failed_jobs) { worker.remove_failed_jobs }
 
     before do
-      job_counter.register('a-job-id')
+      job_tracker.register('a-job-id')
       allow(worker).to receive(:max_running_jobs).and_return(2)
 
-      expect(job_counter).to receive(:clean_up).and_call_original
+      expect(job_tracker).to receive(:clean_up).and_call_original
     end
 
     context 'with failed jobs' do

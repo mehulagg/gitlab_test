@@ -2,21 +2,21 @@
 
 require 'spec_helper'
 
-RSpec.describe LimitedCapacity::JobCounter, :clean_gitlab_redis_shared_state do
-  let(:job_counter) do
+RSpec.describe LimitedCapacity::JobTracker, :clean_gitlab_redis_shared_state do
+  let(:job_tracker) do
     described_class.new('namespace')
   end
 
   describe '#register' do
     it 'adds jid to the set' do
-      job_counter.register('a-job-id')
+      job_tracker.register('a-job-id')
 
-      expect(job_counter.running_jids).to contain_exactly('a-job-id')
+      expect(job_tracker.running_jids).to contain_exactly('a-job-id')
     end
 
     it 'updates the counter' do
-      expect { job_counter.register('a-job-id') }
-        .to change { job_counter.count }
+      expect { job_tracker.register('a-job-id') }
+        .to change { job_tracker.count }
         .from(0)
         .to(1)
     end
@@ -24,18 +24,18 @@ RSpec.describe LimitedCapacity::JobCounter, :clean_gitlab_redis_shared_state do
 
   describe '#remove' do
     before do
-      job_counter.register(%w[a-job-id other-job-id])
+      job_tracker.register(%w[a-job-id other-job-id])
     end
 
     it 'removes jid from the set' do
-      job_counter.remove('other-job-id')
+      job_tracker.remove('other-job-id')
 
-      expect(job_counter.running_jids).to contain_exactly('a-job-id')
+      expect(job_tracker.running_jids).to contain_exactly('a-job-id')
     end
 
     it 'updates the counter' do
-      expect { job_counter.remove('other-job-id') }
-        .to change { job_counter.count }
+      expect { job_tracker.remove('other-job-id') }
+        .to change { job_tracker.count }
         .from(2)
         .to(1)
     end
@@ -43,7 +43,7 @@ RSpec.describe LimitedCapacity::JobCounter, :clean_gitlab_redis_shared_state do
 
   describe '#clean_up' do
     before do
-      job_counter.register('a-job-id')
+      job_tracker.register('a-job-id')
     end
 
     context 'with running jobs' do
@@ -54,20 +54,20 @@ RSpec.describe LimitedCapacity::JobCounter, :clean_gitlab_redis_shared_state do
       end
 
       it 'does not remove the jid from the set' do
-        expect { job_counter.clean_up }
-          .not_to change { job_counter.running_jids.include?('a-job-id') }
+        expect { job_tracker.clean_up }
+          .not_to change { job_tracker.running_jids.include?('a-job-id') }
       end
     end
 
     context 'with completed jobs' do
       it 'removes the jid from the set' do
-        expect { job_counter.clean_up }
-          .to change { job_counter.running_jids.include?('a-job-id') }
+        expect { job_tracker.clean_up }
+          .to change { job_tracker.running_jids.include?('a-job-id') }
       end
 
       it 'updates the counter' do
-        expect { job_counter.clean_up }
-          .to change { job_counter.count }
+        expect { job_tracker.clean_up }
+          .to change { job_tracker.count }
           .from(1)
           .to(0)
       end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module LimitedCapacity
-  class JobCounter # rubocop:disable Scalability/IdempotentWorker
+  class JobTracker # rubocop:disable Scalability/IdempotentWorker
     include Gitlab::Utils::StrongMemoize
 
     def initialize(namespace)

@@ -56,12 +56,12 @@ module LimitedCapacity
     def perform(*args)
       return unless has_capacity?
 
-      job_counter.register(jid)
+      job_tracker.register(jid)
       perform_work(*args)
     rescue => exception
       raise
     ensure
-      job_counter.remove(jid)
+      job_tracker.remove(jid)
       report_prometheus_metrics
       re_enqueue(*args) unless exception
     end
@@ -94,7 +94,7 @@ module LimitedCapacity
     end
 
     def remove_failed_jobs
-      job_counter.clean_up
+      job_tracker.clean_up
     end
 
     def report_prometheus_metrics(*args)
@@ -113,12 +113,12 @@ module LimitedCapacity
     private
 
     def running_jobs_count
-      job_counter.count
+      job_tracker.count
     end
 
-    def job_counter
-      strong_memoize(:job_counter) do
-        JobCounter.new(self.class.name)
+    def job_tracker
+      strong_memoize(:job_tracker) do
+        JobTracker.new(self.class.name)
       end
     end
 
