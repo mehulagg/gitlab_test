@@ -118,7 +118,7 @@ To add the remote:
 Use a single remote to access packages across your entire GitLab instance.
 
 However, when using this remote, you must follow these
-[package naming restrictions](#package-recipe-naming-convention-for-instance-level-remote).
+[package naming restrictions](#package-recipe-naming-convention-for-instance-remotes).
 
 To add the remote:
 
@@ -139,7 +139,7 @@ To add the remote:
 #### Package recipe naming convention for instance remotes
 
 The standard Conan recipe convention is `package_name/version@user/channel`,
-but if you're using an [instance remote](#instance-level-remote), the recipe
+but if you're using an [instance remote](#add-a-remote-for-your-instance), the recipe
 `user` must be the plus sign (`+`) separated project path.
 
 Example recipe names:
@@ -217,7 +217,7 @@ Publish a Conan package to the Package Registry, so that anyone who can access t
 Prerequisites:
 
 - A local [Conan package](https://docs.conan.io/en/latest/creating_packages/getting_started.html). 
-  - For an instance remote, the package must meet the [naming convention](#package-recipe-naming-convention-for-instance-level-remote).
+  - For an instance remote, the package must meet the [naming convention](#package-recipe-naming-convention-for-instance-remotes).
 - A project ID, which is on the project's homepage.
 - A personal access token with the scope set to `api`.
 
