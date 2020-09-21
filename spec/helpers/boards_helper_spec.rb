@@ -43,7 +43,7 @@ RSpec.describe BoardsHelper do
 
       allow(helper).to receive(:current_user) { user }
       allow(helper).to receive(:can?).with(user, :create_non_backlog_issues, board).and_return(true)
-      allow(helper).to receive(:can?).with(user, :can_update, board).and_return(true)
+      allow(helper).to receive(:can?).with(user, :admin_issue, board).and_return(true)
     end
 
     it 'returns a board_lists_path as lists_endpoint' do
