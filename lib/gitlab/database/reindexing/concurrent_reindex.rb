@@ -80,27 +80,6 @@ module Gitlab
           yield replacement_index
         end
 
-        def replacement_index_valid?
-          find_index(replacement_index_name).indisvalid
-        end
-
-        def find_index(index_name)
-          record = connection.select_one(<<~SQL)
-            SELECT
-              pg_index.indisunique,
-              pg_index.indisvalid,
-              pg_indexes.indexdef
-            FROM pg_index
-            INNER JOIN pg_class ON pg_class.oid = pg_index.indexrelid
-            INNER JOIN pg_namespace ON pg_class.relnamespace = pg_namespace.oid
-            INNER JOIN pg_indexes ON pg_class.relname = pg_indexes.indexname
-            WHERE pg_namespace.nspname = 'public'
-            AND pg_class.relname = #{connection.quote(index_name)}
-          SQL
-
-          OpenStruct.new(record) if record
-        end
-
         def swap_index(replacement_index)
           replaced_index_name = constrained_index_name(REPLACED_INDEX_PREFIX)
 
