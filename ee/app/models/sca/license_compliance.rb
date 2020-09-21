@@ -4,6 +4,20 @@ module SCA
   class LicenseCompliance
     include ::Gitlab::Utils::StrongMemoize
 
+    NULL = Class.new do
+      def policies
+        []
+      end
+
+      def diff_with(other)
+        license_scan_report.diff_with(other.send(:license_scan_report))
+      end
+
+      def license_scan_report
+        @license_scan_report ||= ::Gitlab::Ci::Reports::LicenseScanning::Report.new
+      end
+    end.new
+
     SORT_DIRECTION = {
       asc: -> (items) { items },
       desc: -> (items) { items.reverse }
@@ -39,6 +53,10 @@ module SCA
 
     def report_for(policy)
       build_policy(license_scan_report[policy.software_license.canonical_id], policy)
+    end
+
+    def diff_with(other)
+      license_scan_report.diff_with(other.send(:license_scan_report))
     end
 
     private
