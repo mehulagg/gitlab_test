@@ -1,7 +1,7 @@
 <script>
 /* eslint-disable vue/no-v-html */
 import { isEmpty } from 'lodash';
-import { GlIcon, GlButton, GlSprintf, GlLink } from '@gitlab/ui';
+import { GlIcon, GlButton, GlButtonGroup, GlDropdown, GlDropdownItem, GlSprintf, GlLink, GlTooltipDirective } from '@gitlab/ui';
 import successSvg from 'icons/_icon_status_success.svg';
 import warningSvg from 'icons/_icon_status_warning.svg';
 import readyToMergeMixin from 'ee_else_ce/vue_merge_request_widget/mixins/ready_to_merge';
@@ -39,12 +39,18 @@ export default {
     GlSprintf,
     GlLink,
     GlButton,
+    GlButtonGroup,
+    GlDropdown,
+    GlDropdownItem,
     MergeTrainHelperText: () =>
       import('ee_component/vue_merge_request_widget/components/merge_train_helper_text.vue'),
     MergeImmediatelyConfirmationDialog: () =>
       import(
         'ee_component/vue_merge_request_widget/components/merge_immediately_confirmation_dialog.vue'
       ),
+  },
+  directives: {
+    GlTooltip: GlTooltipDirective,
   },
   mixins: [readyToMergeMixin],
   props: {
@@ -297,7 +303,7 @@ export default {
       <status-icon :status="iconClass" />
       <div class="media-body">
         <div class="mr-widget-body-controls media space-children">
-          <span class="btn-group">
+          <gl-button-group>
             <gl-button
               size="medium"
               category="primary"
@@ -308,54 +314,34 @@ export default {
               @click="handleMergeButtonClick(isAutoMergeAvailable)"
               >{{ mergeButtonText }}</gl-button
             >
-            <button
+            <gl-dropdown
               v-if="shouldShowMergeImmediatelyDropdown"
+              v-gl-tooltip.hover.focus="__('Select merge moment')"
               :disabled="isMergeButtonDisabled"
-              type="button"
-              class="btn btn-sm btn-info dropdown-toggle js-merge-moment"
-              data-toggle="dropdown"
+              variant="info"
+              class="js-merge-moment"
               data-qa-selector="merge_moment_dropdown"
-              :aria-label="__('Select merge moment')"
+              toggle-class="btn-icon"
             >
-              <i class="fa fa-chevron-down" aria-hidden="true"></i>
-            </button>
-            <ul
-              v-if="shouldShowMergeImmediatelyDropdown"
-              class="dropdown-menu dropdown-menu-right"
-              role="menu"
-            >
-              <li>
-                <a
-                  class="auto_merge_enabled qa-merge-when-pipeline-succeeds-option"
-                  href="#"
-                  @click.prevent="handleMergeButtonClick(true)"
-                >
-                  <span class="media">
-                    <span class="merge-opt-icon" aria-hidden="true" v-html="successSvg"></span>
-                    <span class="media-body merge-opt-title">{{ autoMergeText }}</span>
-                  </span>
-                </a>
-              </li>
-              <li>
-                <merge-immediately-confirmation-dialog
-                  ref="confirmationDialog"
-                  :docs-url="mr.mergeImmediatelyDocsPath"
-                  @mergeImmediately="onMergeImmediatelyConfirmation"
-                />
-                <a
-                  class="accept-merge-request js-merge-immediately-button"
-                  data-qa-selector="merge_immediately_option"
-                  href="#"
-                  @click.prevent="handleMergeImmediatelyButtonClick"
-                >
-                  <span class="media">
-                    <span class="merge-opt-icon" aria-hidden="true" v-html="warningSvg"></span>
-                    <span class="media-body merge-opt-title">{{ __('Merge immediately') }}</span>
-                  </span>
-                </a>
-              </li>
-            </ul>
-          </span>
+              <template #button-content>
+                <gl-icon name="chevron-down" class="mr-0" />
+                <span class="sr-only">{{ __('Select merge moment') }}</span>
+              </template>
+              <gl-dropdown-item
+                icon-name="warning"
+                class="accept-merge-request js-merge-immediately-button"
+                data-qa-selector="merge_immediately_option"
+                @click="handleMergeImmediatelyButtonClick"
+              >
+                {{ __('Merge immediately') }}
+              </gl-dropdown-item>
+            </gl-dropdown>
+          </gl-button-group>
+          <merge-immediately-confirmation-dialog
+            ref="confirmationDialog"
+            :docs-url="mr.mergeImmediatelyDocsPath"
+            @mergeImmediately="onMergeImmediatelyConfirmation"
+          />
           <div class="media-body-wrap space-children">
             <template v-if="shouldShowMergeControls">
               <label v-if="mr.canRemoveSourceBranch">
