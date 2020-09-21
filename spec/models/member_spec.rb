@@ -218,6 +218,27 @@ RSpec.describe Member do
       it { is_expected.to contain_exactly(invited_by_user) }
     end
 
+    describe '.not_accepted_or_expired_recent_invitations' do
+      let(:recent_invitation_not_expiring) { create(:group_member, :invited, created_at: 1.day.ago) }
+      let(:recent_invitation_expiring_tomorrow) { create(:group_member, :invited, created_at: 1.day.ago, expires_at: 1.day.from_now) }
+
+      before do
+        create(:group_member, created_at: 2.days.ago) # not an invitation
+        create(:group_member, :invited, created_at: 1.day.ago, invite_accepted_at: Date.today) # invitation already accepted
+        create(:group_member, :invited, created_at: 1.day.ago, expires_at: Date.today) # expires before tomorrow
+        create(:group_member, :invited, created_at: 11.days.ago) # created more than 10 days ago
+        create(:group_member, :invited, created_at: 3.hours.ago) # created less than 1 day ago
+      end
+
+      subject { described_class.not_accepted_or_expired_recent_invitations }
+
+      around do |example|
+        travel_to(Time.zone.local(2020, 9, 3, 14, 23, 44)) { example.run }
+      end
+
+      it { is_expected.to contain_exactly(recent_invitation_not_expiring, recent_invitation_expiring_tomorrow) }
+    end
+
     describe '.search_invite_email' do
       it 'returns only members the matching e-mail' do
         create(:group_member, :invited)
