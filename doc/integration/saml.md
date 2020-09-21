@@ -590,9 +590,6 @@ The [Generated passwords for users created through integrated authentication](..
 
 ## Configuring on a self-managed GitLab instance **(PREMIUM ONLY)**
 
-For self-managed GitLab instances we strongly recommend using the
-[instance-wide SAML OmniAuth Provider](../../../integration/saml.md) instead.
-
 Group SAML SSO helps if you need to allow access via multiple SAML identity providers, but as a multi-tenant solution is less suited to cases where you administer your own GitLab instance.
 
 To proceed with configuring Group SAML SSO instead, you'll need to enable the `group_saml` OmniAuth provider. This can be done from:
