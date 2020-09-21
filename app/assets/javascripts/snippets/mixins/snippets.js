@@ -13,7 +13,7 @@ export const getSnippetMixin = {
       },
       update: data => {
         const res = data.snippets.edges[0]?.node;
-        const blobs = res.blobs.edges;
+        const blobs = res?.blobs.edges;
 
         if (blobs) {
           res.blobs = blobs.map(blob => blob.node);
