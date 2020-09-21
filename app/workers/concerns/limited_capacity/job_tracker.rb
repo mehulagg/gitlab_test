@@ -65,9 +65,9 @@ module LimitedCapacity
       Gitlab::Redis::Queues.with(&block) # rubocop: disable CodeReuse/ActiveRecord
     end
 
-    def with_redis_pipeline
+    def with_redis_pipeline(&block)
       with_redis do |redis|
-        redis.pipelined { yield(redis) }
+        redis.pipelined(&block)
       end
     end
   end
