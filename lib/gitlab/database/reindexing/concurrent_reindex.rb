@@ -13,36 +13,34 @@ module Gitlab
         TEMPORARY_INDEX_PREFIX = 'tmp_reindex_'
         REPLACED_INDEX_PREFIX = 'old_reindex_'
 
-        attr_reader :index_name, :logger
+        attr_reader :index, :logger
 
-        def initialize(index_name, logger:)
-          @index_name = index_name
+        def initialize(index, logger:)
+          @index = index
           @logger = logger
         end
 
         def perform
-          raise ReindexError, "index #{index_name} does not exist" unless index_exists?
+          raise ReindexError, "index #{index} does not exist" unless index.exists?
+          raise ReindexError, 'UNIQUE indexes are currently not supported' if index.unique?
 
-          raise ReindexError, 'UNIQUE indexes are currently not supported' if index_unique?
-
-          logger.debug("dropping dangling index from previous run: #{replacement_index_name}")
           remove_replacement_index
 
           begin
-            create_replacement_index
+            replacement_index = create_replacement_index
 
-            unless replacement_index_valid?
+            unless replacement_index.valid?
               message = 'replacement index was created as INVALID'
               logger.error("#{message}, cleaning up")
-              raise ReindexError, "failed to reindex #{index_name}: #{message}"
+              raise ReindexError, "failed to reindex #{index}: #{message}"
             end
 
-            swap_replacement_index
+            swap_replacement_index(replacement_index)
           rescue Gitlab::Database::WithLockRetries::AttemptsExhaustedError => e
             logger.error('failed to obtain the required database locks to swap the indexes, cleaning up')
             raise ReindexError, e.message
           rescue ActiveRecord::ActiveRecordError, PG::Error => e
-            logger.error("database error while attempting reindex of #{index_name}: #{e.message}")
+            logger.error("database error while attempting reindex of #{index}: #{e.message}")
             raise ReindexError, e.message
           ensure
             logger.info("dropping unneeded replacement index: #{replacement_index_name}")
@@ -61,28 +59,14 @@ module Gitlab
           @replacement_index_name ||= constrained_index_name(TEMPORARY_INDEX_PREFIX)
         end
 
-        def index
-          strong_memoize(:index) do
-            find_index(index_name)
-          end
-        end
-
-        def index_exists?
-          !index.nil?
-        end
-
-        def index_unique?
-          index.indisunique
-        end
-
         def constrained_index_name(prefix)
-          "#{prefix}#{index_name}".slice(0, PG_IDENTIFIER_LENGTH)
+          "#{prefix}#{index.name}".slice(0, PG_IDENTIFIER_LENGTH)
         end
 
         def create_replacement_index
-          create_replacement_index_statement = index.indexdef
+          create_replacement_index_statement = index.definition
             .sub(/CREATE INDEX/, 'CREATE INDEX CONCURRENTLY')
-            .sub(/#{index_name}/, replacement_index_name)
+            .sub(/#{index.name}/, replacement_index_name)
 
           logger.info("creating replacement index #{replacement_index_name}")
           logger.debug("replacement index definition: #{create_replacement_index_statement}")
@@ -90,6 +74,8 @@ module Gitlab
           disable_statement_timeout do
             connection.execute(create_replacement_index_statement)
           end
+
+          Index.new(replacement_index_name)
         end
 
         def replacement_index_valid?
@@ -113,15 +99,15 @@ module Gitlab
           OpenStruct.new(record) if record
         end
 
-        def swap_replacement_index
+        def swap_replacement_index(replacement_index)
           replaced_index_name = constrained_index_name(REPLACED_INDEX_PREFIX)
 
-          logger.info("swapping replacement index #{replacement_index_name} with #{index_name}")
+          logger.info("swapping replacement index #{replacement_index} with #{index}")
 
           with_lock_retries do
-            rename_index(index_name, replaced_index_name)
-            rename_index(replacement_index_name, index_name)
-            rename_index(replaced_index_name, replacement_index_name)
+            rename_index(index.name, replaced_index_name)
+            rename_index(replacement_index.name, index.name)
+            rename_index(replaced_index_name, replacement_index.name)
           end
         end
 
@@ -130,6 +116,8 @@ module Gitlab
         end
 
         def remove_replacement_index
+          logger.debug("dropping dangling index from previous run: #{replacement_index_name}")
+
           disable_statement_timeout do
             connection.execute("DROP INDEX CONCURRENTLY IF EXISTS #{replacement_index_name}")
           end
