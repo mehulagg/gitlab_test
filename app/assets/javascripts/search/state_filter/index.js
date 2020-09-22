@@ -18,19 +18,12 @@ export default () => {
 
   return new Vue({
     el,
-    components: {
-      DropdownFilter,
-    },
     data() {
-      const { dataset } = this.$options.el;
-
-      return {
-        scope: dataset.scope,
-        filter: dataset.filter,
-      };
+      return { ...el.dataset };
     },
+
     render(createElement) {
-      return createElement('dropdown-filter', {
+      return createElement(DropdownFilter, {
         props: {
           initialFilter: this.filter,
           filtersArray: FILTER_STATES_BY_SCOPE[this.scope],
