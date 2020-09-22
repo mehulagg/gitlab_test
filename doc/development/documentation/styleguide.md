@@ -1458,8 +1458,15 @@ guidelines, but for consistency you should try to use these values:
 
 ### Note
 
-Notes catch the eye of most readers, and therefore should be used very sparingly.
-In most cases, content considered for a note should be included:
+Notes indicate items of information that are of *special* use to the reader, and
+are most effective when used *sparingly*.
+
+The goal for notes usage is to not have to use them at all. If, however, a note
+is truly required, attempt to limit their use to no more than *two* notes per
+documentation page.
+
+Instead of using a note, many times you can present information in one of the
+following alternate methods:
 
 - As just another sentence in the previous paragraph or the most-relevant
   paragraph.
@@ -1467,14 +1474,7 @@ In most cases, content considered for a note should be included:
 - As content under a new subheading that introduces the topic, making it more
   visible or findable.
 
-#### When to use
-
-Use a note when there is a reason that most or all readers who browse the
-section should see the content. That is, if missed, it’s likely to cause major
-trouble for a minority of users or significant trouble for a majority of users.
-
-Weigh the costs of distracting users to whom the content is not relevant against
-the cost of users missing the content if it were not expressed as a note.
+If you must use a note, use the following formatting:
 
 ```markdown
 NOTE: **Note:**
