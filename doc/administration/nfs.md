@@ -308,11 +308,9 @@ sudo chgrp gitlab-www /gitlab-nfs/test-dir
 sudo chgrp root /gitlab-nfs/test-dir
 sudo chmod 2755 /gitlab-nfs/test-dir
 sudo -u git mkdir /gitlab-nfs/test-dir/test2
-sudo chmod 2755 /gitlab-nfs/test-dir/test2
-sudo -u git mkdir /gitlab-nfs/test-dir/test2/test3
-sudo -u git chmod 2755 /gitlab-nfs/test-dir/test2/test3
+sudo -u git chmod 2755 /gitlab-nfs/test-dir/test2
 sudo ls -lah /gitlab-nfs/test-dir/test2
-sudo -u git rm -rf /gitlab-nfs/test-dir
+sudo -u git rm -r /gitlab-nfs/test-dir
 ```
 
 Any `Operation not permitted` errors means you should investigate your NFS server export options.
