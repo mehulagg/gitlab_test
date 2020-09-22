@@ -5,8 +5,8 @@ module Types
     class ProjectSettingEnum < Types::BaseEnum
       description 'Names of compliance frameworks that can be assigned to a Project'
 
-      ::ComplianceManagement::ComplianceFramework::ProjectSettings.frameworks.keys.each do |k|
-        value(k)
+      ::ComplianceManagement::Framework.all.each do |framework|
+        value(framework.name)
       end
     end
   end

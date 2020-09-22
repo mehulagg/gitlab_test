@@ -12,10 +12,6 @@ class Label < ApplicationRecord
 
   cache_markdown_field :description, pipeline: :single_line
 
-  DEFAULT_COLOR = '#428BCA'
-
-  default_value_for :color, DEFAULT_COLOR
-
   has_many :lists, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_many :priorities, class_name: 'LabelPriority'
   has_many :label_links, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
