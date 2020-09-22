@@ -66,8 +66,7 @@ FactoryBot.define do
         {
           blob_path: '/some_project/path/package_file.lock',
           path: 'package_file.lock',
-          ancestors:
-            [],
+          ancestors: nil,
           top_level: true
         }
       end
