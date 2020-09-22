@@ -64,9 +64,8 @@ For this association to succeed, each GitHub author and assignee in the reposito
 must meet one of the following conditions prior to the import:
 
 - Have previously logged in to a GitLab account using the GitHub icon.
-- Have a GitHub account with a
-  [primary email address](https://docs.github.com/en/github/setting-up-and-managing-your-github-user-account/setting-your-commit-email-address)
-  that matches their GitLab account's email address.
+- Have a GitHub account with a public email address that matches their GitLab account's email address.
+  You can configure a **Public Email** in your Github account by going to `Personal Settings -> Profile -> Public Email`.
 
 If a user referenced in the project is not found in GitLab's database, the project creator (typically the user
 that initiated the import process) is set as the author/assignee, but a note on the issue mentioning the original
