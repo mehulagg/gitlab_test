@@ -5,6 +5,7 @@ module API
     class UserWithAdmin < UserPublic
       expose :admin?, as: :is_admin
       expose :note
+      expose :using_license_seat?, as: :using_license_seat
     end
   end
 end
