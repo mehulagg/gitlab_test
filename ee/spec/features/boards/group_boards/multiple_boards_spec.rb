@@ -54,12 +54,6 @@ RSpec.describe 'Multiple Issue Boards', :js do
 
   context 'with multiple group issue boards enabled' do
     let!(:board2) { create(:board, group: group) }
-    let(:todo) { create(:group_label, group: group, name: 'To Do') }
-    let!(:list1) { create(:list, board: board, label: todo, position: 0)}
-    let!(:list2) { create(:list, board: board2, label: todo, position: 0)}
-    let(:doing) { create(:group_label, group: group, name: 'Doing') }
-    let!(:list3) { create(:list, board: board, label: doing, position: 1)}
-    let!(:list4) { create(:list, board: board2, label: doing, position: 1)}
 
     before do
       stub_licensed_features(multiple_group_issue_boards: true)

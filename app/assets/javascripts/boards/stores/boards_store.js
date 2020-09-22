@@ -123,14 +123,13 @@ const boardsStore = {
     return !this.state.lists.filter(list => list.type !== 'backlog' && list.type !== 'closed')[0];
   },
   addBlankState() {
-    if (!this.shouldAddBlankState() || this.welcomeIsHidden() || this.disabled) return;
+    if (!this.shouldAddBlankState() || this.welcomeIsHidden()) return;
 
     this.generateDefaultLists()
       .then(res => res.data)
       .then(data => Promise.all(data.map(list => this.addList(list))))
       .catch(() => {
         this.removeList(undefined, 'label');
-        this.addBlankState();
       });
   },
   removeBlankState() {
