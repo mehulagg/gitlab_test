@@ -590,7 +590,7 @@ The [Generated passwords for users created through integrated authentication](..
 
 ## Configuring Group SAML on a self-managed GitLab instance **(PREMIUM ONLY)**
 
-For information the GitLab.com implementation, please see the [SAML SSO for GitLab.com groups page](../../user/group/saml_sso).
+For information the GitLab.com implementation, please see the [SAML SSO for GitLab.com groups page](../user/group/saml_sso).
 
 Group SAML SSO helps if you need to allow access via multiple SAML identity providers, but as a multi-tenant solution is less suited to cases where you administer your own GitLab instance.
 
