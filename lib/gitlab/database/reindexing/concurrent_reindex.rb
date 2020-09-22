@@ -31,6 +31,7 @@ module Gitlab
         private
 
         def with_rebuilt_index
+          logger.debug("dropping dangling index from previous run (if it exists): #{replacement_index_name}")
           remove_replacement_index
 
           create_replacement_index_statement = index.definition
@@ -82,8 +83,6 @@ module Gitlab
         end
 
         def remove_replacement_index
-          logger.debug("dropping dangling index from previous run: #{replacement_index_name}")
-
           disable_statement_timeout do
             connection.execute("DROP INDEX CONCURRENTLY IF EXISTS #{replacement_index_name}")
           end
