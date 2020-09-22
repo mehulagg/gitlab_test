@@ -76,7 +76,7 @@ To build a package:
    ```
 
    NOTE: **Note:**
-   If you use the [instance remote](#add-a-remote-for-your-instance), you must follow a specific [naming convention](#package-recipe-naming-convention-for-instance-remotes).
+   If you use an [instance remote](#add-a-remote-for-your-instance), you must follow a specific [naming convention](#package-recipe-naming-convention-for-instance-remotes).
 
 A package with the recipe `Hello/0.1@mycompany/beta` is created.
 
