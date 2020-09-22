@@ -14,7 +14,8 @@ Similar to [project-level](../../project/clusters/index.md) and
 group-level Kubernetes clusters allow you to connect a Kubernetes cluster to
 your group, enabling you to use the same cluster across multiple projects.
 
-The group level Kubernetes clusters can be found by navigating to your group's sidebar tab called **Kubernetes**.
+To view your group level Kubernetes clusters, navigate to your project and select
+**Kubernetes** from the left-hand menu.
 
 ## Installing applications
 
