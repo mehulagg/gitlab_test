@@ -17,7 +17,7 @@ RSpec.describe Gitlab::Database::Reindexing::Index do
   end
 
   describe '.find_with_schema' do
-    it 'returns an instance of Object when the index is present' do
+    it 'returns an instance of Gitlab::Database::Reindexing::Index when the index is present' do
       expect(find('public.foo_idx')).to be_a(Gitlab::Database::Reindexing::Index)
     end
 
@@ -31,11 +31,11 @@ RSpec.describe Gitlab::Database::Reindexing::Index do
   end
 
   describe '#unique?' do
-    it 'returns true if is_unique is set' do
+    it 'returns true for a unique index' do
       expect(find('public.bar_key')).to be_unique
     end
 
-    it 'returns false if is_unique is not set' do
+    it 'returns false for a regular, non-unique index' do
       expect(find('public.foo_idx')).not_to be_unique
     end
 
@@ -45,11 +45,11 @@ RSpec.describe Gitlab::Database::Reindexing::Index do
   end
 
   describe '#valid?' do
-    it 'returns true if is_valid is set' do
+    it 'returns true if the index is valid' do
       expect(find('public.foo_idx')).to be_valid
     end
 
-    it 'returns false if is_valid is not set' do
+    it 'returns false if the index is marked as invalid' do
       ActiveRecord::Base.connection.execute(<<~SQL)
         UPDATE pg_index SET indisvalid=false
         FROM pg_class
