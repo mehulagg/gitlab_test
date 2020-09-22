@@ -342,6 +342,7 @@ export default {
               :loading="loading"
               :has-selected-designs="hasSelectedDesigns"
               @deleteSelectedDesigns="mutate()"
+              data-qa-selector="archive_button"
             >
               {{ s__('DesignManagement|Archive selected') }}
             </delete-button>
@@ -391,6 +392,7 @@ export default {
             type="checkbox"
             class="design-checkbox"
             @change="changeSelectedDesigns(design.filename)"
+            data-qa-selector="design_checkbox"
           />
         </li>
         <template #header>
