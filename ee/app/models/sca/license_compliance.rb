@@ -57,9 +57,8 @@ module SCA
       strong_memoize(:license_scan_report) do
         pipeline.license_scanning_report.tap do |report|
           report.apply_details_from!(pipeline.dependency_list_report)
+        rescue
         end
-      rescue
-        empty_report
       end
     end
 
