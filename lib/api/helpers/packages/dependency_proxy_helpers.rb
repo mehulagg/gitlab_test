@@ -10,8 +10,8 @@ module API
 
         def redirect_registry_request(forward_to_registry, package_type, options)
           if forward_to_registry && redirect_registry_request_available?
-            redirect(registry_url(package_type, options))
             track_event("#{package_type}_request_forward")
+            redirect(registry_url(package_type, options))
           else
             yield
           end

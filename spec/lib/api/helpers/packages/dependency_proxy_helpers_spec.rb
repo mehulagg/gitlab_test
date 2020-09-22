@@ -12,7 +12,7 @@ RSpec.describe API::Helpers::Packages::DependencyProxyHelpers do
 
     subject { helper.redirect_registry_request(forward_to_registry, package_type, options) { helper.fallback } }
 
-    shared_examples 'executing fallback' do
+    RSpec.shared_examples 'executing fallback' do
       it 'redirects to package registry' do
         expect(helper).to receive(:registry_url).never
         expect(helper).to receive(:redirect).never
@@ -22,7 +22,7 @@ RSpec.describe API::Helpers::Packages::DependencyProxyHelpers do
       end
     end
 
-    shared_examples 'executing redirect' do
+    RSpec.shared_examples 'executing redirect' do
       it 'redirects to package registry' do
         expect(helper).to receive(:registry_url).once
         expect(helper).to receive(:redirect).once
@@ -31,7 +31,12 @@ RSpec.describe API::Helpers::Packages::DependencyProxyHelpers do
         subject
       end
 
-      it_behaves_like 'a gitlab tracking event', described_class.name, ("#{package_type}_request_forward")
+      it 'tracks the request forward' do
+        expect(helper).to receive(:redirect).once
+        expect(helper).to receive(:track_event).with('npm_request_forward').once
+
+        subject
+      end
     end
 
     context 'with npm packages' do
