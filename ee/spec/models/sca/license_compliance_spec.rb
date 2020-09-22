@@ -389,7 +389,34 @@ RSpec.describe SCA::LicenseCompliance do
       specify { expect(subject[:unchanged].count).to eq(3) }
     end
 
-    context "when the base pipeline removed some licenses"
-    context "when the base pipeline added some licenses"
+    context "when the base pipeline removed some licenses" do
+      subject { project.license_compliance(head_pipeline).diff_with(base_compliance) }
+
+      let!(:head_compliance) { project.license_compliance(head_pipeline) }
+      let!(:head_pipeline) { create(:ci_pipeline, :success, project: project, builds: [create(:ee_ci_build, :license_scan_v2_1, :success)]) }
+
+      let!(:base_compliance) { project.license_compliance(base_pipeline) }
+      let!(:base_pipeline) { create(:ci_pipeline, :success, project: project, builds: [create(:ee_ci_build, :success)]) }
+
+      specify { expect(subject[:added]).to be_empty }
+      specify { expect(subject[:unchanged]).to be_empty }
+      specify { expect(subject[:removed]).to all(be_instance_of(::SCA::LicensePolicy)) }
+      specify { expect(subject[:removed].count).to eq(3) }
+    end
+
+    context "when the base pipeline added some licenses" do
+      subject { project.license_compliance(head_pipeline).diff_with(base_compliance) }
+
+      let!(:head_compliance) { project.license_compliance(head_pipeline) }
+      let!(:head_pipeline) { create(:ci_pipeline, :success, project: project, builds: [create(:ee_ci_build, :success)]) }
+
+      let!(:base_compliance) { project.license_compliance(base_pipeline) }
+      let!(:base_pipeline) { create(:ci_pipeline, :success, project: project, builds: [create(:ee_ci_build, :license_scan_v2_1, :success)]) }
+
+      specify { expect(subject[:added]).to all(be_instance_of(::SCA::LicensePolicy)) }
+      specify { expect(subject[:added].count).to eq(3) }
+      specify { expect(subject[:removed]).to be_empty }
+      specify { expect(subject[:unchanged]).to be_empty }
+    end
   end
 end
