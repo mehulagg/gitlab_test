@@ -12,6 +12,7 @@ import {
   parseBoolean,
   convertObjectPropsToCamelCase,
 } from '~/lib/utils/common_utils';
+import createDefaultClient from '~/lib/graphql';
 import { __ } from '~/locale';
 import axios from '~/lib/utils/axios_utils';
 import { mergeUrlParams } from '~/lib/utils/url_utility';
@@ -23,7 +24,11 @@ import ListLabel from '../models/label';
 import ListAssignee from '../models/assignee';
 import ListMilestone from '../models/milestone';
 
+import createBoardMutation from '../queries/board.mutation.graphql';
+
 const PER_PAGE = 20;
+const gqlClient = createDefaultClient();
+
 const boardsStore = {
   disabled: false,
   timeTracking: {
@@ -800,9 +805,35 @@ const boardsStore = {
     }
 
     if (boardPayload.id) {
-      return axios.put(this.generateBoardsPath(boardPayload.id), { board: boardPayload });
+      const input = {
+        id: `gid://gitlab/Board/${boardPayload.id}`,
+        hideClosedList: boardPayload.hideClosedList,
+        hideBacklogList: boardPayload.hideBacklogList,
+      };
+
+      return Promise.all([
+        axios.put(this.generateBoardsPath(boardPayload.id), { board: boardPayload }),
+        gqlClient.mutate({
+          mutation: createBoardMutation,
+          variables: input,
+        }),
+      ]);
     }
-    return axios.post(this.generateBoardsPath(), { board: boardPayload });
+
+    return axios
+      .post(this.generateBoardsPath(), { board: boardPayload })
+      .then(resp => resp.data)
+      .then(data => {
+        gqlClient.mutate({
+          mutation: createBoardMutation,
+          variables: {
+            id: fullBoardId(data.id),
+            hideClosedList: boardPayload.hideClosedList,
+            hideBacklogList: boardPayload.hideBacklogList,
+          },
+        });
+        return data;
+      });
   },
 
   deleteBoard({ id }) {
