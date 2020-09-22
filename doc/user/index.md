@@ -48,6 +48,7 @@ GitLab is a Git-based platform that integrates a great number of essential tools
 - Integrating with Docker by using [GitLab Container Registry](packages/container_registry/index.md).
 - Tracking the development lifecycle by using [GitLab Value Stream Analytics](project/cycle_analytics.md).
 - Provide support with [Service Desk](project/service_desk.md).
+- [Export issues as CSV](project/issues/csv_export.md).
 
 With GitLab Enterprise Edition, you can also:
 
