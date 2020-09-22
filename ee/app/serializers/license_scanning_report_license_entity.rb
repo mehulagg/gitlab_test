@@ -6,7 +6,7 @@ class LicenseScanningReportLicenseEntity < Grape::Entity
   expose :name
   expose :classification do |model|
     {
-      approval_status: model&.classification
+      approval_status: model&.approval_status
     }
   end
   expose :dependencies, using: LicenseScanningReportDependencyEntity

@@ -13,7 +13,7 @@ RSpec.describe LicenseScanningReportLicenseEntity do
   describe '#as_json' do
     subject { entity.as_json }
 
-    specify { expect(subject[:classification][:approval_status]).to eq(license_policy.classification) }
+    specify { expect(subject[:classification][:approval_status]).to eq(license_policy.approval_status) }
     specify { expect(subject[:count]).to eql(license_policy.dependencies.count) }
     specify { expect(subject[:dependencies]).to contain_exactly(name: reported_dependency.name) }
     specify { expect(subject[:name]).to eql(license_policy.name) }
