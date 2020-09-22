@@ -46,10 +46,13 @@ export default {
       if (!this.alert) {
         return [];
       }
-      return Object.entries(this.alert).map(([fieldName, value]) => ({
-        fieldName,
-        value,
-      }));
+
+      return Object.entries(this.alert).reduce((acc, [fieldName, value]) => {
+        if (fieldName.includes('environmentUrl')) {
+          return acc;
+        }
+        return [...acc, { fieldName, value }];
+      }, []);
     },
   },
 };

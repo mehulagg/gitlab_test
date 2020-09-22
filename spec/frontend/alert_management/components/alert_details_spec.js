@@ -65,6 +65,7 @@ describe('AlertDetails', () => {
   const findCreateIncidentBtn = () => wrapper.find('[data-testid="createIncidentBtn"]');
   const findViewIncidentBtn = () => wrapper.find('[data-testid="viewIncidentBtn"]');
   const findIncidentCreationAlert = () => wrapper.find('[data-testid="incidentCreationError"]');
+  const findEnvironmentLink = () => wrapper.find(`[data-testid="environmentUrl"]`);
   const findDetailsTable = () => wrapper.find(AlertDetailsTable);
 
   describe('Alert details', () => {
@@ -114,6 +115,8 @@ describe('AlertDetails', () => {
         field               | data            | isShown
         ${'eventCount'}     | ${1}            | ${true}
         ${'eventCount'}     | ${undefined}    | ${false}
+        ${'environment'}    | ${undefined}    | ${false}
+        ${'environment'}    | ${'Production'} | ${true}
         ${'monitoringTool'} | ${'New Relic'}  | ${true}
         ${'monitoringTool'} | ${undefined}    | ${false}
         ${'service'}        | ${'Prometheus'} | ${true}
@@ -132,6 +135,19 @@ describe('AlertDetails', () => {
             expect(wrapper.find(`[data-testid="${field}"]`).exists()).toBe(false);
           }
         });
+      });
+    });
+
+    describe('environmen URL fields', () => {
+      it('should show the environment URL when available', () => {
+        const environment = 'Production';
+        const environmentUrl = 'fake/url';
+        mountComponent({
+          data: { alert: { ...mockAlert, environment, environmentUrl } },
+        });
+
+        expect(findEnvironmentLink().text()).toBe(environment);
+        expect(findEnvironmentLink().attributes('href')).toBe(environmentUrl);
       });
     });
 

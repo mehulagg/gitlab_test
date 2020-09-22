@@ -5,6 +5,7 @@ import {
   GlAlert,
   GlBadge,
   GlIcon,
+  GlLink,
   GlLoadingIcon,
   GlSprintf,
   GlTabs,
@@ -59,6 +60,7 @@ export default {
     GlBadge,
     GlAlert,
     GlIcon,
+    GlLink,
     GlLoadingIcon,
     GlSprintf,
     GlTab,
@@ -297,6 +299,23 @@ export default {
                 />
               </span>
               {{ $options.severityLabels[alert.severity] }}
+            </div>
+          </div>
+          <div v-if="alert.environment" class="gl-my-5 gl-display-flex">
+            <div class="gl-font-weight-bold gl-w-13 gl-text-right gl-pr-3">
+              {{ s__('AlertManagement|Environment') }}:
+            </div>
+            <div class="gl-pl-2">
+              <gl-link
+                v-if="alert.environmentUrl"
+                class="gl-display-inline-block"
+                data-testid="environmentUrl"
+                :href="alert.environmentUrl"
+                target="_blank"
+              >
+                {{ alert.environment }}
+              </gl-link>
+              <span v-else data-testid="environment">{{ alert.environment }}</span>
             </div>
           </div>
           <div v-if="alert.startedAt" class="gl-my-5 gl-display-flex">

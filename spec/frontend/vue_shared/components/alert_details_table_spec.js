@@ -58,8 +58,9 @@ describe('AlertDetails', () => {
     });
 
     describe('with table data', () => {
+      const environmentUrl = 'fake/url';
       beforeEach(() => {
-        mountComponent();
+        mountComponent({ alert: { ...mockAlert, environmentUrl } });
       });
 
       it('renders a table', () => {
@@ -68,6 +69,10 @@ describe('AlertDetails', () => {
 
       it('renders a cell based on alert data', () => {
         expect(findTableComponent().text()).toContain('SyntaxError: Invalid or unexpected token');
+      });
+
+      it('does not render the environment URL', () => {
+        expect(findTableComponent().text()).not.toContain(environmentUrl);
       });
     });
   });
