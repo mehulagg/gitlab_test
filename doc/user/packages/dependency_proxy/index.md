@@ -9,7 +9,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/7934) in [GitLab Premium](https://about.gitlab.com/pricing/) 11.11.
 
 The GitLab Dependency Proxy is a local proxy you can use for your frequently-accessed
-upstream images and packages. 
+upstream images.
 
 In the case of CI/CD, the Dependency Proxy receives a request and returns the
 upstream image from a registry, acting as a pull-through cache.
@@ -18,7 +18,6 @@ upstream image from a registry, acting as a pull-through cache.
 
 To use the Dependency Proxy:
 
-- An administrator must [enable it](../../../administration/packages/dependency_proxy.md).
 - Your group must be public. Authentication for private groups is [not supported yet](https://gitlab.com/gitlab-org/gitlab/-/issues/11582).
 
 ### Supported images and packages
@@ -36,7 +35,7 @@ For a list of planned additions, view the
 
 To view the Dependency Proxy:
 
-- Go to the group's **Packages & Registries > Dependency Proxy**.
+- Go to your group's **Packages & Registries > Dependency Proxy**.
 
 The Dependency Proxy is not available for projects.
 
@@ -47,7 +46,8 @@ You can use GitLab as a source for your Docker images.
 Prerequisites:
 
 - Your images must be stored on [Docker Hub](https://hub.docker.com/).
-- Docker Hub must be available.
+- Docker Hub must be available. Follow [this issue](https://gitlab.com/gitlab-org/gitlab/-/issues/241639)
+  for progress on accessing images when Docker Hub is down.
 
 To store a Docker image in Dependency Proxy storage:
 
