@@ -7,6 +7,7 @@
     var gl = window.gl || {};
     gl.startup_calls = #{page_startup_api_calls.to_json};
     gl.startup_graphql_calls = #{page_startup_graphql_calls.to_json};
+
     if (gl.startup_calls && window.fetch) {
       Object.keys(gl.startup_calls).forEach(apiCall => {
         // fetch won’t send cookies in older browsers, unless you set the credentials init option.
@@ -23,67 +24,23 @@
       var matches = window.location.href.match(pathRegex);
       var currentRoutePath = matches ? matches[1] : '';
 
-      var pathLastCommitQuery = `
-        query PathLastCommit {
-          project(fullPath: "#{@project.full_path}") {
-            __typename
-            repository {
-              __typename
-              tree(path: "${currentRoutePath}", ref: "#{ref}") {
-                __typename
-                lastCommit {
-                  __typename
-                    sha
-                    title
-                    titleHtml
-                    description
-                    message
-                    webUrl
-                    authoredDate
-                    authorName
-                    authorGravatar
-                  author {
-                    __typename
-                    name
-                    avatarUrl
-                    webUrl
-                  }
-                  signatureHtml
-                  pipelines(ref: "#{ref}", first: 1) {
-                    __typename
-                    edges {
-                      __typename
-                      node {
-                        __typename
-                        detailedStatus {
-                          __typename
-                          detailsPath
-                          icon
-                          tooltip
-                          text
-                          group
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      `
+      gl.startup_graphql_calls[0].variables = {
+        projectPath: "#{@project.full_path}",
+        path: `${currentRoutePath}`,
+        ref: "#{ref}"
+      }
+
       const opts = {
         method: "POST",
         headers: { "Content-Type": "application/json", 'X-CSRF-Token': "#{form_authenticity_token}" },
       };
 
-      gl.graphql_startup_calls = {
-        pathLastCommit: {
-          fetchCall: fetch(url, {
-            ...opts,
-            body: JSON.stringify({ query: pathLastCommitQuery })
-          })
-        }
-      };
+      gl.startup_graphql_calls = gl.startup_graphql_calls.map(call => ({
+        operationName: call.query.match(/^query (.+)\(/)[1],
+        fetchCall: fetch(url, {
+          ...opts,
+          body: JSON.stringify(call)
+        })
+      }))
     }
 

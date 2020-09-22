@@ -24,9 +24,11 @@ export default function setupVueRepositoryList() {
 
   const currentRoutePath = matches ? matches[1] : '';
 
-  if (window.gl.graphql_startup_calls) {
-    const { pathLastCommit } = window.gl.graphql_startup_calls;
-    pathLastCommit.fetchCall
+  if (window.gl.startup_graphql_calls) {
+    const query = window.gl.startup_graphql_calls.find(
+      call => call.operationName === 'pathLastCommit',
+    );
+    query.fetchCall
       .then(res => res.json())
       .then(res => {
         apolloProvider.clients.defaultClient.writeQuery({
