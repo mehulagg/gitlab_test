@@ -67,6 +67,8 @@ module SCA
     attr_reader :project, :pipeline
 
     def known_policies
+      return {} if project.blank?
+
       strong_memoize(:known_policies) do
         project.software_license_policies.including_license.unreachable_limit.map do |policy|
           [policy.software_license.canonical_id, report_for(policy)]
