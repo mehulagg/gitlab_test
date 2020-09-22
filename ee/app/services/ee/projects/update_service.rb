@@ -25,7 +25,7 @@ module EE
         wiki_was_enabled = project.wiki_enabled?
 
         mirror_user_setting
-        compliance_framework_setting
+        Rails.logger.warn compliance_framework_setting
         return update_failed! if project.errors.any?
 
         result = super do
@@ -66,7 +66,6 @@ module EE
 
       def compliance_framework_setting
         settings = params[:compliance_framework_setting_attributes]
-        puts settings.inspect
         return unless settings.present?
 
         unless can?(current_user, :admin_compliance_framework, project)

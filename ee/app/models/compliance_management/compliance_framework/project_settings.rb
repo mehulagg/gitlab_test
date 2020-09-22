@@ -9,7 +9,7 @@ module ComplianceManagement
       self.primary_key = :project_id
 
       belongs_to :project
-      belongs_to :framework, class_name: 'ComplianceManagement::Framework', foreign_key: :framework
+      belongs_to :compliance_management_framework, class_name: 'ComplianceManagement::Framework', foreign_key: :framework
 
       validates :project, presence: true
       validates :framework, uniqueness: { scope: [:project_id] }

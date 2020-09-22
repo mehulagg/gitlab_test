@@ -6,7 +6,7 @@ module Types
       description 'Names of compliance frameworks that can be assigned to a Project'
 
       ::ComplianceManagement::Framework.all.each do |framework|
-        value(framework.name)
+        value(framework.name.downcase.parameterize.underscore)
       end
     end
   end

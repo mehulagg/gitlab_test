@@ -7,32 +7,32 @@ class AddDefaultComplianceFrameworks < ActiveRecord::Migration[6.0]
       {
           name: 'GDPR',
           description: 'General Data Protection Regulation',
-          id: 1,
-          color: '#1aaa55'
+          color: '#1aaa55',
+          id: 1
       },
       {
           name: 'HIPAA',
           description: 'Health Insurance Portability and Accountability Act',
-          id: 2,
-          color: '#1f75cb'
+          color: '#1f75cb',
+          id: 2
       },
       {
           name: 'PCI-DSS',
           description: 'Payment Card Industry-Data Security Standard',
-          id: 3,
-          color: '#6666c4'
+          color: '#6666c4',
+          id: 3
       },
       {
           name: 'SOC 2',
           description: 'Service Organization Control 2',
-          id: 4,
-          color: '#dd2b0e'
+          color: '#dd2b0e',
+          id: 4
       },
       {
           name: 'SOX',
           description: 'Sarbanes-Oxley',
-          id: 5,
-          color: '#fc9403'
+          color: '#fc9403',
+          id: 5
       }
   ]
 
@@ -40,6 +40,7 @@ class AddDefaultComplianceFrameworks < ActiveRecord::Migration[6.0]
     DEFAULT_FRAMEWORKS.each do |framework|
       ComplianceManagement::Framework.create!(framework)
     end
+    execute("ALTER SEQUENCE compliance_management_frameworks_id_seq RESTART WITH 6;")
     add_foreign_key :project_compliance_framework_settings,
                     :compliance_management_frameworks,
                     on_delete: :cascade, validate: false, column: :framework
@@ -50,6 +51,7 @@ class AddDefaultComplianceFrameworks < ActiveRecord::Migration[6.0]
       ComplianceManagement::Framework.delete(v)
     end
 
+    execute("ALTER SEQUENCE compliance_management_frameworks_id_seq RESTART WITH 1;")
     remove_foreign_key_if_exists :project_compliance_framework_settings, column: :framework
   end
 end
