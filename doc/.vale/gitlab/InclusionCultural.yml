@@ -10,5 +10,7 @@ link: https://docs.gitlab.com/ee/development/documentation/styleguide.html#inclu
 level: warning
 ignorecase: true
 swap:
+  blacklist(ed|ing)?: denylist
+  whitelist(ed|ing)?: allowlist
   master: primary
   slave: secondary
