@@ -101,7 +101,7 @@ module Gitlab
           return unless self.class::DUE_DATE_MODELS.include?(@relation_name) && demo_template?
 
           relation_class.attribute_names.select { |name| name.include?('due_date') }.each do |due_date|
-            if @relation_hash[due_date] < Time.current
+            if @relation_hash[due_date] && @relation_hash[due_date] < Time.current
               @relation_hash[due_date] = Time.current + 7.days
             end
           end
