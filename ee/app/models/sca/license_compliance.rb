@@ -42,13 +42,13 @@ module SCA
     end
 
     def diff_with(other)
-      diff = license_scan_report.diff_with(other.license_scan_report)
-
-      {
-        added: diff[:added].map { |x| license_policy_for(x) },
-        removed: diff[:removed].map { |x| license_policy_for(x) },
-        unchanged: diff[:unchanged].map { |x| license_policy_for(x) }
-      }
+      license_scan_report
+        .diff_with(other.license_scan_report)
+        .transform_values do |reported_licenses|
+          reported_licenses.map do |reported_license|
+            build_policy(reported_license, known_policies[reported_license.canonical_id])
+          end
+        end
     end
 
     def license_scan_report
@@ -96,10 +96,6 @@ module SCA
       attribute = available_attributes[by] || available_attributes[:name]
       direction = SORT_DIRECTION[direction] || SORT_DIRECTION[:asc]
       direction.call(items.sort_by { |item| attribute.call(item) })
-    end
-
-    def license_policy_for(reported_license)
-      build_policy(reported_license, known_policies[reported_license.canonical_id])
     end
   end
 end
