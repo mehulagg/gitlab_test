@@ -418,8 +418,11 @@ We strive to create documentation that is inclusive. This section includes
 guidance and examples in the following categories:
 
 - [Gender-specific wording](#avoid-gender-specific-wording).
+  (Tested in [`InclusionGender.yml`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/.vale/gitlab/InclusionGender.yml).)
 - [Ableist language](#avoid-ableist-language).
+  (Tested in [`InclusionAbleism.yml`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/.vale/gitlab/InclusionAbleism.yml).)
 - [Cultural sensitivity](#culturally-sensitive-language).
+  (Tested in [`InclusionCultural.yml`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/doc/.vale/gitlab/InclusionCultural.yml).)
 
 We write our developer documentation with inclusivity and diversity in mind. This
 page is not an exhaustive reference, but describes some general guidelines and
