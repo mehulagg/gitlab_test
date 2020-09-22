@@ -18777,7 +18777,7 @@ type Vulnerability {
   severity: VulnerabilitySeverity
 
   """
-  State of the vulnerability (DETECTED, DISMISSED, RESOLVED, CONFIRMED)
+  State of the vulnerability (DETECTED, CONFIRMED, RESOLVED, DISMISSED)
   """
   state: VulnerabilityState
 
@@ -19374,6 +19374,16 @@ enum VulnerabilitySeverity {
 Vulnerability sort values
 """
 enum VulnerabilitySort {
+  """
+  Report Type in ascending order
+  """
+  report_type_asc
+
+  """
+  Report Type in descending order
+  """
+  report_type_desc
+
   """
   Severity in ascending order
   """
