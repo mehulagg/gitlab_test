@@ -71,4 +71,8 @@ module VulnerabilitiesHelper
 
     data
   end
+
+  def vulnerability_full_path(vulnerability)
+    "#{Gitlab::Routing.url_helpers.root_url}#{vulnerability_path(vulnerability).gsub(/^\//, '')}"
+  end
 end
