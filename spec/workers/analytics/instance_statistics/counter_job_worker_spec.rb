@@ -18,7 +18,7 @@ RSpec.describe Analytics::InstanceStatistics::CounterJobWorker do
     it 'counts a scope and stores the result' do
       subject
 
-      measurement = Analytics::InstanceStatistics::Measurement.first
+      measurement = Analytics::InstanceStatistics::Measurement.users.first
       expect(measurement.recorded_at).to be_like_time(recorded_at)
       expect(measurement.identifier).to eq('users')
       expect(measurement.count).to eq(2)
@@ -33,7 +33,7 @@ RSpec.describe Analytics::InstanceStatistics::CounterJobWorker do
     it 'sets 0 as the count' do
       subject
 
-      measurement = Analytics::InstanceStatistics::Measurement.first
+      measurement = Analytics::InstanceStatistics::Measurement.users.first
       expect(measurement.recorded_at).to be_like_time(recorded_at)
       expect(measurement.identifier).to eq('groups')
       expect(measurement.count).to eq(0)
