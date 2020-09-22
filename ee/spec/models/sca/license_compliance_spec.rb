@@ -380,6 +380,19 @@ RSpec.describe SCA::LicenseCompliance do
     end
 
     context "when nothing has changed between the head and the base pipeline" do
+      subject { project.license_compliance(head_pipeline).diff_with(base_compliance) }
+
+      let!(:head_compliance) { project.license_compliance(head_pipeline) }
+      let!(:head_pipeline) { create(:ci_pipeline, :success, project: project, builds: [license_scan_build]) }
+
+      let!(:base_compliance) { project.license_compliance(base_pipeline) }
+      let!(:base_pipeline) { create(:ci_pipeline, :success, project: project, builds: [license_scan_build]) }
+
+      let(:license_scan_build) { create(:ee_ci_build, :license_scan_v2_1, :success) }
+
+      specify { expect(subject[:removed]).to be_empty }
+      # specify { expect(subject[:unchanged].count).to eq(3) }
+      # specify { expect(subject[:added]).to be_empty }
     end
 
     context "when the base pipeline removed some licenses" do
