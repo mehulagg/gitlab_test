@@ -280,3 +280,11 @@ Any pipelines that complete successfully for new tags in the subscribed project
 will now trigger a pipeline on the current project's default branch. The maximum
 number of upstream pipeline subscriptions is 2 by default, for both the upstream and
 downstream projects. This [application limit](../administration/instance_limits.md#number-of-cicd-subscriptions-to-a-project) can be changed on self-managed instances by a GitLab administrator.
+
+## Security note about downstream private projects
+
+When triggering a pipeline in a downstream private project, the name of the project
+and the status of the pipeline will be visible from the upstream project's pipelines page.
+
+Make sure that this does note pose any confidentiality problem before triggering a 
+downstream pipeline in a private project from a public project.
