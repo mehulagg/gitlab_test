@@ -3,6 +3,7 @@
 class NoteEntity < API::Entities::Note
   include RequestAwareEntity
   include NotesHelper
+  include DiscussionAttributes
 
   expose :id do |note|
     # resource events are represented as notes too, but don't
@@ -65,19 +66,15 @@ class NoteEntity < API::Entities::Note
     noteable_note_url(note)
   end
 
-  expose :resolve_path, if: -> (note, _) { note.part_of_discussion? && note.resolvable? } do |note|
-    resolve_project_merge_request_discussion_path(note.project, note.noteable, note.discussion_id)
-  end
-
-  expose :resolve_with_issue_path, if: -> (note, _) { note.part_of_discussion? && note.resolvable? } do |note|
-    new_project_issue_path(note.project, merge_request_to_resolve_discussions_of: note.noteable.iid, discussion_to_resolve: note.discussion_id)
-  end
-
   expose :attachment, using: NoteAttachmentEntity, if: -> (note, _) { note.attachment? }
 
   expose :cached_markdown_version
 
   private
+
+  def discussion
+    @discussion ||= object.to_discussion(request.noteable)
+  end
 
   def current_user
     request.current_user

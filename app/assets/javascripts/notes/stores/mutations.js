@@ -25,7 +25,10 @@ export default {
         noteData.active = true;
         noteData.resolve_path = note.resolve_path;
         noteData.resolve_with_issue_path = note.resolve_with_issue_path;
-        noteData.diff_discussion = false;
+        noteData.diff_discussion = note.diff_discussion;
+        noteData.line_code = note.line_code;
+        noteData.diff_file = note.diff_file;
+        noteData.truncated_diff_lines = note.truncated_diff_lines;
       }
 
       state.discussions.push(noteData);
