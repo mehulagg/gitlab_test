@@ -581,7 +581,7 @@ DELETE /runners/:id
 
 | Attribute   | Type    | Required | Description         |
 |-------------|---------|----------|---------------------|
-| `id`        | integer | yes      | The ID of a runner. This is visible in the UI under **Settings > CI/CD**. Expand **Runners**. Below the **Remove Runner** button is an ID preceded by the pound sign, for example, #6. |
+| `id`        | integer | yes      | The ID of a runner. The ID is visible in the UI under **Settings > CI/CD**. Expand **Runners**, and below the **Remove Runner** button is an ID preceded by the pound sign, for example, `#6`. |
 
 ```shell
 curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/runners/6"
