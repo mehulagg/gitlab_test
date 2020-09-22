@@ -21,7 +21,7 @@ RSpec.describe API::Unleash do
         expect(response).to have_gitlab_http_status(:ok)
       end
 
-      context 'when feature is not available' do
+      context 'when repository is disabled' do
         before do
           project.project_feature.update!(
             repository_access_level: ::ProjectFeature::DISABLED,
@@ -34,6 +34,22 @@ RSpec.describe API::Unleash do
           subject
 
           expect(response).to have_gitlab_http_status(:forbidden)
+        end
+      end
+
+      context 'when repository is private' do
+        before do
+          project.project_feature.update!(
+            repository_access_level: ::ProjectFeature::PRIVATE,
+            merge_requests_access_level: ::ProjectFeature::DISABLED,
+            builds_access_level: ::ProjectFeature::DISABLED
+          )
+        end
+
+        it 'responds with OK' do
+          subject
+
+          expect(response).to have_gitlab_http_status(:ok)
         end
       end
     end
