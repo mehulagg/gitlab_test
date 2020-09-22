@@ -56783,6 +56783,18 @@
               "description": "Severity in ascending order",
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "detected_desc",
+              "description": "Detected At in descending order",
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "detected_asc",
+              "description": "Detected At in ascending order",
+              "isDeprecated": false,
+              "deprecationReason": null
             }
           ],
           "possibleTypes": null

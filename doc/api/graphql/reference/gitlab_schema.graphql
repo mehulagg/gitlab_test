@@ -19375,6 +19375,16 @@ Vulnerability sort values
 """
 enum VulnerabilitySort {
   """
+  Detected At in ascending order
+  """
+  detected_asc
+
+  """
+  Detected At in descending order
+  """
+  detected_desc
+
+  """
   Severity in ascending order
   """
   severity_asc
