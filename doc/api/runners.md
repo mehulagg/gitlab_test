@@ -450,7 +450,7 @@ Example response:
 
 Disable a specific runner from the project. It works only if the project isn't
 the only project associated with the specified runner. If so, an error is
-returned. Use the [Remove a runner](#remove-a-runner) call instead.
+returned. Use the [Delete a registered runner](#delete-a-registered-runner) call instead.
 
 ```plaintext
 DELETE /projects/:id/runners/:runner_id
