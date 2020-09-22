@@ -45,9 +45,9 @@ module SCA
       diff = license_scan_report.diff_with(other.license_scan_report)
 
       {
-        added: diff[:added].map { |x| other.policies.find { |y| y.represent?(x) } },
-        removed: diff[:removed].map { |x| policies.find { |y| y.represent?(x) } },
-        unchanged: diff[:unchanged].map { |x| policies.find { |y| y.represent?(x) } }
+        added: diff[:added].map { |x| other.license_policy_for(x) },
+        removed: diff[:removed].map { |x| license_policy_for(x) },
+        unchanged: diff[:unchanged].map { |x| license_policy_for(x) }
       }
     end
 
@@ -60,6 +60,12 @@ module SCA
         end
       rescue ::Gitlab::Ci::Parsers::LicenseCompliance::LicenseScanning::LicenseScanningParserError
         empty_report
+      end
+    end
+
+    def license_policy_for(reported_license)
+      policies.find do |policy|
+        policy.represent?(reported_license)
       end
     end
 
