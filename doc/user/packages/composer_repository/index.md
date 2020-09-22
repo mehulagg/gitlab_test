@@ -9,7 +9,7 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/issues/15886) in [GitLab Premium](https://about.gitlab.com/pricing/) 13.2.
 > - [Moved](https://gitlab.com/gitlab-org/gitlab/-/issues/221259) to GitLab Core in 13.3.
 
-Publish [Composer](https://getcomposer.org/) packages in your project's or group's Package Registry.
+Publish [Composer](https://getcomposer.org/) packages in your project's Package Registry.
 Then install the packages whenever you need to use them as a dependency.
 
 ## Create a Composer package
@@ -24,13 +24,11 @@ can be any public or private repository.
    mkdir my-composer-package && cd my-composer-package
    ```
 
-1. In the `my-composer-package` directory, create a `composer.json` file:
+1. Run [`composer init`](https://getcomposer.org/doc/03-cli.md#init) and answer the prompts. 
 
-   ```shell
-   touch composer.json
-   ```
+   For namespace, enter your unique [namespace](../../../user/group/index.md#namespaces), like your GitLab username or group name.
 
-1. In the `composer.json` file, add the following code:
+   A file called `composer.json` is created:
 
    ```json
    {
@@ -40,8 +38,6 @@ can be any public or private repository.
      "version": "1.0.0"
    }
    ```
-
-   - `<namespace>` is your unique [namespace](../../../user/group/index.md#namespaces), like your GitLab username or group name.
 
 1. Run Git commands to tag the changes and push them to your repository:
 
@@ -69,7 +65,8 @@ Prerequisites:
 - A [personal access token](../../../user/profile/personal_access_tokens.md) with the scope set to `api`.
 
   NOTE: **Note:**
-  [Deploy tokens](./../../project/deploy_tokens/index.md) are not supported for use with Composer.
+  [Deploy tokens](./../../project/deploy_tokens/index.md) are
+  [not yet supported](https://gitlab.com/gitlab-org/gitlab/-/issues/240897) for use with Composer.
 
 To publish the package:
 
@@ -78,7 +75,7 @@ To publish the package:
   For example, you can use `curl`:
 
   ```shell
-  curl --data tag=<tag> 'https://__token__:<personal-access-token>@gitlab.example.com/api/v4/projects/<project_id>/packages/composer'
+  curl --data tag=<tag> "https://__token__:<personal-access-token>@gitlab.example.com/api/v4/projects/<project_id>/packages/composer"
   ```
 
   - `<personal-access-token>` is your personal access token.
@@ -157,20 +154,8 @@ To install a package:
 
 1. Create an `auth.json` file with your GitLab credentials:
 
-   ```json
-   {
-       "gitlab-token": {
-          "gitlab.example.com": "<personal_access_token>"
-       }
-   }
-   ```
-
-   - `<personal_access_token>` is your personal access token.
-
-1. Install the package by running `composer`:
-
    ```shell
-   composer update
+   composer config gitlab-token.<DOMAIN-NAME> <personal_access_token> 
    ```
 
 Output indicates that the package has been successfully installed.
@@ -179,4 +164,4 @@ CAUTION: **Important:**
 Never commit the `auth.json` file to your repository. To install packages from a CI/CD job,
 consider using the [`composer config`](https://getcomposer.org/doc/articles/handling-private-packages-with-satis.md#authentication) tool with your personal access token
 stored in a [GitLab CI/CD environment variable](../../../ci/variables/README.md) or in
-[Hashicorp Vault](../../../ci/secrets/index.md).
+[HashiCorp Vault](../../../ci/secrets/index.md).
