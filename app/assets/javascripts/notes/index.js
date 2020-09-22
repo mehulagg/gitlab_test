@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // eslint-disable-next-line no-new
   new Vue({
-    el: '#js-vue-notes',
+    el,
     components: {
       notesApp,
     },
