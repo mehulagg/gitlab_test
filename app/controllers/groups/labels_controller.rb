@@ -2,6 +2,7 @@
 
 class Groups::LabelsController < Groups::ApplicationController
   include ToggleSubscriptionAction
+  include ShowInheritedLabelsChecker
 
   before_action :label, only: [:edit, :update, :destroy]
   before_action :authorize_admin_labels!, only: [:new, :create, :edit, :update, :destroy]
@@ -12,8 +13,7 @@ class Groups::LabelsController < Groups::ApplicationController
   def index
     respond_to do |format|
       format.html do
-        @labels = GroupLabelsFinder
-          .new(current_user, @group, params.merge(sort: sort)).execute
+        @labels = available_labels.page(params[:page])
       end
       format.json do
         render json: LabelSerializer.new.represent_appearance(available_labels)
@@ -114,7 +114,8 @@ class Groups::LabelsController < Groups::ApplicationController
         current_user,
         group_id: @group.id,
         only_group_labels: params[:only_group_labels],
-        include_ancestor_groups: params[:include_ancestor_groups],
+        include_ancestor_groups: show_inherited_labels?,
+        sort: sort,
         include_descendant_groups: params[:include_descendant_groups],
         search: params[:search]).execute
   end

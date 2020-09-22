@@ -9,6 +9,8 @@ RSpec.describe Groups::LabelsController do
 
   before do
     group.add_owner(user)
+    #by default FFs are enabled in specs so we turn it off
+    stub_feature_flags(show_inherited_labels: false)
 
     sign_in(user)
   end
@@ -27,16 +29,31 @@ RSpec.describe Groups::LabelsController do
     context 'with ancestor group' do
       let_it_be(:subgroup) { create(:group, parent: group) }
       let_it_be(:subgroup_label_1) { create(:group_label, group: subgroup, title: 'subgroup_label_1') }
+      let(:params) { { group_id: subgroup, include_ancestor_groups: true, only_group_labels: true } }
 
       before do
         subgroup.add_owner(user)
       end
 
-      it 'returns ancestor group labels' do
-        get :index, params: { group_id: subgroup, include_ancestor_groups: true, only_group_labels: true }, format: :json
+      RSpec.shared_examples 'returns ancestor group labels' do
+        it 'returns ancestor group labels' do
+          get :index, params: params, format: :json
 
-        label_ids = json_response.map {|label| label['title']}
-        expect(label_ids).to match_array([group_label_1.title, subgroup_label_1.title])
+          label_ids = json_response.map {|label| label['title']}
+          expect(label_ids).to match_array([group_label_1.title, subgroup_label_1.title])
+        end
+      end
+
+      it_behaves_like 'returns ancestor group labels'
+
+      context 'when show_inherited_labels enabled' do
+        let(:params) { { group_id: subgroup } }
+
+        before do
+          stub_feature_flags(show_inherited_labels: true)
+        end
+
+        it_behaves_like 'returns ancestor group labels'
       end
     end
 
