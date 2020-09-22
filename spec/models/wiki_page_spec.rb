@@ -4,7 +4,7 @@ require "spec_helper"
 
 RSpec.describe WikiPage do
   let_it_be(:user) { create(:user) }
-  let_it_be(:container) { create(:project, :wiki_repo) }
+  let_it_be(:container) { create(:project) }
 
   def create_wiki_page(attrs = {})
     page = build_wiki_page(attrs)
@@ -472,9 +472,7 @@ RSpec.describe WikiPage do
 
     context "with invalid attributes" do
       it 'does not create the page' do
-        subject.create(title: '')
-
-        expect(wiki.find_page(title)).to be_nil # ?
+        expect { subject.create(title: '') }.not_to change { wiki.list_pages.length }
       end
     end
   end
@@ -619,7 +617,7 @@ RSpec.describe WikiPage do
 
         expect { subject.update(title: existing_page.title, content: 'new_content') }.to raise_error(WikiPage::PageRenameError)
         expect(subject.title).to eq original_title
-        expect(subject.content).to eq 'new_content' # ??
+        expect(subject.content).to eq 'new_content' # We don't revert the content
       end
 
       it 'updates the content and rename the file' do
