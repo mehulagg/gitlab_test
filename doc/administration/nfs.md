@@ -298,8 +298,8 @@ are empty before attempting a restore. Read more about the
 
 ## Testing NFS
 
-Once you've setup NFS server and NFS client, you can verify NFS is configured as necessary
-by testing the following commands GitLab expects to work:
+Once you've set up the NFS server and client, you can verify NFS is configured correctly
+by testing the following commands:
 
 ```shell
 sudo mkdir /gitlab-nfs/test-dir
