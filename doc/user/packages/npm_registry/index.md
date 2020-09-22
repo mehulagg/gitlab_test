@@ -286,6 +286,16 @@ By default, when an NPM package is not found in the GitLab NPM Registry, the req
 
 Administrators can disable this behavior in the [Continuous Integration settings](../../admin_area/settings/continuous_integration.md).
 
+### Installing packages from other organizations
+
+If you'd like to route package requests to multiple organizations and users, you can add additional lines to your `.npmrc` file, replacing `owner` with the name of the user or organization account that owns the repository containing your project. Because upper case letters aren't supported, you must use lowercase letters for the repository owner even if the GitLab user or organization name contains uppercase letters.
+
+```
+@foo=registry=https://gitlab.com/api/v4/packages/npm/
+@owner:registry=https://gitlab.com/api/v4/packages/npm/
+@owner:registry=https://gitlab.com/api/v4/packages/npm/
+```
+
 ## Removing a package
 
 In the packages view of your project page, you can delete packages by clicking
