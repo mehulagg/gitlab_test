@@ -46,8 +46,8 @@ module SCA
 
       {
         added: diff[:added].map { |x| other.policies.find { |y| y.represent?(x) } },
-        removed: [],
-        unchanged: []
+        removed: diff[:removed],
+        unchanged: diff[:unchanged].map { |x| policies.find { |y| y.represent?(x) } },
       }
     end
 
