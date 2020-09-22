@@ -564,9 +564,16 @@ Example response:
 }
 ```
 
-## Delete a registered runner
+## Delete a runner
 
-Deletes a registered runner.
+There are two ways to delete a runner:
+
+- By specifying the runner ID.
+- By specifying the runner's authentication token.
+
+### Delete a runner by ID
+
+To delete the runner by ID, use your access token with the runner's ID:
 
 ```plaintext
 DELETE /runners/:id
@@ -574,11 +581,26 @@ DELETE /runners/:id
 
 | Attribute   | Type    | Required | Description         |
 |-------------|---------|----------|---------------------|
-| `token`     | string  | yes      | The runner's [authentication token](#registration-and-authentication-tokens). This token is in the `config.toml` file. |
 | `id`        | integer | yes      | The ID of a runner. This is visible in the UI under **Settings > CI/CD**. Expand **Runners**. Below the **Remove Runner** button is an ID preceded by the pound sign, for example, #6. |
 
 ```shell
-curl --request DELETE "https://gitlab.example.com/api/v4/runners/6" --form "token=<authentication_token>"
+curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/runners/6"
+```
+
+### Delete a runner by authentication token
+
+To delete the runner by using its authentication token:
+
+```plaintext
+DELETE /runners
+```
+
+| Attribute   | Type    | Required | Description         |
+|-------------|---------|----------|---------------------|
+| `token`     | string  | yes      | The runner's [authentication token](#registration-and-authentication-tokens). |
+
+```shell
+curl --request DELETE "https://gitlab.example.com/api/v4/runners" --form "token=<authentication_token>"
 ```
 
 Response:
