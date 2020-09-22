@@ -71,7 +71,7 @@ module Gitlab
             def formatted_dependency_path(dependency_path)
               return unless dependency_path
 
-              dependency_path.map{ |path| (path.with_indifferent_access) }
+              dependency_path.map { |path| path.with_indifferent_access }
             end
 
             # we know that Parsers::Security::DependencyList parses one vulnerability at a time
