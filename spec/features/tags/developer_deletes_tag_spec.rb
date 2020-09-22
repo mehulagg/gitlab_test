@@ -54,7 +54,7 @@ RSpec.describe 'Developer deletes tag' do
 
   def delete_tag(tag)
     page.within('.content') do
-      accept_confirm { find("li > .row-fixed-content.controls a.btn-remove[href='/#{project.full_path}/-/tags/#{tag}']").click }
+      accept_confirm { find("li > .row-fixed-content.controls a.btn-danger[href='/#{project.full_path}/-/tags/#{tag}']").click }
     end
   end
 end
