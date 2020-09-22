@@ -23,7 +23,6 @@ The following timeouts can be modified:
   worker timeout that can be configured for [Puma](https://docs.gitlab.com/omnibus/settings/puma.html#puma-settings)
   or [Unicorn](https://docs.gitlab.com/omnibus/settings/unicorn.html). Used to make sure that Gitaly
   calls made within a web request cannot exceed the entire request timeout.
-
   Defaults to 55 seconds.
 
 - **Fast Timeout Period**. This is the timeout for very short Gitaly calls. Defaults to 10 seconds.
