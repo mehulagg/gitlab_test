@@ -216,17 +216,18 @@ module Gitlab
     # Import path for EE specific SCSS entry point
     # In CE it will import a noop file, in EE a functioning file
     # Order is important, so that the ee file takes precedence:
-    config.assets.paths << "#{config.root}/ee/app/assets/stylesheets/page_bundles" if Gitlab.ee?
     config.assets.paths << "#{config.root}/ee/app/assets/stylesheets/_ee" if Gitlab.ee?
     config.assets.paths << "#{config.root}/app/assets/stylesheets/_ee"
 
     # Page specific bundles
-    config.assets.precompile << "page_bundles/_mixins_and_variables_and_functions.css"
-    config.assets.precompile << "page_bundles/cycle_analytics.css"
-    config.assets.precompile << "page_bundles/ide.css"
-    config.assets.precompile << "page_bundles/jira_connect.css"
-    config.assets.precompile << "page_bundles/todos.css"
-    config.assets.precompile << "page_bundles/xterm.css"
+    config.assets.paths << "#{config.root}/ee/app/assets/stylesheets/_page_bundles" if Gitlab.ee?
+    config.assets.paths << "#{config.root}/app/assets/stylesheets/_page_bundles"
+    config.assets.precompile << "_mixins_and_variables_and_functions.css"
+    config.assets.precompile << "cycle_analytics.css"
+    config.assets.precompile << "ide.css"
+    config.assets.precompile << "jira_connect.css"
+    config.assets.precompile << "todos.css"
+    config.assets.precompile << "xterm.css"
 
     config.assets.paths << "#{config.root}/vendor/assets/javascripts/"
     config.assets.precompile << "snowplow/sp.js"
