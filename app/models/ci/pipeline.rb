@@ -237,7 +237,6 @@ module Ci
       end
 
       after_transition any => ::Ci::Pipeline.completed_statuses do |pipeline|
-        next unless pipeline.bridge_triggered?
         next unless pipeline.bridge_waiting?
 
         pipeline.run_after_commit do
@@ -823,7 +822,9 @@ module Ci
 
     def same_family_pipeline_ids
       if ::Gitlab::Ci::Features.child_of_child_pipeline_enabled?(project)
-        ::Gitlab::Ci::PipelineObjectHierarchy.new(base_and_ancestors).base_and_descendants.select(:id)
+        ::Gitlab::Ci::PipelineObjectHierarchy.new(
+          base_and_ancestors(same_project: true), options: { same_project: true }
+        ).base_and_descendants.select(:id)
       else
         # If pipeline is a child of another pipeline, include the parent
         # and the siblings, otherwise return only itself and children.
@@ -1062,13 +1063,25 @@ module Ci
       self.ci_ref = Ci::Ref.ensure_for(self)
     end
 
-    def base_and_ancestors
+    def base_and_ancestors(same_project: false)
       # Without using `unscoped`, caller scope is also included into the query.
       # Using `unscoped` here will be redundant after Rails 6.1
       ::Gitlab::Ci::PipelineObjectHierarchy
-        .new(self.class.unscoped.where(id: id))
+        .new(self.class.unscoped.where(id: id), options: { same_project: same_project })
         .base_and_ancestors
     end
+
+    # We need `base_and_ancestors` in a specific order to "break" when needed.
+    # If we use `find_each`, then the order is broken.
+    # rubocop:disable Rails/FindEach
+    def reset_ancestor_bridges!
+      base_and_ancestors.includes(:source_bridge).each do |pipeline|
+        break unless pipeline.bridge_waiting?
+
+        pipeline.source_bridge.pending!
+      end
+    end
+    # rubocop:enable Rails/FindEach
 
     private
 

@@ -7,13 +7,11 @@ class Service < ApplicationRecord
   include Importable
   include ProjectServicesLoggable
   include DataFields
-  include IgnorableColumns
-
-  ignore_columns %i[default], remove_with: '13.5', remove_after: '2020-10-22'
+  include FromUnion
 
   SERVICE_NAMES = %w[
     alerts asana assembla bamboo bugzilla buildkite campfire confluence custom_issue_tracker discord
-    drone_ci emails_on_push external_wiki flowdock hangouts_chat hipchat irker jira
+    drone_ci emails_on_push ewm external_wiki flowdock hangouts_chat hipchat irker jira
     mattermost mattermost_slash_commands microsoft_teams packagist pipelines_email
     pivotaltracker prometheus pushover redmine slack slack_slash_commands teamcity unify_circuit webex_teams youtrack
   ].freeze
@@ -227,7 +225,8 @@ class Service < ApplicationRecord
 
     service.template = false
     service.instance = false
-    service.inherit_from_id = integration.id if integration.instance?
+    service.group = nil
+    service.inherit_from_id = integration.id if integration.instance? || integration.group
     service.project_id = project_id
     service.active = false if service.invalid?
     service
@@ -310,7 +309,7 @@ class Service < ApplicationRecord
   end
 
   def to_service_hash
-    as_json(methods: :type, except: %w[id template instance project_id])
+    as_json(methods: :type, except: %w[id template instance project_id group_id])
   end
 
   def to_data_fields_hash

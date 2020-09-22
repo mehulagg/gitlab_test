@@ -431,7 +431,7 @@ script:
 You can define per-project or per-group variables
 that are set in the pipeline environment. Group-level variables are stored out of
 the repository (not in `.gitlab-ci.yml`) and are securely passed to GitLab Runner,
-which makes them available during a pipeline run. For Premium users who do **not** use an external key store or who use GitLab's [integration with HashiCorp Vault](../examples/authenticating-with-hashicorp-vault/index.md), we recommend using group environment variables to store secrets like passwords, SSH keys, and credentials.
+which makes them available during a pipeline run. For Premium users who do **not** use an external key store or who use GitLab's [integration with HashiCorp Vault](../secrets/index.md), we recommend using group environment variables to store secrets like passwords, SSH keys, and credentials.
 
 Group-level variables can be added by:
 
@@ -547,6 +547,7 @@ The order of precedence for variables is (from highest to lowest):
    and [manual pipeline run variables](#override-a-variable-by-manually-running-a-pipeline).
 1. Project-level [variables](#custom-environment-variables) or [protected variables](#protect-a-custom-variable).
 1. Group-level [variables](#group-level-environment-variables) or [protected variables](#protect-a-custom-variable).
+1. Instance-level [variables](#instance-level-cicd-environment-variables) or [protected variables](#protect-a-custom-variable).
 1. [Inherited environment variables](#inherit-environment-variables).
 1. YAML-defined [job-level variables](../yaml/README.md#variables).
 1. YAML-defined [global variables](../yaml/README.md#variables).

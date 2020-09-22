@@ -22,6 +22,7 @@ module Issues
     end
 
     def after_update(issue)
+      add_incident_label(issue)
       IssuesChannel.broadcast_to(issue, event: 'updated') if Gitlab::ActionCable::Config.in_app? || Feature.enabled?(:broadcast_issue_updates, issue.project)
     end
 
@@ -51,7 +52,7 @@ module Issues
         # don't enqueue immediately to prevent todos removal in case of a mistake
         TodosDestroyer::ConfidentialIssueWorker.perform_in(Todo::WAIT_FOR_DELETE, issue.id) if issue.confidential?
         create_confidentiality_note(issue)
-        track_usage_event(:incident_management_incident_change_confidential, current_user)
+        track_usage_event(:incident_management_incident_change_confidential, current_user.id)
       end
 
       added_labels = issue.labels - old_labels

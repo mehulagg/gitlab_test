@@ -89,7 +89,7 @@ Below are the current settings regarding [GitLab CI/CD](../../ci/README.md).
 | [Max number of instance level variables](../../administration/instance_limits.md#number-of-instance-level-variables) | `25` | `25` |
 | [Scheduled Job Archival](../../user/admin_area/settings/continuous_integration.md#archive-jobs) | 3 months | Never |
 
-## Repository size limit
+## Account and limit settings
 
 GitLab.com has the following [account limits](../admin_area/settings/account_and_limit_settings.md) enabled. If a setting is not listed, it is set to the default value.
 
@@ -99,6 +99,7 @@ or over the repository size limit, you can [reduce your repository size with Git
 | Setting                       | GitLab.com  | Default       |
 | -----------                   | ----------- | ------------- |
 | Repository size including LFS | 10 GB       | Unlimited     |
+| Maximum import size           | 5 GB        | 50 MB         |
 
 NOTE: **Note:**
 `git push` and GitLab project imports are limited to 5 GB per request through Cloudflare. Git LFS and imports other than a file upload are not affected by this limit.
@@ -137,7 +138,7 @@ Linux shared runners on GitLab.com run in [autoscale mode](https://docs.gitlab.c
 Autoscaling means reduced waiting times to spin up CI/CD jobs, and isolated VMs for each project,
 thus maximizing security. They're free to use for public open source projects and limited
 to 2000 CI minutes per month per group for private projects. More minutes
-[can be purchased](../../subscriptions/index.md#purchasing-additional-ci-minutes), if
+[can be purchased](../../subscriptions/gitlab_com/index.md#purchase-additional-ci-minutes), if
 needed. Read about all [GitLab.com plans](https://about.gitlab.com/pricing/).
 
 All your CI/CD jobs run on [n1-standard-1 instances](https://cloud.google.com/compute/docs/machine-types) with 3.75GB of RAM, CoreOS and the latest Docker Engine
@@ -413,7 +414,7 @@ and the following environment variables:
 
 | Setting                                    | GitLab.com | Default   |
 |--------                                    |----------- |--------   |
-| `SIDEKIQ_DAEMON_MEMORY_KILLER`             | -          | -         |
+| `SIDEKIQ_DAEMON_MEMORY_KILLER`             | -          | `1`       |
 | `SIDEKIQ_MEMORY_KILLER_MAX_RSS`            | `2000000`  | `2000000` |
 | `SIDEKIQ_MEMORY_KILLER_HARD_LIMIT_RSS`     | -          | -         |
 | `SIDEKIQ_MEMORY_KILLER_CHECK_INTERVAL`     | -          | `3`       |

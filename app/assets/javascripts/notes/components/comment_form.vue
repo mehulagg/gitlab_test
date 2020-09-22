@@ -371,6 +371,7 @@ export default {
               :markdown-docs-path="markdownDocsPath"
               :quick-actions-docs-path="quickActionsDocsPath"
               :add-spacing-classes="false"
+              :textarea-value="note"
             >
               <textarea
                 id="note-body"
@@ -397,7 +398,7 @@ export default {
               :secondary-button-text="__('Cancel')"
               variant="warning"
               :dismissible="false"
-              @primaryAction="forceCloseIssue"
+              @primaryAction="toggleBlockedIssueWarning(false) && forceCloseIssue()"
               @secondaryAction="toggleBlockedIssueWarning(false) && enableButton()"
             >
               <p>

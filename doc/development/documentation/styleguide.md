@@ -369,6 +369,7 @@ create an issue or an MR to propose a change to the user interface text.
   - milestones
   - reorder issues
   - runner, runners, shared runners
+  - a to-do, to-dos
 - *Some features are capitalized*, typically nouns naming GitLab-specific
   capabilities or tools. For example:
   - GitLab CI/CD
@@ -409,7 +410,7 @@ Use forms of *sign in*, instead of *log in* or *login*. For example:
 Exceptions to this rule include the concept of *single sign-on* and
 references to user interface elements. For example:
 
-- To sign in to product X, enter your credentials, and then click **Log in**.
+- To sign in to product X, enter your credentials, and then select **Log in**.
 
 ### Inclusive language
 
@@ -626,6 +627,18 @@ For example:
 cp <your_source_directory> <your_destination_directory>
 ```
 
+### Keyboard commands
+
+Use the HTML `<kbd>` tag when referring to keystroke presses. For example:
+
+```plaintext
+To stop the command, press <kbd>Ctrl</kbd>+<kbd>C</kbd>.
+```
+
+When the docs are generated, the output is:
+
+To stop the command, press <kbd>Ctrl</kbd>+<kbd>C</kbd>.
+
 ## Lists
 
 - Always start list items with a capital letter, unless they are parameters or
@@ -819,8 +832,10 @@ When creating tables of lists of features (such as whether or not features are
 available to certain roles on the [Permissions](../../user/permissions.md#project-members-permissions)
 page), use the following phrases (based on the SVG icons):
 
-- *No*: **{dotted-circle}** No
-- *Yes*: **{check-circle}** Yes
+| Option | Markdown                 | Displayed result       |
+|--------|--------------------------|------------------------|
+| No     | `**{dotted-circle}** No` | **{dotted-circle}** No |
+| Yes    | `**{check-circle}** Yes` | **{check-circle}** Yes |
 
 ## Quotes
 
@@ -1082,14 +1097,26 @@ document to ensure it links to the most recent version of the file.
 
 ## Navigation
 
-To indicate the steps of navigation through the user interface:
+When documenting navigation through the user interface:
 
-- Use the exact word as shown in the UI, including any capital letters as-is.
+- Use the exact wording as shown in the UI, including any capital letters as-is.
 - Use bold text for navigation items and the char "greater than" (`>`) as a
-  separator (for example, `Navigate to your project's **Settings > CI/CD**` ).
+  separator. For example: `Navigate to your project's **Settings > CI/CD**`.
 - If there are any expandable menus, make sure to mention that the user needs to
-  expand the tab to find the settings you're referring to (for example,
-  `Navigate to your project's **Settings > CI/CD** and expand **General pipelines**`).
+  expand the tab to find the settings you're referring to. For example:
+  `Navigate to your project's **Settings > CI/CD** and expand **General pipelines**`.
+
+### Navigational elements
+
+Use the following terms when referring to the main GitLab user interface
+elements:
+
+- **Top menu**: This is the top menu that spans the width of the user interface.
+  It includes the GitLab logo, search field, counters, and the user's avatar.
+- **Left sidebar**: This is the navigation sidebar on the left of the user
+  interface, specific to the project or group.
+- **Right sidebar**: This is the navigation sidebar on the right of the user
+  interface, specific to the open issue, merge request, or epic.
 
 ## Images
 
@@ -1107,16 +1134,14 @@ they need to interact with the application.
 When you take screenshots:
 
 - *Capture the most relevant area of the page.* Don't include unnecessary white
-  space or areas of the page that don't help illustrate your point. Also, don't
-  include the entire page if you don't have to, but also ensure the image
-  contains enough information to allow the user to determine where things are.
-- *Be consistent.* Find a browser window size that works for you that also
-  displays all areas of the product, including the left navigation (usually >
-  1200px wide). For consistency, use this browser window size for your
-  screenshots by installing a browser extension for setting a window to a
-  specific size (for example,
-  [Window Resizer](https://chrome.google.com/webstore/detail/window-resizer/kkelicaakdanhinjdeammmilcgefonfh/related?hl=en)
-  for Google Chrome).
+  space or areas of the page that don't help illustrate the point. The left
+  sidebar of the GitLab user interface can change, so don't include the sidebar
+  if it's not necessary.
+- *Keep it small.* If you don't need to show the full width of the screen, don't.
+  A value of 1000 pixels is a good maximum width for your screenshot image.
+- *Be consistent.* Coordinate screenshots with the other screenshots already on
+  a documentation page. For example, if other screenshots include the left
+  sidebar, include the sidebar in all screenshots.
 
 ### Save the image
 
@@ -1238,7 +1263,7 @@ reviewed and approved by a technical writer.
 1. In YouTube, visit the video URL you want to display. Copy the regular URL
    from your browser (`https://www.youtube.com/watch?v=VIDEO-ID`) and replace
    the video title and link in the line under `<div class="video-fallback">`.
-1. In YouTube, click **Share**, and then click **Embed**.
+1. In YouTube, select **Share**, and then select **Embed**.
 1. Copy the `<iframe>` source (`src`) **URL only**
    (`https://www.youtube.com/embed/VIDEO-ID`),
    and paste it, replacing the content of the `src` field in the
@@ -1391,22 +1416,22 @@ interface:
 ```markdown
 | Section                  | Description                                                                                                                 |
 |:-------------------------|:----------------------------------------------------------------------------------------------------------------------------|
-| **{overview}** Overview  | View your GitLab Dashboard, and administer projects, users, groups, jobs, Runners, and Gitaly servers.                      |
+| **{overview}** Overview  | View your GitLab Dashboard, and administer projects, users, groups, jobs, runners, and Gitaly servers.                      |
 | **{monitor}** Monitoring | View GitLab system information, and information on background jobs, logs, health checks, requests profiles, and audit logs. |
 | **{messages}** Messages  | Send and manage broadcast messages for your users.                                                                          |
 ```
 
 | Section                  | Description                                                                                                                 |
 |:-------------------------|:----------------------------------------------------------------------------------------------------------------------------|
-| **{overview}** Overview  | View your GitLab Dashboard, and administer projects, users, groups, jobs, Runners, and Gitaly servers.                      |
+| **{overview}** Overview  | View your GitLab Dashboard, and administer projects, users, groups, jobs, runners, and Gitaly servers.                      |
 | **{monitor}** Monitoring | View GitLab system information, and information on background jobs, logs, health checks, requests profiles, and audit logs. |
 | **{messages}** Messages  | Send and manage broadcast messages for your users.                                                                          |
 
 Use an icon when you find yourself having to describe an interface element. For
 example:
 
-- Do: Click the Admin Area icon ( **{admin}** ).
-- Don't: Click the Admin Area icon (the wrench icon).
+- Do: Select the Admin Area icon ( **{admin}** ).
+- Don't: Select the Admin Area icon (the wrench icon).
 
 ## Alert boxes
 
@@ -1571,12 +1596,11 @@ application:
 The following are recommended verbs for specific uses with user interface
 elements:
 
-| Recommended         | Used for                   | Replaces                   |
-|:--------------------|:---------------------------|:---------------------------|
-| *click*             | buttons, links, menu items | "hit", "press", "select"   |
-| *select* or *clear* | checkboxes                 | "enable", "click", "press" |
-| *select*            | dropdowns                  | "pick"                     |
-| *expand*            | expandable sections        | "open"                     |
+| Recommended         | Used for                              | Replaces                   |
+|:--------------------|:--------------------------------------|:---------------------------|
+| *select*            | buttons, links, menu items, dropdowns | "click, "press," "hit"     |
+| *select* or *clear* | checkboxes                            | "enable", "click", "press" |
+| *expand*            | expandable sections                   | "open"                     |
 
 ### Other Verbs
 
@@ -1974,8 +1998,8 @@ You can use the following fake tokens as examples:
 | Application ID        | `2fcb195768c39e9a94cec2c2e32c59c0aad7a3365c10892e8116b5d83d4096b6` |
 | Application secret    | `04f294d1eaca42b8692017b426d53bbc8fe75f827734f0260710b83a556082df` |
 | CI/CD variable        | `Li8j-mLUVA3eZYjPfd_H`                                             |
-| Specific Runner token | `yrnZW46BrtBFqM7xDzE7dddd`                                         |
-| Shared Runner token   | `6Vk7ZsosqQyfreAxXTZr`                                             |
+| Specific runner token | `yrnZW46BrtBFqM7xDzE7dddd`                                         |
+| Shared runner token   | `6Vk7ZsosqQyfreAxXTZr`                                             |
 | Trigger token         | `be20d8dcc028677c931e04f3871a9b`                                   |
 | Webhook secret token  | `6XhDroRcYPM5by_h-HLY`                                             |
 | Health check token    | `Tu7BgjR9qeZTEyRzGG2P`                                             |
@@ -2147,7 +2171,7 @@ Set up the section with the following:
   ```markdown
   1. Open the GraphiQL explorer tool in the following URL: `https://gitlab.com/-/graphql-explorer`.
   1. Paste the `query` listed above into the left window of your GraphiQL explorer tool.
-  1. Click Play to get the result shown here:
+  1. Select Play to get the result shown here:
   ```
 
 - Include a screenshot of the result in the GraphiQL explorer. Follow the naming

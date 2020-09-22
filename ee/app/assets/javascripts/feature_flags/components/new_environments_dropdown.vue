@@ -1,9 +1,9 @@
 <script>
 import { debounce } from 'lodash';
 import {
-  GlNewDropdown,
-  GlNewDropdownDivider,
-  GlNewDropdownItem,
+  GlDropdown,
+  GlDropdownDivider,
+  GlDropdownItem,
   GlIcon,
   GlLoadingIcon,
   GlSearchBoxByType,
@@ -14,9 +14,9 @@ import { deprecatedCreateFlash as createFlash } from '~/flash';
 
 export default {
   components: {
-    GlNewDropdown,
-    GlNewDropdownDivider,
-    GlNewDropdownItem,
+    GlDropdown,
+    GlDropdownDivider,
+    GlDropdownItem,
     GlSearchBoxByType,
     GlIcon,
     GlLoadingIcon,
@@ -70,7 +70,7 @@ export default {
 };
 </script>
 <template>
-  <gl-new-dropdown class="js-new-environments-dropdown" @shown="setFocus">
+  <gl-dropdown class="js-new-environments-dropdown" @shown="setFocus">
     <template #button-content>
       <span class="d-md-none mr-1">
         {{ $options.translations.addEnvironmentsLabel }}
@@ -85,22 +85,22 @@ export default {
       @keyup="fetchEnvironments"
     />
     <gl-loading-icon v-if="isLoading" />
-    <gl-new-dropdown-item
+    <gl-dropdown-item
       v-for="environment in results"
       v-else-if="results.length"
       :key="environment"
       @click="addEnvironment(environment)"
     >
       {{ environment }}
-    </gl-new-dropdown-item>
+    </gl-dropdown-item>
     <template v-else-if="environmentSearch.length">
       <span ref="noResults" class="text-secondary gl-p-3">
         {{ $options.translations.noMatchingResults }}
       </span>
-      <gl-new-dropdown-divider />
-      <gl-new-dropdown-item @click="addEnvironment(environmentSearch)">
+      <gl-dropdown-divider />
+      <gl-dropdown-item @click="addEnvironment(environmentSearch)">
         {{ createEnvironmentLabel }}
-      </gl-new-dropdown-item>
+      </gl-dropdown-item>
     </template>
-  </gl-new-dropdown>
+  </gl-dropdown>
 </template>

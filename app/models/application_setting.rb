@@ -22,7 +22,9 @@ class ApplicationSetting < ApplicationRecord
   belongs_to :push_rule
   alias_attribute :self_monitoring_project_id, :instance_administration_project_id
 
-  belongs_to :instance_administrators_group, class_name: "Group"
+  belongs_to :instance_group, class_name: "Group", foreign_key: 'instance_administrators_group_id'
+  alias_attribute :instance_group_id, :instance_administrators_group_id
+  alias_attribute :instance_administrators_group, :instance_group
 
   def self.repository_storages_weighted_attributes
     @repository_storages_weighted_atributes ||= Gitlab.config.repositories.storages.keys.map { |k| "repository_storages_weighted_#{k}".to_sym }.freeze
@@ -129,6 +131,11 @@ class ApplicationSetting < ApplicationRecord
   validates :sourcegraph_url,
             presence: true,
             if: :sourcegraph_enabled
+
+  validates :gitpod_url,
+            presence: true,
+            addressable_url: { enforce_sanitization: true },
+            if: :gitpod_enabled
 
   validates :snowplow_collector_hostname,
             presence: true,

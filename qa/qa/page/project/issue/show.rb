@@ -43,7 +43,7 @@ module QA
           end
 
           view 'app/assets/javascripts/related_issues/components/related_issuable_input.vue' do
-            element :add_issue_input
+            element :add_issue_field
           end
 
           view 'app/assets/javascripts/related_issues/components/related_issues_block.vue' do
@@ -57,8 +57,8 @@ module QA
 
           def relate_issue(issue)
             click_element(:related_issues_plus_button)
-            fill_element(:add_issue_input, issue.web_url)
-            send_keys_to_element(:add_issue_input, :enter)
+            fill_element(:add_issue_field, issue.web_url)
+            send_keys_to_element(:add_issue_field, :enter)
           end
 
           def related_issuable_item
@@ -70,7 +70,10 @@ module QA
           end
 
           def click_remove_related_issue_button
-            click_element(:remove_related_issue_button)
+            retry_until(sleep_interval: 5) do
+              click_element(:remove_related_issue_button)
+              has_no_element?(:remove_related_issue_button, wait: QA::Support::Repeater::DEFAULT_MAX_WAIT_TIME)
+            end
           end
 
           def click_close_issue_button

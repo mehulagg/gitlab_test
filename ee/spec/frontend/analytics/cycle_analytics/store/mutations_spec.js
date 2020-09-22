@@ -7,7 +7,6 @@ import {
   codeStage,
   stagingStage,
   reviewStage,
-  totalStage,
   startDate,
   endDate,
   selectedProjects,
@@ -130,7 +129,7 @@ describe('Cycle analytics mutations', () => {
       });
 
       it('will convert the stats object to stages', () => {
-        [issueStage, planStage, codeStage, stagingStage, reviewStage, totalStage].forEach(stage => {
+        [issueStage, planStage, codeStage, stagingStage, reviewStage].forEach(stage => {
           expect(state.stages).toContainEqual(stage);
         });
       });
@@ -149,7 +148,7 @@ describe('Cycle analytics mutations', () => {
   });
 
   describe(`${types.RECEIVE_STAGE_MEDIANS_SUCCESS}`, () => {
-    it('sets each id as a key in the median object with the corresponding value', () => {
+    it('sets each id as a key in the median object with the corresponding value and error', () => {
       const stateWithData = {
         medians: {},
       };
@@ -159,7 +158,10 @@ describe('Cycle analytics mutations', () => {
         { id: 2, value: 10 },
       ]);
 
-      expect(stateWithData.medians).toEqual({ '1': 20, '2': 10 });
+      expect(stateWithData.medians).toEqual({
+        '1': { value: 20, error: null },
+        '2': { value: 10, error: null },
+      });
     });
   });
 

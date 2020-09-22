@@ -29,7 +29,8 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
                     user_minimum_id user_maximum_id unique_visit_service
                     deployment_minimum_id deployment_maximum_id
                     approval_merge_request_rule_minimum_id
-                    approval_merge_request_rule_maximum_id)
+                    approval_merge_request_rule_maximum_id
+                    auth_providers)
         values.each do |key|
           expect(described_class).to receive(:clear_memoization).with(key)
         end
@@ -167,6 +168,8 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
 
   describe 'usage_activity_by_stage_manage' do
     it 'includes accurate usage_activity_by_stage data' do
+      described_class.clear_memoization(:auth_providers)
+
       stub_config(
         omniauth:
           { providers: omniauth_providers }
@@ -174,21 +177,29 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
 
       for_defined_days_back do
         user = create(:user)
+        user2 = create(:user)
         create(:event, author: user)
         create(:group_member, user: user)
+        create(:authentication_event, user: user, provider: :ldapmain, result: :success)
+        create(:authentication_event, user: user2, provider: :ldapsecondary, result: :success)
+        create(:authentication_event, user: user2, provider: :group_saml, result: :success)
+        create(:authentication_event, user: user2, provider: :group_saml, result: :success)
+        create(:authentication_event, user: user, provider: :group_saml, result: :failed)
       end
 
       expect(described_class.usage_activity_by_stage_manage({})).to include(
         events: 2,
         groups: 2,
-        users_created: 4,
-        omniauth_providers: ['google_oauth2']
+        users_created: 6,
+        omniauth_providers: ['google_oauth2'],
+        user_auth_by_provider: { 'group_saml' => 2, 'ldap' => 4 }
       )
       expect(described_class.usage_activity_by_stage_manage(described_class.last_28_days_time_period)).to include(
         events: 1,
         groups: 1,
-        users_created: 2,
-        omniauth_providers: ['google_oauth2']
+        users_created: 3,
+        omniauth_providers: ['google_oauth2'],
+        user_auth_by_provider: { 'group_saml' => 1, 'ldap' => 2 }
       )
     end
 
@@ -242,6 +253,20 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
           }
         }
       )
+    end
+
+    it 'includes group imports usage data' do
+      for_defined_days_back do
+        user = create(:user)
+        group = create(:group)
+        group.add_owner(user)
+        create(:group_import_state, group: group, user: user)
+      end
+
+      expect(described_class.usage_activity_by_stage_manage({}))
+        .to include(groups_imported: 2)
+      expect(described_class.usage_activity_by_stage_manage(described_class.last_28_days_time_period))
+        .to include(groups_imported: 1)
     end
 
     def omniauth_providers
@@ -628,6 +653,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
         expect(subject[:gitlab_shared_runners_enabled]).to eq(Gitlab.config.gitlab_ci.shared_runners_enabled)
         expect(subject[:web_ide_clientside_preview_enabled]).to eq(Gitlab::CurrentSettings.web_ide_clientside_preview_enabled?)
         expect(subject[:grafana_link_enabled]).to eq(Gitlab::CurrentSettings.grafana_enabled?)
+        expect(subject[:gitpod_enabled]).to eq(Gitlab::CurrentSettings.gitpod_enabled?)
       end
 
       context 'with embedded Prometheus' do
@@ -655,6 +681,20 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
           stub_application_setting(grafana_enabled: false)
 
           expect(subject[:grafana_link_enabled]).to eq(false)
+        end
+      end
+
+      context 'with Gitpod' do
+        it 'returns true when is enabled' do
+          stub_application_setting(gitpod_enabled: true)
+
+          expect(subject[:gitpod_enabled]).to eq(true)
+        end
+
+        it 'returns false when is disabled' do
+          stub_application_setting(gitpod_enabled: false)
+
+          expect(subject[:gitpod_enabled]).to eq(false)
         end
       end
     end
@@ -1064,6 +1104,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
           'p_analytics_repo' => 123,
           'i_analytics_cohorts' => 123,
           'i_analytics_dev_ops_score' => 123,
+          'i_analytics_instance_statistics' => 123,
           'p_analytics_merge_request' => 123,
           'g_analytics_merge_request' => 123,
           'analytics_unique_visits_for_any_target' => 543,
@@ -1097,6 +1138,7 @@ RSpec.describe Gitlab::UsageData, :aggregate_failures do
           'g_compliance_audit_events' => 123,
           'i_compliance_credential_inventory' => 123,
           'i_compliance_audit_events' => 123,
+          'a_compliance_audit_events_api' => 123,
           'compliance_unique_visits_for_any_target' => 543,
           'compliance_unique_visits_for_any_target_monthly' => 987
         }

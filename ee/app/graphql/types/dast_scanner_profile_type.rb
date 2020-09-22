@@ -3,7 +3,7 @@
 module Types
   class DastScannerProfileType < BaseObject
     graphql_name 'DastScannerProfile'
-    description 'Represents a DAST scanner profile.'
+    description 'Represents a DAST scanner profile'
 
     authorize :create_on_demand_dast_scan
 
@@ -24,5 +24,11 @@ module Types
 
     field :target_timeout, GraphQL::INT_TYPE, null: true,
           description: 'The maximum number of seconds allowed for the site under test to respond to a request'
+
+    field :edit_path, GraphQL::STRING_TYPE, null: true,
+          description: 'Relative web path to the edit page of a scanner profile',
+          resolve: -> (obj, _args, _ctx) do
+            Rails.application.routes.url_helpers.edit_project_dast_scanner_profile_path(obj.project, obj)
+          end
   end
 end

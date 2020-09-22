@@ -1837,7 +1837,7 @@
         {
           "kind": "OBJECT",
           "name": "AwardEmoji",
-          "description": "An emoji awarded by a user.",
+          "description": "An emoji awarded by a user",
           "fields": [
             {
               "name": "description",
@@ -3894,7 +3894,7 @@
         {
           "kind": "OBJECT",
           "name": "BurnupChartDailyTotals",
-          "description": "Represents the total number of issues and their weights for a particular day.",
+          "description": "Represents the total number of issues and their weights for a particular day",
           "fields": [
             {
               "name": "completedCount",
@@ -8544,8 +8544,22 @@
         {
           "kind": "OBJECT",
           "name": "DastScannerProfile",
-          "description": "Represents a DAST scanner profile.",
+          "description": "Represents a DAST scanner profile",
           "fields": [
+            {
+              "name": "editPath",
+              "description": "Relative web path to the edit page of a scanner profile",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
             {
               "name": "globalId",
               "description": "ID of the DAST scanner profile",
@@ -9167,7 +9181,7 @@
         {
           "kind": "OBJECT",
           "name": "DastSiteProfile",
-          "description": "Represents a DAST Site Profile.",
+          "description": "Represents a DAST Site Profile",
           "fields": [
             {
               "name": "editPath",
@@ -9916,7 +9930,7 @@
         {
           "kind": "OBJECT",
           "name": "DeleteJobsResponse",
-          "description": "The response from the AdminSidekiqQueuesDeleteJobs mutation.",
+          "description": "The response from the AdminSidekiqQueuesDeleteJobs mutation",
           "fields": [
             {
               "name": "completed",
@@ -10432,11 +10446,11 @@
         {
           "kind": "OBJECT",
           "name": "DesignAtVersion",
-          "description": "A design pinned to a specific version. The image field reflects the design as of the associated version.",
+          "description": "A design pinned to a specific version. The image field reflects the design as of the associated version",
           "fields": [
             {
               "name": "design",
-              "description": "The underlying design.",
+              "description": "The underlying design",
               "args": [
 
               ],
@@ -10773,7 +10787,7 @@
         {
           "kind": "OBJECT",
           "name": "DesignCollection",
-          "description": "A collection of designs.",
+          "description": "A collection of designs",
           "fields": [
             {
               "name": "design",
@@ -14344,7 +14358,7 @@
         {
           "kind": "OBJECT",
           "name": "Epic",
-          "description": "Represents an epic.",
+          "description": "Represents an epic",
           "fields": [
             {
               "name": "author",
@@ -15669,7 +15683,7 @@
         {
           "kind": "OBJECT",
           "name": "EpicDescendantCount",
-          "description": "Counts of descendent epics.",
+          "description": "Counts of descendent epics",
           "fields": [
             {
               "name": "closedEpics",
@@ -15873,6 +15887,16 @@
           "interfaces": [
 
           ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "SCALAR",
+          "name": "EpicID",
+          "description": "Identifier of Epic",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
           "enumValues": null,
           "possibleTypes": null
         },
@@ -17346,7 +17370,7 @@
         {
           "kind": "ENUM",
           "name": "EpicState",
-          "description": "State of an epic.",
+          "description": "State of an epic",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -18652,6 +18676,69 @@
               "deprecationReason": null
             },
             {
+              "name": "groupMembers",
+              "description": "A membership of a user within this group",
+              "args": [
+                {
+                  "name": "search",
+                  "description": "Search query",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "after",
+                  "description": "Returns the elements in the list that come after the specified cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "before",
+                  "description": "Returns the elements in the list that come before the specified cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "first",
+                  "description": "Returns the first _n_ elements from the list.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "last",
+                  "description": "Returns the last _n_ elements from the list.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "GroupMemberConnection",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "groupTimelogsEnabled",
               "description": "Indicates if Group timelogs are enabled for namespace",
               "args": [
@@ -18762,12 +18849,30 @@
                   "defaultValue": null
                 },
                 {
-                  "name": "assigneeUsername",
-                  "description": "Username of a user assigned to the issue",
+                  "name": "authorUsername",
+                  "description": "Username of the author of the issue",
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
                     "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "assigneeUsername",
+                  "description": "Username of a user assigned to the issue",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                      }
+                    }
                   },
                   "defaultValue": null
                 },
@@ -22335,6 +22440,16 @@
               "defaultValue": null
             },
             {
+              "name": "epicId",
+              "description": "The ID of the parent epic. NULL when removing the association",
+              "type": {
+                "kind": "SCALAR",
+                "name": "EpicID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
               "name": "clientMutationId",
               "description": "A unique identifier for the client performing the mutation.",
               "type": {
@@ -23892,7 +24007,7 @@
         {
           "kind": "OBJECT",
           "name": "IssueStatusCountsType",
-          "description": "Represents total number of issues for the represented statuses.",
+          "description": "Represents total number of issues for the represented statuses",
           "fields": [
             {
               "name": "all",
@@ -23976,7 +24091,7 @@
         {
           "kind": "OBJECT",
           "name": "Iteration",
-          "description": "Represents an iteration object.",
+          "description": "Represents an iteration object",
           "fields": [
             {
               "name": "burnupTimeSeries",
@@ -26006,6 +26121,34 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "Boolean",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "approvalsLeft",
+              "description": "Number of approvals left",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "approvalsRequired",
+              "description": "Number of approvals required",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -29384,7 +29527,7 @@
         {
           "kind": "OBJECT",
           "name": "Milestone",
-          "description": "Represents a milestone.",
+          "description": "Represents a milestone",
           "fields": [
             {
               "name": "burnupTimeSeries",
@@ -31010,8 +31153,8 @@
                 "name": "DismissVulnerabilityPayload",
                 "ofType": null
               },
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use vulnerabilityDismiss. Deprecated in 13.5"
             },
             {
               "name": "epicAddIssue",
@@ -31847,8 +31990,8 @@
                 "name": "RunDASTScanPayload",
                 "ofType": null
               },
-              "isDeprecated": false,
-              "deprecationReason": null
+              "isDeprecated": true,
+              "deprecationReason": "Use DastOnDemandScanCreate. Deprecated in 13.4"
             },
             {
               "name": "todoMarkDone",
@@ -32281,6 +32424,87 @@
               },
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "vulnerabilityConfirm",
+              "description": null,
+              "args": [
+                {
+                  "name": "input",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "VulnerabilityConfirmInput",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "VulnerabilityConfirmPayload",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "vulnerabilityDismiss",
+              "description": null,
+              "args": [
+                {
+                  "name": "input",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "VulnerabilityDismissInput",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "VulnerabilityDismissPayload",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "vulnerabilityResolve",
+              "description": null,
+              "args": [
+                {
+                  "name": "input",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "VulnerabilityResolveInput",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "VulnerabilityResolvePayload",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
             }
           ],
           "inputFields": null,
@@ -32293,7 +32517,7 @@
         {
           "kind": "ENUM",
           "name": "MutationOperationMode",
-          "description": "Different toggles for changing mutator behavior.",
+          "description": "Different toggles for changing mutator behavior",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -36214,12 +36438,30 @@
                   "defaultValue": null
                 },
                 {
-                  "name": "assigneeUsername",
-                  "description": "Username of a user assigned to the issue",
+                  "name": "authorUsername",
+                  "description": "Username of the author of the issue",
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
                     "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "assigneeUsername",
+                  "description": "Username of a user assigned to the issue",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                      }
+                    }
                   },
                   "defaultValue": null
                 },
@@ -36425,12 +36667,30 @@
                   "defaultValue": null
                 },
                 {
-                  "name": "assigneeUsername",
-                  "description": "Username of a user assigned to the issue",
+                  "name": "authorUsername",
+                  "description": "Username of the author of the issue",
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
                     "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "assigneeUsername",
+                  "description": "Username of a user assigned to the issue",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                      }
+                    }
                   },
                   "defaultValue": null
                 },
@@ -36602,12 +36862,30 @@
                   "defaultValue": null
                 },
                 {
-                  "name": "assigneeUsername",
-                  "description": "Username of a user assigned to the issue",
+                  "name": "authorUsername",
+                  "description": "Username of the author of the issue",
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
                     "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "assigneeUsername",
+                  "description": "Username of a user assigned to the issue",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                      }
+                    }
                   },
                   "defaultValue": null
                 },
@@ -40812,6 +41090,24 @@
                   "defaultValue": null
                 },
                 {
+                  "name": "ids",
+                  "description": "Filter projects by IDs",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "ID",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": null
+                },
+                {
                   "name": "after",
                   "description": "Returns the elements in the list that come after the specified cursor.",
                   "type": {
@@ -41459,7 +41755,7 @@
         {
           "kind": "ENUM",
           "name": "RegistryState",
-          "description": "State of a Geo registry.",
+          "description": "State of a Geo registry",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -41751,6 +42047,20 @@
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "upcomingRelease",
+              "description": "Indicates the release is an upcoming release",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -43481,7 +43791,7 @@
         {
           "kind": "OBJECT",
           "name": "RequirementStatesCount",
-          "description": "Counts of requirements by their state.",
+          "description": "Counts of requirements by their state",
           "fields": [
             {
               "name": "archived",
@@ -44067,7 +44377,7 @@
           "fields": [
             {
               "name": "description",
-              "description": "Analyzer description that is displayed on the form.",
+              "description": "Analyzer description that is displayed on the form",
               "args": [
 
               ],
@@ -44081,7 +44391,7 @@
             },
             {
               "name": "enabled",
-              "description": "Indicates whether an analyzer is enabled.",
+              "description": "Indicates whether an analyzer is enabled",
               "args": [
 
               ],
@@ -44095,7 +44405,7 @@
             },
             {
               "name": "label",
-              "description": "Analyzer label used in the config UI.",
+              "description": "Analyzer label used in the config UI",
               "args": [
 
               ],
@@ -44109,13 +44419,66 @@
             },
             {
               "name": "name",
-              "description": "Name of the analyzer.",
+              "description": "Name of the analyzer",
               "args": [
 
               ],
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "variables",
+              "description": "List of supported variables",
+              "args": [
+                {
+                  "name": "after",
+                  "description": "Returns the elements in the list that come after the specified cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "before",
+                  "description": "Returns the elements in the list that come before the specified cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "first",
+                  "description": "Returns the first _n_ elements from the list.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "last",
+                  "description": "Returns the last _n_ elements from the list.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "SastCiConfigurationEntityConnection",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -45160,7 +45523,7 @@
         {
           "kind": "ENUM",
           "name": "SecurityScannerType",
-          "description": "The type of the security scanner.",
+          "description": "The type of the security scanner",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -45286,7 +45649,7 @@
         {
           "kind": "OBJECT",
           "name": "SentryDetailedError",
-          "description": "A Sentry error.",
+          "description": "A Sentry error",
           "fields": [
             {
               "name": "count",
@@ -45771,7 +46134,7 @@
         {
           "kind": "OBJECT",
           "name": "SentryError",
-          "description": "A Sentry error. A simplified version of SentryDetailedError.",
+          "description": "A Sentry error. A simplified version of SentryDetailedError",
           "fields": [
             {
               "name": "count",
@@ -46094,7 +46457,7 @@
         {
           "kind": "OBJECT",
           "name": "SentryErrorCollection",
-          "description": "An object containing a collection of Sentry errors, and a detailed error.",
+          "description": "An object containing a collection of Sentry errors, and a detailed error",
           "fields": [
             {
               "name": "detailedError",
@@ -46206,7 +46569,7 @@
                 },
                 {
                   "name": "sort",
-                  "description": "Attribute to sort on. Options are frequency, first_seen, last_seen. last_seen is default.",
+                  "description": "Attribute to sort on. Options are frequency, first_seen, last_seen. last_seen is default",
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -46409,7 +46772,7 @@
         {
           "kind": "OBJECT",
           "name": "SentryErrorStackTrace",
-          "description": "An object containing a stack trace entry for a Sentry error.",
+          "description": "An object containing a stack trace entry for a Sentry error",
           "fields": [
             {
               "name": "dateReceived",
@@ -46533,7 +46896,7 @@
         {
           "kind": "OBJECT",
           "name": "SentryErrorStackTraceEntry",
-          "description": "An object containing a stack trace entry for a Sentry error.",
+          "description": "An object containing a stack trace entry for a Sentry error",
           "fields": [
             {
               "name": "col",
@@ -46935,6 +47298,12 @@
             },
             {
               "name": "EMAILS_ON_PUSH_SERVICE",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "EWM_SERVICE",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
@@ -48767,7 +49136,7 @@
         {
           "kind": "OBJECT",
           "name": "TestReport",
-          "description": "Represents a requirement test report.",
+          "description": "Represents a requirement test report",
           "fields": [
             {
               "name": "author",
@@ -54328,7 +54697,7 @@
         {
           "kind": "OBJECT",
           "name": "Vulnerability",
-          "description": "Represents a vulnerability.",
+          "description": "Represents a vulnerability",
           "fields": [
             {
               "name": "description",
@@ -54662,6 +55031,108 @@
           "possibleTypes": null
         },
         {
+          "kind": "INPUT_OBJECT",
+          "name": "VulnerabilityConfirmInput",
+          "description": "Autogenerated input type of VulnerabilityConfirm",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "id",
+              "description": "ID of the vulnerability to be confirmed",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "VulnerabilityID",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "VulnerabilityConfirmPayload",
+          "description": "Autogenerated return type of VulnerabilityConfirm",
+          "fields": [
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "errors",
+              "description": "Errors encountered during execution of the mutation.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "vulnerability",
+              "description": "The vulnerability after state change",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Vulnerability",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
           "kind": "OBJECT",
           "name": "VulnerabilityConnection",
           "description": "The connection type for Vulnerability.",
@@ -54716,6 +55187,118 @@
                   "name": "PageInfo",
                   "ofType": null
                 }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "VulnerabilityDismissInput",
+          "description": "Autogenerated input type of VulnerabilityDismiss",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "id",
+              "description": "ID of the vulnerability to be dismissed",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "comment",
+              "description": "Reason why vulnerability should be dismissed",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "VulnerabilityDismissPayload",
+          "description": "Autogenerated return type of VulnerabilityDismiss",
+          "fields": [
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "errors",
+              "description": "Errors encountered during execution of the mutation.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "vulnerability",
+              "description": "The vulnerability after dismissal",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Vulnerability",
+                "ofType": null
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -54815,9 +55398,19 @@
           "possibleTypes": null
         },
         {
+          "kind": "SCALAR",
+          "name": "VulnerabilityID",
+          "description": "Identifier of Vulnerability",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
           "kind": "OBJECT",
           "name": "VulnerabilityIdentifier",
-          "description": "Represents a vulnerability identifier.",
+          "description": "Represents a vulnerability identifier",
           "fields": [
             {
               "name": "externalId",
@@ -54886,7 +55479,7 @@
         {
           "kind": "OBJECT",
           "name": "VulnerabilityIssueLink",
-          "description": "Represents an issue link of a vulnerability.",
+          "description": "Represents an issue link of a vulnerability",
           "fields": [
             {
               "name": "id",
@@ -55065,7 +55658,7 @@
         {
           "kind": "ENUM",
           "name": "VulnerabilityIssueLinkType",
-          "description": "The type of the issue link related to a vulnerability.",
+          "description": "The type of the issue link related to a vulnerability",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -55700,7 +56293,7 @@
         {
           "kind": "ENUM",
           "name": "VulnerabilityReportType",
-          "description": "The type of the security scan that found the vulnerability.",
+          "description": "The type of the security scan that found the vulnerability",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -55745,9 +56338,111 @@
           "possibleTypes": null
         },
         {
+          "kind": "INPUT_OBJECT",
+          "name": "VulnerabilityResolveInput",
+          "description": "Autogenerated input type of VulnerabilityResolve",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "id",
+              "description": "ID of the vulnerability to be resolved",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "VulnerabilityID",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "VulnerabilityResolvePayload",
+          "description": "Autogenerated return type of VulnerabilityResolve",
+          "fields": [
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "errors",
+              "description": "Errors encountered during execution of the mutation.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "vulnerability",
+              "description": "The vulnerability after state change",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Vulnerability",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
           "kind": "OBJECT",
           "name": "VulnerabilityScanner",
-          "description": "Represents a vulnerability scanner.",
+          "description": "Represents a vulnerability scanner",
           "fields": [
             {
               "name": "externalId",
@@ -56025,7 +56720,7 @@
         {
           "kind": "ENUM",
           "name": "VulnerabilitySeverity",
-          "description": "The severity of the vulnerability.",
+          "description": "The severity of the vulnerability",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -56095,7 +56790,7 @@
         {
           "kind": "ENUM",
           "name": "VulnerabilityState",
-          "description": "The state of the vulnerability.",
+          "description": "The state of the vulnerability",
           "fields": null,
           "inputFields": null,
           "interfaces": null,

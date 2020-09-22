@@ -6,7 +6,6 @@ RSpec.describe UpdateMaxSeatsUsedForGitlabComSubscriptionsWorker do
   subject { described_class.new }
 
   let_it_be(:bronze_plan) { create(:bronze_plan) }
-  let_it_be(:early_adopter_plan) { create(:early_adopter_plan) }
   let_it_be(:gitlab_subscription, refind: true) { create(:gitlab_subscription, seats: 1) }
   let_it_be(:gitlab_subscription_2, refind: true) { create(:gitlab_subscription, seats: 11) }
 
@@ -81,12 +80,6 @@ RSpec.describe UpdateMaxSeatsUsedForGitlabComSubscriptionsWorker do
       include_examples 'updates only paid plans'
     end
 
-    context 'with an early adopter plan' do
-      let(:subscription_attrs) { { hosted_plan: early_adopter_plan } }
-
-      include_examples 'updates only paid plans'
-    end
-
     context 'with a paid plan', :aggregate_failures do
       before do
         gitlab_subscription.update!(hosted_plan: bronze_plan)
@@ -102,6 +95,28 @@ RSpec.describe UpdateMaxSeatsUsedForGitlabComSubscriptionsWorker do
           .and change(gitlab_subscription_2, :max_seats_used).from(0).to(14)
           .and change(gitlab_subscription_2, :seats_in_use).from(0).to(13)
           .and change(gitlab_subscription_2, :seats_owed).from(0).to(12)
+      end
+
+      context 'when namespace is absent' do
+        before do
+          gitlab_subscription.update!(namespace_id: nil)
+        end
+
+        it 'skips the subscription' do
+          expect(Gitlab::ErrorTracking).to receive(:track_exception).with(
+            an_instance_of(StandardError),
+            { gitlab_subscription_id: gitlab_subscription.id, namespace_id: nil }
+          )
+
+          expect do
+            perform_and_reload
+          end.to not_change(gitlab_subscription, :max_seats_used).from(0)
+            .and not_change(gitlab_subscription, :seats_in_use).from(0)
+            .and not_change(gitlab_subscription, :seats_owed).from(0)
+            .and change(gitlab_subscription_2, :max_seats_used).from(0).to(14)
+            .and change(gitlab_subscription_2, :seats_in_use).from(0).to(13)
+            .and change(gitlab_subscription_2, :seats_owed).from(0).to(12)
+        end
       end
     end
   end

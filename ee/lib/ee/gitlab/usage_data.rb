@@ -240,7 +240,11 @@ module EE
             suggestions: distinct_count(::Note.with_suggestions.where(time_period),
                                         :author_id,
                                         start: user_minimum_id,
-                                        finish: user_maximum_id)
+                                        finish: user_maximum_id),
+            users_using_path_locks: distinct_count(PathLock.where(time_period), :user_id),
+            users_using_lfs_locks: distinct_count(LfsFileLock.where(time_period), :user_id),
+            total_number_of_path_locks: count(::PathLock.where(time_period)),
+            total_number_of_locked_files: count(::LfsFileLock.where(time_period))
           }, approval_rules_counts)
         end
 
@@ -334,7 +338,6 @@ module EE
 
         # rubocop:disable CodeReuse/ActiveRecord
         # rubocop: disable UsageData/LargeTable
-        # rubocop: disable UsageData/DistinctCountByLargeForeignKey
         def count_secure_jobs(time_period)
           start = ::Security::Scan.minimum(:build_id)
           finish = ::Security::Scan.maximum(:build_id)
@@ -361,13 +364,12 @@ module EE
                                 .where(status: 'success', retried: [nil, false])
                                 .where('security_scans.scan_type = ?', scan_type)
                                 .where(time_period)
-            pipelines_with_secure_jobs["#{name}_pipeline".to_sym] = distinct_count(relation, :commit_id, start: start, finish: finish)
+            pipelines_with_secure_jobs["#{name}_pipeline".to_sym] = distinct_count(relation, :commit_id, start: start, finish: finish, batch: false)
           end
 
           pipelines_with_secure_jobs
         end
         # rubocop: enable UsageData/LargeTable
-        # rubocop: enable UsageData/DistinctCountByLargeForeignKey
 
         def approval_merge_request_rule_minimum_id
           strong_memoize(:approval_merge_request_rule_minimum_id) do
