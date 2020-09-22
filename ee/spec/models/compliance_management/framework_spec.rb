@@ -18,4 +18,10 @@ RSpec.describe ComplianceManagement::Framework do
       end
     end
   end
+
+  describe 'display_name' do
+    it 'concatenates the name and description' do
+      expect(subject.display_name).to eq("#{subject.name} - #{subject.description}")
+    end
+  end
 end

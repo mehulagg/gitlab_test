@@ -66,6 +66,7 @@ module EE
 
       def compliance_framework_setting
         settings = params[:compliance_framework_setting_attributes]
+        puts settings.inspect
         return unless settings.present?
 
         unless can?(current_user, :admin_compliance_framework, project)

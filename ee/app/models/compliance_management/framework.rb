@@ -7,7 +7,12 @@ module ComplianceManagement
     before_validation :strip_whitespace_from_attrs
 
     validates :name, presence: true
+    validates :description, presence: true
     validates :color, color: true, allow_blank: false
+
+    def display_name
+      "#{name} - #{description}"
+    end
 
     private
 
