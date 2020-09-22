@@ -1,5 +1,4 @@
 <script>
-/* eslint-disable vue/no-v-html */
 import * as Sentry from '@sentry/browser';
 import {
   GlAlert,
@@ -11,6 +10,7 @@ import {
   GlTabs,
   GlTab,
   GlButton,
+  GlSafeHtmlDirective,
 } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import alertQuery from '../graphql/queries/details.query.graphql';
@@ -39,6 +39,9 @@ export default {
     ),
     reportedAt: s__('AlertManagement|Reported %{when}'),
     reportedAtWithTool: s__('AlertManagement|Reported %{when} by %{tool}'),
+  },
+  directives: {
+    SafeHtml: GlSafeHtmlDirective,
   },
   severityLabels: ALERTS_SEVERITY_LABELS,
   tabsConfig: [
@@ -213,7 +216,7 @@ export default {
 <template>
   <div>
     <gl-alert v-if="showErrorMsg" variant="danger" @dismiss="dismissError">
-      <p v-html="sidebarErrorMessage || $options.i18n.errorMsg"></p>
+      <p v-safe-html="sidebarErrorMessage || $options.i18n.errorMsg"></p>
     </gl-alert>
     <gl-alert
       v-if="createIncidentError"
