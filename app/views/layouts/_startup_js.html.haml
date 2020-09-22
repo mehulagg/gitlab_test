@@ -1,4 +1,4 @@
-- return unless page_startup_api_calls.present?
+- return unless page_startup_api_calls.present? || page_startup_graphql_calls.present?
 - ref = local_assigns.fetch(:ref) { current_ref }
 - root_url = root_url()
 
