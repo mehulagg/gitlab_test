@@ -164,14 +164,19 @@ RSpec.describe DesignManagement::DesignPolicy do
       let_it_be(:issue) { create(:issue, :locked, project: project) }
       let(:current_user) { owner }
 
-      it_behaves_like "read-only design abilities"
-    end
+      context "for anonymous users" do
+        let(:current_user) { nil }
 
-    context "when the issue has moved" do
-      let_it_be(:issue) { create(:issue, project: project, moved_to: create(:issue)) }
-      let(:current_user) { owner }
+        it_behaves_like "read-only design abilities"
+      end
 
-      it_behaves_like "read-only design abilities"
+      context "for guests" do
+        let(:current_user) { guest }
+
+        it_behaves_like "read-only design abilities"
+      end
+
+      it_behaves_like "design abilities available for members"
     end
 
     context "when the project is archived" do
