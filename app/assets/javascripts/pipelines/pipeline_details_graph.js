@@ -25,13 +25,20 @@ const apolloProvider = new VueApollo({
     },
     CiGroup: {
       status() {
-        return mockStatus;
+        return {
+          label: 'cool stage bro',
+          ...mockStatus
+        };
       }
     },
     CiStage: {
       status() {
         return {
-          action: { }
+          action: {
+            icon: 'play',
+            title: 'play this soung for me',
+            path: 'play/example/id',
+          }
         }
       }
     },
