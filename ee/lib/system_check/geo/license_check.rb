@@ -6,11 +6,27 @@ module SystemCheck
       set_name 'GitLab Geo is available'
 
       def check?
-        Gitlab::Geo.primary? ? Gitlab::Geo.license_allows? : true
+        if Gitlab::Geo.enabled?
+          return Gitlab::Geo.primary? ? Gitlab::Geo.license_allows? : true
+        end
+
+        true
       end
 
       def self.check_pass
-        Gitlab::Geo.primary? ? "" : "License only required on primary site"
+        if Gitlab::Geo.enabled?
+          return "License only required on a primary site" unless Gitlab::Geo.primary?
+        else
+          if Gitlab::Geo.primary?
+            if Gitlab::Geo.license_allows?
+              return "License supported, Enable Geo to use"
+            else
+              return "Geo disabled, but would not be supported on current license"
+            end
+          end
+        end
+
+        ""
       end
 
       def show_error
