@@ -1,6 +1,5 @@
 import $ from 'jquery';
 import '~/lib/utils/jquery_at_who';
-import axios from '~/lib/utils/axios_utils';
 import GfmAutoComplete from '~/gfm_auto_complete';
 
 /**
@@ -57,27 +56,7 @@ class GfmAutoCompleteEE extends GfmAutoComplete {
     });
   };
 
-  fetchVulnerabilities = ($input, at, search) => {
-    if (this.isLoadingData[at]) return;
-
-    this.isLoadingData[at] = true;
-    const dataSource = this.dataSources[GfmAutoComplete.atTypeMap[at]];
-
-    if (dataSource) {
-      axios.get(dataSource, { params: { search } })
-        .then(({ data }) => {
-          this.loadData($input, at, data);
-        })
-        .catch(() => {
-          this.isLoadingData[at] = false;
-        });
-    } else {
-      this.isLoadingData[at] = false;
-    }
-  };
-
   setupAutoCompleteVulnerabilities = ($input, defaultCallbacks) => {
-    const fetchVulnerabilities = this.fetchVulnerabilities.bind(this);
     $input.atwho({
       at: '+',
       alias: 'vulnerabilities',
@@ -94,14 +73,6 @@ class GfmAutoCompleteEE extends GfmAutoComplete {
       skipSpecialCharacterTest: true,
       callbacks: {
         ...defaultCallbacks,
-        filter(query, data, searchKey) {
-          if (GfmAutoComplete.isLoading(data) || this.previousQuery !== query) {
-            fetchVulnerabilities(this.$inputor, this.at, query);
-            this.previousQuery = query;
-            return data;
-          }
-          return $.fn.atwho.default.callbacks.filter(query, data, searchKey);
-        },
         beforeSave(merges) {
           return merges.map(m => {
             if (m.title == null) {
