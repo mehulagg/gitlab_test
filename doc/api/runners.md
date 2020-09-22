@@ -271,22 +271,6 @@ Example response:
 }
 ```
 
-## Remove a runner
-
-Remove a runner.
-
-```plaintext
-DELETE /runners/:id
-```
-
-| Attribute | Type    | Required | Description         |
-|-----------|---------|----------|---------------------|
-| `id`      | integer | yes      | The ID of a runner  |
-
-```shell
-curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/runners/6"
-```
-
 ## List runner's jobs
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/15432) in GitLab 10.3.
@@ -585,15 +569,16 @@ Example response:
 Deletes a registered runner.
 
 ```plaintext
-DELETE /runners
+DELETE /runners/:id
 ```
 
 | Attribute   | Type    | Required | Description         |
 |-------------|---------|----------|---------------------|
-| `token`     | string  | yes      | Runner's [authentication token](#registration-and-authentication-tokens).  |
+| `token`     | string  | yes      | The runner's [authentication token](#registration-and-authentication-tokens). This token is in the `config.toml` file. |
+| `id`        | integer | yes      | The ID of a runner. This is visible in the UI under **Settings > CI/CD**. Expand **Runners**. Below the **Remove Runner** button is an ID preceded by the pound sign, for example, #6. |
 
 ```shell
-curl --request DELETE "https://gitlab.example.com/api/v4/runners" --form "token=<authentication_token>"
+curl --request DELETE "https://gitlab.example.com/api/v4/runners/6" --form "token=<authentication_token>"
 ```
 
 Response:
