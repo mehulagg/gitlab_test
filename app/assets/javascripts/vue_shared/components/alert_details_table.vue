@@ -21,6 +21,7 @@ const allowedFields = [
   'description',
   'endedAt',
   'details',
+  'hosts',
 ];
 
 export default {
