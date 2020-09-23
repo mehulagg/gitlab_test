@@ -53,36 +53,36 @@ If you want to allow users to use the GitLab UI, then you'll need to follow thes
 
 1. Enter PostgreSQL on the console as an admin user
 
-```shell
- sudo \
-    -u gitlab-psql /opt/gitlab/embedded/bin/psql \
-    -h /var/opt/gitlab/postgresql gitlabhq_production
-```
+    ```shell
+    sudo \
+        -u gitlab-psql /opt/gitlab/embedded/bin/psql \
+        -h /var/opt/gitlab/postgresql gitlabhq_production
+    ```
 
-2.  create the read-only user. Note that the password is set to `mypassword`
+1.  create the read-only user. Note that the password is set to `mypassword`
 
-```sql
--- NOTE: Use the password defined earlier
-CREATE USER gitlab_read_only WITH password 'mypassword';
-GRANT CONNECT ON DATABASE gitlabhq_production to gitlab_read_only;
-GRANT USAGE ON SCHEMA public TO gitlab_read_only;
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO gitlab_read_only;
-GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO gitlab_read_only;
+    ```sql
+    -- NOTE: Use the password defined earlier
+    CREATE USER gitlab_read_only WITH password 'mypassword';
+    GRANT CONNECT ON DATABASE gitlabhq_production to gitlab_read_only;
+    GRANT USAGE ON SCHEMA public TO gitlab_read_only;
+    GRANT SELECT ON ALL TABLES IN SCHEMA public TO gitlab_read_only;
+    GRANT SELECT ON ALL SEQUENCES IN SCHEMA public TO gitlab_read_only;
 
--- Tables created by "gitlab" should be made read-only for "gitlab_read_only"
--- automatically.
-ALTER DEFAULT PRIVILEGES FOR USER gitlab IN SCHEMA public GRANT SELECT ON TABLES TO gitlab_read_only;
-ALTER DEFAULT PRIVILEGES FOR USER gitlab IN SCHEMA public GRANT SELECT ON SEQUENCES TO gitlab_read_only;
-```
+    -- Tables created by "gitlab" should be made read-only for "gitlab_read_only"
+    -- automatically.
+    ALTER DEFAULT PRIVILEGES FOR USER gitlab IN SCHEMA public GRANT SELECT ON TABLES TO gitlab_read_only;
+    ALTER DEFAULT PRIVILEGES FOR USER gitlab IN SCHEMA public GRANT SELECT ON SEQUENCES TO gitlab_read_only;
+    ```
 
-3. Run `gitlab-ctl pg-password-md5 gitlab_read_only` and copy the resulting hash.
-4. Edit `/etc/gitlab/gitlab.rb` to add
+1. Run `gitlab-ctl pg-password-md5 gitlab_read_only` and copy the resulting hash.
+1. Edit `/etc/gitlab/gitlab.rb` to add
 
-```rb
-postgresql['sql_user_password'] = 'a2e20f823772650f039284619ab6f239'
-postgresql['sql_user'] = "gitlab_read_only"
-```
+    ```rb
+    postgresql['sql_user_password'] = 'a2e20f823772650f039284619ab6f239'
+    postgresql['sql_user'] = "gitlab_read_only"
+    ```
 
-5. Run `gitlab-ctl reconfigure` and then `gitlab-ctl restart postgresql`
+1. Run `gitlab-ctl reconfigure` and then `gitlab-ctl restart postgresql`
 
 When you're ready to revert the read-only state, you'll need to comment out the lines from step 3
