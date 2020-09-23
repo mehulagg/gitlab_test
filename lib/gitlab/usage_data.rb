@@ -138,7 +138,7 @@ module Gitlab
             pages_domains: count(PagesDomain),
             pool_repositories: count(PoolRepository),
             projects: count(Project),
-            projects_creating_incidents: distinct_count(Project.joins(:issues).merge(Issue.incident)),
+            projects_creating_incidents: distinct_count(Issue.incident, :project_id, start: issue_minimum_project_id, finish: issue_maximum_project_id),
             projects_imported_from_github: count(Project.where(import_type: 'github')),
             projects_with_repositories_enabled: count(ProjectFeature.where('repository_access_level > ?', ProjectFeature::DISABLED)),
             projects_with_error_tracking_enabled: count(::ErrorTracking::ProjectErrorTrackingSetting.where(enabled: true)),
@@ -773,6 +773,18 @@ module Gitlab
       def issue_maximum_id
         strong_memoize(:issue_maximum_id) do
           ::Issue.maximum(:id)
+        end
+      end
+
+      def issue_minimum_project_id
+        strong_memoize(:issue_minimum_project_id) do
+          ::Issue.minimum(:project_id)
+        end
+      end
+
+      def issue_maximum_project_id
+        strong_memoize(:issue_maximum_project_id) do
+          ::Issue.minimum(:project_id)
         end
       end
 
