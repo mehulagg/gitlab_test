@@ -105,8 +105,7 @@ Alternatively in a multi-server setup you can set the [job logs location](job_lo
 a shared drive between servers. In either case, upon job completion jobs will archived and moved to object storage.
 
 DANGER: **Danger:**
-In a multi-server setup you must either enable the incremental logging feature
-or use a shared drive for the job logs location. Otherwise, job logs will disappear or not be saved.
+In a multi-server setup you must use one of the options above, or job logs could be lost.
 
 [Read more about using object storage with GitLab](object_storage.md).
 
