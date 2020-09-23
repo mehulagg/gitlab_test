@@ -1,5 +1,4 @@
 - return unless page_startup_api_calls.present? || page_startup_graphql_calls.present?
-- ref = local_assigns.fetch(:ref) { current_ref }
 - root_url = root_url()
 
 = javascript_tag nonce: true do
@@ -18,17 +17,8 @@
         };
       });
     }
-    if (window.fetch) {
-      var url = `#{root_url}/api/graphql`
-      var pathRegex = /-\/tree\/+.\/(.+$)/;
-      var matches = window.location.href.match(pathRegex);
-      var currentRoutePath = matches ? matches[1] : '';
-
-      gl.startup_graphql_calls[0].variables = {
-        projectPath: "#{@project.full_path}",
-        path: `${currentRoutePath}`,
-        ref: "#{ref}"
-      }
+    if (gl.startup_graphql_calls && window.fetch) {
+      const url = `#{root_url}/api/graphql`
 
       const opts = {
         method: "POST",
