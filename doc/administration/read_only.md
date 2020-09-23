@@ -59,7 +59,7 @@ If you want to allow users to use the GitLab UI, then you'll need to follow thes
         -h /var/opt/gitlab/postgresql gitlabhq_production
     ```
 
-1.  create the read-only user. Note that the password is set to `mypassword`
+1. Create the read-only user. Note that the password is set to `mypassword`
 
     ```sql
     -- NOTE: Use the password defined earlier
