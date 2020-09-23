@@ -5,7 +5,7 @@ require 'spec_helper'
 RSpec.describe 'User visits the profile preferences page' do
   include Select2Helper
 
-  let(:user) { create(:user) }
+  let_it_be(:user) { create(:user) }
 
   before do
     sign_in(user)

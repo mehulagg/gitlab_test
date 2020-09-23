@@ -123,6 +123,10 @@ RSpec.configure do |config|
       port: session.server.port,
       protocol: 'http')
 
+    # CSRF protection is disabled by default because it requires Javascript to read the token from the
+    # meta tag and add it to the forms
+    allow_any_instance_of(ActionController::Base).to receive(:protect_against_forgery?).and_return(true)
+
     # reset window size between tests
     unless session.current_window.size == CAPYBARA_WINDOW_SIZE
       begin

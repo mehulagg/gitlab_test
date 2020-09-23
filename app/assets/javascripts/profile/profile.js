@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import axios from '~/lib/utils/axios_utils';
+import { Rails } from '~/lib/utils/rails_ujs';
 import { deprecatedCreateFlash as flash } from '../flash';
 import { parseBoolean } from '~/lib/utils/common_utils';
 import TimezoneDropdown, {
@@ -48,9 +49,9 @@ export default class Profile {
   }
 
   submitForm() {
-    return $(this)
-      .parents('form')
-      .submit();
+    const formEl = $(this).parents('form').get(0);
+
+    return Rails.fire(formEl, 'submit');
   }
 
   onSubmitForm(e) {
