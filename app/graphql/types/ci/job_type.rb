@@ -10,6 +10,8 @@ module Types
         description: 'Name of the job'
       field :needs, JobType.connection_type, null: true,
         description: 'Builds that must complete before the jobs run'
+      field :status, GraphQL::STRING_TYPE, null: true,
+        description: 'Status of the job'
     end
   end
 end

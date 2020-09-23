@@ -10,6 +10,8 @@ module Types
         description: 'Name of the stage'
       field :groups, Ci::GroupType.connection_type, null: true,
         description: 'Group of jobs for the stage'
+      field :status, GraphQL::STRING_TYPE, null:true,
+        description: 'Status of the stage'
     end
   end
 end

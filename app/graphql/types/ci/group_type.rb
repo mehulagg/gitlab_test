@@ -12,6 +12,8 @@ module Types
         description: 'Size of the group'
       field :jobs, Ci::JobType.connection_type, null: true,
         description: 'Jobs in group'
+      field :status, GraphQL::STRING_TYPE, null: true,
+        description: 'Status of the job group'
     end
   end
 end
