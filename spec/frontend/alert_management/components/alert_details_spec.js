@@ -197,7 +197,6 @@ describe('AlertDetails', () => {
       beforeEach(() => {
         mountComponent({ data: { alert: mockAlert } });
       });
-
       it('should display a table of raw alert details data', () => {
         expect(findDetailsTable().exists()).toBe(true);
       });
