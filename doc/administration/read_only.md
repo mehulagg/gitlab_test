@@ -24,8 +24,6 @@ When you're ready to revert this, you can do so with the following command:
 Project.all.each { |project| project.update!(repository_read_only: false) }
 ```
 
-
-
 ## Non-repository read-only
 
 The next step is determined by what your desired outcome is.
@@ -54,12 +52,15 @@ gitlab-ctl stop puma  # or unicorn
 If you want to allow users to use the GitLab UI, then you'll need to follow these steps to ensure that the database is read-only.
 
 1. Enter PostgreSQL on the console as an admin user
-```sh
+
+```shell
  sudo \
     -u gitlab-psql /opt/gitlab/embedded/bin/psql \
     -h /var/opt/gitlab/postgresql gitlabhq_production
 ```
+
 2.  create the read-only user. Note that the password is set to `mypassword`
+
 ```sql
 -- NOTE: Use the password defined earlier
 CREATE USER gitlab_read_only WITH password 'mypassword';
