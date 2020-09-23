@@ -17,12 +17,10 @@ module SystemCheck
         if Gitlab::Geo.enabled?
           return "License only required on a primary site" unless Gitlab::Geo.primary?
         else
-          if Gitlab::Geo.primary?
-            if Gitlab::Geo.license_allows?
-              return "License supported, Enable Geo to use"
-            else
-              return "Geo disabled, but would not be supported on current license"
-            end
+          if Gitlab::Geo.license_allows?
+            return "License supports Geo, but Geo is not enabled"
+          else
+            return "License does not support Geo, and Geo is not enabled"
           end
         end
 
