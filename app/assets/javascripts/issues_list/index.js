@@ -4,6 +4,8 @@ import createDefaultClient from '~/lib/graphql';
 import { parseBoolean, convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 import JiraIssuesListRoot from './components/jira_issues_list_root.vue';
 import IssuablesListApp from './components/issuables_list_app.vue';
+import { createStore } from './stores';
+import eventHub from './eventhub';
 
 function mountJiraIssuesListApp() {
   const el = document.querySelector('.js-projects-issues-root');
@@ -45,6 +47,7 @@ function mountIssuablesListApp() {
 
     return new Vue({
       el,
+      store: createStore(),
       render(createElement) {
         return createElement(IssuablesListApp, {
           props: {
@@ -61,7 +64,10 @@ function mountIssuablesListApp() {
   });
 }
 
-export default function initIssuablesList() {
+eventHub.$on('resumeAppInit', () => {
   mountJiraIssuesListApp();
+});
+
+export default function initIssuablesList() {
   mountIssuablesListApp();
 }

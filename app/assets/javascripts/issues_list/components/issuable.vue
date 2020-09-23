@@ -5,6 +5,7 @@
  */
 
 // TODO: need to move this component to graphql - https://gitlab.com/gitlab-org/gitlab/-/issues/221246
+import { mapActions } from 'vuex';
 import { escape, isNumber } from 'lodash';
 import {
   GlLink,
@@ -216,7 +217,11 @@ export default {
     // spawning event listeners on Vue-rendered elements.
     initUserPopovers([this.$refs.openedAgoByContainer.$el]);
   },
+  updated() {
+    this.updateInitializedIssuableCount();
+  },
   methods: {
+    ...mapActions(['updateInitializedIssuableCount']),
     issuableLink(params) {
       return mergeUrlParams(params, this.baseUrl);
     },

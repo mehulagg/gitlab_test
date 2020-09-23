@@ -1,5 +1,5 @@
 /* eslint-disable no-new */
-
+import Vue from 'vue';
 import IssuableFilteredSearchTokenKeys from 'ee_else_ce/filtered_search/issuable_filtered_search_token_keys';
 import IssuableIndex from '~/issuable_index';
 import ShortcutsNavigation from '~/behaviors/shortcuts/shortcuts_navigation';
@@ -10,21 +10,28 @@ import { ISSUABLE_INDEX } from '~/pages/projects/constants';
 import initIssuablesList from '~/issues_list';
 import initManualOrdering from '~/manual_ordering';
 import { showLearnGitLabIssuesPopover } from '~/onboarding_issues';
+import eventHub from '~/issues_list/eventhub';
+
+Vue.config.performance = true;
 
 document.addEventListener('DOMContentLoaded', () => {
-  IssuableFilteredSearchTokenKeys.addExtraTokensForIssues();
+  eventHub.$on('resumeAppInit', () => {
+    performance.mark('START');
 
-  initFilteredSearch({
-    page: FILTERED_SEARCH.ISSUES,
-    filteredSearchTokenKeys: IssuableFilteredSearchTokenKeys,
-    useDefaultState: true,
+    IssuableFilteredSearchTokenKeys.addExtraTokensForIssues();
+
+    initFilteredSearch({
+      page: FILTERED_SEARCH.ISSUES,
+      filteredSearchTokenKeys: IssuableFilteredSearchTokenKeys,
+      useDefaultState: true,
+    });
+
+    new IssuableIndex(ISSUABLE_INDEX.ISSUE);
+    new ShortcutsNavigation();
+    new UsersSelect();
+    showLearnGitLabIssuesPopover();
   });
-
-  new IssuableIndex(ISSUABLE_INDEX.ISSUE);
-  new ShortcutsNavigation();
-  new UsersSelect();
 
   initManualOrdering();
   initIssuablesList();
-  showLearnGitLabIssuesPopover();
 });
