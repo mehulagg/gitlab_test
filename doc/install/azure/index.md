@@ -8,10 +8,6 @@ type: howto
 
 # Install GitLab on Microsoft Azure
 
-CAUTION: **Deprecated:**
-The GitLab image in the Azure Marketplace is deprecated. You can track GitLab's
-efforts to [post a new image](https://gitlab.com/gitlab-com/alliances/microsoft/gitlab-tracker/-/issues/2).
-
 Azure is Microsoft's business cloud and GitLab is a pre-configured offering on
 the Azure Marketplace. Hopefully, you aren't surprised to hear that Microsoft
 and Azure have embraced open source software like Ubuntu, Red Hat Enterprise Linux,
@@ -24,96 +20,30 @@ minutes. Let's get started.
 First, you'll need an account on Azure. There are three ways to do this:
 
 - If your company (or you) already has an account, then you are ready to go!
-- You can also open your own Azure account for free. _At time of writing_, you get $200
-  of credit to spend on Azure services for 30 days. You can use this credit to try out paid Azure
-  services, exploring Microsoft's cloud for free. Even after the first 30 days, you never have to pay
-  anything unless you decide to transition to paid services with a Pay-As-You-Go Azure subscription.
+- You can also open your own Azure account for free.
   This is a great way to try out Azure and cloud computing, and you can
   [read more in their comprehensive FAQ](https://azure.microsoft.com/en-us/free/free-account-faq/).
 - If you have an MSDN subscription, you can activate your Azure subscriber benefits. Your MSDN
   subscription gives you recurring Azure credits every month, so why not put those credits to use and
   try out GitLab right now?
 
-## Working with Azure
-
-Once you have an Azure account, you can get started. [Log in to Azure](https://portal.azure.com)
-and the first thing you will see is the Dashboard:
-
-![Azure Dashboard](img/azure-dashboard.png)
-
-The Dashboard gives you a quick overview of Azure resources, and from here you can build VMs,
-create SQL Databases, author websites, and perform lots of other cloud tasks.
-
 ## Create New VM
 
-The [Azure Marketplace](https://azuremarketplace.microsoft.com/en-us/marketplace/) is an online store for pre-configured applications and
+The [Azure Marketplace](https://azuremarketplace.microsoft.com/en-us/marketplace/)
+is an online store for pre-configured applications and
 services which have been optimized for the cloud by software vendors like GitLab,
 available on the Azure Marketplace as pre-configured solutions. In this tutorial
-we will install GitLab Community Edition.
+we will install GitLab Enterprise Edition.
 
-To begin creating a new GitLab VM, click on the **+ New** icon, type "GitLab" into the search
-box, and then click the **"GitLab Community Edition"** search result:
+To create a new GitLab VM:
 
-![Azure - New - Search for 'GitLab'](img/azure-new-search-gitlab.png)
+1. Type "GitLab" into the search box, and then select the result from GitLab Inc.
 
-A new "blade" window will pop-out, where you can read more about the **"GitLab Community Edition"**
-offering which is freely available under the MIT Expat License:
+   ![Azure - New - Search for 'GitLab'](img/azure-new-search-gitlab.png)
 
-![Azure - New - Select 'GitLab Community Edition'](img/azure-new-gitlab-ce.png)
-
-Click **"Create"** and you will be presented with the "Create virtual machine" blade:
-
-![Azure - Create Virtual Machine - Basics](img/azure-create-virtual-machine-basics.png)
-
-## Basics
-
-The first items we need to configure are the basic settings of the underlying virtual machine:
-
-1. Enter a `Name` for the VM - e.g. **"GitLab-CE"**
-1. Select a `VM disk type` - either **HDD** _(slower, lower cost)_ or **SSD** _(faster, higher cost)_
-1. Enter a `User name` - e.g. `gitlab-admin`
-1. Select an `Authentication type`, either **SSH public key** or **Password**:
-
-   NOTE: **Note:**
-   If you're unsure which authentication type to use, select **Password**
-
-   1. If you chose **SSH public key** - enter your `SSH public key` into the field provided
-   _(read the [SSH documentation](../../ssh/README.md) to learn more about how to set up SSH
-   public keys)_
-   1. If you chose **Password** - enter the password you wish to use _(this is the password that you
-   will use later in this tutorial to [SSH](https://en.wikipedia.org/wiki/Secure_Shell) into the VM, so make sure it's a strong password/passphrase)_
-
-1. Choose the appropriate `Subscription` tier for your Azure account
-1. Choose an existing `Resource Group` or create a new one - e.g. **"GitLab-CE-Azure"**
-
-   NOTE **Note:**
-   A "Resource group" is a way to group related resources together for easier administration.
-   We chose "GitLab-CE-Azure", but your resource group can have the same name as your VM.
-
-1. Choose a `Location` - if you're unsure, select the default location
-
-Here are the settings we've used:
-
-![Azure - Create Virtual Machine - Basics Completed](img/azure-create-virtual-machine-basics-password.png)
-
-Check the settings you have entered, and then click **"OK"** when you're ready to proceed.
-
-## Size
-
-Next, you need to choose the size of your VM - selecting features such as the number of CPU cores,
-the amount of RAM, the size of storage (and its speed), etc.
-
-NOTE: **Note:**
-In common with other cloud vendors, Azure operates a resource/usage pricing model, i.e.
-the more resources your VM consumes the more it will cost you to run, so make your selection
-carefully. You'll see that Azure provides an _estimated_ monthly cost beneath each VM Size to help
-guide your selection.
-
-The default size - the lowest cost **"DS1_V2 Standard"** VM - meets the minimum system requirements
-to run a small GitLab environment for testing and evaluation purposes, and so we're going to go
-ahead and select this one, but please choose the size which best meets your own requirements:
-
-![Azure - Create Virtual Machine - Size](img/azure-create-virtual-machine-size.png)
+1. Click **Get it now** and you will be presented with the "Create this app in Azure" pop-up.
+   Fill in the required details and click **Continue**.
+1. In the Azure portal, click on **Create**.
 
 NOTE: **Note:**
 Be aware that while your VM is active (known as "allocated"), it will incur
@@ -121,10 +51,44 @@ Be aware that while your VM is active (known as "allocated"), it will incur
 free trial credits, you'll likely want to learn
 [how to properly shutdown an Azure VM to save money](https://build5nines.com/properly-shutdown-azure-vm-to-save-money/).
 
+In the next steps, we will configure the virtual machine.
+
+### Basics
+
+The first items we need to configure are the basic settings of the underlying virtual machine:
+
+1. Select the subscription model and a resource group (create a new one if it
+   doesn't exist).
+1. Enter a name for the VM, for example **GitLab**.
+1. Select a region.
+1. Make sure the selected image is set to "GitLab Core - Gen1".
+1. Select a size based on the [hardware requirements](../requirements.md#hardware-requirements).
+   The default size meets the minimum system requirements to run a small GitLab
+   environment for testing and evaluation purposes, and so we're going to go
+   ahead and select this one.
+1. Enter a user name or leave the one that is automatically created.
+1. Choose if you want to provide your own SSH key or let Azure create one for you.
+   Read the [SSH documentation](../../ssh/README.md) to learn more about how to set up SSH
+   public keys.
+
+Check the settings you have entered, and then proceed onto the disks section.
+
+### Disks
+
+The configuration of the disks Next, let's configure the disks:
+
+1. Choose the type of the disk.
+1. Choose the type of encryption.
+
+[Read more about the types of disks](https://docs.microsoft.com/en-us/azure/virtual-machines/managed-disks-overview) that Azure provides.
+
 Go ahead and click your chosen size, then click **"Select"** when you're ready to proceed to the
 next step.
 
-## Settings
+### Networking
+
+
+### Settings
 
 On the next blade, you're asked to configure the Storage, Network and Extension settings.
 We've gone with the default settings as they're sufficient for test-driving GitLab, but please
@@ -134,7 +98,7 @@ choose the settings which best meet your own requirements:
 
 Review the settings and then click **"OK"** when you're ready to proceed to the last step.
 
-## Purchase
+### Purchase
 
 The Purchase page is the last step and here you will be presented with the price per hour for your
 new VM. You'll be billed only for the VM itself (e.g. "Standard DS1 v2") because the
@@ -148,7 +112,7 @@ previous steps, just click on any of the four steps to re-open them.
 
 When you have read and agreed to the terms of use and are ready to proceed, click **"Purchase"**.
 
-## Deployment
+### Deployment
 
 At this point, Azure will begin deploying your new VM. The deployment process will take a few
 minutes to complete, with progress displayed on the **"Deployment"** blade:
