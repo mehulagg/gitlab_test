@@ -1,20 +1,28 @@
 # frozen_string_literal: true
 class Groups::Security::MergeCommitReportsController < Groups::ApplicationController
   include Groups::SecurityFeaturesHelper
+  include SendFileUpload
 
   before_action :authorize_compliance_dashboard!
 
   def index
-    csv_data = MergeCommits::ExportCsvService.new(current_user, group).csv_data
+    MergeCommitReportWorker.perform_async(current_user.id, group.id)
 
-    respond_to do |format|
-      format.csv do
-        send_data(
-          csv_data,
-          type: 'text/csv; charset=utf-8; header=present',
-          filename: merge_commits_csv_filename
-        )
-      end
+    redirect_to(
+      group_security_compliance_dashboard_path(group),
+      notice: _("Export started")
+    )
+  end
+
+  def download_export
+    export_file = current_user.csv_export_jobs.where(export_type: 1, status: 2).last
+    if export_file.present?
+      send_upload(export_file.file, attachment: export_file.file.filename)
+    else
+      redirect_to(
+        group_security_compliance_dashboard_path(group),
+        alert: _("Merge Commit export link has expired. Please generate a new export")
+      )
     end
   end
 

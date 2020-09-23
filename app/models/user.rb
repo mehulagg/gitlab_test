@@ -106,7 +106,6 @@ class User < ApplicationRecord
   has_many :deploy_keys, -> { where(type: 'DeployKey') }, dependent: :nullify # rubocop:disable Cop/ActiveRecordDependent
   has_many :group_deploy_keys
   has_many :gpg_keys
-  has_many :csv_export_jobs
 
   has_many :emails
   has_many :personal_access_tokens, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
@@ -186,6 +185,7 @@ class User < ApplicationRecord
   has_one :atlassian_identity, class_name: 'Atlassian::Identity'
 
   has_many :reviews, foreign_key: :author_id, inverse_of: :author
+  has_many :csv_export_jobs
 
   #
   # Validations

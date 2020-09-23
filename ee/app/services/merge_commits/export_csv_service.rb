@@ -9,8 +9,9 @@ module MergeCommits
       @group = group
     end
 
-    def csv_data
-      csv_builder.render(TARGET_FILESIZE)
+    def csv_data(&block)
+      # csv_builder.render(TARGET_FILESIZE)
+      csv_builder.render(&block)
     end
 
     private

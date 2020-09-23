@@ -6,25 +6,24 @@ class MergeCommitReportWorker # rubocop:disable Scalability/IdempotentWorker
 
   sidekiq_options retry: false
 
-  def perform(currrent_user_id, group_id)
+  def perform(current_user_id, group_id)
     current_user = User.find(current_user_id)
-    group_id = Group.find(group_id)
-    csv_export_job = project.export_jobs.safe_find_or_create_by(jid: self.jid)
+    group = Group.find(group_id)
+    csv_export_job = current_user.csv_export_jobs.safe_find_or_create_by(jid: self.jid, export_type: 1)
 
-    export_job&.start
+    csv_export_job&.start
 
-    ::Projects::ImportExport::ExportService.new(project, current_user, params).execute(after_export)
+    exporter(current_user, group).csv_data { |f| csv_export_job.file = f }
+    csv_export_job.file.filename = 'merge_commits_csv_test'
 
-    export_job&.finish
-  rescue ActiveRecord::RecordNotFound, Gitlab::ImportExport::AfterExportStrategyBuilder::StrategyNotFoundError => e
-    logger.error("Failed to export project #{project_id}: #{e.message}")
+    csv_export_job&.finish
+  rescue StandardError => e
+    logger.error("Failed to export merge_commit_report csv: #{e.message}")
   end
 
   private
 
-  def build!(after_export_strategy)
-    strategy_klass = after_export_strategy&.delete('klass')
-
-    Gitlab::ImportExport::AfterExportStrategyBuilder.build!(strategy_klass, after_export_strategy)
+  def exporter(current_user, group)
+    MergeCommits::ExportCsvService.new(current_user, group)
   end
 end

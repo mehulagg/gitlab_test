@@ -11140,6 +11140,25 @@ CREATE SEQUENCE conversational_development_index_metrics_id_seq
 
 ALTER SEQUENCE conversational_development_index_metrics_id_seq OWNED BY conversational_development_index_metrics.id;
 
+CREATE TABLE csv_export_jobs (
+    id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    export_type integer NOT NULL,
+    status integer NOT NULL,
+    file_store integer,
+    file character varying,
+    jid character varying(100) NOT NULL
+);
+
+CREATE SEQUENCE csv_export_jobs_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE csv_export_jobs_id_seq OWNED BY csv_export_jobs.id;
+
 CREATE TABLE custom_emoji (
     id bigint NOT NULL,
     namespace_id bigint NOT NULL,
@@ -17236,6 +17255,8 @@ ALTER TABLE ONLY container_repositories ALTER COLUMN id SET DEFAULT nextval('con
 
 ALTER TABLE ONLY conversational_development_index_metrics ALTER COLUMN id SET DEFAULT nextval('conversational_development_index_metrics_id_seq'::regclass);
 
+ALTER TABLE ONLY csv_export_jobs ALTER COLUMN id SET DEFAULT nextval('csv_export_jobs_id_seq'::regclass);
+
 ALTER TABLE ONLY custom_emoji ALTER COLUMN id SET DEFAULT nextval('custom_emoji_id_seq'::regclass);
 
 ALTER TABLE ONLY dast_scanner_profiles ALTER COLUMN id SET DEFAULT nextval('dast_scanner_profiles_id_seq'::regclass);
@@ -18267,6 +18288,9 @@ ALTER TABLE ONLY container_repositories
 
 ALTER TABLE ONLY conversational_development_index_metrics
     ADD CONSTRAINT conversational_development_index_metrics_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY csv_export_jobs
+    ADD CONSTRAINT csv_export_jobs_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY custom_emoji
     ADD CONSTRAINT custom_emoji_pkey PRIMARY KEY (id);
@@ -19867,6 +19891,8 @@ CREATE UNIQUE INDEX index_container_repositories_on_project_id_and_name ON conta
 CREATE INDEX index_container_repository_on_name_trigram ON container_repositories USING gin (name gin_trgm_ops);
 
 CREATE INDEX index_created_at_on_codeowner_approval_merge_request_rules ON approval_merge_request_rules USING btree (created_at) WHERE ((rule_type = 2) AND (section <> 'codeowners'::text));
+
+CREATE INDEX index_csv_export_jobs_on_user_id ON csv_export_jobs USING btree (user_id);
 
 CREATE UNIQUE INDEX index_custom_emoji_on_namespace_id_and_name ON custom_emoji USING btree (namespace_id, name);
 
@@ -22743,6 +22769,9 @@ ALTER TABLE ONLY approval_project_rules_groups
 
 ALTER TABLE ONLY self_managed_prometheus_alert_events
     ADD CONSTRAINT fk_rails_39d83d1b65 FOREIGN KEY (environment_id) REFERENCES environments(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY csv_export_jobs
+    ADD CONSTRAINT fk_rails_3a026cd3b3 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY chat_teams
     ADD CONSTRAINT fk_rails_3b543909cb FOREIGN KEY (namespace_id) REFERENCES namespaces(id) ON DELETE CASCADE;
