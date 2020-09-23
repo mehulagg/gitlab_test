@@ -10,13 +10,13 @@ info: To determine the technical writer assigned to the Stage/Group associated w
 
 The [GitLab Kubernetes Agent](https://gitlab.com/gitlab-org/cluster-integration/gitlab-agent)
 is an active in-cluster component for solving GitLab and Kubernetes integration
-tasks in a secure and cloud native way. It features:
+tasks in a secure and cloud-native way. It enables:
 
-1. Enables integrating GitLab with a Kubernetes cluster behind a firewall or
-   NAT (network address translation).
-1. Enables pull-based GitOps deployments by leveraging the
-   [GitOps Engine](https://github.com/argoproj/gitops-engine).
-1. Enables real-time access to API endpoints within a cluster.
+- Integrating GitLab with a Kubernetes cluster behind a firewall or NAT
+  (network address translation).
+- Pull-based GitOps deployments by leveraging the
+  [GitOps Engine](https://github.com/argoproj/gitops-engine).
+- Real-time access to API endpoints within a cluster.
 
 Many more features are planned. Please [review our roadmap](https://gitlab.com/groups/gitlab-org/-/epics/3329).
 
@@ -40,19 +40,20 @@ sequenceDiagram
   end
 ```
 
-Please refer to our [full architecture documentation](https://gitlab.com/gitlab-org/cluster-integration/gitlab-agent/-/blob/master/doc/architecture.md#high-level-architecture)  in the Agent project.
+Please refer to our [full architecture documentation](https://gitlab.com/gitlab-org/cluster-integration/gitlab-agent/-/blob/master/doc/architecture.md#high-level-architecture)
+in the Agent project.
 
 ## Get started with GitOps and the GitLab Agent
 
 There are several components that work in concert for the Agent to accomplish GitOps deployments:
 
-1. A properly configured Kubernetes cluster.
-1. A configuration repository that contains a `config.yaml` file, which tells the
-   Agent which repositories to synchronize with.
-1. A manifest repository that contains a `manifest.yaml`, which is tracked by the
-   Agent and can be auto-generated. Any changes to `manifest.yaml` are applied to the cluster.
+- A properly-configured Kubernetes cluster.
+- A configuration repository that contains a `config.yaml` file, which tells the
+  Agent which repositories to synchronize with.
+- A manifest repository that contains a `manifest.yaml`, which is tracked by the
+  Agent and can be auto-generated. Any changes to `manifest.yaml` are applied to the cluster.
 
-The setup process involves a few steps that, once completed, enable GitOps deployments:
+The setup process involves a few steps to enable GitOps deployments:
 
 1. Installing the Agent server via GitLab Helm chart.
 1. Defining a configuration directory.
