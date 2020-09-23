@@ -9,6 +9,19 @@ import {
 
 const thClass = 'gl-bg-transparent! gl-border-1! gl-border-b-solid! gl-border-gray-200!';
 const tdClass = 'gl-border-gray-100! gl-p-5!';
+const allowedFields = [
+  'iid',
+  'title',
+  'severity',
+  'status',
+  'startedAt',
+  'eventCount',
+  'monitoringTool',
+  'service',
+  'description',
+  'endedAt',
+  'details',
+];
 
 export default {
   components: {
@@ -46,10 +59,12 @@ export default {
       if (!this.alert) {
         return [];
       }
-      return Object.entries(this.alert).map(([fieldName, value]) => ({
-        fieldName,
-        value,
-      }));
+      return Object.entries(this.alert)
+        .filter(([fieldName]) => allowedFields.includes(fieldName))
+        .map(([fieldName, value]) => ({
+          fieldName,
+          value,
+        }));
     },
   },
 };

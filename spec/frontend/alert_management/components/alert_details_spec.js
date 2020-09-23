@@ -201,24 +201,6 @@ describe('AlertDetails', () => {
       it('should display a table of raw alert details data', () => {
         expect(findDetailsTable().exists()).toBe(true);
       });
-
-      it('should show allowed alert fields', () => {
-        const alertFields = Object.keys(findDetailsTable().props('alert'));
-
-        expect(alertFields).toContain('iid');
-        expect(alertFields).toContain('title');
-        expect(alertFields).toContain('severity');
-        expect(alertFields).toContain('status');
-      });
-
-      it('should not show hidden alert fields', () => {
-        const alertFields = Object.keys(findDetailsTable().props('alert'));
-
-        expect(alertFields).not.toContain('__typename');
-        expect(alertFields).not.toContain('todos');
-        expect(alertFields).not.toContain('notes');
-        expect(alertFields).not.toContain('assignees');
-      });
     });
 
     describe('loading state', () => {

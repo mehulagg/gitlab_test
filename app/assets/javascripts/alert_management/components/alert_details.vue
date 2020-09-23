@@ -143,21 +143,6 @@ export default {
         this.$router.replace({ name: 'tab', params: { tabId } });
       },
     },
-    alertTableFields() {
-      if (this.alert) {
-        const {
-          __typename,
-          todos,
-          notes,
-          assignees,
-          updatedAt,
-          createdAt,
-          ...restDetails
-        } = this.alert;
-        return restDetails;
-      }
-      return null;
-    },
   },
   mounted() {
     this.trackPageViews();
@@ -346,7 +331,7 @@ export default {
             </div>
             <div class="gl-pl-2" data-testid="runbook">{{ alert.runbook }}</div>
           </div>
-          <alert-details-table :alert="alertTableFields" :loading="loading" />
+          <alert-details-table :alert="alert" :loading="loading" />
         </gl-tab>
         <gl-tab :data-testid="$options.tabsConfig[1].id" :title="$options.tabsConfig[1].title">
           <alert-metrics :dashboard-url="alert.metricsDashboardUrl" />
