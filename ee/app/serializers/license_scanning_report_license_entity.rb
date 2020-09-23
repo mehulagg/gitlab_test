@@ -4,14 +4,8 @@ class LicenseScanningReportLicenseEntity < Grape::Entity
   include RequestAwareEntity
 
   expose :name
-  expose :classification do |model|
-    {
-      approval_status: model&.approval_status
-    }
-  end
+  expose(:classification) { |model| { approval_status: model&.approval_status } }
   expose :dependencies, using: LicenseScanningReportDependencyEntity
-  expose :count do |model|
-    model&.dependencies&.count
-  end
+  expose(:count) { |model| model&.dependencies&.count }
   expose :url
 end

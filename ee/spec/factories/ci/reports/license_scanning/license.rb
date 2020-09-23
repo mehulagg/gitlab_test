@@ -15,11 +15,5 @@ FactoryBot.define do
       name { 'Unknown' }
       url { '' }
     end
-
-    trait :legacy_mit do
-      id { nil }
-      name { 'MIT License' }
-      url { 'https://opensource.org/licenses/MIT' }
-    end
   end
 end

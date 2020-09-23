@@ -174,11 +174,9 @@ RSpec.describe Gitlab::Ci::Reports::LicenseScanning::Report do
     end
 
     context 'when the other report is not available' do
-      subject do
-        base_report.diff_with(nil)
-      end
+      subject { base_report.diff_with(nil) }
 
-      let(:base_report) { build(:license_scan_report, :version_2_1) }
+      let(:base_report) { build(:license_scan_report, :version_2) }
 
       before do
         base_report
