@@ -31,7 +31,7 @@ RSpec.describe Issue do
 
     describe 'versions.most_recent' do
       it 'returns the most recent version' do
-        issue = create(:issue)
+        issue = create(:issuee, project: reusable_project)
         create_list(:design_version, 2, issue: issue)
         last_version = create(:design_version, issue: issue)
 
