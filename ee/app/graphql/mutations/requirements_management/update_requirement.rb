@@ -17,6 +17,10 @@ module Mutations
                required: false,
                description: 'Title of the requirement'
 
+      argument :description, GraphQL::STRING_TYPE,
+               required: false,
+               description: 'The description of the requirement'
+
       argument :state, Types::RequirementsManagement::RequirementStateEnum,
                required: false,
                description: 'State of the requirement'
