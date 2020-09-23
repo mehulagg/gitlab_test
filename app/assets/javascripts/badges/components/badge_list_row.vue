@@ -1,6 +1,6 @@
 <script>
 import { mapActions, mapState } from 'vuex';
-import { GlLoadingIcon, GlIcon } from '@gitlab/ui';
+import { GlLoadingIcon, GlIcon, GlButton } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import { PROJECT_BADGE } from '../constants';
 import Badge from './badge.vue';
@@ -11,6 +11,7 @@ export default {
     Badge,
     GlIcon,
     GlLoadingIcon,
+    GlButton,
   },
   props: {
     badge: {
@@ -51,24 +52,22 @@ export default {
     <span class="table-section section-30 str-truncated">{{ badge.linkUrl }}</span>
     <div class="table-section section-10 table-button-footer">
       <div v-if="canEditBadge" class="table-action-buttons">
-        <button
+        <gl-button
           :disabled="badge.isDeleting"
           class="btn btn-default gl-mr-3"
-          type="button"
           @click="editBadge(badge)"
         >
           <gl-icon :size="16" :aria-label="__('Edit')" name="pencil" />
-        </button>
-        <button
+        </gl-button>
+        <gl-button
           :disabled="badge.isDeleting"
           class="btn btn-danger"
-          type="button"
           data-toggle="modal"
           data-target="#delete-badge-modal"
           @click="updateBadgeInModal(badge)"
         >
           <gl-icon :size="16" :aria-label="__('Delete')" name="remove" />
-        </button>
+        </gl-button>
         <gl-loading-icon v-show="badge.isDeleting" :inline="true" />
       </div>
     </div>
