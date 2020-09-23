@@ -5,7 +5,7 @@
 - if defined? warn_before_close
   - add_blocked_class = warn_before_close
 
-- if is_current_user
+- if is_current_user && !issuable.is_a?(MergeRequest)
   - if can_update
     %button{ class: "d-none d-sm-none d-md-block btn btn-grouped btn-close js-btn-issue-action #{issuable_button_visibility(issuable, true)} #{(add_blocked_class ? 'btn-issue-blocked' : '')}",
              data: { remote: 'true', endpoint: close_issuable_path(issuable), qa_selector: 'close_issue_button' } }
