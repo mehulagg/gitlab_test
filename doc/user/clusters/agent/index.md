@@ -170,7 +170,7 @@ After generating the token, you must apply it to the Kubernetes cluster.
 ### Install the Agent into the cluster
 
 Next, install the in-cluster component of the Agent. This example file contains the
-Kubernetes resources required for the Agent to be installed. You should modify this
+Kubernetes resources required for the Agent to be installed. You can modify this
 example [`resources.yml` file](#example-resourcesyml-file) in the following ways:
 
 - You can replace `gitlab-agent` with your desired namespace.
