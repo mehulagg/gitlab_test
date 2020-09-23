@@ -4,12 +4,47 @@ import Project from './project.vue';
 import UsageGraph from './usage_graph.vue';
 import query from '../queries/storage.query.graphql';
 import TemporaryStorageIncreaseModal from './temporary_storage_increase_modal.vue';
+import Groups from './groups.vue';
 import { numberToHumanSize } from '~/lib/utils/number_utils';
-import { parseBoolean } from '~/lib/utils/common_utils';
+import { getParameterByName, parseBoolean } from '~/lib/utils/common_utils';
+
+const processProjects = namespace => {
+  const tree = {};
+  const split = (path, token) => path.split(token);
+  const projects = namespace.projects.edges.map(({ node }) => ({
+    pathNamespaceArr: split(node.nameWithNamespace, ' / '),
+    pathArr: split(node.fullPath, '/'),
+    ...node,
+  }));
+
+  console.log(projects);
+
+  projects.forEach(project => {
+    const path = project.pathNamespaceArr;
+    const fullPath = project.pathArr;
+    const last = path.length - 1;
+    path.reduce(function(subTree, projectName, idx) {
+      if (idx === last) {
+        subTree.projects.push(project);
+        return subTree;
+      } else {
+        if (subTree[projectName]) {
+          return (subTree = subTree[projectName]);
+        }
+        return (subTree[projectName] = { id: projectName, path: fullPath[idx], projects: [] });
+      }
+    }, tree);
+  });
+
+  console.log(tree);
+
+  return tree;
+};
 
 export default {
   components: {
     Project,
+    Groups,
     GlLink,
     GlButton,
     GlSprintf,
@@ -21,6 +56,10 @@ export default {
     GlModalDirective,
   },
   props: {
+    groupsService: {
+      type: Object,
+      required: true,
+    },
     namespacePath: {
       type: String,
       required: true,
@@ -56,6 +95,7 @@ export default {
        */
       update: data => ({
         projects: data.namespace.projects.edges.map(({ node }) => node),
+        hierarchy: processProjects(data.namespace),
         totalUsage:
           data.namespace.rootStorageStatistics && data.namespace.rootStorageStatistics.storageSize
             ? numberToHumanSize(data.namespace.rootStorageStatistics.storageSize)
@@ -67,6 +107,7 @@ export default {
   },
   data() {
     return {
+      groups: [],
       namespace: {},
     };
   },
@@ -156,6 +197,7 @@ export default {
       </div>
 
       <project v-for="project in namespace.projects" :key="project.id" :project="project" />
+      <groups :hierarchy="namespace.hierarchy" />
     </div>
     <temporary-storage-increase-modal
       v-if="isStorageIncreaseModalVisible"
