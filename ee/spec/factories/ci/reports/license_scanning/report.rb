@@ -8,6 +8,9 @@ FactoryBot.define do
     trait :version_2 do
       version { '2.0' }
     end
+    trait :version_2_1 do
+      version { '2.1' }
+    end
     trait :report_1 do
       after(:build) do |report, evaluator|
         report.add_license(id: 'MIT', name: 'MIT', url: 'https://opensource.org/licenses/mit').add_dependency('Library1')
