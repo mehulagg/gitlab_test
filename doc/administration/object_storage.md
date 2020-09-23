@@ -570,7 +570,7 @@ The dependency on disk storage also prevents Pages being deployed using the
 
 If you configure GitLab to use object storage for CI logs and artifacts,
 you can avoid [local disk usage for job logs](job_logs.md#data-flow) by enabling
-[beta incremental logging](job_artifacts.md#using-object-storage).
+[beta incremental logging](job_logs.md#new-incremental-logging-architecture).
 
 ### Proxy Download
 
