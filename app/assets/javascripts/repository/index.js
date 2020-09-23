@@ -41,7 +41,7 @@ export default function setupVueRepositoryList() {
           },
         });
       })
-      .catch(console.error)
+      .catch(() => {})
       .finally(() => {
         // eslint-disable-next-line no-new
         new Vue({

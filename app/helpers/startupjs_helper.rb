@@ -7,7 +7,7 @@ module StartupjsHelper
 
   def add_page_startup_graphql_call(query, variables = {})
     @graphql_startup_calls ||= []
-    queryStr = File.read(File.join(Rails.root, "app/assets/javascripts/#{query}.query.graphql"))
-    @graphql_startup_calls << { query: queryStr, variables: variables }
+    query_str = File.read(File.join(Rails.root, "app/assets/javascripts/#{query}.query.graphql"))
+    @graphql_startup_calls << { query: query_str, variables: variables }
   end
 end
