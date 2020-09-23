@@ -1458,12 +1458,11 @@ guidelines, but for consistency you should try to use these values:
 
 ### Note
 
-Notes indicate information that is of special use to the reader, and
-are most effective when used _sparingly_.
+Notes indicate information that is of special use to the reader, and are most
+effective when used _sparingly_.
 
-The goal for notes is to not use them at all. If, however, a note
-is truly required, do not use more than _two_ notes per
-documentation page.
+The goal for notes is to not use them at all. If, however, a note is truly
+required, do not use more than _two_ notes per documentation page.
 
 Instead of a note, try one of these alternate methods:
 
