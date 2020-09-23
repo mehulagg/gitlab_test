@@ -1,5 +1,8 @@
 # GitLab read-only
 
+NOTE: **Note:**
+This document is for temporary solutions only. [This epic](https://gitlab.com/groups/gitlab-org/-/epics/2149) will eventually make this document obsolete.
+
 In some cases you might want to place GitLab under a read-only state.
 The configuration for doing so depends on your desired outcome.
 
