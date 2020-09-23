@@ -20,10 +20,5 @@ module SCA
       @spdx_identifier = software_policy&.spdx_identifier || reported_license&.id
       @classification = software_policy&.classification || 'unclassified'
     end
-
-    def represent?(reported_license)
-      spdx_identifier == reported_license&.id ||
-        url == reported_license&.url
-    end
   end
 end

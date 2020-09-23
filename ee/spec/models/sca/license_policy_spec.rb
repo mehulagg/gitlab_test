@@ -113,18 +113,4 @@ RSpec.describe SCA::LicensePolicy do
       it { expect(subject.spdx_identifier).to eq(policy.software_license.spdx_identifier) }
     end
   end
-
-  describe "#represents?" do
-    context "when the policy is for the reported license" do
-      specify { expect(subject).to be_represent(license) }
-    end
-
-    context "when the policy is not for the reported license" do
-      specify { expect(subject).not_to be_represent(build(:license_scanning_license, :unknown)) }
-    end
-
-    context "when the policy is for the reported license but an spdx id is not provided" do
-      specify { expect(subject).to be_represent(build(:license_scanning_license, :legacy_mit)) }
-    end
-  end
 end
