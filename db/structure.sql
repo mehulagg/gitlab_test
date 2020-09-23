@@ -82,8 +82,7 @@ CREATE TABLE audit_events_part_5fc467ac26 (
     target_id bigint,
     CONSTRAINT check_492aaa021d CHECK ((char_length(entity_path) <= 5500)),
     CONSTRAINT check_83ff8406e2 CHECK ((char_length(author_name) <= 255)),
-    CONSTRAINT check_97a8c868e7 CHECK ((char_length(target_type) <= 255)),
-    CONSTRAINT check_d493ec90b5 CHECK ((char_length(target_details) <= 5500))
+    CONSTRAINT check_97a8c868e7 CHECK ((char_length(target_type) <= 255))
 )
 PARTITION BY RANGE (created_at);
 
@@ -19266,7 +19265,7 @@ CREATE INDEX backup_labels_group_id_title_idx ON backup_labels USING btree (grou
 
 CREATE INDEX backup_labels_project_id_idx ON backup_labels USING btree (project_id);
 
-CREATE UNIQUE INDEX backup_labels_project_id_title_idx ON backup_labels USING btree (project_id, title) WHERE (group_id = NULL::integer);
+CREATE INDEX backup_labels_project_id_title_idx ON backup_labels USING btree (project_id, title) WHERE (group_id = NULL::integer);
 
 CREATE INDEX backup_labels_template_idx ON backup_labels USING btree (template) WHERE template;
 
@@ -19283,6 +19282,8 @@ CREATE INDEX commit_id_and_note_id_index ON commit_user_mentions USING btree (co
 CREATE UNIQUE INDEX design_management_designs_versions_uniqueness ON design_management_designs_versions USING btree (design_id, version_id);
 
 CREATE INDEX design_user_mentions_on_design_id_and_note_id_index ON design_user_mentions USING btree (design_id, note_id);
+
+CREATE INDEX dev_index_route_on_path_trigram ON routes USING gin (path gin_trgm_ops);
 
 CREATE UNIQUE INDEX epic_user_mentions_on_epic_id_and_note_id_index ON epic_user_mentions USING btree (epic_id, note_id);
 
@@ -20032,6 +20033,8 @@ CREATE UNIQUE INDEX index_epics_on_group_id_and_external_key ON epics USING btre
 
 CREATE INDEX index_epics_on_group_id_and_iid_varchar_pattern ON epics USING btree (group_id, ((iid)::character varying) varchar_pattern_ops);
 
+CREATE INDEX index_epics_on_id ON epics USING btree (id) WHERE (lock_version IS NULL);
+
 CREATE INDEX index_epics_on_iid ON epics USING btree (iid);
 
 CREATE INDEX index_epics_on_last_edited_by_id ON epics USING btree (last_edited_by_id);
@@ -20301,6 +20304,8 @@ CREATE INDEX index_issues_on_confidential ON issues USING btree (confidential);
 CREATE INDEX index_issues_on_description_trigram ON issues USING gin (description gin_trgm_ops);
 
 CREATE INDEX index_issues_on_duplicated_to_id ON issues USING btree (duplicated_to_id) WHERE (duplicated_to_id IS NOT NULL);
+
+CREATE INDEX index_issues_on_id ON issues USING btree (id) WHERE (lock_version IS NULL);
 
 CREATE INDEX index_issues_on_incident_issue_type ON issues USING btree (issue_type) WHERE (issue_type = 1);
 
@@ -21846,7 +21851,7 @@ ALTER INDEX product_analytics_events_experimental_pkey ATTACH PARTITION gitlab_p
 
 ALTER INDEX product_analytics_events_experimental_pkey ATTACH PARTITION gitlab_partitions_static.product_analytics_events_experimental_63_pkey;
 
-CREATE TRIGGER table_sync_trigger_ee39a25f9d AFTER INSERT OR DELETE OR UPDATE ON audit_events FOR EACH ROW EXECUTE PROCEDURE table_sync_function_2be879775d();
+CREATE TRIGGER table_sync_trigger_ee39a25f9d AFTER INSERT OR DELETE OR UPDATE ON audit_events FOR EACH ROW EXECUTE FUNCTION table_sync_function_2be879775d();
 
 ALTER TABLE ONLY chat_names
     ADD CONSTRAINT fk_00797a2bf9 FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE CASCADE;
