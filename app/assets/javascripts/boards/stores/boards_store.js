@@ -113,7 +113,6 @@ const boardsStore = {
       .catch(() => {
         // https://gitlab.com/gitlab-org/gitlab-foss/issues/30821
       });
-    this.removeBlankState();
   },
   updateNewListDropdown(listId) {
     $(`.js-board-list-${listId}`).removeClass('is-active');
@@ -131,14 +130,6 @@ const boardsStore = {
       .catch(() => {
         this.removeList(undefined, 'label');
       });
-  },
-  removeBlankState() {
-    this.removeList('blank');
-
-    Cookies.set('issue_board_welcome_hidden', 'true', {
-      expires: 365 * 10,
-      path: '',
-    });
   },
 
   findIssueLabel(issue, findLabel) {
