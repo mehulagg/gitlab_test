@@ -1458,15 +1458,14 @@ guidelines, but for consistency you should try to use these values:
 
 ### Note
 
-Notes indicate items of information that are of *special* use to the reader, and
-are most effective when used *sparingly*.
+Notes indicate information that is of special use to the reader, and
+are most effective when used _sparingly_.
 
-The goal for notes usage is to not have to use them at all. If, however, a note
-is truly required, attempt to limit their use to no more than *two* notes per
+The goal for notes is to not use them at all. If, however, a note
+is truly required, do not use more than _two_ notes per
 documentation page.
 
-Instead of using a note, many times you can present information in one of the
-following alternate methods:
+Instead of a note, try one of these alternate methods:
 
 - As just another sentence in the previous paragraph or the most-relevant
   paragraph.
